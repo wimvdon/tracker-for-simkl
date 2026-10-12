@@ -53,6 +53,7 @@ import io.github.impca201.simklr.data.model.MediaType
 import io.github.impca201.simklr.ui.LocalNavigator
 import io.github.impca201.simklr.ui.Route
 import io.github.impca201.simklr.ui.components.PosterRow
+import io.github.impca201.simklr.ui.components.openUrl
 import io.github.impca201.simklr.ui.components.rememberApp
 import io.github.impca201.simklr.ui.library.SectionHeader
 import io.github.impca201.simklr.ui.library.bottomPadding
@@ -124,6 +125,13 @@ fun DiscoverScreen() {
                 }
                 sections.forEach { section ->
                     item(key = "${section.id}:$refresh") { SectionRow(section, refresh) }
+                }
+                item(key = "attribution") {
+                    val context = androidx.compose.ui.platform.LocalContext.current
+                    androidx.compose.material3.TextButton(
+                        onClick = { context.openUrl("https://simkl.com/") },
+                        modifier = Modifier.fillMaxWidth().padding(16.dp),
+                    ) { Text("Powered by SIMKL · simkl.com") }
                 }
             }
         }

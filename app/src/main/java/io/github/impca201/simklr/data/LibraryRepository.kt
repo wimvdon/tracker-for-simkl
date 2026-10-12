@@ -31,9 +31,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
-import kotlinx.coroutines.sync.Semaphore
 import kotlinx.coroutines.sync.withLock
-import kotlinx.coroutines.sync.withPermit
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.builtins.MapSerializer
@@ -46,8 +44,12 @@ import java.util.concurrent.TimeUnit
 @Serializable
 private data class LibrarySnapshot(
     val items: List<LibraryItem> = emptyList(),
+    /** /sync/activities "all" at the last sync: the date_from of the next one. */
     val activitiesAll: String? = null,
+    /** The removed_from_list timestamps at the last sync. */
     val removedStamp: String? = null,
+    /** The rated_at timestamps at the last sync. */
+    val ratedStamp: String? = null,
     val syncedAt: Long = 0,
 )
 
@@ -86,8 +88,11 @@ data class LibraryState(
 }
 
 /**
- * The user's SIMKL lists. Follows SIMKL's recommended sync: check /sync/activities and only
- * download /sync/all-items when something changed (incrementally with date_from when possible).
+ * The user's SIMKL lists, synced the way SIMKL's "How to use Sync" documentation requires:
+ * 1. POST /sync/activities; nothing else when its "all" timestamp did not change.
+ * 2. First sync: the full /sync/all-items. Later: only what changed, with date_from.
+ * 3. removed_from_list changed: compare against /sync/all-items?extended=simkl_ids_only.
+ * 4. rated_at changed: /sync/ratings with date_from.
  * Everything is cached on disk so the app opens instantly and works offline.
  */
 class LibraryRepository(
@@ -103,6 +108,7 @@ class LibraryRepository(
     private var snapshot = LibrarySnapshot()
     private var syncJob: Job? = null
     private var calendarFetchedAt = 0L
+    private var showInfoFetchedAt = 0L
 
     private val _state = MutableStateFlow(LibraryState())
     val state: StateFlow<LibraryState> = _state.asStateFlow()
@@ -140,23 +146,32 @@ class LibraryRepository(
     private suspend fun syncLocked(force: Boolean) {
         val activities = api.activities()
         val all = activities?.str("all")
-        val removed =
-            listOf("tv_shows", "anime", "movies").joinToString("|") { activities?.obj(it)?.str("removed_from_list").orEmpty() }
-        val haveCache = snapshot.items.isNotEmpty() || snapshot.activitiesAll != null
-        if (!force && haveCache && all != null && all == snapshot.activitiesAll) {
+        fun stamp(key: String) = listOf("tv_shows", "anime", "movies").joinToString("|") { activities?.obj(it)?.str(key).orEmpty() }
+        val removed = stamp("removed_from_list")
+        val rated = stamp("rated_at")
+        val since = snapshot.activitiesAll
+        if (force || since == null) {
+            save(LibrarySnapshot(Parsers.library(api.allItems()), all, removed, rated, System.currentTimeMillis()))
+            return
+        }
+        if (all != null && all == since) {
             save(snapshot.copy(syncedAt = System.currentTimeMillis()))
             return
         }
-        val incremental = !force && haveCache && snapshot.activitiesAll != null && removed == snapshot.removedStamp
-        val items =
-            if (incremental) {
-                val changed = Parsers.library(api.allItems(dateFrom = snapshot.activitiesAll))
-                val changedKeys = changed.associateBy { it.key }
-                snapshot.items.map { changedKeys[it.key] ?: it } + changed.filter { c -> snapshot.items.none { it.key == c.key } }
-            } else {
-                Parsers.library(api.allItems())
-            }
-        save(LibrarySnapshot(items, all, removed, System.currentTimeMillis()))
+        var items = snapshot.items
+        val changed = Parsers.library(api.allItems(dateFrom = since)).associateBy { it.key }
+        if (changed.isNotEmpty()) items = items.map { changed[it.key] ?: it } + changed.values.filter { c -> items.none { it.key == c.key } }
+        if (removed != snapshot.removedStamp) {
+            val response = api.allItemIds()
+            val keys = Parsers.libraryKeys(response)
+            // A null response means the lists are empty now.
+            if (keys.isNotEmpty() || response is kotlinx.serialization.json.JsonNull) items = items.filter { it.key in keys }
+        }
+        if (rated != snapshot.ratedStamp) {
+            val ratings = Parsers.library(api.ratings(dateFrom = since)).associateBy { it.key }
+            items = items.map { item -> ratings[item.key]?.let { item.copy(userRating = it.userRating) } ?: item }
+        }
+        save(LibrarySnapshot(items, all, removed, rated, System.currentTimeMillis()))
     }
 
     private suspend fun save(value: LibrarySnapshot) {
@@ -188,41 +203,40 @@ class LibraryRepository(
     }
 
     /**
-     * Loads the details of shows in the library that are needed to tell ended shows from
-     * running ones. Ended shows are re-checked monthly, running ones every few days.
+     * Release status (ended or not) and SIMKL rating of everything in the lists: one
+     * /ratings/{type}?user_watchlist=all call per type, at most twice a day.
      */
-    private suspend fun refreshShowInfo() {
+    private suspend fun refreshShowInfo(force: Boolean = false) {
+        val age = System.currentTimeMillis() - showInfoFetchedAt
+        val missing = _state.value.items.any { it.key !in _state.value.showInfo }
+        // Twice a day, or sooner (but not more than every 10 minutes) when new titles were added.
+        if (!force && age < TimeUnit.HOURS.toMillis(if (missing) 0 else 12) + TimeUnit.MINUTES.toMillis(10)) return
         val now = System.currentTimeMillis()
-        val current = _state.value.showInfo
-        val wanted =
-            _state.value.items
-                .filter { it.type.isEpisodic }
-                .filter { item ->
-                    val info = current[item.key] ?: return@filter true
-                    val maxAge = if (info.airing == AiringState.Ended) TimeUnit.DAYS.toMillis(30) else TimeUnit.DAYS.toMillis(3)
-                    now - info.fetchedAt > maxAge
-                }.sortedBy { it.status.ordinal } // Watching first.
-        if (wanted.isEmpty()) return
-        val semaphore = Semaphore(4)
-        coroutineScope {
-            wanted.chunked(20).forEach { chunk ->
-                val fetched =
-                    chunk.map { item ->
-                        async {
-                            semaphore.withPermit {
-                                runCatching { api.details(item.type, item.ids.simkl) }.getOrNull()?.let { obj ->
-                                    Parsers.details(obj, item.type)?.let { item.key to it.toShowInfo() }
-                                }
-                            }
+        val fetched =
+            coroutineScope {
+                MediaType.entries.map { type ->
+                    async {
+                        runCatching { Parsers.watchlistRatings(api.watchlistRatings(type)) }.getOrNull()?.map { (id, value) ->
+                            "${type.name}:$id" to value
                         }
-                    }.awaitAll().filterNotNull()
-                _state.update { it.copy(showInfo = it.showInfo + fetched) }
-                saveShowInfo()
+                    }
+                }.awaitAll()
             }
+        if (fetched.all { it == null }) return
+        showInfoFetchedAt = now
+        _state.update { state ->
+            val info = state.showInfo.toMutableMap()
+            fetched.filterNotNull().flatten().forEach { (key, value) ->
+                val (airing, rating) = value
+                info[key] = ShowInfo(airing, now, rating, info[key]?.fanart)
+            }
+            state.copy(showInfo = info)
         }
+        saveShowInfo()
     }
 
-    private fun MediaDetails.toShowInfo() = ShowInfo(airing, System.currentTimeMillis(), network, fanart)
+    private fun MediaDetails.toShowInfo(old: ShowInfo?) =
+        ShowInfo(if (airing != AiringState.Unknown) airing else old?.airing ?: AiringState.Unknown, System.currentTimeMillis(), old?.rating, fanart)
 
     private suspend fun saveShowInfo() {
         val info = _state.value.showInfo
@@ -231,8 +245,8 @@ class LibraryRepository(
 
     /** Called by the details screen, which loads the details anyway. */
     suspend fun rememberDetails(details: MediaDetails) {
-        if (!details.type.isEpisodic) return
-        _state.update { it.copy(showInfo = it.showInfo + ("${details.type.name}:${details.ids.simkl}" to details.toShowInfo())) }
+        val key = "${details.type.name}:${details.ids.simkl}"
+        _state.update { it.copy(showInfo = it.showInfo + (key to details.toShowInfo(it.showInfo[key]))) }
         saveShowInfo()
     }
 
@@ -260,8 +274,8 @@ class LibraryRepository(
         try {
             block().also { syncSoon() }
         } catch (e: Exception) {
-            // Undo the optimistic change by reloading from SIMKL.
-            scope.launch { sync(force = true) }
+            // Undo the optimistic change by syncing with SIMKL.
+            scope.launch { sync() }
             throw e
         }
 
@@ -328,6 +342,19 @@ class LibraryRepository(
         }
         api.setEpisodesWatched(type, ids.simkl, refs, watched)
     }
+
+    /** Marks every aired episode watched (an ended show moves to Completed). */
+    suspend fun markAllWatched(
+        type: MediaType,
+        ids: MediaIds,
+    ) = change { api.markWatched(type, ids.simkl) }
+
+    /** "Watching now" check-in; SIMKL marks it watched when the runtime is over. */
+    suspend fun checkIn(
+        type: MediaType,
+        simklId: Long,
+        episode: EpisodeRef?,
+    ) = change { api.checkIn(type, simklId, episode) }
 
     /** The checkmark on an "Up next" card. */
     suspend fun markNextWatched(item: LibraryItem) {

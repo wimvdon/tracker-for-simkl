@@ -95,8 +95,39 @@ object Parsers {
             notAiredEpisodes = entry.int("not_aired_episodes_count") ?: 0,
             animeType = entry.str("anime_type") ?: media.str("anime_type"),
             watched = watched.map { (n, eps) -> WatchedSeason(n, eps.sorted()) }.sortedBy { it.number },
+            memo = entry.obj("memo")?.str("text"),
         )
     }
+
+    /** Keys ("Type:simklId") in a /sync/all-items?extended=simkl_ids_only response. */
+    fun libraryKeys(root: JsonElement?): Set<String> {
+        val obj = root.asObject() ?: return emptySet()
+        return buildSet {
+            listOf("shows" to MediaType.Tv, "anime" to MediaType.Anime, "movies" to MediaType.Movie).forEach { (key, type) ->
+                obj[key].objects().forEach { entry ->
+                    val media = entry.obj("show") ?: entry.obj("movie") ?: entry.obj("anime") ?: entry
+                    ids(media.obj("ids"))?.let { add("${type.name}:${it.simkl}") }
+                }
+            }
+        }
+    }
+
+    /** /ratings/{type}?user_watchlist=all: release status and SIMKL rating per simkl id. */
+    fun watchlistRatings(root: JsonElement?): Map<Long, Pair<AiringState, Double?>> =
+        root.objects().mapNotNull { e ->
+            val id = e.long("id") ?: return@mapNotNull null
+            id to (AiringState.fromApi(e.str("release_status")) to e.obj("simkl")?.double("rating"))
+        }.toMap()
+
+    /** {"id": 179868, "url": "..."} from /search/random. */
+    fun randomId(root: JsonElement?): Long? {
+        val obj = root.asObject() ?: root.asArray()?.firstOrNull()?.let { it.asObject() ?: it.asArray()?.firstOrNull().asObject() }
+        return obj?.long("id") ?: obj?.long("simkl_id") ?: obj?.obj("ids")?.long("simkl")
+    }
+
+    /** SIMKL overviews may contain HTML line breaks. */
+    private fun plainText(value: String?): String? =
+        value?.replace(Regex("<br\\s*/?>", RegexOption.IGNORE_CASE), "\n")?.replace(Regex("<[^>]+>"), "")?.trim()?.ifEmpty { null }
 
     // ---- Catalogue ----------------------------------------------------------------------------
 
@@ -124,7 +155,7 @@ object Parsers {
             poster = obj.str("poster") ?: obj.str("img"),
             rating = rating,
             subtitle = subtitle,
-            overview = obj.str("overview"),
+            overview = plainText(obj.str("overview")),
         )
     }
 
@@ -171,7 +202,7 @@ object Parsers {
             year = yearOf(obj),
             poster = obj.str("poster"),
             fanart = obj.str("fanart"),
-            overview = obj.str("overview"),
+            overview = plainText(obj.str("overview")),
             genres = obj.strings("genres"),
             status = status,
             airing = AiringState.fromApi(status),
@@ -184,6 +215,8 @@ object Parsers {
             totalEpisodes = obj.int("total_episodes"),
             animeType = obj.str("anime_type"),
             director = obj.str("director"),
+            budget = obj.long("budget")?.takeIf { it > 0 },
+            revenue = obj.long("revenue")?.takeIf { it > 0 },
             ratings = ratings,
             rank = obj.int("rank"),
             trailers = obj["trailers"].objects().mapNotNull { t -> t.str("youtube")?.let { Trailer(t.str("name"), it) } },
@@ -201,7 +234,7 @@ object Parsers {
                 season = season,
                 episode = number,
                 title = e.str("title"),
-                description = e.str("description") ?: e.str("overview"),
+                description = plainText(e.str("description") ?: e.str("overview")),
                 image = e.str("img"),
                 date = date,
                 aired = e.bool("aired") ?: (Dates.parse(date)?.let { it.isBefore(java.time.Instant.now()) } ?: true),
@@ -253,10 +286,17 @@ object Parsers {
                 TypeStats(
                     type = type,
                     minutes = t.long("total_mins") ?: 0,
-                    watchedEpisodes = t.int("watched_episodes_count") ?: t.obj("completed")?.int("watched_episodes_count"),
+                    watchedEpisodes =
+                        ListStatus.entries.mapNotNull { s -> t.obj(s.api)?.int("watched_episodes_count") }
+                            .takeIf { it.isNotEmpty() }?.sum(),
+                    leftToWatchMinutes =
+                        ListStatus.entries.mapNotNull { s -> t.obj(s.api)?.long("left_to_watch_mins") }
+                            .takeIf { it.isNotEmpty() }?.sum(),
                     counts =
                         ListStatus.forType(type).mapNotNull { s ->
-                            t.obj(s.api)?.int("count")?.let { StatusCount(s, it) }
+                            // Stats call the Dropped list "notinteresting".
+                            val block = t.obj(s.api) ?: if (s == ListStatus.Dropped) t.obj("notinteresting") else null
+                            block?.int("count")?.let { StatusCount(s, it) }
                         },
                 )
             }

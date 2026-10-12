@@ -1,8 +1,22 @@
+import java.util.Properties
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.compose)
     alias(libs.plugins.kotlin.serialization)
 }
+
+// Release signing: the GitHub release workflow writes keystore.properties (never committed)
+// from the repository secrets before building:
+//   storeFile=/path/to/release.jks
+//   storePassword=...
+//   keyAlias=...
+//   keyPassword=...
+val keystoreProperties =
+    Properties().apply {
+        val file = rootProject.file("keystore.properties")
+        if (file.exists()) file.inputStream().use { load(it) }
+    }
 
 android {
     namespace = "io.github.impca201.simklr"
@@ -15,13 +29,20 @@ android {
         // The release workflow passes -PversionName (from the tag) and -PversionCode (major * 10000 + minor * 100 + patch).
         versionCode = providers.gradleProperty("versionCode").map(String::toInt).getOrElse(1)
         versionName = providers.gradleProperty("versionName").getOrElse("1.0.0")
-        // Optional default SIMKL client ID baked in at build time (-PsimklClientId=... or the
-        // SIMKL_CLIENT_ID repository secret in CI). Without it the app asks for one on first launch.
-        buildConfigField(
-            "String",
-            "DEFAULT_CLIENT_ID",
-            "\"${providers.gradleProperty("simklClientId").orElse(providers.environmentVariable("SIMKL_CLIENT_ID")).getOrElse("")}\"",
-        )
+        // Optional default SIMKL client ID baked in at build time (-PsimklClientId=...).
+        // Without it the app asks for one on first launch.
+        buildConfigField("String", "DEFAULT_CLIENT_ID", "\"${providers.gradleProperty("simklClientId").getOrElse("")}\"")
+    }
+
+    signingConfigs {
+        if (keystoreProperties.isNotEmpty()) {
+            create("release") {
+                storeFile = file(keystoreProperties.getProperty("storeFile"))
+                storePassword = keystoreProperties.getProperty("storePassword")
+                keyAlias = keystoreProperties.getProperty("keyAlias")
+                keyPassword = keystoreProperties.getProperty("keyPassword")
+            }
+        }
     }
 
     buildTypes {
@@ -32,8 +53,7 @@ android {
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro",
             )
-            // No release key yet: sign with the debug key so the APK installs.
-            signingConfig = signingConfigs.getByName("debug")
+            signingConfigs.findByName("release")?.let { signingConfig = it }
         }
     }
 

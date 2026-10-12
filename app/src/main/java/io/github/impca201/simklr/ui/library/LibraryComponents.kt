@@ -154,6 +154,7 @@ fun LibraryGrid(
                             if (item.type.isEpisodic && item.totalEpisodes > 0) "${item.watchedEpisodes}/${item.totalEpisodes}" else null,
                         ).joinToString(" · ").ifEmpty { null },
                     progress = if (showProgress) progressOf(item) else null,
+                    rating = state.showInfo[item.key]?.rating?.takeIf { it > 0 },
                     airing =
                         if (showAiring) Shelves.airingOf(item, state.showInfo[item.key], state.nextAirDate(item)) else AiringState.Unknown,
                     onClick = { onOpen(item) },

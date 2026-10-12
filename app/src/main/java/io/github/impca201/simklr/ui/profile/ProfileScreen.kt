@@ -122,7 +122,7 @@ fun ProfileScreen() {
                                 if (library.syncing) {
                                     CircularProgressIndicator(Modifier.size(20.dp), strokeWidth = 2.dp)
                                 } else {
-                                    TextButton(onClick = { scope.launch { app.library.sync(force = true) } }) { Text("Sync") }
+                                    TextButton(onClick = { scope.launch { app.library.sync() } }) { Text("Sync") }
                                 }
                             },
                         )
@@ -217,7 +217,11 @@ private fun TypeCard(t: TypeStats) {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Text(t.type.label(), style = MaterialTheme.typography.titleMedium, modifier = Modifier.weight(1f))
                 Text(
-                    listOfNotNull(Format.duration(t.minutes), t.watchedEpisodes?.let { "$it episodes" }).joinToString(" · "),
+                    listOfNotNull(
+                        Format.duration(t.minutes),
+                        t.watchedEpisodes?.let { "$it episodes" },
+                        t.leftToWatchMinutes?.takeIf { it > 0 }?.let { "${Format.duration(it)} left" },
+                    ).joinToString(" · "),
                     style = MaterialTheme.typography.labelLarge,
                     color = MaterialTheme.colorScheme.primary,
                 )

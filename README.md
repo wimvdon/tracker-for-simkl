@@ -30,18 +30,22 @@ An Android client for [SIMKL](https://simkl.com), built with Jetpack Compose and
 ## Signing in
 
 SIMKL's API needs a client ID. Create a free app at
-<https://simkl.com/settings/developer/new/> (any name; redirect URI `urn:ietf:wg:oauth:2.0:oob`),
+<https://simkl.com/settings/developer/new/> (any name and redirect URI),
 paste its **Client ID** into SIMKLr on first launch, then tap **Sign in with SIMKL** and enter
 the shown code on simkl.com (PIN login – no client secret needed).
 
-To bake a client ID into builds, add a `SIMKL_CLIENT_ID` repository secret (CI) or pass
-`-PsimklClientId=...` to Gradle.
+To bake a client ID into a build, pass `-PsimklClientId=...` to Gradle.
+
+The API usage follows SIMKL's official documentation ([api.simkl.org](https://api.simkl.org),
+formerly [github.com/SIMKL/api](https://github.com/SIMKL/api)): the activities-first sync with
+`date_from`, `simkl_ids_only` for removals, `/sync/ratings` for rating changes,
+`/ratings/{type}?user_watchlist=all` for ended/airing status, the data.simkl.in trending and
+calendar files, and images through wsrv.nl.
 
 ## Building and releases
 
-`./gradlew assembleRelease` (JDK 21, Android SDK). The **Release** workflow builds and tests every
-pull request and push to `main`. Run it from the Actions tab with *Release* = patch/minor/major,
-or push a `v1.2.3` tag, to publish a GitHub release with the APK.
-
-There is no release key yet: release APKs are signed with the CI runner's debug key, so uninstall
-the previous version before installing a newer one.
+`./gradlew assembleRelease` (JDK 21, Android SDK). The **Release** workflow (the same as
+[snoozer](https://github.com/impca201/snoozer)'s) publishes a GitHub release with the APK when a
+`v1.2.3` tag is pushed or when it is run from the Actions tab with *Release* = patch/minor/major.
+Signing uses the `ANDROID_KEYSTORE_BASE64`, `ANDROID_KEYSTORE_PASSWORD`, `ANDROID_KEY_ALIAS` and
+`ANDROID_KEY_PASSWORD` secrets; without them a build-only run makes a debug APK.

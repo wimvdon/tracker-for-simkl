@@ -240,6 +240,12 @@ fun DetailScreen(
                             app.library.setEpisodesWatched(route.type, ids, title, poster, listOf(next), true, episodes)
                         }
                     },
+                    onCheckIn = { episode ->
+                        run("Couldn't check in") {
+                            app.library.checkIn(route.type, ids.simkl, episode)
+                            snackbar.showSnackbar("Checked in. SIMKL marks it watched when it ends.")
+                        }
+                    },
                 )
             }
             val d = details
@@ -260,6 +266,20 @@ fun DetailScreen(
                     onToggle = { refs, watched ->
                         run("Couldn't update the episodes") {
                             app.library.setEpisodesWatched(route.type, ids, title, poster, refs, watched, episodes)
+                        }
+                    },
+                    onAllWatched = {
+                        run("Couldn't mark the episodes watched") {
+                            app.library.setEpisodesWatched(
+                                route.type,
+                                ids,
+                                title,
+                                poster,
+                                episodes.filter { it.aired && !it.special && item?.isWatched(it.season, it.episode) != true }
+                                    .map { EpisodeRef(it.season, it.episode) },
+                                true,
+                                episodes,
+                            )
                         }
                     },
                 )
@@ -341,6 +361,7 @@ private fun Actions(
     onRate: (Int?) -> Unit,
     onMovieWatched: () -> Unit,
     onWatchNext: (EpisodeRef) -> Unit,
+    onCheckIn: (EpisodeRef?) -> Unit,
 ) {
     var menu by remember { mutableStateOf(false) }
     var rating by remember { mutableStateOf(false) }
@@ -392,19 +413,42 @@ private fun Actions(
                 Text(rated?.toString() ?: "Rate")
             }
         }
-        if (type == MediaType.Movie && item?.status != ListStatus.Completed) {
-            FilledTonalButton(onClick = onMovieWatched, modifier = Modifier.fillMaxWidth()) {
-                Icon(Icons.Rounded.Check, null, Modifier.size(18.dp))
-                Spacer(Modifier.width(8.dp))
-                Text("Mark as watched")
+        if (type == MediaType.Movie) {
+            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                if (item?.status != ListStatus.Completed) {
+                    FilledTonalButton(onClick = onMovieWatched, modifier = Modifier.weight(1f)) {
+                        Icon(Icons.Rounded.Check, null, Modifier.size(18.dp))
+                        Spacer(Modifier.width(8.dp))
+                        Text("Mark as watched")
+                    }
+                }
+                OutlinedButton(onClick = { onCheckIn(null) }, modifier = Modifier.weight(1f)) {
+                    Icon(Icons.Rounded.PlayArrow, null, Modifier.size(18.dp))
+                    Spacer(Modifier.width(8.dp))
+                    Text("Watching now")
+                }
             }
         }
         val next = item?.nextToWatch
         if (type.isEpisodic && next != null && item?.status == ListStatus.Watching) {
-            FilledTonalButton(onClick = { onWatchNext(next.ref) }, modifier = Modifier.fillMaxWidth()) {
-                Icon(Icons.Rounded.Check, null, Modifier.size(18.dp))
-                Spacer(Modifier.width(8.dp))
-                Text("Watched ${next.ref.label}" + (next.title?.let { " · $it" } ?: ""), maxLines = 1, overflow = TextOverflow.Ellipsis)
+            Row(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalAlignment = Alignment.CenterVertically) {
+                FilledTonalButton(onClick = { onWatchNext(next.ref) }, modifier = Modifier.weight(1f)) {
+                    Icon(Icons.Rounded.Check, null, Modifier.size(18.dp))
+                    Spacer(Modifier.width(8.dp))
+                    Text("Watched ${next.ref.label}" + (next.title?.let { " · $it" } ?: ""), maxLines = 1, overflow = TextOverflow.Ellipsis)
+                }
+                OutlinedButton(onClick = { onCheckIn(next.ref) }) {
+                    Icon(Icons.Rounded.PlayArrow, contentDescription = "Watching ${next.ref.label} now", modifier = Modifier.size(18.dp))
+                }
+            }
+        }
+        item?.memo?.let { memo ->
+            Surface(shape = RoundedCornerShape(16.dp), color = MaterialTheme.colorScheme.tertiaryContainer) {
+                Text(
+                    "Your note: $memo",
+                    style = MaterialTheme.typography.bodyMedium,
+                    modifier = Modifier.fillMaxWidth().padding(12.dp),
+                )
             }
         }
         if (item != null && type.isEpisodic && item.totalEpisodes > 0) {
@@ -505,6 +549,8 @@ private fun About(d: MediaDetails) {
                 d.network?.let { "Network" to it },
                 d.country?.let { "Country" to it },
                 d.director?.let { "Director" to it },
+                d.budget?.let { "Budget" to money(it) },
+                d.revenue?.let { "Box office" to money(it) },
                 d.alternativeTitles.takeIf { it.isNotEmpty() }?.let { "Also known as" to it.take(4).joinToString(", ") },
             )
         if (facts.isNotEmpty()) {
@@ -521,6 +567,13 @@ private fun About(d: MediaDetails) {
         }
     }
 }
+
+private fun money(value: Long): String =
+    when {
+        value >= 1_000_000_000 -> "$%.2fB".format(value / 1_000_000_000.0)
+        value >= 1_000_000 -> "$%.1fM".format(value / 1_000_000.0)
+        else -> "$%,d".format(value)
+    }
 
 private fun compact(votes: Int): String =
     when {
@@ -563,10 +616,11 @@ private fun androidx.compose.foundation.lazy.LazyListScope.episodesSection(
     episodes: List<Episode>,
     item: LibraryItem?,
     onToggle: (List<EpisodeRef>, Boolean) -> Unit,
+    onAllWatched: () -> Unit,
 ) {
     val seasons = episodes.groupBy { if (it.special) 0 else it.season ?: 1 }.toSortedMap(compareBy { if (it == 0) Int.MAX_VALUE else it })
     item(key = "episodes") {
-        EpisodesBlock(seasons, item, onToggle)
+        EpisodesBlock(seasons, item, onToggle, onAllWatched)
     }
 }
 
@@ -576,6 +630,7 @@ private fun EpisodesBlock(
     seasons: Map<Int, List<Episode>>,
     item: LibraryItem?,
     onToggle: (List<EpisodeRef>, Boolean) -> Unit,
+    onAllWatched: () -> Unit,
 ) {
     val defaultSeason = item?.nextToWatch?.ref?.season?.takeIf { it in seasons } ?: seasons.keys.first()
     var selected by rememberSaveable { mutableIntStateOf(defaultSeason) }
@@ -597,6 +652,14 @@ private fun EpisodesBlock(
                         onClick = {
                             menu = false
                             onToggle(list.filter { it.aired && !it.watched() }.map { it.ref() }, true)
+                        },
+                    )
+                    DropdownMenuItem(
+                        text = { Text("Mark all aired episodes watched") },
+                        leadingIcon = { Icon(Icons.Rounded.DoneAll, null) },
+                        onClick = {
+                            menu = false
+                            onAllWatched()
                         },
                     )
                     DropdownMenuItem(

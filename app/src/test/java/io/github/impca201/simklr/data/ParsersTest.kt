@@ -159,4 +159,72 @@ class ParsersTest {
         assertEquals(AiringState.Airing, AiringState.fromApi("tba"))
         assertEquals(AiringState.Unknown, AiringState.fromApi(null))
     }
+
+    // The following inputs are the example responses of SIMKL's API documentation.
+
+    @Test
+    fun animeDetailsFromDocs() {
+        val json =
+            """
+            {"title":"Hunter x Hunter","year":2011,"type":"anime","ids":{"simkl":40398,"slug":"hunter-x-hunter","mal":"11061","anilist":"11061"},
+             "en_title":null,"rank":7,"poster":"83/83975f751784587","fanart":"83/839789583130112","first_aired":"2011-10-02T02:00:00Z",
+             "airs":{"day":"Sunday","time":"11:00 AM","timezone":"Asia/Tokyo"},"runtime":25,"certification":null,
+             "overview":"A remake.<br><br>Gon is a youth.","genres":["Action"],"country":"JP","total_episodes":148,"status":"ended",
+             "network":"NTV","anime_type":"tv","ratings":{"simkl":{"rating":8.9,"votes":248},"mal":{"rating":9.1,"votes":324100,"rank":7}},
+             "trailers":[{"name":null,"youtube":"t0xuqi2qvxY","size":720}],
+             "users_recommendations":[{"title":"Tate no Yuusha no Nariagari","en_title":"The Rising of the Shield Hero","year":2018,
+               "poster":"74/74755663f6cfe2818","anime_type":"tv","users_percent":"7%","users_percent":5,"ids":{"simkl":695799}}]}
+            """.trimIndent()
+        val d = Parsers.details(Json.parseToJsonElement(json) as kotlinx.serialization.json.JsonObject, MediaType.Anime)!!
+        assertEquals(AiringState.Ended, d.airing)
+        assertEquals("A remake.\n\nGon is a youth.", d.overview)
+        assertEquals(MediaType.Anime, d.recommendations.single().type)
+        assertEquals("11061", d.ids.mal)
+        assertNull(d.trailers.single().name)
+    }
+
+    @Test
+    fun watchlistRatingsFromDocs() {
+        val json =
+            """
+            [{"id":268470,"type":"movie","release_status":"released","release_year":2014,"rank":10628,"simkl":{"rating":7.1,"votes":151,"droprate":"1%"}},
+             {"id":2331788,"type":"anime","release_status":"ongoing","simkl":{"rating":7,"votes":19}},
+             {"id":5,"type":"tv","release_status":"returning series"},
+             {"id":6,"type":"tv","release_status":"ended"}]
+            """.trimIndent()
+        val map = Parsers.watchlistRatings(Json.parseToJsonElement(json))
+        assertEquals(AiringState.Airing, map[2331788L]?.first)
+        assertEquals(7.0, map[2331788L]?.second)
+        assertEquals(AiringState.Airing, map[5L]?.first)
+        assertEquals(AiringState.Ended, map[6L]?.first)
+    }
+
+    @Test
+    fun smallResponsesFromDocs() {
+        assertEquals(179868L, Parsers.randomId(Json.parseToJsonElement("""{"id":179868,"url":"https://simkl.com/movies/179868/terminator-genisys"}""")))
+        val keys =
+            Parsers.libraryKeys(
+                Json.parseToJsonElement("""{"shows":[{"show":{"ids":{"simkl":583436,"slug":"emerald-city"}}}],"movies":[{"movie":{"ids":{"simkl":55328}}}]}"""),
+            )
+        assertEquals(setOf("Tv:583436", "Movie:55328"), keys)
+        assertTrue(Parsers.library(Json.parseToJsonElement("null")).isEmpty())
+        val stats =
+            Parsers.stats(
+                Json.parseToJsonElement(
+                    """
+                    {"total_mins":908554,"movies":{"total_mins":171969,"plantowatch":{"mins":18938,"count":173},"notinteresting":{"mins":12969,"count":123},
+                     "completed":{"mins":171852,"count":1558}},
+                     "tv":{"total_mins":242560,"watching":{"watched_episodes_count":2612,"count":41,"left_to_watch_mins":411040},
+                     "completed":{"watched_episodes_count":2111,"count":55}},
+                     "watched_last_week":{"total_mins":130}}
+                    """.trimIndent(),
+                ),
+            )!!
+        val movies = stats.types.first { it.type == MediaType.Movie }
+        assertEquals(123, movies.counts.first { it.status == ListStatus.Dropped }.count)
+        val tv = stats.types.first { it.type == MediaType.Tv }
+        assertEquals(4723, tv.watchedEpisodes)
+        assertEquals(411040L, tv.leftToWatchMinutes)
+        assertEquals(130L, stats.lastWeekMinutes)
+    }
 }

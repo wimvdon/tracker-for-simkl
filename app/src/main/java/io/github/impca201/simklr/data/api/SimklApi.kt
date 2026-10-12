@@ -32,6 +32,12 @@ class ApiException(
     val unauthorized get() = code == 401 || code == 403
 }
 
+/** Result of polling a PIN code: the token once approved, or a request to poll slower. */
+data class PinStatus(
+    val accessToken: String? = null,
+    val slowDown: Boolean = false,
+)
+
 /** A pending PIN (device code) login: the user enters [userCode] at [verificationUrl]. */
 data class PinCode(
     val userCode: String,
@@ -41,8 +47,9 @@ data class PinCode(
 )
 
 /**
- * Thin client for https://api.simkl.com. Every call sends the client ID (header and query) and,
- * once logged in, the user's bearer token.
+ * Thin client for https://api.simkl.com, following SIMKL's API documentation (github.com/SIMKL/api,
+ * now api.simkl.org). Every call sends the `simkl-api-key` header plus `client_id`, and once logged
+ * in the user's bearer token. data.simkl.in files (trending, calendars) get no query parameters.
  */
 class SimklApi(
     private val http: OkHttpClient,
@@ -57,6 +64,8 @@ class SimklApi(
         params: Map<String, String?> = emptyMap(),
     ): HttpUrl {
         val base = if (path.startsWith("http")) path.toHttpUrl() else (BASE + path).toHttpUrl()
+        // The static data files ignore query strings and SIMKL asks not to add any.
+        if (base.host == DATA_HOST) return base
         return base.newBuilder().apply {
             clientId()?.let { addQueryParameter("client_id", it) }
             addQueryParameter("app-name", APP_NAME)
@@ -79,6 +88,7 @@ class SimklApi(
                 .header("simkl-api-key", id)
                 .header("User-Agent", "$APP_NAME/${BuildConfig.VERSION_NAME}")
                 .header("Accept", "application/json")
+                .header("Content-Type", "application/json")
                 .apply {
                     if (auth) token()?.let { header("Authorization", "Bearer $it") }
                     val requestBody = body?.toString()?.toRequestBody(jsonType)
@@ -114,7 +124,7 @@ class SimklApi(
     // ---- Login (PIN / device code flow; needs only the client ID) ------------------------------
 
     suspend fun requestPin(): PinCode {
-        val obj = get("/oauth/pin", mapOf("redirect" to "urn:ietf:wg:oauth:2.0:oob"), auth = false).asObject()
+        val obj = get("/oauth/pin", auth = false).asObject()
         val code = obj?.str("user_code") ?: throw ApiException(0, obj?.str("message") ?: "SIMKL did not return a code")
         return PinCode(
             userCode = code,
@@ -124,16 +134,18 @@ class SimklApi(
         )
     }
 
-    /** Returns the access token once the user approved the code, null while still pending. */
-    suspend fun pollPin(userCode: String): String? {
-        val obj = get("/oauth/pin/$userCode", auth = false).asObject()
-        return obj?.str("access_token")?.takeIf { obj.str("result") != "KO" }
+    /** "KO" with "Authorization pending" or "Slow down" until the user approves, then "OK" with the token. */
+    suspend fun pollPin(userCode: String): PinStatus {
+        val obj = get("/oauth/pin/$userCode", auth = false).asObject() ?: return PinStatus()
+        if (obj.str("result") == "OK") return PinStatus(accessToken = obj.str("access_token"))
+        return PinStatus(slowDown = obj.str("message")?.contains("slow", ignoreCase = true) == true)
     }
 
     // ---- Sync ---------------------------------------------------------------------------------
 
     suspend fun activities(): JsonObject? = post("/sync/activities").asObject()
 
+    /** Everything in the user's lists, or what changed since [dateFrom]. Null JSON when the lists are empty. */
     suspend fun allItems(dateFrom: String? = null): JsonElement =
         get(
             "/sync/all-items/",
@@ -141,8 +153,22 @@ class SimklApi(
                 "extended" to "full",
                 "episode_watched_at" to "yes",
                 "next_watch_info" to "yes",
+                "memos" to "yes",
                 "date_from" to dateFrom,
             ),
+        )
+
+    /** The minified list (only ids) used to find items removed from the lists. */
+    suspend fun allItemIds(): JsonElement = get("/sync/all-items/", mapOf("extended" to "simkl_ids_only"))
+
+    /** Ratings changed since [dateFrom] (same item format as /sync/all-items). */
+    suspend fun ratings(dateFrom: String?): JsonElement = call("POST", "/sync/ratings/", mapOf("date_from" to dateFrom))
+
+    /** Release status and ratings of every title in the user's lists of one type. */
+    suspend fun watchlistRatings(type: MediaType): JsonElement =
+        get(
+            "/ratings/${type.catalogPath}",
+            mapOf("user_watchlist" to "all", "fields" to "simkl,ext,rank,release_status,year"),
         )
 
     private fun idsJson(simklId: Long) = buildJsonObject { putJsonObject("ids") { put("simkl", simklId) } }
@@ -244,6 +270,25 @@ class SimklApi(
         post(if (watched) "/sync/history" else "/sync/history/remove", body(type, item))
     }
 
+    /** "Watching now": SIMKL marks it watched by itself when the runtime is over. */
+    suspend fun checkIn(
+        type: MediaType,
+        simklId: Long,
+        episode: EpisodeRef?,
+    ) {
+        val body =
+            buildJsonObject {
+                putJsonObject(if (type == MediaType.Movie) "movie" else "show") { putJsonObject("ids") { put("simkl", simklId) } }
+                if (episode != null) {
+                    putJsonObject("episode") {
+                        put("season", episode.season ?: 1)
+                        put("number", episode.episode)
+                    }
+                }
+            }
+        post("/scrobble/checkin", body)
+    }
+
     // ---- Catalogue ----------------------------------------------------------------------------
 
     suspend fun details(
@@ -259,9 +304,12 @@ class SimklApi(
     suspend fun search(
         type: MediaType,
         query: String,
-    ): JsonElement = get("/search/${type.searchPath}", mapOf("q" to query, "extended" to "full", "limit" to "40"))
+    ): JsonElement = get("/search/${type.searchPath}", mapOf("q" to query, "extended" to "full", "page" to "1", "limit" to "50"))
 
-    /** Any public list endpoint (trending, best, premieres, airing) or data.simkl.in file. */
+    /** A random title (POST /search/random), skipping what the user watched. Returns {"id", "url"}. */
+    suspend fun random(type: MediaType): JsonElement = call("POST", "/search/random/", mapOf("service" to "simkl", "type" to type.searchPath))
+
+    /** Any public list endpoint (best, premieres, airing) or data.simkl.in file. */
     suspend fun list(
         path: String,
         params: Map<String, String?> = emptyMap(),
@@ -285,6 +333,7 @@ class SimklApi(
 
     companion object {
         const val BASE = "https://api.simkl.com"
+        private const val DATA_HOST = "data.simkl.in"
         const val APP_NAME = "simklr"
         const val DEVELOPER_URL = "https://simkl.com/settings/developer/new/"
     }

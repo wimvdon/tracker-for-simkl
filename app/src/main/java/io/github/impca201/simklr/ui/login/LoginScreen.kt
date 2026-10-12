@@ -78,9 +78,12 @@ fun LoginScreen(settings: AppSettings) {
     LaunchedEffect(pin) {
         val code = pin ?: return@LaunchedEffect
         val deadline = System.currentTimeMillis() + code.expiresInSeconds * 1000L
+        var interval = code.intervalSeconds.coerceAtLeast(1)
         while (System.currentTimeMillis() < deadline) {
-            delay(code.intervalSeconds.coerceAtLeast(2) * 1000L)
-            val token = runCatching { app.api.pollPin(code.userCode) }.getOrNull()
+            delay(interval * 1000L)
+            val status = runCatching { app.api.pollPin(code.userCode) }.getOrNull() ?: continue
+            if (status.slowDown) interval += 2
+            val token = status.accessToken
             if (token != null) {
                 app.settings.setToken(token)
                 return@LaunchedEffect
@@ -115,7 +118,7 @@ fun LoginScreen(settings: AppSettings) {
                     }
                     Text(
                         "SIMKLr talks to SIMKL with your own free API app. Create one on SIMKL " +
-                            "(any name; redirect URI: urn:ietf:wg:oauth:2.0:oob), then paste its Client ID here.",
+                            "(any name and redirect URI), then paste its Client ID here.",
                         style = MaterialTheme.typography.bodyMedium,
                     )
                     OutlinedButton(onClick = { context.openUrl(SimklApi.DEVELOPER_URL) }) {

@@ -90,8 +90,11 @@ enum class AiringState {
         fun fromApi(status: String?): AiringState {
             val s = status?.lowercase() ?: return Unknown
             return when {
-                "end" in s || "cancel" in s || "finished" in s || s == "released" -> Ended
-                "air" in s || "return" in s || "tba" in s || "upcoming" in s || "production" in s || "ongoing" in s -> Airing
+                // /tv and /anime "status": ended | tba | airing. /ratings "release_status": ended,
+                // cancelled | returning series, ongoing, upcoming, planned, rumored, in/post production.
+                "end" in s || "cancel" in s -> Ended
+                "air" in s || "return" in s || "tba" in s || "upcoming" in s || "production" in s ||
+                    "ongoing" in s || "planned" in s || "rumored" in s -> Airing
                 else -> Unknown
             }
         }
@@ -149,6 +152,8 @@ data class LibraryItem(
     val notAiredEpisodes: Int = 0,
     val animeType: String? = null,
     val watched: List<WatchedSeason> = emptyList(),
+    /** The user's memo (/sync/all-items with memos=yes). */
+    val memo: String? = null,
 ) {
     val key: String get() = "${type.name}:${ids.simkl}"
 
@@ -162,12 +167,15 @@ data class LibraryItem(
     ): Boolean = watched.any { it.number == (season ?: 1) && episode in it.episodes }
 }
 
-/** Details of a show that the library needs but /sync/all-items does not include. */
+/**
+ * What the library needs but /sync/all-items does not include: release status and community
+ * rating (from /ratings/{type}?user_watchlist=all), and fanart once the details were opened.
+ */
 @Serializable
 data class ShowInfo(
     val airing: AiringState,
     val fetchedAt: Long,
-    val network: String? = null,
+    val rating: Double? = null,
     val fanart: String? = null,
 )
 
@@ -216,6 +224,8 @@ data class MediaDetails(
     val totalEpisodes: Int?,
     val animeType: String?,
     val director: String?,
+    val budget: Long?,
+    val revenue: Long?,
     val ratings: List<Rating>,
     val rank: Int?,
     val trailers: List<Trailer>,
@@ -263,6 +273,7 @@ data class TypeStats(
     val type: MediaType,
     val minutes: Long,
     val watchedEpisodes: Int?,
+    val leftToWatchMinutes: Long?,
     val counts: List<StatusCount>,
 )
 
@@ -272,8 +283,14 @@ data class UserStats(
     val types: List<TypeStats>,
 )
 
+/**
+ * Image URLs as documented by SIMKL: {domain}{prefix}{image}{suffix}{extension}, loaded through the
+ * wsrv.nl proxy SIMKL asks apps to use. Coil caches them on disk (the URLs never change).
+ */
 object Images {
-    private fun normalize(path: String): String? =
+    private const val CDN = "https://wsrv.nl/?url=https://simkl.in"
+
+    private fun absolute(path: String): String? =
         when {
             path.isBlank() -> null
             path.startsWith("//") -> "https:$path"
@@ -281,28 +298,31 @@ object Images {
             else -> null
         }
 
+    /** `_ca` (190x279) for lists and grids, `_m` (340 wide) for the details header. */
     fun poster(
         path: String?,
         large: Boolean = false,
     ): String? {
         path ?: return null
-        normalize(path)?.let { return it }
-        return "https://simkl.in/posters/${path}_${if (large) "w" else "m"}.jpg"
+        absolute(path)?.let { return it }
+        return "$CDN/posters/${path}_${if (large) "m" else "ca"}.webp"
     }
 
+    /** `_mobile`: 960x540. */
     fun fanart(path: String?): String? {
         path ?: return null
-        normalize(path)?.let { return it }
-        return "https://simkl.in/fanart/${path}_medium.jpg"
+        absolute(path)?.let { return it }
+        return "$CDN/fanart/${path}_mobile.webp"
     }
 
+    /** `_w`: 600x338. */
     fun episode(path: String?): String? {
         path ?: return null
-        normalize(path)?.let { return it }
-        return "https://simkl.in/episodes/${path}_w.jpg"
+        absolute(path)?.let { return it }
+        return "$CDN/episodes/${path}_w.webp"
     }
 
-    fun avatar(path: String?): String? = path?.let { normalize(it) ?: "https://simkl.in/avatars/$it" }
+    fun avatar(path: String?): String? = path?.let { absolute(it) ?: "$CDN/avatars/${it}_100.jpg" }
 }
 
 object Dates {

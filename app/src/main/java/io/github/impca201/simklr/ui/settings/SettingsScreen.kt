@@ -223,6 +223,7 @@ fun SettingsScreen(settings: AppSettings) {
             }
 
             item {
+                TextButton(onClick = { context.openUrl("https://simkl.com/") }) { Text("Powered by SIMKL · simkl.com") }
                 Text(
                     "SIMKLr ${BuildConfig.VERSION_NAME} · Not affiliated with SIMKL. Data and images © SIMKL and their sources.",
                     style = MaterialTheme.typography.labelSmall,

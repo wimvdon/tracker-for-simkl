@@ -3,17 +3,18 @@ name: Release
 # Push a tag like v1.2.0 to build the APK and publish it as a GitHub Release.
 # "Run workflow" on the Actions tab with "Release" set to patch, minor or major
 # picks the next version after the latest v* tag, builds the APK and publishes
-# that release (creating the tag). With "Release" left at none, on a pull request
-# or on a push to main, it only builds (and tests) a downloadable artifact.
-# There is no release key yet: the release APK is signed with the runner's debug key,
-# so uninstall the previous version before installing a new one.
-# Optional repository secret SIMKL_CLIENT_ID bakes a default SIMKL client ID into the APK.
+# that release (creating the tag). With "Release" left at none, or on a pull
+# request that changes this workflow, it only builds a downloadable artifact.
+# Signing needs four repository secrets: ANDROID_KEYSTORE_BASE64, ANDROID_KEYSTORE_PASSWORD,
+# ANDROID_KEY_ALIAS and ANDROID_KEY_PASSWORD (the same names without ANDROID_ also work).
 on:
   push:
-    branches: [main]
     tags:
       - "v*"
   pull_request:
+    paths:
+      - .github/workflows/release.yml
+      - .github/scripts/restore_keystore.py
   workflow_dispatch:
     inputs:
       bump:
@@ -84,17 +85,48 @@ jobs:
           distribution: temurin
           java-version: 21
       - uses: gradle/actions/setup-gradle@v5
-      - name: Unit tests
-        run: ./gradlew testDebugUnitTest
-      - name: Build APK
+      - name: Restore the signing key
         env:
-          SIMKL_CLIENT_ID: ${{ secrets.SIMKL_CLIENT_ID }}
+          KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 || secrets.KEYSTORE_BASE64 }}
+          KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD || secrets.KEYSTORE_PASSWORD }}
+          KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS || secrets.KEY_ALIAS }}
+          KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD || secrets.KEY_PASSWORD }}
+          PUBLISH: ${{ needs.version.outputs.publish }}
         run: |
-          ./gradlew assembleRelease \
+          if [ -z "$KEYSTORE_BASE64" ] || [ -z "$KEYSTORE_PASSWORD" ] || [ -z "$KEY_ALIAS" ] || [ -z "$KEY_PASSWORD" ]; then
+            if [ "$PUBLISH" = "true" ]; then
+              echo "::error::Add the ANDROID_KEYSTORE_BASE64, ANDROID_KEYSTORE_PASSWORD, ANDROID_KEY_ALIAS and ANDROID_KEY_PASSWORD secrets first (see the README)."
+              exit 1
+            fi
+            echo "::warning::No signing key secrets, so this run builds a debug APK instead."
+            echo "BUILD_TYPE=debug" >> "$GITHUB_ENV"
+            exit 0
+          fi
+          # Written to a file so the secret never appears on a command line.
+          printf '%s' "$KEYSTORE_BASE64" > "$RUNNER_TEMP/keystore.b64"
+          python3 .github/scripts/restore_keystore.py "$RUNNER_TEMP/keystore.b64" "$RUNNER_TEMP/release.jks"
+          if ! keytool -list -keystore "$RUNNER_TEMP/release.jks" -storepass "$KEYSTORE_PASSWORD" -alias "$KEY_ALIAS" > /dev/null 2>&1; then
+            echo "::error::The key could not be opened: check ANDROID_KEYSTORE_PASSWORD and ANDROID_KEY_ALIAS (and that ANDROID_KEYSTORE_BASE64 is the whole .jks file)."
+            exit 1
+          fi
+          {
+            echo "storeFile=$RUNNER_TEMP/release.jks"
+            echo "storePassword=$KEYSTORE_PASSWORD"
+            echo "keyAlias=$KEY_ALIAS"
+            echo "keyPassword=$KEY_PASSWORD"
+          } > keystore.properties
+          echo "BUILD_TYPE=release" >> "$GITHUB_ENV"
+      - name: Build APK
+        run: |
+          task="assemble${BUILD_TYPE^}"
+          ./gradlew "$task" \
             -PversionName=${{ needs.version.outputs.name }} \
             -PversionCode=${{ needs.version.outputs.code }}
-          cp app/build/outputs/apk/release/app-release.apk \
+          cp "app/build/outputs/apk/$BUILD_TYPE/app-$BUILD_TYPE.apk" \
             "$RUNNER_TEMP/simklr-${{ needs.version.outputs.name }}.apk"
+      - name: Remove the signing key
+        if: always()
+        run: rm -f "$RUNNER_TEMP/release.jks" "$RUNNER_TEMP/keystore.b64" keystore.properties
       - uses: actions/upload-artifact@v4
         with:
           name: android

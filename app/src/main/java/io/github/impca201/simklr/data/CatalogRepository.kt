@@ -3,9 +3,6 @@ package io.github.impca201.simklr.data
 import io.github.impca201.simklr.data.api.ApiException
 import io.github.impca201.simklr.data.api.Parsers
 import io.github.impca201.simklr.data.api.SimklApi
-import io.github.impca201.simklr.data.api.asObject
-import io.github.impca201.simklr.data.api.long
-import io.github.impca201.simklr.data.api.obj
 import io.github.impca201.simklr.data.model.Episode
 import io.github.impca201.simklr.data.model.MediaDetails
 import io.github.impca201.simklr.data.model.MediaSummary
@@ -80,55 +77,50 @@ class CatalogRepository(
         return emptyList()
     }
 
-    /** A random title from SIMKL's "random" search, or null. */
-    suspend fun random(type: MediaType): Long? {
-        val result = api.list("/search/random/", mapOf("service" to "simkl", "type" to type.searchPath, "limit" to "1"))
-        val obj = result.asObject() ?: (result as? kotlinx.serialization.json.JsonArray)?.firstOrNull().asObject()
-        return obj?.long("simkl_id") ?: obj?.long("simkl") ?: obj?.obj("ids")?.long("simkl")
-    }
+    /** A random title from SIMKL's random search (skips what the user watched), or null. */
+    suspend fun random(type: MediaType): Long? = Parsers.randomId(api.random(type))
 
     companion object {
-        private val extended = mapOf("extended" to "overview,metadata,tmdb,genres")
+        private const val DATA = "https://data.simkl.in/discover"
+        private val page = mapOf("page" to "1", "limit" to "50")
 
+        /**
+         * Discover rows: SIMKL's trending files (titles must credit Simkl) and the documented
+         * airing / premieres / best endpoints. Movies have trending files and DVD releases only.
+         */
         fun sections(type: MediaType): List<DiscoverSection> {
             val p = type.catalogPath
-            val dataPath = if (type == MediaType.Movie) "movies" else p
-            val list =
-                mutableListOf(
-                    DiscoverSection(
-                        "$p-trending-today",
-                        "Trending today",
-                        type,
-                        listOf("/$p/trending/today" to extended, "https://data.simkl.in/discover/trending/$dataPath/today_100.json" to emptyMap()),
-                    ),
-                    DiscoverSection(
-                        "$p-trending-week",
-                        "Trending this week",
-                        type,
-                        listOf("/$p/trending/week" to extended, "https://data.simkl.in/discover/trending/$dataPath/week_100.json" to emptyMap()),
-                    ),
-                )
-            if (type.isEpisodic) {
-                list += DiscoverSection("$p-airing", "Airing today", type, listOf("/$p/airing" to mapOf("date" to "today", "sort" to "rank")))
-                list += DiscoverSection("$p-premieres-new", "New premieres", type, listOf("/$p/premieres/new" to mapOf("type" to "all")))
-                list += DiscoverSection("$p-premieres-soon", "Premiering soon", type, listOf("/$p/premieres/soon" to mapOf("type" to "all")))
+            val files = if (type == MediaType.Movie) "movies" else p
+            fun trending(
+                period: String,
+                title: String,
+            ) = DiscoverSection("$p-trending-$period", title, type, listOf("$DATA/trending/$files/${period}_100.json" to emptyMap()))
+
+            val bestType = if (type == MediaType.Tv) "series" else "all"
+            fun best(
+                filter: String,
+                title: String,
+            ) = DiscoverSection("$p-best-$filter", title, type, listOf("/$p/best/$filter" to mapOf("type" to bestType)))
+
+            return buildList {
+                add(trending("today", "Trending on Simkl today"))
+                add(trending("week", "Trending on Simkl this week"))
+                if (type.isEpisodic) {
+                    add(DiscoverSection("$p-airing", "Airing today", type, listOf("/$p/airing" to mapOf("date" to "today", "sort" to "popularity"))))
+                    add(DiscoverSection("$p-premieres-new", "New premieres", type, listOf("/$p/premieres/new" to page + ("type" to "all"))))
+                    add(DiscoverSection("$p-premieres-soon", "Premiering soon", type, listOf("/$p/premieres/soon" to page + ("type" to "all"))))
+                } else {
+                    add(DiscoverSection("$p-dvd", "New on DVD & digital", type, listOf("$DATA/dvd/releases_100.json" to emptyMap())))
+                }
+                add(trending("month", "Trending on Simkl this month"))
+                if (type.isEpisodic) {
+                    add(best("year", "Best of the year"))
+                    add(best("month", "Best this month"))
+                    add(best("watched", "Most watched"))
+                    add(best("all", "Best of all time"))
+                    add(best("voted", "Most voted"))
+                }
             }
-            list +=
-                DiscoverSection(
-                    "$p-trending-month",
-                    "Popular this month",
-                    type,
-                    listOf("/$p/trending/month" to extended, "https://data.simkl.in/discover/trending/$dataPath/month_100.json" to emptyMap()),
-                )
-            list +=
-                DiscoverSection(
-                    "$p-best",
-                    "Best of all time",
-                    type,
-                    listOf("/$p/best/all" to mapOf("type" to if (type == MediaType.Tv) "series" else "all")),
-                )
-            list += DiscoverSection("$p-voted", "Most voted", type, listOf("/$p/best/voted" to mapOf("type" to "all")))
-            return list
         }
     }
 }
