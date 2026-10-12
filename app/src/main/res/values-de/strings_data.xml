@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="data_error_login_expired">Deine SIMKL-Anmeldung ist abgelaufen. Melde dich ab und erneut an.</string>
+    <string name="data_notif_channel_name">Neue Folgen</string>
+    <string name="data_notif_channel_description">Wenn eine neue Folge einer Serie verfügbar ist, die du schaust</string>
+    <string name="data_notif_new_episode">Neue Folge verfügbar</string>
+    <string name="data_crash_title">SIMKLr ist beim letzten Mal abgestürzt</string>
+    <string name="data_crash_copy">Absturzbericht kopieren</string>
+    <string name="data_crash_continue">Weiter</string>
+</resources>

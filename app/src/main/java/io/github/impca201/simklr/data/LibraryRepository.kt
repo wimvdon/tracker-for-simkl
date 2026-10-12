@@ -1,6 +1,7 @@
 package io.github.impca201.simklr.data
 
 import android.content.Context
+import io.github.impca201.simklr.R
 import io.github.impca201.simklr.data.api.ApiException
 import io.github.impca201.simklr.data.api.Parsers
 import io.github.impca201.simklr.data.api.SimklApi
@@ -120,6 +121,7 @@ class LibraryRepository(
     private val settings: SettingsStore,
     private val scope: CoroutineScope,
 ) {
+    private val appContext = context.applicationContext
     private val libraryFile = File(context.filesDir, "library.json")
     private val showInfoFile = File(context.filesDir, "show_info.json")
     private val json = Json { ignoreUnknownKeys = true }
@@ -169,7 +171,7 @@ class LibraryRepository(
                 _state.update { it.copy(syncing = false) }
                 throw e
             } catch (e: ApiException) {
-                if (e.unauthorized) "Your SIMKL login expired. Log out and in again." else e.message
+                if (e.unauthorized) appContext.getString(R.string.data_error_login_expired) else e.message
             } catch (e: Exception) {
                 e.message ?: e.javaClass.simpleName
             }

@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Auth guide -->
+    <string name="guide_title">Inloghulp</string>
+    <string name="guide_open">Stapsgewijze uitleg</string>
+    <string name="guide_step_1">Open de SIMKL-ontwikkelaarspagina in je browser en log in bij SIMKL als daarom wordt gevraagd.</string>
+    <string name="guide_step_2">Maak een nieuwe app. Geef hem een naam naar keuze (bijvoorbeeld „SIMKLr”), kies AUTH V2 en kies het app-type „TV, devices &amp; command line”. Laat de andere velden zoals ze zijn en sla op.</string>
+    <string name="guide_step_3">Kopieer de Client ID van de app. SIMKLr heeft het Client Secret niet nodig.</string>
+    <string name="guide_step_4">Plak de Client ID in SIMKLr en tik op Doorgaan.</string>
+    <string name="guide_step_5">Tik op Inloggen met SIMKL. SIMKLr toont een korte code.</string>
+    <string name="guide_step_6">Tik op SIMKL openen, controleer of de code klopt (of typ hem in) en keur goed. Ga terug naar SIMKLr: je wordt vanzelf ingelogd.</string>
+    <string name="guide_trouble_title">Problemen met inloggen?</string>
+    <string name="guide_trouble">• „Could not start the login”: controleer of je de hele Client ID hebt gekopieerd, zonder spaties.\n• De code is verlopen: tik opnieuw op Inloggen met SIMKL voor een nieuwe code.\n• De goedkeuringspagina toont een fout: bewerk je app op SIMKL en zorg dat het type „TV, devices &amp; command line” is.\n• Oudere AUTH V1-apps blijven werken.</string>
+    <string name="create_simkl_app">SIMKL-app maken</string>
+    <string name="done">Klaar</string>
+
+    <!-- Shared labels -->
+    <string name="tab_tv">Series</string>
+    <string name="tab_anime">Anime</string>
+    <string name="tab_movies">Films</string>
+    <string name="tab_discover">Ontdekken</string>
+    <string name="tab_calendar">Kalender</string>
+    <string name="shelf_up_next">Volgende</string>
+    <string name="status_watching">Aan het kijken</string>
+    <string name="status_plan_to_watch">Wil ik zien</string>
+    <string name="status_watched">Gezien</string>
+    <string name="status_completed">Voltooid</string>
+    <string name="status_on_hold">Gepauzeerd</string>
+    <string name="status_dropped">Gestopt</string>
+    <string name="theme_system">Systeem</string>
+    <string name="theme_light">Licht</string>
+    <string name="theme_dark">Donker</string>
+
+    <!-- Discover rows. Keep "Simkl". -->
+    <string name="discover_trending_today">Trending op Simkl vandaag</string>
+    <string name="discover_trending_week">Trending op Simkl deze week</string>
+    <string name="discover_trending_month">Trending op Simkl deze maand</string>
+    <string name="discover_airing_today">Vandaag op tv</string>
+    <string name="discover_new_premieres">Nieuwe premières</string>
+    <string name="discover_premiering_soon">Binnenkort te zien</string>
+    <string name="discover_dvd">Nieuw op dvd &amp; digitaal</string>
+    <string name="discover_best_year">Beste van het jaar</string>
+    <string name="discover_best_month">Beste van deze maand</string>
+    <string name="discover_most_watched">Meest bekeken</string>
+    <string name="discover_best_all">Beste aller tijden</string>
+    <string name="discover_most_voted">Meeste stemmen</string>
+</resources>

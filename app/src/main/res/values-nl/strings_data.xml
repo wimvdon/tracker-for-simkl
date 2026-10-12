@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="data_error_login_expired">Je SIMKL-login is verlopen. Log uit en opnieuw in.</string>
+    <string name="data_notif_channel_name">Nieuwe afleveringen</string>
+    <string name="data_notif_channel_description">Wanneer er een nieuwe aflevering is van een serie die je kijkt</string>
+    <string name="data_notif_new_episode">Nieuwe aflevering beschikbaar</string>
+    <string name="data_crash_title">SIMKLr is de vorige keer gecrasht</string>
+    <string name="data_crash_copy">Crashrapport kopiëren</string>
+    <string name="data_crash_continue">Doorgaan</string>
+</resources>

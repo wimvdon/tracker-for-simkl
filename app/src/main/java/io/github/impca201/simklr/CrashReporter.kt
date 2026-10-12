@@ -51,14 +51,14 @@ object CrashReporter {
             }
         val copy =
             Button(activity).apply {
-                this.text = "Copy crash report"
+                this.text = activity.getString(R.string.data_crash_copy)
                 setOnClickListener {
                     activity.getSystemService(ClipboardManager::class.java)
                         ?.setPrimaryClip(ClipData.newPlainText("SIMKLr crash", report))
                 }
             }
-        val next = Button(activity).apply { this.text = "Continue"; setOnClickListener { onContinue() } }
-        val title = TextView(activity).apply { this.text = "SIMKLr crashed last time"; textSize = 20f }
+        val next = Button(activity).apply { this.text = activity.getString(R.string.data_crash_continue); setOnClickListener { onContinue() } }
+        val title = TextView(activity).apply { this.text = activity.getString(R.string.data_crash_title); textSize = 20f }
         val content =
             LinearLayout(activity).apply {
                 orientation = LinearLayout.VERTICAL
