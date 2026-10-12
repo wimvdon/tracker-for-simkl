@@ -111,7 +111,6 @@ fun ShowsScreen(
                     if (shelf == Shelf.UpNext) sorted.sortedByDescending { state.playbackFor(it.type, it.ids.simkl) != null } else sorted
                 }
         }
-    val page = pagerState.currentPage
 
     LaunchedEffect(state.error) { state.error?.let { snackbar.showSnackbar(it) } }
     LaunchedEffect(fromLatest) { if (fromLatest) app.library.refreshLatestNext() }
@@ -128,9 +127,7 @@ fun ShowsScreen(
                     title = if (type == MediaType.Tv) NavTab.Tv.label else NavTab.Anime.label,
                     scrollBehavior = scrollBehavior,
                     searchType = type,
-                ) {
-                    SortFilterButton(type, options.sort(page), { options.setSort(page, it) }, options.filter(page), { options.setFilter(page, it) })
-                }
+                )
                 PrimaryScrollableTabRow(selectedTabIndex = pagerState.currentPage, edgePadding = 16.dp) {
                     shelves.forEachIndexed { index, shelf ->
                         Tab(
@@ -148,7 +145,7 @@ fun ShowsScreen(
             val items = byShelf[shelf].orEmpty()
             val filter = options.filter(page)
             Column(Modifier.fillMaxSize()) {
-            QuickFilterChips(type, filter) { options.setFilter(page, it) }
+            LibraryControls(type, options.sort(page), { options.setSort(page, it) }, filter) { options.setFilter(page, it) }
             PullToRefreshBox(
                 isRefreshing = state.syncing,
                 onRefresh = { scope.launch { app.library.sync() } },

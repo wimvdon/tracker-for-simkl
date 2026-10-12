@@ -1,14 +1,17 @@
 package io.github.impca201.simklr.ui.library
 
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material.icons.automirrored.rounded.Sort
+import androidx.compose.material.icons.rounded.ArrowDropDown
+import androidx.compose.material.icons.rounded.Close
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
-import androidx.compose.material.icons.rounded.Tune
-import androidx.compose.material3.BadgedBox
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilterChip
-import androidx.compose.material3.ModalBottomSheet
-import androidx.compose.material3.RadioButton
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.saveable.rememberSaveable
 import io.github.impca201.simklr.data.model.MediaType
@@ -192,96 +195,123 @@ fun rememberTabOptions(defaultSorts: List<SortOrder>): TabOptions {
     return remember(sorts, filters) { TabOptions(sorts, filters) }
 }
 
-/**
- * The most used filters as chips above a tab's list: still airing / ended (upcoming / released
- * for movies) and, for anime, the type. Tapping a selected chip clears it.
- */
-@Composable
-fun QuickFilterChips(
-    type: MediaType,
-    filter: LibraryFilter,
-    onFilter: (LibraryFilter) -> Unit,
-) {
-    val release =
-        if (type == MediaType.Movie) {
-            listOf(ReleaseFilter.Finished to "Released", ReleaseFilter.Running to "Upcoming")
-        } else {
-            listOf(ReleaseFilter.Running to "Still airing", ReleaseFilter.Finished to "Ended")
-        }
-    LazyRow(
-        contentPadding = PaddingValues(horizontal = 12.dp, vertical = 4.dp),
-        horizontalArrangement = Arrangement.spacedBy(8.dp),
-    ) {
-        items(release) { (value, label) ->
-            FilterChip(
-                selected = filter.release == value,
-                onClick = { onFilter(filter.copy(release = if (filter.release == value) ReleaseFilter.All else value)) },
-                label = { Text(label) },
-            )
-        }
-        if (type == MediaType.Anime) {
-            items(LibraryFilter.animeTypes) { (key, label) ->
-                FilterChip(
-                    selected = filter.animeType == key,
-                    onClick = { onFilter(filter.copy(animeType = if (filter.animeType == key) null else key)) },
-                    label = { Text(label) },
-                )
-            }
-        }
-    }
-}
-
 @Composable
 fun bottomPadding(): Dp = FloatingBarSpace + WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding()
 
-/** Top bar button opening the sort and rating-filter sheet; shows a dot while any filter is on. */
-@OptIn(ExperimentalMaterial3Api::class)
+/**
+ * Sort and filters of a library tab as one row of dropdown chips: sort, status (still airing /
+ * ended, or released / upcoming for movies), my rating and, for anime, the type. A chip with a
+ * filter set shows its value and an ✕ that clears it.
+ */
 @Composable
-fun SortFilterButton(
+fun LibraryControls(
     type: MediaType,
     sort: SortOrder,
     onSort: (SortOrder) -> Unit,
     filter: LibraryFilter,
     onFilter: (LibraryFilter) -> Unit,
 ) {
-    var open by remember { mutableStateOf(false) }
-    IconButton(onClick = { open = true }) {
-        BadgedBox(badge = { if (filter.active) Badge() }) {
-            Icon(Icons.Rounded.Tune, contentDescription = "Sort and filter")
+    val movie = type == MediaType.Movie
+    fun releaseLabel(value: ReleaseFilter) = if (movie) value.movieLabel else value.showLabel
+    LazyRow(
+        contentPadding = PaddingValues(horizontal = 12.dp, vertical = 4.dp),
+        horizontalArrangement = Arrangement.spacedBy(8.dp),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        item(key = "sort") {
+            DropdownChip(
+                label = sort.label,
+                selected = false,
+                leading = Icons.AutoMirrored.Rounded.Sort,
+                options = SortOrder.entries,
+                current = sort,
+                optionLabel = { it.label },
+                onSelect = onSort,
+                onClear = null,
+            )
         }
-    }
-    if (!open) return
-    ModalBottomSheet(onDismissRequest = { open = false }) {
-        Column(Modifier.fillMaxWidth().padding(start = 24.dp, end = 24.dp, bottom = 32.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-            Text("Sort by", style = MaterialTheme.typography.titleSmall, color = MaterialTheme.colorScheme.primary)
-            SortOrder.entries.forEach { order ->
-                Row(
-                    Modifier.fillMaxWidth().clip(RoundedCornerShape(12.dp)).clickable { onSort(order) }.padding(vertical = 4.dp),
-                    verticalAlignment = Alignment.CenterVertically,
-                ) {
-                    RadioButton(selected = order == sort, onClick = { onSort(order) })
-                    Text(order.label, style = MaterialTheme.typography.bodyLarge)
-                }
-            }
-            Text("My rating", style = MaterialTheme.typography.titleSmall, color = MaterialTheme.colorScheme.primary, modifier = Modifier.padding(top = 8.dp))
-            ChipRow(RatingFilter.entries, filter.rating, { it.label }) { onFilter(filter.copy(rating = it)) }
-            if (filter.active) {
-                TextButton(onClick = { onFilter(LibraryFilter()) }, modifier = Modifier.align(Alignment.End)) { Text("Clear filters") }
+        item(key = "status") {
+            DropdownChip(
+                label = if (filter.release == ReleaseFilter.All) (if (movie) "Release" else "Status") else releaseLabel(filter.release),
+                selected = filter.release != ReleaseFilter.All,
+                options = ReleaseFilter.entries,
+                current = filter.release,
+                optionLabel = { if (it == ReleaseFilter.All) "All" else releaseLabel(it) },
+                onSelect = { onFilter(filter.copy(release = it)) },
+                onClear = { onFilter(filter.copy(release = ReleaseFilter.All)) },
+            )
+        }
+        item(key = "rating") {
+            DropdownChip(
+                label = if (filter.rating == RatingFilter.Any) "My rating" else filter.rating.label,
+                selected = filter.rating != RatingFilter.Any,
+                options = RatingFilter.entries,
+                current = filter.rating,
+                optionLabel = { it.label },
+                onSelect = { onFilter(filter.copy(rating = it)) },
+                onClear = { onFilter(filter.copy(rating = RatingFilter.Any)) },
+            )
+        }
+        if (type == MediaType.Anime) {
+            item(key = "type") {
+                val types = listOf<String?>(null) + LibraryFilter.animeTypes.map { it.first }
+                fun typeLabel(key: String?) = LibraryFilter.animeTypes.firstOrNull { it.first == key }?.second ?: "All"
+                DropdownChip(
+                    label = if (filter.animeType == null) "Type" else typeLabel(filter.animeType),
+                    selected = filter.animeType != null,
+                    options = types,
+                    current = filter.animeType,
+                    optionLabel = { typeLabel(it) },
+                    onSelect = { onFilter(filter.copy(animeType = it)) },
+                    onClear = { onFilter(filter.copy(animeType = null)) },
+                )
             }
         }
     }
 }
 
+/** A filter chip that opens a menu of [options]; when [selected], its ✕ calls [onClear]. */
 @Composable
-private fun <T> ChipRow(
+private fun <T> DropdownChip(
+    label: String,
+    selected: Boolean,
     options: List<T>,
-    selected: T,
-    label: (T) -> String,
+    current: T,
+    optionLabel: (T) -> String,
     onSelect: (T) -> Unit,
+    onClear: (() -> Unit)?,
+    leading: ImageVector? = null,
 ) {
-    LazyRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-        items(options) { option ->
-            FilterChip(selected = option == selected, onClick = { onSelect(option) }, label = { Text(label(option)) })
+    var open by remember { mutableStateOf(false) }
+    Box {
+        FilterChip(
+            selected = selected,
+            onClick = { open = true },
+            label = { Text(label) },
+            leadingIcon = if (leading != null) ({ Icon(leading, null, Modifier.size(18.dp)) }) else null,
+            trailingIcon = {
+                if (selected && onClear != null) {
+                    Icon(
+                        Icons.Rounded.Close,
+                        contentDescription = "Clear $label",
+                        modifier = Modifier.size(18.dp).clip(CircleShape).clickable(onClick = onClear),
+                    )
+                } else {
+                    Icon(Icons.Rounded.ArrowDropDown, null, Modifier.size(18.dp))
+                }
+            },
+        )
+        DropdownMenu(expanded = open, onDismissRequest = { open = false }) {
+            options.forEach { option ->
+                DropdownMenuItem(
+                    text = { Text(optionLabel(option)) },
+                    onClick = {
+                        open = false
+                        onSelect(option)
+                    },
+                    trailingIcon = { if (option == current) Icon(Icons.Rounded.Check, null) },
+                )
+            }
         }
     }
 }
