@@ -449,8 +449,8 @@ fun LibraryGrid(
                             item.userRating?.let { "★ $it" },
                             if (item.type.isEpisodic && item.totalEpisodes > 0) "${item.watchedEpisodes}/${item.totalEpisodes}" else null,
                         ).joinToString(" · ").ifEmpty { null },
-                // A paused movie shows how far it got.
-                progress = playback?.takeIf { item.type == MediaType.Movie }?.let { (it.progress / 100).toFloat() } ?: if (showProgress) progressOf(item) else null,
+                // A title being watched shows how far the movie or episode got.
+                progress = playback?.let { (it.progress / 100).toFloat() } ?: if (showProgress) progressOf(item) else null,
                 rating = state.showInfo[item.key]?.rating?.takeIf { it > 0 },
                 airing =
                     if (showAiring) Shelves.airingOf(item, state.showInfo[item.key], state.nextAirDate(item)) else AiringState.Unknown,

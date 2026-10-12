@@ -159,9 +159,13 @@ class LibraryRepository(
     }
 
     /** Syncs with SIMKL; returns an error message or null. */
-    suspend fun sync(force: Boolean = false): String? {
+    suspend fun sync(
+        force: Boolean = false,
+        quiet: Boolean = false,
+    ): String? {
         load()
-        _state.update { it.copy(syncing = true, error = null) }
+        // A quiet (background) sync shows no spinner and no error.
+        if (!quiet) _state.update { it.copy(syncing = true, error = null) }
         val error =
             try {
                 mutex.withLock { syncLocked(force) }
@@ -175,7 +179,7 @@ class LibraryRepository(
             } catch (e: Exception) {
                 e.message ?: e.javaClass.simpleName
             }
-        _state.update { it.copy(syncing = false, error = error) }
+        if (!quiet) _state.update { it.copy(syncing = false, error = error) }
         if (error == null) {
             scope.launch { runCatching { refreshCalendar() } }
             scope.launch { runCatching { refreshShowInfo() } }
@@ -200,7 +204,9 @@ class LibraryRepository(
         }
         if (all != null && all == since) {
             save(snapshot.copy(syncedAt = System.currentTimeMillis()))
-            if (playbackStamp != snapshot.playbackStamp) syncPlayback(playbackStamp)
+            // Always refreshed: SIMKL's playback timestamp doesn't change for every scrobbler, and
+            // this is what the "Now playing" banners show.
+            syncPlayback(playbackStamp)
             return
         }
         var items = snapshot.items

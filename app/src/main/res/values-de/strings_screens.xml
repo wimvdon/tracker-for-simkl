@@ -18,7 +18,7 @@
     <string name="screens_calendar_my_lists">Meine Listen</string>
     <string name="screens_calendar_loading">Kalender wird geladen…</string>
     <string name="screens_calendar_nothing">Nichts geplant</string>
-    <string name="screens_calendar_mine_hint">Nur Titel aus deinen Listen werden angezeigt. Schalte „Meine Listen“ aus, um alles zu sehen.</string>
+    <string name="screens_calendar_mine_hint">Nur Titel aus deinen Listen werden angezeigt. Öffne „Alle“, um alles zu sehen.</string>
     <string name="screens_calendar_release">Start</string>
     <string name="screens_calendar_in_list">In deiner Liste</string>
     <string name="screens_profile_title">Profil</string>
@@ -75,4 +75,5 @@
         <item quantity="one">%1$d Folge</item>
         <item quantity="other">%1$d Folgen</item>
     </plurals>
+    <string name="screens_calendar_all">Alle</string>
 </resources>

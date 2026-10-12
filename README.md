@@ -14,6 +14,8 @@ An Android client for [SIMKL](https://simkl.com), built with Jetpack Compose and
 - **Sort & filter**: one row of dropdown chips above each tab (kept per tab): sort (recently
   watched, recently added, title, my rating, release date), status (still airing / ended, or
   released / upcoming for movies), my rating and, for anime, the type.
+- **Now playing** banners on the TV Shows, Anime and Movies tabs for titles being watched (SIMKL
+  playback), with their progress; the app re-syncs when opened and every few minutes while open.
 - **In progress**: paused episodes and movies (SIMKL playback) show their progress; marking one
   watched asks first, because it removes the saved progress.
 - **Continue from the latest episode** (setting): Up next starts after the most recently watched
@@ -27,7 +29,7 @@ An Android client for [SIMKL](https://simkl.com), built with Jetpack Compose and
 - **Discover**: trending today/this week/this month, airing today, premieres, best of all time,
   most voted, and "Surprise me" (random title).
 - **Search** across TV shows, anime and movies.
-- **Calendar** of upcoming episodes and releases (your lists or everything).
+- **Calendar** of upcoming episodes and releases, with **My lists** / **All** tabs and type chips.
 - **Profile** with watch-time statistics per type and status.
 - **Notifications** (optional) when a new episode of a show you're watching becomes available.
 - **Languages**: English, Dutch, French, German, Spanish and Italian (follows the system or

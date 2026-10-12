@@ -18,7 +18,7 @@
     <string name="screens_calendar_my_lists">Mijn lijsten</string>
     <string name="screens_calendar_loading">Agenda laden…</string>
     <string name="screens_calendar_nothing">Niets gepland</string>
-    <string name="screens_calendar_mine_hint">Alleen titels uit je lijsten worden getoond. Zet “Mijn lijsten” uit om alles te zien.</string>
+    <string name="screens_calendar_mine_hint">Alleen titels uit je lijsten worden getoond. Open „Alles” om alles te zien.</string>
     <string name="screens_calendar_release">Release</string>
     <string name="screens_calendar_in_list">In je lijst</string>
     <string name="screens_profile_title">Profiel</string>
@@ -75,4 +75,5 @@
         <item quantity="one">%1$d aflevering</item>
         <item quantity="other">%1$d afleveringen</item>
     </plurals>
+    <string name="screens_calendar_all">Alles</string>
 </resources>

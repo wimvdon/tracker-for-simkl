@@ -98,4 +98,6 @@
         <item quantity="one">manca %d episodio</item>
         <item quantity="other">mancano %d episodi</item>
     </plurals>
+    <string name="lib_now_playing">In riproduzione</string>
+    <string name="lib_percent_watched">%1$d%% visto</string>
 </resources>

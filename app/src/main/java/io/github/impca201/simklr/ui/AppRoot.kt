@@ -21,6 +21,10 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.saveable.rememberSaveableStateHolder
 import androidx.compose.ui.Modifier
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.compose.LocalLifecycleOwner
+import androidx.lifecycle.repeatOnLifecycle
+import kotlinx.coroutines.delay
 import io.github.impca201.simklr.data.AppSettings
 import io.github.impca201.simklr.ui.components.rememberApp
 import io.github.impca201.simklr.ui.detail.DetailScreen
@@ -61,7 +65,18 @@ private fun LoggedIn(
     val navigator = rememberSaveable(saver = Navigator.Saver) { Navigator() }
     val stateHolder = rememberSaveableStateHolder()
 
-    LaunchedEffect(Unit) { app.library.sync() }
+    // Sync whenever the app comes to the foreground, then quietly every few minutes while it is
+    // open, so playback started on another device shows up in the "Now playing" banners.
+    val lifecycle = LocalLifecycleOwner.current.lifecycle
+    LaunchedEffect(lifecycle) {
+        lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
+            app.library.sync()
+            while (true) {
+                delay(3 * 60_000L)
+                app.library.sync(quiet = true)
+            }
+        }
+    }
     LaunchedEffect(requested) {
         if (requested != null) {
             navigator.push(requested)

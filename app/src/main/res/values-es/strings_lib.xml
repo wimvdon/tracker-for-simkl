@@ -98,4 +98,6 @@
         <item quantity="one">queda %d episodio</item>
         <item quantity="other">quedan %d episodios</item>
     </plurals>
+    <string name="lib_now_playing">Reproduciendo</string>
+    <string name="lib_percent_watched">%1$d %% visto</string>
 </resources>
