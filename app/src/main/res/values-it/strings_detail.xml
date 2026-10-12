@@ -66,7 +66,7 @@
     <string name="detail_season_n">Stagione %1$d</string>
     <string name="detail_episode_n">Episodio %1$d</string>
     <string name="detail_airs_when">In onda %1$s</string>
-    <string name="detail_tap_hint">Tocca un episodio per segnarlo o meno; tieni premuto per segnare tutto fino a lì.</string>
+    <string name="detail_tap_hint">Tocca un episodio per leggere di più, usa la casella per segnarlo; tieni premuto per segnare tutto fino a lì.</string>
     <string name="detail_links">Link</string>
     <plurals name="detail_episodes_watched">
         <item quantity="one">%1$d di %2$d episodio visto</item>

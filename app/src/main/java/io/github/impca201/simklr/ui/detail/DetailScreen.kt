@@ -713,6 +713,8 @@ private fun EpisodesBlock(
         if (watched && playback != null && playback.episode == e.ref()) onPlaybackWatched(playback) else onToggle(listOf(e.ref()), watched)
     }
     var menu by remember { mutableStateOf(false) }
+    // Episodes whose full description is shown; tapping a row expands it, the checkbox marks it.
+    var expanded by rememberSaveable { mutableStateOf(listOf<String>()) }
 
     Column(Modifier.padding(top = 8.dp)) {
         Row(Modifier.padding(horizontal = 8.dp), verticalAlignment = Alignment.CenterVertically) {
@@ -764,21 +766,28 @@ private fun EpisodesBlock(
         Spacer(Modifier.height(8.dp))
         list.forEach { e ->
             val watched = e.watched()
+            val key = "${e.season}:${e.episode}:${e.special}"
+            val open = key in expanded
             Row(
                 Modifier
                     .fillMaxWidth()
                     .combinedClickable(
-                        enabled = e.aired,
-                        onClick = { toggle(e, !watched) },
-                        onLongClick = {
-                            // Long-press: everything up to and including this episode.
-                            val upTo = list.takeWhile { it != e } + e
-                            onToggle(upTo.filter { it.aired && !it.watched() }.map { it.ref() }, true)
-                        },
-                    ).padding(horizontal = 16.dp, vertical = 8.dp)
+                        onClick = { expanded = if (open) expanded - key else expanded + key },
+                        onLongClick =
+                            if (e.aired) {
+                                {
+                                    // Long-press: everything up to and including this episode.
+                                    val upTo = list.takeWhile { it != e } + e
+                                    onToggle(upTo.filter { it.aired && !it.watched() }.map { it.ref() }, true)
+                                }
+                            } else {
+                                null
+                            },
+                    ).animateContentSize()
+                    .padding(horizontal = 16.dp, vertical = 8.dp)
                     .alpha(if (e.aired) 1f else 0.55f),
                 horizontalArrangement = Arrangement.spacedBy(12.dp),
-                verticalAlignment = Alignment.CenterVertically,
+                verticalAlignment = if (open) Alignment.Top else Alignment.CenterVertically,
             ) {
                 Box(Modifier.width(120.dp).aspectRatio(16f / 9f).clip(RoundedCornerShape(12.dp)).background(MaterialTheme.colorScheme.surfaceContainerHighest)) {
                     Images.episode(e.image)?.let { AsyncImage(it, null, contentScale = ContentScale.Crop, modifier = Modifier.fillMaxSize()) }
@@ -790,7 +799,12 @@ private fun EpisodesBlock(
                     ) { Text(e.ref().label, style = MaterialTheme.typography.labelSmall, modifier = Modifier.padding(horizontal = 4.dp, vertical = 1.dp)) }
                 }
                 Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(2.dp)) {
-                    Text(e.title ?: stringResource(R.string.detail_episode_n, e.episode), style = MaterialTheme.typography.titleSmall, maxLines = 2, overflow = TextOverflow.Ellipsis)
+                    Text(
+                        e.title ?: stringResource(R.string.detail_episode_n, e.episode),
+                        style = MaterialTheme.typography.titleSmall,
+                        maxLines = if (open) Int.MAX_VALUE else 2,
+                        overflow = TextOverflow.Ellipsis,
+                    )
                     val date = io.github.impca201.simklr.data.model.Dates.parse(e.date)
                     if (date != null) {
                         Text(
@@ -811,7 +825,13 @@ private fun EpisodesBlock(
                         )
                     }
                     e.description?.let {
-                        Text(it, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant, maxLines = 2, overflow = TextOverflow.Ellipsis)
+                        Text(
+                            it,
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            maxLines = if (open) Int.MAX_VALUE else 2,
+                            overflow = TextOverflow.Ellipsis,
+                        )
                     }
                 }
                 Checkbox(checked = watched, onCheckedChange = if (e.aired) ({ toggle(e, it) }) else null, enabled = e.aired)
