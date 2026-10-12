@@ -1,7 +1,8 @@
 name: Launch test
 
 # Runs the unit tests, including LaunchTest, which starts MainActivity under Robolectric
-# (no emulator) so start-up crashes fail with their full stack trace in the log.
+# (no emulator) so start-up crashes fail with their full stack trace in the log, and uploads
+# the debug APK of the commit.
 on:
   push:
     branches-ignore: [main]
@@ -24,6 +25,12 @@ jobs:
       - uses: gradle/actions/setup-gradle@v5
       - name: Unit and launch tests
         run: ./gradlew testDebugUnitTest
+      - name: Build debug APK
+        run: ./gradlew assembleDebug
+      - uses: actions/upload-artifact@v4
+        with:
+          name: simklr-debug-apk
+          path: app/build/outputs/apk/debug/app-debug.apk
       - uses: actions/upload-artifact@v4
         if: always()
         with:
