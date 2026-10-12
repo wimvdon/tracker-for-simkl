@@ -1,5 +1,6 @@
 package io.github.impca201.simklr.ui.components
 
+import android.app.Application
 import android.content.ActivityNotFoundException
 import android.content.Context
 import android.content.Intent
@@ -27,9 +28,11 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImage
+import io.github.impca201.simklr.R
 import io.github.impca201.simklr.SimklrApp
 import io.github.impca201.simklr.data.model.Dates
 import io.github.impca201.simklr.data.model.Images
@@ -39,15 +42,16 @@ import java.time.LocalDate
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 import java.time.format.FormatStyle
+import java.util.Locale
 
 @Composable
-fun rememberApp(): SimklrApp = LocalContext.current.applicationContext as SimklrApp
+fun rememberApp(): SimklrApp = (LocalContext.current.applicationContext as SimklrApp).also { Format.context = it }
 
 fun Context.openUrl(url: String) {
     try {
         startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(url)).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK))
     } catch (_: ActivityNotFoundException) {
-        Toast.makeText(this, "No app can open $url", Toast.LENGTH_SHORT).show()
+        Toast.makeText(this, getString(R.string.lib_no_app_for_url, url), Toast.LENGTH_SHORT).show()
     }
 }
 
@@ -102,21 +106,38 @@ fun AvatarButton(
         if (avatar != null) {
             AsyncImage(
                 model = Images.avatar(avatar),
-                contentDescription = "Profile",
+                contentDescription = stringResource(R.string.lib_profile),
                 contentScale = ContentScale.Crop,
                 modifier = Modifier.size(32.dp).clip(CircleShape).background(MaterialTheme.colorScheme.surfaceVariant),
             )
         } else {
-            Icon(Icons.Rounded.Person, contentDescription = "Profile")
+            Icon(Icons.Rounded.Person, contentDescription = stringResource(R.string.lib_profile))
         }
     }
 }
 
 object Format {
+    /**
+     * Context for the localised strings. Set by [rememberApp]; before that (or outside the UI)
+     * the running Application is looked up, so the helpers keep their Context-free signatures.
+     */
+    @Volatile
+    internal var context: Context? = null
+
+    private val res
+        get() = (context ?: currentApplication()?.also { context = it })?.resources
+            ?: error("No application context")
+
+    @Suppress("PrivateApi")
+    private fun currentApplication(): Application? =
+        runCatching { Class.forName("android.app.ActivityThread").getMethod("currentApplication").invoke(null) as Application? }.getOrNull()
+
     private val zone get() = ZoneId.systemDefault()
-    private val dateFormat = DateTimeFormatter.ofLocalizedDate(FormatStyle.MEDIUM)
-    private val dayFormat = DateTimeFormatter.ofPattern("EEE d MMM")
-    private val timeFormat = DateTimeFormatter.ofLocalizedTime(FormatStyle.SHORT)
+
+    // Created per call so they follow the current locale.
+    private val dateFormat get() = DateTimeFormatter.ofLocalizedDate(FormatStyle.MEDIUM).withLocale(Locale.getDefault())
+    private val dayFormat get() = DateTimeFormatter.ofPattern("EEE d MMM", Locale.getDefault())
+    private val timeFormat get() = DateTimeFormatter.ofLocalizedTime(FormatStyle.SHORT).withLocale(Locale.getDefault())
 
     fun date(value: String?): String? = Dates.parse(value)?.let { date(it) }
 
@@ -128,9 +149,9 @@ object Format {
     fun day(date: LocalDate): String {
         val today = LocalDate.now(zone)
         return when (date) {
-            today -> "Today"
-            today.plusDays(1) -> "Tomorrow"
-            today.minusDays(1) -> "Yesterday"
+            today -> res.getString(R.string.lib_day_today)
+            today.plusDays(1) -> res.getString(R.string.lib_day_tomorrow)
+            today.minusDays(1) -> res.getString(R.string.lib_day_yesterday)
             else -> dayFormat.format(date)
         }
     }
@@ -140,9 +161,9 @@ object Format {
         val date = instant.atZone(zone).toLocalDate()
         val days = Duration.between(LocalDate.now(zone).atStartOfDay(zone).toInstant(), date.atStartOfDay(zone).toInstant()).toDays()
         return when {
-            days == 0L -> "today ${time(instant)}"
-            days == 1L -> "tomorrow ${time(instant)}"
-            days in 2..13 -> "in $days days"
+            days == 0L -> res.getString(R.string.lib_relative_today, time(instant))
+            days == 1L -> res.getString(R.string.lib_relative_tomorrow, time(instant))
+            days in 2..13 -> res.getQuantityString(R.plurals.lib_relative_in_days, days.toInt(), days.toInt())
             days < 0 -> date(instant)
             else -> dayFormat.format(date)
         }
@@ -151,12 +172,16 @@ object Format {
     fun ago(value: String?): String? {
         val instant = Dates.parse(value) ?: return null
         val d = Duration.between(instant, Instant.now())
+        fun plural(
+            id: Int,
+            n: Long,
+        ) = res.getQuantityString(id, n.toInt(), n.toInt())
         return when {
-            d.toMinutes() < 60 -> "just now"
-            d.toHours() < 24 -> "${d.toHours()} h ago"
-            d.toDays() < 30 -> "${d.toDays()} d ago"
-            d.toDays() < 365 -> "${d.toDays() / 30} mo ago"
-            else -> "${d.toDays() / 365} y ago"
+            d.toMinutes() < 60 -> res.getString(R.string.lib_ago_just_now)
+            d.toHours() < 24 -> plural(R.plurals.lib_ago_hours, d.toHours())
+            d.toDays() < 30 -> plural(R.plurals.lib_ago_days, d.toDays())
+            d.toDays() < 365 -> plural(R.plurals.lib_ago_months, d.toDays() / 30)
+            else -> plural(R.plurals.lib_ago_years, d.toDays() / 365)
         }
     }
 
@@ -164,9 +189,9 @@ object Format {
         val days = minutes / (60 * 24)
         val hours = (minutes / 60) % 24
         return when {
-            days > 0 -> "${days}d ${hours}h"
-            hours > 0 -> "${hours}h ${minutes % 60}m"
-            else -> "${minutes}m"
+            days > 0 -> res.getString(R.string.lib_duration_days_hours, days, hours)
+            hours > 0 -> res.getString(R.string.lib_duration_hours_minutes, hours, minutes % 60)
+            else -> res.getString(R.string.lib_duration_minutes, minutes)
         }
     }
 

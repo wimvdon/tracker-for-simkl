@@ -46,6 +46,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.unit.dp
+import io.github.impca201.simklr.R
 import io.github.impca201.simklr.data.CatalogRepository
 import io.github.impca201.simklr.data.DiscoverSection
 import io.github.impca201.simklr.data.NavTab
@@ -67,6 +68,7 @@ import kotlinx.coroutines.launch
 fun DiscoverScreen() {
     val app = rememberApp()
     val navigator = LocalNavigator.current
+    val context = androidx.compose.ui.platform.LocalContext.current
     val scope = rememberCoroutineScope()
     val snackbar = remember { SnackbarHostState() }
     var typeName by rememberSaveable { mutableStateOf(MediaType.Tv.name) }
@@ -101,7 +103,16 @@ fun DiscoverScreen() {
                     ) {
                         Row(Modifier.padding(horizontal = 20.dp), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(16.dp)) {
                             Icon(Icons.Rounded.Search, null)
-                            Text("Search ${type.label().lowercase()}", color = MaterialTheme.colorScheme.onSurfaceVariant)
+                            Text(
+                                stringResource(
+                                    when (type) {
+                                        MediaType.Tv -> R.string.screens_discover_search_tv
+                                        MediaType.Anime -> R.string.screens_discover_search_anime
+                                        MediaType.Movie -> R.string.screens_discover_search_movies
+                                    },
+                                ),
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            )
                         }
                     }
                 }
@@ -115,10 +126,10 @@ fun DiscoverScreen() {
                                 onClick = {
                                     scope.launch {
                                         val id = runCatching { app.catalog.random(type) }.getOrNull()
-                                        if (id != null) navigator.openDetail(type, id) else snackbar.showSnackbar("SIMKL had no suggestion this time")
+                                        if (id != null) navigator.openDetail(type, id) else snackbar.showSnackbar(context.getString(R.string.screens_discover_no_suggestion))
                                     }
                                 },
-                                label = { Text("Surprise me") },
+                                label = { Text(stringResource(R.string.screens_discover_surprise)) },
                                 leadingIcon = { Icon(Icons.Rounded.Casino, null, Modifier.size(18.dp)) },
                             )
                         }
@@ -128,11 +139,10 @@ fun DiscoverScreen() {
                     item(key = "${section.id}:$refresh") { SectionRow(section, refresh) }
                 }
                 item(key = "attribution") {
-                    val context = androidx.compose.ui.platform.LocalContext.current
                     androidx.compose.material3.TextButton(
                         onClick = { context.openUrl("https://simkl.com/") },
                         modifier = Modifier.fillMaxWidth().padding(16.dp),
-                    ) { Text("Powered by SIMKL · simkl.com") }
+                    ) { Text(stringResource(R.string.screens_powered_by)) }
                 }
             }
         }

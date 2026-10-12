@@ -49,9 +49,11 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import io.github.impca201.simklr.R
 import io.github.impca201.simklr.data.model.MediaSummary
 import io.github.impca201.simklr.data.model.MediaType
 import io.github.impca201.simklr.ui.LocalNavigator
@@ -99,17 +101,17 @@ fun SearchScreen(initialType: MediaType?) {
             Column {
                 TopAppBar(
                     navigationIcon = {
-                        IconButton(onClick = { navigator.pop() }) { Icon(Icons.AutoMirrored.Rounded.ArrowBack, contentDescription = "Back") }
+                        IconButton(onClick = { navigator.pop() }) { Icon(Icons.AutoMirrored.Rounded.ArrowBack, contentDescription = stringResource(R.string.screens_back)) }
                     },
                     title = {
                         TextField(
                             value = query,
                             onValueChange = { query = it },
-                            placeholder = { Text("Search SIMKL") },
+                            placeholder = { Text(stringResource(R.string.screens_search_placeholder)) },
                             singleLine = true,
                             leadingIcon = { Icon(Icons.Rounded.Search, null) },
                             trailingIcon = {
-                                if (query.isNotEmpty()) IconButton(onClick = { query = "" }) { Icon(Icons.Rounded.Close, contentDescription = "Clear") }
+                                if (query.isNotEmpty()) IconButton(onClick = { query = "" }) { Icon(Icons.Rounded.Close, contentDescription = stringResource(R.string.screens_clear)) }
                             },
                             keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search),
                             keyboardActions = KeyboardActions(onSearch = { keyboard?.hide() }),
@@ -126,7 +128,7 @@ fun SearchScreen(initialType: MediaType?) {
                     },
                 )
                 LazyRow(contentPadding = PaddingValues(horizontal = 16.dp), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    item { FilterChip(selected = type == null, onClick = { typeName = null }, label = { Text("All") }) }
+                    item { FilterChip(selected = type == null, onClick = { typeName = null }, label = { Text(stringResource(R.string.screens_search_all)) }) }
                     items(MediaType.entries) { t ->
                         FilterChip(selected = type == t, onClick = { typeName = t.name }, label = { Text(t.label()) })
                     }
@@ -138,9 +140,9 @@ fun SearchScreen(initialType: MediaType?) {
         val sections = results.filterValues { it.isNotEmpty() }
         if (sections.isEmpty()) {
             if (query.trim().length >= 2 && !loading) {
-                EmptyState(Icons.Rounded.SearchOff, "No results for “${query.trim()}”", modifier = Modifier.padding(padding))
+                EmptyState(Icons.Rounded.SearchOff, stringResource(R.string.screens_search_no_results, query.trim()), modifier = Modifier.padding(padding))
             } else {
-                EmptyState(Icons.Rounded.Search, "Find TV shows, anime and movies", "Search by title in the whole SIMKL catalogue.", Modifier.padding(padding))
+                EmptyState(Icons.Rounded.Search, stringResource(R.string.screens_search_empty_title), stringResource(R.string.screens_search_empty_body), Modifier.padding(padding))
             }
             return@Scaffold
         }

@@ -1,6 +1,8 @@
 package io.github.impca201.simklr.ui.library
 
 import io.github.impca201.simklr.ui.components.label
+import androidx.compose.ui.res.stringResource
+import io.github.impca201.simklr.R
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
@@ -88,7 +90,13 @@ fun MoviesScreen() {
             val items = byStatus[shelf.status].orEmpty()
             val filter = options.filter(page)
             Column(Modifier.fillMaxSize()) {
-            LibraryControls(MediaType.Movie, "Search ${shelf.label().lowercase()}", options.sort(page), { options.setSort(page, it) }, filter) {
+            val searchHint =
+                when (shelf) {
+                    MovieShelf.PlanToWatch -> R.string.lib_search_plan_to_watch
+                    MovieShelf.Completed -> R.string.lib_search_watched
+                    MovieShelf.Dropped -> R.string.lib_search_dropped
+                }
+            LibraryControls(MediaType.Movie, stringResource(searchHint), options.sort(page), { options.setSort(page, it) }, filter) {
                 options.setFilter(page, it)
             }
             PullToRefreshBox(
@@ -97,17 +105,21 @@ fun MoviesScreen() {
                 modifier = Modifier.fillMaxSize(),
             ) {
                 if (items.isEmpty() && filter.active) {
-                    EmptyState(Icons.Rounded.SearchOff, "Nothing matches the filters") {
-                        TextButton(onClick = { options.setFilter(page, LibraryFilter()) }) { Text("Clear filters") }
+                    EmptyState(Icons.Rounded.SearchOff, stringResource(R.string.lib_no_matches)) {
+                        TextButton(onClick = { options.setFilter(page, LibraryFilter()) }) { Text(stringResource(R.string.lib_clear_filters)) }
                     }
                 } else if (items.isEmpty() && state.loaded && !state.syncing) {
-                    val icon =
+                    val (icon, title) =
                         when (shelf) {
-                            MovieShelf.PlanToWatch -> Icons.Rounded.Bookmark
-                            MovieShelf.Completed -> Icons.Rounded.CheckCircle
-                            MovieShelf.Dropped -> Icons.Rounded.Block
+                            MovieShelf.PlanToWatch -> Icons.Rounded.Bookmark to R.string.lib_empty_plan_movies
+                            MovieShelf.Completed -> Icons.Rounded.CheckCircle to R.string.lib_empty_watched_movies
+                            MovieShelf.Dropped -> Icons.Rounded.Block to R.string.lib_empty_dropped_movies
                         }
-                    EmptyState(icon, "No movies here", if (shelf == MovieShelf.PlanToWatch) "Find movies to watch in Discover." else null)
+                    EmptyState(
+                        icon,
+                        stringResource(title),
+                        if (shelf == MovieShelf.PlanToWatch) stringResource(R.string.lib_empty_plan_movies_text) else null,
+                    )
                 } else {
                     LibraryGrid(
                         items = items,
