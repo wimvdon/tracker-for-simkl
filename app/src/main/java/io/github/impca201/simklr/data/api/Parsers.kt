@@ -56,7 +56,7 @@ object Parsers {
             obj["shows"].objects().mapNotNullTo(this) { libraryItem(it, MediaType.Tv) }
             obj["anime"].objects().mapNotNullTo(this) { libraryItem(it, MediaType.Anime) }
             obj["movies"].objects().mapNotNullTo(this) { libraryItem(it, MediaType.Movie) }
-        }
+        }.distinctBy { it.key } // Keys must be unique in the lazy lists.
     }
 
     fun libraryItem(
@@ -187,7 +187,7 @@ object Parsers {
             obj["users_recommendations"].objects().mapNotNull { rec ->
                 val recType = MediaType.fromApi(rec.str("type")) ?: type
                 summary(rec, recType)
-            }
+            }.distinctBy { "${it.type}:${it.simklId}" }
         val altTitles =
             obj.arr("alt_titles")?.mapNotNull { t ->
                 (t as? JsonObject)?.str("name") ?: (t as? JsonPrimitive)?.content
@@ -258,7 +258,7 @@ object Parsers {
                 date = date,
                 episode = ep?.int("episode")?.let { EpisodeRef(ep.int("season"), it) },
             )
-        }
+        }.distinctBy { "${it.simklId}:${it.episode?.label}:${it.date}" }
 
     // ---- Users --------------------------------------------------------------------------------
 
