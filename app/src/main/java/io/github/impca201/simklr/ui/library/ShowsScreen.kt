@@ -92,24 +92,26 @@ fun ShowsScreen(
     val scope = rememberCoroutineScope()
     val state by app.library.state.collectAsState()
     val snackbar = remember { SnackbarHostState() }
-    var sort by rememberSaveable { mutableStateOf(SortOrder.Recent) }
-    var filter by rememberSaveable(stateSaver = LibraryFilter.Saver) { mutableStateOf(LibraryFilter()) }
     val shelves = Shelf.entries
+    val options = rememberTabOptions(shelves.map { if (it == Shelf.PlanToWatch) SortOrder.Added else SortOrder.Recent })
     val pagerState = rememberPagerState { shelves.size }
     val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
     val fromLatest = settings.continueFromLatest
 
+    // Each tab has its own sort and filter.
     val byShelf =
-        remember(state, type, sort, filter, fromLatest) {
+        remember(state, type, fromLatest, options.version) {
             val now = Instant.now()
-            filter.apply(state.items.filter { it.type == type }, state)
+            state.items.filter { it.type == type }
                 .groupBy { Shelves.shelfOf(it, now, fromLatest, state.latestNext[it.key]) }
                 .mapValues { (shelf, v) ->
-                    val sorted = sort.sort(v)
+                    val tab = shelves.indexOf(shelf)
+                    val sorted = options.sort(tab).sort(options.filter(tab).apply(v, state))
                     // Episodes in progress come first in Up next.
                     if (shelf == Shelf.UpNext) sorted.sortedByDescending { state.playbackFor(it.type, it.ids.simkl) != null } else sorted
                 }
         }
+    val page = pagerState.currentPage
 
     LaunchedEffect(state.error) { state.error?.let { snackbar.showSnackbar(it) } }
     LaunchedEffect(fromLatest) { if (fromLatest) app.library.refreshLatestNext() }
@@ -126,7 +128,9 @@ fun ShowsScreen(
                     title = if (type == MediaType.Tv) NavTab.Tv.label else NavTab.Anime.label,
                     scrollBehavior = scrollBehavior,
                     searchType = type,
-                ) { SortFilterButton(type, sort, { sort = it }, filter, { filter = it }) }
+                ) {
+                    SortFilterButton(type, options.sort(page), { options.setSort(page, it) }, options.filter(page), { options.setFilter(page, it) })
+                }
                 PrimaryScrollableTabRow(selectedTabIndex = pagerState.currentPage, edgePadding = 16.dp) {
                     shelves.forEachIndexed { index, shelf ->
                         Tab(
@@ -142,6 +146,9 @@ fun ShowsScreen(
         HorizontalPager(state = pagerState, modifier = Modifier.fillMaxSize().padding(top = padding.calculateTopPadding())) { page ->
             val shelf = shelves[page]
             val items = byShelf[shelf].orEmpty()
+            val filter = options.filter(page)
+            Column(Modifier.fillMaxSize()) {
+            QuickFilterChips(type, filter) { options.setFilter(page, it) }
             PullToRefreshBox(
                 isRefreshing = state.syncing,
                 onRefresh = { scope.launch { app.library.sync() } },
@@ -150,7 +157,7 @@ fun ShowsScreen(
                 when {
                     items.isEmpty() && filter.active ->
                         EmptyState(Icons.Rounded.SearchOff, "Nothing matches the filters") {
-                            TextButton(onClick = { filter = LibraryFilter() }) { Text("Clear filters") }
+                            TextButton(onClick = { options.setFilter(page, LibraryFilter()) }) { Text("Clear filters") }
                         }
                     items.isEmpty() && state.loaded && !state.syncing ->
                         EmptyState(shelf.emptyIcon(), "No ${shelf.label.lowercase()} ${if (type == MediaType.Anime) "anime" else "shows"}", shelf.emptyText())
@@ -165,6 +172,7 @@ fun ShowsScreen(
                             showAiring = true,
                         )
                 }
+            }
             }
         }
     }

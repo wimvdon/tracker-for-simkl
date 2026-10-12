@@ -125,7 +125,7 @@ fun SettingsScreen(settings: AppSettings) {
                         }
                     }
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-                        SwitchRow("Dynamic color", "Use colors from your wallpaper", settings.dynamicColor) {
+                        SwitchRow("Dynamic color", "Use colors from your wallpaper instead of SIMKLr violet", settings.dynamicColor) {
                             scope.launch { app.settings.setDynamicColor(it) }
                         }
                     }

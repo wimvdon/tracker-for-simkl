@@ -49,15 +49,18 @@ fun MoviesScreen() {
     val scope = rememberCoroutineScope()
     val state by app.library.state.collectAsState()
     val snackbar = remember { SnackbarHostState() }
-    var sort by rememberSaveable { mutableStateOf(SortOrder.Recent) }
-    var filter by rememberSaveable(stateSaver = LibraryFilter.Saver) { mutableStateOf(LibraryFilter()) }
     val shelves = MovieShelf.entries
+    val options = rememberTabOptions(shelves.map { if (it == MovieShelf.PlanToWatch) SortOrder.Added else SortOrder.Recent })
     val pagerState = rememberPagerState { shelves.size }
     val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
     val byStatus =
-        remember(state, sort, filter) {
-            filter.apply(state.items.filter { it.type == MediaType.Movie }, state).groupBy { it.status }.mapValues { (_, v) -> sort.sort(v) }
+        remember(state, options.version) {
+            state.items.filter { it.type == MediaType.Movie }.groupBy { it.status }.mapValues { (status, v) ->
+                val tab = shelves.indexOfFirst { it.status == status }
+                if (tab < 0) v else options.sort(tab).sort(options.filter(tab).apply(v, state))
+            }
         }
+    val page = pagerState.currentPage
 
     LaunchedEffect(state.error) { state.error?.let { snackbar.showSnackbar(it) } }
 
@@ -67,7 +70,9 @@ fun MoviesScreen() {
         snackbarHost = { SnackbarHost(snackbar, Modifier.padding(bottom = bottomPadding())) },
         topBar = {
             Column {
-                MainTopBar(NavTab.Movies.label, scrollBehavior, MediaType.Movie) { SortFilterButton(MediaType.Movie, sort, { sort = it }, filter, { filter = it }) }
+                MainTopBar(NavTab.Movies.label, scrollBehavior, MediaType.Movie) {
+                    SortFilterButton(MediaType.Movie, options.sort(page), { options.setSort(page, it) }, options.filter(page), { options.setFilter(page, it) })
+                }
                 PrimaryTabRow(selectedTabIndex = pagerState.currentPage) {
                     shelves.forEachIndexed { index, shelf ->
                         Tab(
@@ -83,6 +88,9 @@ fun MoviesScreen() {
         HorizontalPager(state = pagerState, modifier = Modifier.fillMaxSize().padding(top = padding.calculateTopPadding())) { page ->
             val shelf = shelves[page]
             val items = byStatus[shelf.status].orEmpty()
+            val filter = options.filter(page)
+            Column(Modifier.fillMaxSize()) {
+            QuickFilterChips(MediaType.Movie, filter) { options.setFilter(page, it) }
             PullToRefreshBox(
                 isRefreshing = state.syncing,
                 onRefresh = { scope.launch { app.library.sync() } },
@@ -90,7 +98,7 @@ fun MoviesScreen() {
             ) {
                 if (items.isEmpty() && filter.active) {
                     EmptyState(Icons.Rounded.SearchOff, "Nothing matches the filters") {
-                        TextButton(onClick = { filter = LibraryFilter() }) { Text("Clear filters") }
+                        TextButton(onClick = { options.setFilter(page, LibraryFilter()) }) { Text("Clear filters") }
                     }
                 } else if (items.isEmpty() && state.loaded && !state.syncing) {
                     val icon =
@@ -109,6 +117,7 @@ fun MoviesScreen() {
                         showAiring = false,
                     )
                 }
+            }
             }
         }
     }

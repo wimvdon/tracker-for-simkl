@@ -289,4 +289,41 @@ class ParsersTest {
         assertEquals(MediaType.Movie, movie.type)
         assertNull(movie.episode)
     }
+
+    @Test
+    fun continueFromLatestCountsOnlyAiredEpisodes() {
+        // "Below Deck": seasons 1-3 skipped, 4-5 watched; SIMKL already points at S06E01, which airs
+        // tomorrow and has no date in the library, while the counts include the skipped seasons.
+        val item =
+            io.github.impca201.simklr.data.model.LibraryItem(
+                type = MediaType.Tv,
+                ids = io.github.impca201.simklr.data.model.MediaIds(2),
+                title = "Below Deck",
+                status = ListStatus.Watching,
+                nextToWatch = io.github.impca201.simklr.data.model.NextEpisode(EpisodeRef(6, 1)),
+                watchedEpisodes = 3,
+                totalEpisodes = 10,
+                watched =
+                    listOf(
+                        io.github.impca201.simklr.data.model.WatchedSeason(4, listOf(1, 2)),
+                        io.github.impca201.simklr.data.model.WatchedSeason(5, listOf(1)),
+                    ),
+            )
+        assertFalse(Shelves.hasGap(item))
+        // SIMKL's counts alone put it in Up next, so the setting looks it up.
+        assertEquals(Shelf.UpNext, Shelves.shelfOf(item))
+        assertTrue(Shelves.needsLatestLookup(item))
+        fun ep(
+            s: Int,
+            e: Int,
+            aired: Boolean = true,
+        ) = io.github.impca201.simklr.data.model.Episode(s, e, null, null, null, null, aired, false)
+        val latest = Shelves.latestNextFrom(item, listOf(ep(1, 1), ep(4, 1), ep(4, 2), ep(5, 1), ep(6, 1, aired = false)))
+        assertNull(latest.next)
+        assertEquals(Shelf.Watched, Shelves.shelfOf(item, fromLatest = true, latest = latest))
+        // Once it has aired it is up next again.
+        val aired = Shelves.latestNextFrom(item, listOf(ep(4, 1), ep(4, 2), ep(5, 1), ep(6, 1)))
+        assertEquals(Shelf.UpNext, Shelves.shelfOf(item, fromLatest = true, latest = aired))
+        assertEquals(EpisodeRef(6, 1), Shelves.nextEpisode(item, true, aired)?.ref)
+    }
 }

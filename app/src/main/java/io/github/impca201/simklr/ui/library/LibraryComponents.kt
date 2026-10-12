@@ -10,7 +10,7 @@ import androidx.compose.material3.FilterChip
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.TextButton
-import androidx.compose.runtime.saveable.listSaver
+import androidx.compose.runtime.saveable.rememberSaveable
 import io.github.impca201.simklr.data.model.MediaType
 import io.github.impca201.simklr.ui.components.Format
 import androidx.compose.foundation.layout.Arrangement
@@ -138,21 +138,103 @@ data class LibraryFilter(
             releaseOk && ratingOk && (animeType == null || item.animeType.equals(animeType, ignoreCase = true))
         }
 
+    /** Compact form for rememberSaveable: "release|rating|animeType". */
+    fun encode(): String = "${release.name}|${rating.name}|${animeType.orEmpty()}"
+
     companion object {
         val animeTypes = listOf("tv" to "TV", "movie" to "Movie", "ova" to "OVA", "ona" to "ONA", "special" to "Special")
 
-        val Saver =
-            listSaver<LibraryFilter, String>(
-                save = { listOf(it.release.name, it.rating.name, it.animeType.orEmpty()) },
-                restore = { LibraryFilter(ReleaseFilter.valueOf(it[0]), RatingFilter.valueOf(it[1]), it[2].ifEmpty { null }) },
+        fun decode(value: String): LibraryFilter {
+            val parts = value.split("|")
+            return LibraryFilter(
+                release = ReleaseFilter.entries.firstOrNull { it.name == parts.getOrNull(0) } ?: ReleaseFilter.All,
+                rating = RatingFilter.entries.firstOrNull { it.name == parts.getOrNull(1) } ?: RatingFilter.Any,
+                animeType = parts.getOrNull(2)?.ifEmpty { null },
             )
+        }
+    }
+}
+
+/**
+ * Sort and filter of each tab of a library screen, kept separately per tab for the session.
+ * Indexes are tab positions.
+ */
+class TabOptions(
+    private val sorts: androidx.compose.runtime.MutableState<List<String>>,
+    private val filters: androidx.compose.runtime.MutableState<List<String>>,
+) {
+    /** Changes whenever any tab's sort or filter changes (a remember key). */
+    val version: Any get() = sorts.value to filters.value
+
+    fun sort(tab: Int): SortOrder = SortOrder.entries.firstOrNull { it.name == sorts.value.getOrNull(tab) } ?: SortOrder.Recent
+
+    fun filter(tab: Int): LibraryFilter = LibraryFilter.decode(filters.value.getOrNull(tab).orEmpty())
+
+    fun setSort(
+        tab: Int,
+        value: SortOrder,
+    ) {
+        sorts.value = sorts.value.toMutableList().also { it[tab] = value.name }
+    }
+
+    fun setFilter(
+        tab: Int,
+        value: LibraryFilter,
+    ) {
+        filters.value = filters.value.toMutableList().also { it[tab] = value.encode() }
+    }
+}
+
+@Composable
+fun rememberTabOptions(defaultSorts: List<SortOrder>): TabOptions {
+    val sorts = rememberSaveable { mutableStateOf(defaultSorts.map { it.name }) }
+    val filters = rememberSaveable { mutableStateOf(defaultSorts.map { "" }) }
+    return remember(sorts, filters) { TabOptions(sorts, filters) }
+}
+
+/**
+ * The most used filters as chips above a tab's list: still airing / ended (upcoming / released
+ * for movies) and, for anime, the type. Tapping a selected chip clears it.
+ */
+@Composable
+fun QuickFilterChips(
+    type: MediaType,
+    filter: LibraryFilter,
+    onFilter: (LibraryFilter) -> Unit,
+) {
+    val release =
+        if (type == MediaType.Movie) {
+            listOf(ReleaseFilter.Finished to "Released", ReleaseFilter.Running to "Upcoming")
+        } else {
+            listOf(ReleaseFilter.Running to "Still airing", ReleaseFilter.Finished to "Ended")
+        }
+    LazyRow(
+        contentPadding = PaddingValues(horizontal = 12.dp, vertical = 4.dp),
+        horizontalArrangement = Arrangement.spacedBy(8.dp),
+    ) {
+        items(release) { (value, label) ->
+            FilterChip(
+                selected = filter.release == value,
+                onClick = { onFilter(filter.copy(release = if (filter.release == value) ReleaseFilter.All else value)) },
+                label = { Text(label) },
+            )
+        }
+        if (type == MediaType.Anime) {
+            items(LibraryFilter.animeTypes) { (key, label) ->
+                FilterChip(
+                    selected = filter.animeType == key,
+                    onClick = { onFilter(filter.copy(animeType = if (filter.animeType == key) null else key)) },
+                    label = { Text(label) },
+                )
+            }
+        }
     }
 }
 
 @Composable
 fun bottomPadding(): Dp = FloatingBarSpace + WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding()
 
-/** Top bar button opening the sort and filter sheet; shows a dot while a filter is on. */
+/** Top bar button opening the sort and rating-filter sheet; shows a dot while any filter is on. */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SortFilterButton(
@@ -181,23 +263,8 @@ fun SortFilterButton(
                     Text(order.label, style = MaterialTheme.typography.bodyLarge)
                 }
             }
-            Text(
-                if (type == MediaType.Movie) "Release" else "Status",
-                style = MaterialTheme.typography.titleSmall,
-                color = MaterialTheme.colorScheme.primary,
-                modifier = Modifier.padding(top = 8.dp),
-            )
-            ChipRow(ReleaseFilter.entries, filter.release, { if (type == MediaType.Movie) it.movieLabel else it.showLabel }) {
-                onFilter(filter.copy(release = it))
-            }
             Text("My rating", style = MaterialTheme.typography.titleSmall, color = MaterialTheme.colorScheme.primary, modifier = Modifier.padding(top = 8.dp))
             ChipRow(RatingFilter.entries, filter.rating, { it.label }) { onFilter(filter.copy(rating = it)) }
-            if (type == MediaType.Anime) {
-                Text("Type", style = MaterialTheme.typography.titleSmall, color = MaterialTheme.colorScheme.primary, modifier = Modifier.padding(top = 8.dp))
-                ChipRow(listOf<String?>(null) + LibraryFilter.animeTypes.map { it.first }, filter.animeType, { key ->
-                    LibraryFilter.animeTypes.firstOrNull { it.first == key }?.second ?: "All"
-                }) { onFilter(filter.copy(animeType = it)) }
-            }
             if (filter.active) {
                 TextButton(onClick = { onFilter(LibraryFilter()) }, modifier = Modifier.align(Alignment.End)) { Text("Clear filters") }
             }
