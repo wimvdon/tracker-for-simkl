@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="lib_no_app_for_url">Ninguna app puede abrir %1$s</string>
+    <string name="lib_profile">Perfil</string>
+    <string name="lib_day_today">Hoy</string>
+    <string name="lib_day_tomorrow">Mañana</string>
+    <string name="lib_day_yesterday">Ayer</string>
+    <string name="lib_relative_today">hoy a las %1$s</string>
+    <string name="lib_relative_tomorrow">mañana a las %1$s</string>
+    <string name="lib_ago_just_now">ahora mismo</string>
+    <string name="lib_duration_days_hours">%1$dd %2$dh</string>
+    <string name="lib_duration_hours_minutes">%1$dh %2$dmin</string>
+    <string name="lib_duration_minutes">%1$dmin</string>
+    <string name="lib_confirm_watched_title">¿Marcar como visto?</string>
+    <string name="lib_confirm_watched_text">Dejaste %1$s al %2$d %%. Si lo marcas como visto, se eliminará ese progreso guardado en SIMKL.</string>
+    <string name="lib_mark_watched">Marcar como visto</string>
+    <string name="lib_cancel">Cancelar</string>
+    <string name="lib_badge_airing">En emisión</string>
+    <string name="lib_badge_ended">Finalizada</string>
+    <string name="lib_in_your_lists">En tus listas</string>
+    <string name="lib_search">Buscar</string>
+    <string name="lib_sort_recent">Vistos recientemente</string>
+    <string name="lib_sort_added">Añadidos recientemente</string>
+    <string name="lib_sort_title">Título</string>
+    <string name="lib_sort_rating">Valoración</string>
+    <string name="lib_sort_release">Fecha de estreno</string>
+    <string name="lib_filter_all">Todos</string>
+    <string name="lib_filter_still_airing">En emisión</string>
+    <string name="lib_filter_upcoming">Próximamente</string>
+    <string name="lib_filter_ended">Finalizadas</string>
+    <string name="lib_filter_released">Estrenadas</string>
+    <string name="lib_filter_any">Todas</string>
+    <string name="lib_filter_rated">Valorados por mí</string>
+    <string name="lib_filter_unrated">Sin valorar</string>
+    <string name="lib_anime_type_tv">TV</string>
+    <string name="lib_anime_type_movie">Película</string>
+    <string name="lib_anime_type_ova">OVA</string>
+    <string name="lib_anime_type_ona">ONA</string>
+    <string name="lib_anime_type_special">Especial</string>
+    <string name="lib_chip_release">Estreno</string>
+    <string name="lib_chip_status">Estado</string>
+    <string name="lib_chip_rating">Valoración</string>
+    <string name="lib_chip_type">Tipo</string>
+    <string name="lib_close_search">Cerrar búsqueda</string>
+    <string name="lib_clear_filter">Borrar %1$s</string>
+    <string name="lib_next_air">Próximo: %1$s</string>
+    <string name="lib_empty_up_next_text">Nada que ver por ahora. Aquí aparecen los episodios nuevos de las series que estás viendo.</string>
+    <string name="lib_empty_watched_text">Aquí aparecen las series que tienes al día o que has terminado.</string>
+    <string name="lib_empty_plan_text">Añade las series que quieres ver desde Descubrir o la búsqueda.</string>
+    <string name="lib_empty_other_text">Aún no hay nada aquí.</string>
+    <string name="lib_empty_up_next_shows">No hay series a continuación</string>
+    <string name="lib_empty_up_next_anime">No hay anime a continuación</string>
+    <string name="lib_empty_watched_shows">No hay series vistas</string>
+    <string name="lib_empty_watched_anime">No hay anime vistos</string>
+    <string name="lib_empty_plan_shows">No hay series pendientes</string>
+    <string name="lib_empty_plan_anime">No hay anime pendientes</string>
+    <string name="lib_empty_on_hold_shows">No hay series en pausa</string>
+    <string name="lib_empty_on_hold_anime">No hay anime en pausa</string>
+    <string name="lib_empty_dropped_shows">No hay series abandonadas</string>
+    <string name="lib_empty_dropped_anime">No hay anime abandonados</string>
+    <string name="lib_empty_plan_movies">No hay películas pendientes</string>
+    <string name="lib_empty_watched_movies">No hay películas vistas</string>
+    <string name="lib_empty_dropped_movies">No hay películas abandonadas</string>
+    <string name="lib_empty_plan_movies_text">Encuentra películas para ver en Descubrir.</string>
+    <string name="lib_search_up_next">Buscar en A continuación</string>
+    <string name="lib_search_watched">Buscar en Visto</string>
+    <string name="lib_search_plan_to_watch">Buscar en Pendiente</string>
+    <string name="lib_search_on_hold">Buscar en En pausa</string>
+    <string name="lib_search_dropped">Buscar en Abandonados</string>
+    <string name="lib_no_matches">Nada coincide con los filtros</string>
+    <string name="lib_clear_filters">Borrar filtros</string>
+    <string name="lib_mark_failed">No se pudo marcar %1$s como visto: %2$s</string>
+    <string name="lib_playback_progress">▶ %1$s · %2$d %% visto</string>
+    <string name="lib_continue_watching">Seguir viendo</string>
+    <string name="lib_watched_ago">visto %1$s</string>
+    <string name="lib_mark_episode_watched">Marcar %1$s como visto</string>
+    <plurals name="lib_relative_in_days">
+        <item quantity="one">en %d día</item>
+        <item quantity="other">en %d días</item>
+    </plurals>
+    <plurals name="lib_ago_hours">
+        <item quantity="one">hace %d h</item>
+        <item quantity="other">hace %d h</item>
+    </plurals>
+    <plurals name="lib_ago_days">
+        <item quantity="one">hace %d día</item>
+        <item quantity="other">hace %d días</item>
+    </plurals>
+    <plurals name="lib_ago_months">
+        <item quantity="one">hace %d mes</item>
+        <item quantity="other">hace %d meses</item>
+    </plurals>
+    <plurals name="lib_ago_years">
+        <item quantity="one">hace %d año</item>
+        <item quantity="other">hace %d años</item>
+    </plurals>
+    <plurals name="lib_episodes_left">
+        <item quantity="one">queda %d episodio</item>
+        <item quantity="other">quedan %d episodios</item>
+    </plurals>
+</resources>

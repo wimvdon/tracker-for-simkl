@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="lib_no_app_for_url">Geen app kan %1$s openen</string>
+    <string name="lib_profile">Profiel</string>
+    <string name="lib_day_today">Vandaag</string>
+    <string name="lib_day_tomorrow">Morgen</string>
+    <string name="lib_day_yesterday">Gisteren</string>
+    <string name="lib_relative_today">vandaag %1$s</string>
+    <string name="lib_relative_tomorrow">morgen %1$s</string>
+    <string name="lib_ago_just_now">zojuist</string>
+    <string name="lib_duration_days_hours">%1$dd %2$du</string>
+    <string name="lib_duration_hours_minutes">%1$du %2$dm</string>
+    <string name="lib_duration_minutes">%1$dm</string>
+    <string name="lib_confirm_watched_title">Markeren als gezien?</string>
+    <string name="lib_confirm_watched_text">Je bent bij %1$s gestopt op %2$d%%. Als je het als gezien markeert, wordt die opgeslagen voortgang op SIMKL verwijderd.</string>
+    <string name="lib_mark_watched">Markeren als gezien</string>
+    <string name="lib_cancel">Annuleren</string>
+    <string name="lib_badge_airing">Loopt</string>
+    <string name="lib_badge_ended">Afgelopen</string>
+    <string name="lib_in_your_lists">In je lijsten</string>
+    <string name="lib_search">Zoeken</string>
+    <string name="lib_sort_recent">Recent bekeken</string>
+    <string name="lib_sort_added">Recent toegevoegd</string>
+    <string name="lib_sort_title">Titel</string>
+    <string name="lib_sort_rating">Beoordeling</string>
+    <string name="lib_sort_release">Releasedatum</string>
+    <string name="lib_filter_all">Alle</string>
+    <string name="lib_filter_still_airing">Loopt nog</string>
+    <string name="lib_filter_upcoming">Binnenkort</string>
+    <string name="lib_filter_ended">Afgelopen</string>
+    <string name="lib_filter_released">Uitgebracht</string>
+    <string name="lib_filter_any">Alle</string>
+    <string name="lib_filter_rated">Door mij beoordeeld</string>
+    <string name="lib_filter_unrated">Niet beoordeeld</string>
+    <string name="lib_anime_type_tv">TV</string>
+    <string name="lib_anime_type_movie">Film</string>
+    <string name="lib_anime_type_ova">OVA</string>
+    <string name="lib_anime_type_ona">ONA</string>
+    <string name="lib_anime_type_special">Special</string>
+    <string name="lib_chip_release">Release</string>
+    <string name="lib_chip_status">Status</string>
+    <string name="lib_chip_rating">Beoordeling</string>
+    <string name="lib_chip_type">Type</string>
+    <string name="lib_close_search">Zoeken sluiten</string>
+    <string name="lib_clear_filter">%1$s wissen</string>
+    <string name="lib_next_air">Volgende: %1$s</string>
+    <string name="lib_empty_up_next_text">Niets te kijken op dit moment. Nieuwe afleveringen van series die je kijkt, verschijnen hier.</string>
+    <string name="lib_empty_watched_text">Series waarmee je bij bent of die je hebt uitgekeken, verschijnen hier.</string>
+    <string name="lib_empty_plan_text">Voeg series die je wilt zien toe via Ontdekken of zoeken.</string>
+    <string name="lib_empty_other_text">Hier staat nog niets.</string>
+    <string name="lib_empty_up_next_shows">Geen series bij Volgende</string>
+    <string name="lib_empty_up_next_anime">Geen anime bij Volgende</string>
+    <string name="lib_empty_watched_shows">Geen geziene series</string>
+    <string name="lib_empty_watched_anime">Geen geziene anime</string>
+    <string name="lib_empty_plan_shows">Nog geen series die je wilt zien</string>
+    <string name="lib_empty_plan_anime">Nog geen anime die je wilt zien</string>
+    <string name="lib_empty_on_hold_shows">Geen series in de wacht</string>
+    <string name="lib_empty_on_hold_anime">Geen anime in de wacht</string>
+    <string name="lib_empty_dropped_shows">Geen gestopte series</string>
+    <string name="lib_empty_dropped_anime">Geen gestopte anime</string>
+    <string name="lib_empty_plan_movies">Nog geen films die je wilt zien</string>
+    <string name="lib_empty_watched_movies">Geen geziene films</string>
+    <string name="lib_empty_dropped_movies">Geen gestopte films</string>
+    <string name="lib_empty_plan_movies_text">Vind films om te kijken in Ontdekken.</string>
+    <string name="lib_search_up_next">Zoeken in Volgende</string>
+    <string name="lib_search_watched">Zoeken in Gezien</string>
+    <string name="lib_search_plan_to_watch">Zoeken in Wil ik zien</string>
+    <string name="lib_search_on_hold">Zoeken in gepauzeerd</string>
+    <string name="lib_search_dropped">Zoeken in gestopt</string>
+    <string name="lib_no_matches">Niets komt overeen met de filters</string>
+    <string name="lib_clear_filters">Filters wissen</string>
+    <string name="lib_mark_failed">Kon %1$s niet als gezien markeren: %2$s</string>
+    <string name="lib_playback_progress">▶ %1$s · %2$d%% gezien</string>
+    <string name="lib_continue_watching">Verder kijken</string>
+    <string name="lib_watched_ago">gezien %1$s</string>
+    <string name="lib_mark_episode_watched">%1$s markeren als gezien</string>
+    <plurals name="lib_relative_in_days">
+        <item quantity="one">over %d dag</item>
+        <item quantity="other">over %d dagen</item>
+    </plurals>
+    <plurals name="lib_ago_hours">
+        <item quantity="one">%d uur geleden</item>
+        <item quantity="other">%d uur geleden</item>
+    </plurals>
+    <plurals name="lib_ago_days">
+        <item quantity="one">%d dag geleden</item>
+        <item quantity="other">%d dagen geleden</item>
+    </plurals>
+    <plurals name="lib_ago_months">
+        <item quantity="one">%d maand geleden</item>
+        <item quantity="other">%d maanden geleden</item>
+    </plurals>
+    <plurals name="lib_ago_years">
+        <item quantity="one">%d jaar geleden</item>
+        <item quantity="other">%d jaar geleden</item>
+    </plurals>
+    <plurals name="lib_episodes_left">
+        <item quantity="one">nog %d aflevering</item>
+        <item quantity="other">nog %d afleveringen</item>
+    </plurals>
+</resources>

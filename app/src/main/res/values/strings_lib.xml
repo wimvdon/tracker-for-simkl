@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="lib_no_app_for_url">No app can open %1$s</string>
+    <string name="lib_profile">Profile</string>
+    <string name="lib_day_today">Today</string>
+    <string name="lib_day_tomorrow">Tomorrow</string>
+    <string name="lib_day_yesterday">Yesterday</string>
+    <string name="lib_relative_today">today %1$s</string>
+    <string name="lib_relative_tomorrow">tomorrow %1$s</string>
+    <string name="lib_ago_just_now">just now</string>
+    <string name="lib_duration_days_hours">%1$dd %2$dh</string>
+    <string name="lib_duration_hours_minutes">%1$dh %2$dm</string>
+    <string name="lib_duration_minutes">%1$dm</string>
+    <string name="lib_confirm_watched_title">Mark as watched?</string>
+    <string name="lib_confirm_watched_text">You stopped %1$s at %2$d%%. Marking it watched removes that saved progress on SIMKL.</string>
+    <string name="lib_mark_watched">Mark watched</string>
+    <string name="lib_cancel">Cancel</string>
+    <string name="lib_badge_airing">Airing</string>
+    <string name="lib_badge_ended">Ended</string>
+    <string name="lib_in_your_lists">In your lists</string>
+    <string name="lib_search">Search</string>
+    <string name="lib_sort_recent">Recently watched</string>
+    <string name="lib_sort_added">Recently added</string>
+    <string name="lib_sort_title">Title</string>
+    <string name="lib_sort_rating">Rating</string>
+    <string name="lib_sort_release">Release date</string>
+    <string name="lib_filter_all">All</string>
+    <string name="lib_filter_still_airing">Still airing</string>
+    <string name="lib_filter_upcoming">Upcoming</string>
+    <string name="lib_filter_ended">Ended</string>
+    <string name="lib_filter_released">Released</string>
+    <string name="lib_filter_any">Any</string>
+    <string name="lib_filter_rated">Rated by me</string>
+    <string name="lib_filter_unrated">Not rated</string>
+    <string name="lib_anime_type_tv">TV</string>
+    <string name="lib_anime_type_movie">Movie</string>
+    <string name="lib_anime_type_ova">OVA</string>
+    <string name="lib_anime_type_ona">ONA</string>
+    <string name="lib_anime_type_special">Special</string>
+    <string name="lib_chip_release">Release</string>
+    <string name="lib_chip_status">Status</string>
+    <string name="lib_chip_rating">Rating</string>
+    <string name="lib_chip_type">Type</string>
+    <string name="lib_close_search">Close search</string>
+    <string name="lib_clear_filter">Clear %1$s</string>
+    <string name="lib_next_air">Next %1$s</string>
+    <string name="lib_empty_up_next_text">Nothing to watch right now. New episodes of shows you\'re watching show up here.</string>
+    <string name="lib_empty_watched_text">Shows you\'re caught up on or have finished show up here.</string>
+    <string name="lib_empty_plan_text">Add shows you want to watch from Discover or search.</string>
+    <string name="lib_empty_other_text">Nothing here yet.</string>
+    <string name="lib_empty_up_next_shows">No shows up next</string>
+    <string name="lib_empty_up_next_anime">No anime up next</string>
+    <string name="lib_empty_watched_shows">No watched shows</string>
+    <string name="lib_empty_watched_anime">No watched anime</string>
+    <string name="lib_empty_plan_shows">No shows planned to watch</string>
+    <string name="lib_empty_plan_anime">No anime planned to watch</string>
+    <string name="lib_empty_on_hold_shows">No shows on hold</string>
+    <string name="lib_empty_on_hold_anime">No anime on hold</string>
+    <string name="lib_empty_dropped_shows">No dropped shows</string>
+    <string name="lib_empty_dropped_anime">No dropped anime</string>
+    <string name="lib_empty_plan_movies">No movies planned to watch</string>
+    <string name="lib_empty_watched_movies">No watched movies</string>
+    <string name="lib_empty_dropped_movies">No dropped movies</string>
+    <string name="lib_empty_plan_movies_text">Find movies to watch in Discover.</string>
+    <string name="lib_search_up_next">Search up next</string>
+    <string name="lib_search_watched">Search watched</string>
+    <string name="lib_search_plan_to_watch">Search plan to watch</string>
+    <string name="lib_search_on_hold">Search on hold</string>
+    <string name="lib_search_dropped">Search dropped</string>
+    <string name="lib_no_matches">Nothing matches the filters</string>
+    <string name="lib_clear_filters">Clear filters</string>
+    <string name="lib_mark_failed">Couldn\'t mark %1$s watched: %2$s</string>
+    <string name="lib_playback_progress">▶ %1$s · %2$d%% watched</string>
+    <string name="lib_continue_watching">Continue watching</string>
+    <string name="lib_watched_ago">watched %1$s</string>
+    <string name="lib_mark_episode_watched">Mark %1$s watched</string>
+    <plurals name="lib_relative_in_days">
+        <item quantity="one">in %d day</item>
+        <item quantity="other">in %d days</item>
+    </plurals>
+    <plurals name="lib_ago_hours">
+        <item quantity="one">%d h ago</item>
+        <item quantity="other">%d h ago</item>
+    </plurals>
+    <plurals name="lib_ago_days">
+        <item quantity="one">%d d ago</item>
+        <item quantity="other">%d d ago</item>
+    </plurals>
+    <plurals name="lib_ago_months">
+        <item quantity="one">%d mo ago</item>
+        <item quantity="other">%d mo ago</item>
+    </plurals>
+    <plurals name="lib_ago_years">
+        <item quantity="one">%d y ago</item>
+        <item quantity="other">%d y ago</item>
+    </plurals>
+    <plurals name="lib_episodes_left">
+        <item quantity="one">%d episode left</item>
+        <item quantity="other">%d episodes left</item>
+    </plurals>
+</resources>
