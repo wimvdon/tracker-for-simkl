@@ -1,5 +1,6 @@
 package io.github.impca201.simklr.ui.library
 
+import io.github.impca201.simklr.ui.components.label
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -125,7 +126,7 @@ fun ShowsScreen(
         topBar = {
             Column {
                 MainTopBar(
-                    title = if (type == MediaType.Tv) NavTab.Tv.label else NavTab.Anime.label,
+                    title = if (type == MediaType.Tv) NavTab.Tv.label() else NavTab.Anime.label(),
                     scrollBehavior = scrollBehavior,
                     searchType = type,
                 )
@@ -134,7 +135,7 @@ fun ShowsScreen(
                         Tab(
                             selected = pagerState.currentPage == index,
                             onClick = { scope.launch { pagerState.animateScrollToPage(index) } },
-                            text = { TabLabel(shelf.label, byShelf[shelf]?.size ?: 0) },
+                            text = { TabLabel(shelf.label(), byShelf[shelf]?.size ?: 0) },
                         )
                     }
                 }
@@ -146,7 +147,7 @@ fun ShowsScreen(
             val items = byShelf[shelf].orEmpty()
             val filter = options.filter(page)
             Column(Modifier.fillMaxSize()) {
-            LibraryControls(type, "Search ${shelf.label.lowercase()}", options.sort(page), { options.setSort(page, it) }, filter) {
+            LibraryControls(type, "Search ${shelf.label().lowercase()}", options.sort(page), { options.setSort(page, it) }, filter) {
                 options.setFilter(page, it)
             }
             PullToRefreshBox(
@@ -160,7 +161,7 @@ fun ShowsScreen(
                             TextButton(onClick = { options.setFilter(page, LibraryFilter()) }) { Text("Clear filters") }
                         }
                     items.isEmpty() && state.loaded && !state.syncing ->
-                        EmptyState(shelf.emptyIcon(), "No ${shelf.label.lowercase()} ${if (type == MediaType.Anime) "anime" else "shows"}", shelf.emptyText())
+                        EmptyState(shelf.emptyIcon(), "No ${shelf.label().lowercase()} ${if (type == MediaType.Anime) "anime" else "shows"}", shelf.emptyText())
                     shelf == Shelf.UpNext ->
                         UpNextList(items, state, fromLatest, ::open) { message -> scope.launch { snackbar.showSnackbar(message) } }
                     else ->

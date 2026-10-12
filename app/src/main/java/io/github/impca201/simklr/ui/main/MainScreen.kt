@@ -1,5 +1,6 @@
 package io.github.impca201.simklr.ui.main
 
+import io.github.impca201.simklr.ui.components.label
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.Spring
@@ -170,7 +171,7 @@ private fun FloatingBar(
                         .padding(horizontal = 16.dp),
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
-                    Icon(tab.icon(isSelected), contentDescription = tab.label, tint = content, modifier = Modifier.size(24.dp))
+                    Icon(tab.icon(isSelected), contentDescription = tab.label(), tint = content, modifier = Modifier.size(24.dp))
                     AnimatedVisibility(
                         visible = isSelected,
                         enter = expandHorizontally(spring(stiffness = Spring.StiffnessMediumLow)) + fadeIn(),
@@ -178,7 +179,7 @@ private fun FloatingBar(
                     ) {
                         Row {
                             Spacer(Modifier.width(8.dp))
-                            Text(tab.label, style = MaterialTheme.typography.labelLarge, color = content, maxLines = 1)
+                            Text(tab.label(), style = MaterialTheme.typography.labelLarge, color = content, maxLines = 1)
                         }
                     }
                 }

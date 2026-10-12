@@ -62,8 +62,7 @@ import io.github.impca201.simklr.ui.Route
 import io.github.impca201.simklr.ui.components.Format
 import io.github.impca201.simklr.ui.components.openUrl
 import io.github.impca201.simklr.ui.components.rememberApp
-import io.github.impca201.simklr.ui.detail.label
-import io.github.impca201.simklr.ui.search.label
+import io.github.impca201.simklr.ui.components.label
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)

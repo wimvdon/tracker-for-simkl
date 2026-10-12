@@ -1,5 +1,6 @@
 package io.github.impca201.simklr.ui.settings
 
+import io.github.impca201.simklr.ui.components.label
 import android.Manifest
 import android.content.pm.PackageManager
 import android.os.Build
@@ -135,7 +136,7 @@ fun SettingsScreen(settings: AppSettings) {
                                     selected = settings.theme == mode,
                                     onClick = { scope.launch { app.settings.setTheme(mode) } },
                                     shape = SegmentedButtonDefaults.itemShape(index, ThemeMode.entries.size),
-                                ) { Text(mode.name) }
+                                ) { Text(mode.label()) }
                             }
                         }
                     }
@@ -162,7 +163,7 @@ fun SettingsScreen(settings: AppSettings) {
                         ListItem(
                             colors = ListItemDefaults.colors(containerColor = MaterialTheme.colorScheme.surfaceContainerLow),
                             leadingContent = { Icon(tab.icon(enabled), null) },
-                            headlineContent = { Text(tab.label) },
+                            headlineContent = { Text(tab.label()) },
                             trailingContent = {
                                 Row(verticalAlignment = Alignment.CenterVertically) {
                                     IconButton(

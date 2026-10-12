@@ -94,7 +94,7 @@ enum class AiringState {
             return when {
                 // /tv and /anime "status": ended | tba | airing. /ratings "release_status": ended,
                 // cancelled | returning series, ongoing, upcoming, planned, rumored, in/post production.
-                "end" in s || "cancel" in s -> Ended
+                s.startsWith("end") || "cancel" in s -> Ended
                 "air" in s || "return" in s || "tba" in s || "upcoming" in s || "production" in s ||
                     "ongoing" in s || "planned" in s || "rumored" in s -> Airing
                 else -> Unknown
@@ -108,7 +108,7 @@ data class EpisodeRef(
     val season: Int?,
     val episode: Int,
 ) {
-    val label: String get() = if (season != null) "S%02dE%02d".format(season, episode) else "E%02d".format(episode)
+    val label: String get() = if (season != null) "S%02dE%02d".format(java.util.Locale.ROOT, season, episode) else "E%02d".format(java.util.Locale.ROOT, episode)
 
     companion object {
         private val pattern = Regex("""(?:S(\d+))?\s*E(\d+)""", RegexOption.IGNORE_CASE)

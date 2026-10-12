@@ -15,4 +15,35 @@
     <string name="guide_trouble">• “Could not start the login”: check that you copied the whole Client ID, without spaces.\n• The code expired: tap Sign in with SIMKL again for a new one.\n• The approval page shows an error: edit your app on SIMKL and make sure its type is “TV, devices &amp; command line”.\n• Older AUTH V1 apps keep working.</string>
     <string name="create_simkl_app">Create a SIMKL app</string>
     <string name="done">Done</string>
+
+    <!-- Shared labels -->
+    <string name="tab_tv">TV Shows</string>
+    <string name="tab_anime">Anime</string>
+    <string name="tab_movies">Movies</string>
+    <string name="tab_discover">Discover</string>
+    <string name="tab_calendar">Calendar</string>
+    <string name="shelf_up_next">Up next</string>
+    <string name="status_watching">Watching</string>
+    <string name="status_plan_to_watch">Plan to watch</string>
+    <string name="status_watched">Watched</string>
+    <string name="status_completed">Completed</string>
+    <string name="status_on_hold">On hold</string>
+    <string name="status_dropped">Dropped</string>
+    <string name="theme_system">System</string>
+    <string name="theme_light">Light</string>
+    <string name="theme_dark">Dark</string>
+
+    <!-- Discover rows. SIMKL asks for "Trending on Simkl" wording; keep "Simkl" in translations. -->
+    <string name="discover_trending_today">Trending on Simkl today</string>
+    <string name="discover_trending_week">Trending on Simkl this week</string>
+    <string name="discover_trending_month">Trending on Simkl this month</string>
+    <string name="discover_airing_today">Airing today</string>
+    <string name="discover_new_premieres">New premieres</string>
+    <string name="discover_premiering_soon">Premiering soon</string>
+    <string name="discover_dvd">New on DVD &amp; digital</string>
+    <string name="discover_best_year">Best of the year</string>
+    <string name="discover_best_month">Best this month</string>
+    <string name="discover_most_watched">Most watched</string>
+    <string name="discover_best_all">Best of all time</string>
+    <string name="discover_most_voted">Most voted</string>
 </resources>

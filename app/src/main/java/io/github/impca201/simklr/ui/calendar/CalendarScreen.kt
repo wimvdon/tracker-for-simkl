@@ -52,7 +52,7 @@ import io.github.impca201.simklr.ui.components.rememberApp
 import io.github.impca201.simklr.ui.library.SectionHeader
 import io.github.impca201.simklr.ui.library.bottomPadding
 import io.github.impca201.simklr.ui.main.MainTopBar
-import io.github.impca201.simklr.ui.search.label
+import io.github.impca201.simklr.ui.components.label
 import kotlinx.coroutines.launch
 import java.time.LocalDate
 import java.time.ZoneId
@@ -91,7 +91,7 @@ fun CalendarScreen() {
         contentWindowInsets = WindowInsets(0),
         topBar = {
             Column {
-                MainTopBar(NavTab.Calendar.label, scrollBehavior)
+                MainTopBar(NavTab.Calendar.label(), scrollBehavior)
                 LazyRow(
                     contentPadding = PaddingValues(horizontal = 16.dp, vertical = 4.dp),
                     horizontalArrangement = Arrangement.spacedBy(8.dp),

@@ -25,14 +25,12 @@ private val Context.dataStore: DataStore<Preferences> by preferencesDataStore(
 )
 
 /** Destinations of the floating bottom bar. Labels follow SIMKL's own naming. */
-enum class NavTab(
-    val label: String,
-) {
-    Tv("TV Shows"),
-    Anime("Anime"),
-    Movies("Movies"),
-    Discover("Discover"),
-    Calendar("Calendar"),
+enum class NavTab {
+    Tv,
+    Anime,
+    Movies,
+    Discover,
+    Calendar,
     ;
 
     companion object {

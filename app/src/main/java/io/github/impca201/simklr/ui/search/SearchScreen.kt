@@ -60,16 +60,9 @@ import io.github.impca201.simklr.ui.components.Format
 import io.github.impca201.simklr.ui.components.PosterBadge
 import io.github.impca201.simklr.ui.components.Poster
 import io.github.impca201.simklr.ui.components.rememberApp
-import io.github.impca201.simklr.ui.detail.label
+import io.github.impca201.simklr.ui.components.label
 import io.github.impca201.simklr.ui.library.SectionHeader
 import kotlinx.coroutines.delay
-
-fun MediaType.label(): String =
-    when (this) {
-        MediaType.Tv -> "TV Shows"
-        MediaType.Anime -> "Anime"
-        MediaType.Movie -> "Movies"
-    }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable

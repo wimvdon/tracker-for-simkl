@@ -117,19 +117,11 @@ import io.github.impca201.simklr.ui.components.Poster
 import io.github.impca201.simklr.ui.components.PosterRow
 import io.github.impca201.simklr.ui.components.openUrl
 import io.github.impca201.simklr.ui.components.rememberApp
+import io.github.impca201.simklr.ui.components.label
 import io.github.impca201.simklr.ui.components.share
 import io.github.impca201.simklr.ui.library.SectionHeader
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.launch
-
-fun ListStatus.label(type: MediaType): String =
-    when (this) {
-        ListStatus.Watching -> "Watching"
-        ListStatus.PlanToWatch -> "Plan to watch"
-        ListStatus.OnHold -> "On hold"
-        ListStatus.Completed -> if (type == MediaType.Movie) "Watched" else "Completed"
-        ListStatus.Dropped -> "Dropped"
-    }
 
 fun webUrl(
     type: MediaType,

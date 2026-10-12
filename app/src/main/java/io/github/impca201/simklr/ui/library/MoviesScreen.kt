@@ -1,5 +1,6 @@
 package io.github.impca201.simklr.ui.library
 
+import io.github.impca201.simklr.ui.components.label
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
@@ -69,13 +70,13 @@ fun MoviesScreen() {
         snackbarHost = { SnackbarHost(snackbar, Modifier.padding(bottom = bottomPadding())) },
         topBar = {
             Column {
-                MainTopBar(NavTab.Movies.label, scrollBehavior, MediaType.Movie)
+                MainTopBar(NavTab.Movies.label(), scrollBehavior, MediaType.Movie)
                 PrimaryTabRow(selectedTabIndex = pagerState.currentPage) {
                     shelves.forEachIndexed { index, shelf ->
                         Tab(
                             selected = pagerState.currentPage == index,
                             onClick = { scope.launch { pagerState.animateScrollToPage(index) } },
-                            text = { TabLabel(shelf.label, byStatus[shelf.status]?.size ?: 0) },
+                            text = { TabLabel(shelf.label(), byStatus[shelf.status]?.size ?: 0) },
                         )
                     }
                 }
@@ -87,7 +88,7 @@ fun MoviesScreen() {
             val items = byStatus[shelf.status].orEmpty()
             val filter = options.filter(page)
             Column(Modifier.fillMaxSize()) {
-            LibraryControls(MediaType.Movie, "Search ${shelf.label.lowercase()}", options.sort(page), { options.setSort(page, it) }, filter) {
+            LibraryControls(MediaType.Movie, "Search ${shelf.label().lowercase()}", options.sort(page), { options.setSort(page, it) }, filter) {
                 options.setFilter(page, it)
             }
             PullToRefreshBox(

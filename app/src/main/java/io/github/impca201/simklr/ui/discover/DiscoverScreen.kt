@@ -43,6 +43,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.unit.dp
 import io.github.impca201.simklr.data.CatalogRepository
@@ -58,7 +59,7 @@ import io.github.impca201.simklr.ui.components.rememberApp
 import io.github.impca201.simklr.ui.library.SectionHeader
 import io.github.impca201.simklr.ui.library.bottomPadding
 import io.github.impca201.simklr.ui.main.MainTopBar
-import io.github.impca201.simklr.ui.search.label
+import io.github.impca201.simklr.ui.components.label
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -79,7 +80,7 @@ fun DiscoverScreen() {
         modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
         contentWindowInsets = WindowInsets(0),
         snackbarHost = { SnackbarHost(snackbar, Modifier.padding(bottom = bottomPadding())) },
-        topBar = { MainTopBar(NavTab.Discover.label, scrollBehavior, type) },
+        topBar = { MainTopBar(NavTab.Discover.label(), scrollBehavior, type) },
     ) { padding ->
         PullToRefreshBox(
             isRefreshing = refreshing,
@@ -153,12 +154,12 @@ private fun SectionRow(
     when {
         list == null ->
             Column {
-                SectionHeader(section.title, modifier = Modifier.padding(horizontal = 8.dp))
+                SectionHeader(stringResource(section.title), modifier = Modifier.padding(horizontal = 8.dp))
                 Box(Modifier.fillMaxWidth().height(200.dp), contentAlignment = Alignment.Center) { CircularProgressIndicator() }
             }
         list.isNotEmpty() ->
             Column {
-                SectionHeader(section.title, modifier = Modifier.padding(horizontal = 8.dp))
+                SectionHeader(stringResource(section.title), modifier = Modifier.padding(horizontal = 8.dp))
                 PosterRow(
                     list.take(30),
                     onClick = { navigator.openDetail(it.type, it.simklId, it.title, it.poster) },
