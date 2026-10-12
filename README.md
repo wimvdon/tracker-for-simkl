@@ -14,8 +14,6 @@ An Android client for [SIMKL](https://simkl.com), built with Jetpack Compose and
 - **Sort & filter**: one row of dropdown chips above each tab (kept per tab): sort (recently
   watched, recently added, title, my rating, release date), status (still airing / ended, or
   released / upcoming for movies), my rating and, for anime, the type.
-- **Now playing** banners on the TV Shows, Anime and Movies tabs for titles being watched (SIMKL
-  playback), with their progress; the app re-syncs when opened and every few minutes while open.
 - **In progress**: paused episodes and movies (SIMKL playback) show their progress; marking one
   watched asks first, because it removes the saved progress.
 - **Continue from the latest episode** (setting): Up next starts after the most recently watched
@@ -26,15 +24,22 @@ An Android client for [SIMKL](https://simkl.com), built with Jetpack Compose and
   recommendations, links (SIMKL, IMDb, TMDB, MAL, AniList…), list status, your 1–10 rating,
   "mark as watched", and the full episode list per season (tap to toggle, long-press to mark
   everything up to that episode, mark a whole season).
-- **Discover**: trending today/this week/this month, airing today, premieres, best of all time,
-  most voted, and "Surprise me" (random title).
+- **Discover** with TV Shows / Anime / Movies tabs: trending today/this week/this month, airing
+  today, premieres, best of all time, most voted, and a "Surprise me" (random title) button.
 - **Search** across TV shows, anime and movies.
-- **Calendar** of upcoming episodes and releases, with **My lists** / **All** tabs and type chips.
+- **Calendar** of upcoming episodes and releases of titles in your lists, with type chips.
 - **Profile** with watch-time statistics per type and status.
 - **Notifications** (optional) when a new episode of a show you're watching becomes available.
 - **Languages**: English, Dutch, French, German, Spanish and Italian (follows the system or
   Android 13+'s per-app language setting).
 - Offline cache and efficient sync (`/sync/activities` first, then incremental `/sync/all-items`).
+
+## Navigation
+
+Following Material 3: the floating bottom bar holds the top-level destinations; **tabs** switch
+between parallel sections of a destination (library shelves, Discover's media types); **chips**
+sort and filter the content you are looking at (library sort/filters, Calendar and Search types).
+Search and your profile are in every destination's top bar.
 
 ## Signing in
 

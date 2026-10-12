@@ -15,12 +15,10 @@
     <string name="screens_discover_search_movies">Search movies</string>
     <string name="screens_discover_no_suggestion">SIMKL had no suggestion this time</string>
     <string name="screens_discover_surprise">Surprise me</string>
-    <string name="screens_calendar_my_lists">My lists</string>
     <string name="screens_calendar_loading">Loading the calendar…</string>
     <string name="screens_calendar_nothing">Nothing coming up</string>
-    <string name="screens_calendar_mine_hint">Only titles in your lists are shown. Open “All” to see everything.</string>
+    <string name="screens_calendar_mine_hint">Upcoming episodes and releases of titles in your lists show up here.</string>
     <string name="screens_calendar_release">Release</string>
-    <string name="screens_calendar_in_list">In your list</string>
     <string name="screens_profile_title">Profile</string>
     <string name="screens_profile_sync_now">Sync now</string>
     <string name="screens_profile_last_synced">Last synced %1$s</string>
@@ -75,5 +73,4 @@
         <item quantity="one">%1$d episode</item>
         <item quantity="other">%1$d episodes</item>
     </plurals>
-    <string name="screens_calendar_all">All</string>
 </resources>

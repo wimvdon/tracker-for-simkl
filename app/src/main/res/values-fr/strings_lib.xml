@@ -104,6 +104,4 @@
         <item quantity="many">%d épisodes restants</item>
         <item quantity="other">%d épisodes restants</item>
     </plurals>
-    <string name="lib_now_playing">En cours de lecture</string>
-    <string name="lib_percent_watched">%1$d %% vu</string>
 </resources>

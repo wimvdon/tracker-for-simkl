@@ -167,7 +167,6 @@ fun ShowsScreen(
                         )
                     }
                 }
-                NowPlayingBanner(type, state) { message -> scope.launch { snackbar.showSnackbar(message) } }
             }
         },
     ) { padding ->

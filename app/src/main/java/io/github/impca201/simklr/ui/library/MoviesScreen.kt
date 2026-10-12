@@ -82,7 +82,6 @@ fun MoviesScreen() {
                         )
                     }
                 }
-                NowPlayingBanner(MediaType.Movie, state) { message -> scope.launch { snackbar.showSnackbar(message) } }
             }
         },
     ) { padding ->

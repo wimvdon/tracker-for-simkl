@@ -1,33 +1,25 @@
 package io.github.impca201.simklr.ui.discover
 
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.LazyRow
-import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Casino
-import androidx.compose.material.icons.rounded.Search
-import androidx.compose.material3.AssistChip
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.FilterChip
 import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.PrimaryTabRow
+import androidx.compose.material3.Tab
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
@@ -53,7 +45,6 @@ import io.github.impca201.simklr.data.NavTab
 import io.github.impca201.simklr.data.model.MediaSummary
 import io.github.impca201.simklr.data.model.MediaType
 import io.github.impca201.simklr.ui.LocalNavigator
-import io.github.impca201.simklr.ui.Route
 import io.github.impca201.simklr.ui.components.PosterRow
 import io.github.impca201.simklr.ui.components.openUrl
 import io.github.impca201.simklr.ui.components.rememberApp
@@ -82,7 +73,25 @@ fun DiscoverScreen() {
         modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
         contentWindowInsets = WindowInsets(0),
         snackbarHost = { SnackbarHost(snackbar, Modifier.padding(bottom = bottomPadding())) },
-        topBar = { MainTopBar(NavTab.Discover.label(), scrollBehavior, type) },
+        topBar = {
+            Column {
+                MainTopBar(NavTab.Discover.label(), scrollBehavior, type) {
+                    IconButton(onClick = {
+                        scope.launch {
+                            val id = runCatching { app.catalog.random(type) }.getOrNull()
+                            if (id != null) navigator.openDetail(type, id) else snackbar.showSnackbar(context.getString(R.string.screens_discover_no_suggestion))
+                        }
+                    }) { Icon(Icons.Rounded.Casino, contentDescription = stringResource(R.string.screens_discover_surprise)) }
+                }
+                // TV shows, anime and movies are parallel sections of Discover, so they are tabs,
+                // like the shelves of the library tabs.
+                PrimaryTabRow(selectedTabIndex = MediaType.entries.indexOf(type)) {
+                    MediaType.entries.forEach { t ->
+                        Tab(selected = t == type, onClick = { typeName = t.name }, text = { Text(t.label()) })
+                    }
+                }
+            }
+        },
     ) { padding ->
         PullToRefreshBox(
             isRefreshing = refreshing,
@@ -94,47 +103,6 @@ fun DiscoverScreen() {
             modifier = Modifier.fillMaxSize().padding(top = padding.calculateTopPadding()),
         ) {
             LazyColumn(contentPadding = PaddingValues(bottom = bottomPadding()), modifier = Modifier.fillMaxSize()) {
-                item(key = "search") {
-                    Surface(
-                        onClick = { navigator.push(Route.Search(type)) },
-                        shape = CircleShape,
-                        color = MaterialTheme.colorScheme.surfaceContainerHigh,
-                        modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 8.dp).height(56.dp),
-                    ) {
-                        Row(Modifier.padding(horizontal = 20.dp), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(16.dp)) {
-                            Icon(Icons.Rounded.Search, null)
-                            Text(
-                                stringResource(
-                                    when (type) {
-                                        MediaType.Tv -> R.string.screens_discover_search_tv
-                                        MediaType.Anime -> R.string.screens_discover_search_anime
-                                        MediaType.Movie -> R.string.screens_discover_search_movies
-                                    },
-                                ),
-                                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                            )
-                        }
-                    }
-                }
-                item(key = "types") {
-                    LazyRow(contentPadding = PaddingValues(horizontal = 16.dp), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                        items(MediaType.entries) { t ->
-                            FilterChip(selected = t == type, onClick = { typeName = t.name }, label = { Text(t.label()) })
-                        }
-                        item {
-                            AssistChip(
-                                onClick = {
-                                    scope.launch {
-                                        val id = runCatching { app.catalog.random(type) }.getOrNull()
-                                        if (id != null) navigator.openDetail(type, id) else snackbar.showSnackbar(context.getString(R.string.screens_discover_no_suggestion))
-                                    }
-                                },
-                                label = { Text(stringResource(R.string.screens_discover_surprise)) },
-                                leadingIcon = { Icon(Icons.Rounded.Casino, null, Modifier.size(18.dp)) },
-                            )
-                        }
-                    }
-                }
                 sections.forEach { section ->
                     item(key = "${section.id}:$refresh") { SectionRow(section, refresh) }
                 }
