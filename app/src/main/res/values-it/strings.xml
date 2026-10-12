@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Auth guide -->
+    <string name="guide_title">Guida all’accesso</string>
+    <string name="guide_open">Guida passo passo</string>
+    <string name="guide_step_1">Apri la pagina sviluppatori di SIMKL nel browser e accedi a SIMKL se richiesto.</string>
+    <string name="guide_step_2">Crea una nuova app. Dalle un nome qualsiasi (ad esempio «SIMKLr»), scegli AUTH V2 e il tipo di app «TV, devices &amp; command line». Lascia invariati gli altri campi e salva.</string>
+    <string name="guide_step_3">Copia il Client ID dell’app. SIMKLr non ha bisogno del Client Secret.</string>
+    <string name="guide_step_4">Incolla il Client ID in SIMKLr e tocca Continua.</string>
+    <string name="guide_step_5">Tocca Accedi con SIMKL. SIMKLr mostra un breve codice.</string>
+    <string name="guide_step_6">Tocca Apri SIMKL, controlla che il codice corrisponda (o digitalo) e approva. Torna su SIMKLr: l’accesso avviene in automatico.</string>
+    <string name="guide_trouble_title">Problemi di accesso?</string>
+    <string name="guide_trouble">• «Impossibile avviare l\'accesso»: controlla di aver copiato l’intero Client ID, senza spazi.\n• Il codice è scaduto: tocca di nuovo Accedi con SIMKL per riceverne uno nuovo.\n• La pagina di approvazione mostra un errore: modifica la tua app su SIMKL e assicurati che il tipo sia «TV, devices &amp; command line».\n• Le vecchie app AUTH V1 continuano a funzionare.</string>
+    <string name="create_simkl_app">Crea un’app SIMKL</string>
+    <string name="done">Fine</string>
+
+    <!-- Shared labels -->
+    <string name="tab_tv">Serie TV</string>
+    <string name="tab_anime">Anime</string>
+    <string name="tab_movies">Film</string>
+    <string name="tab_discover">Scopri</string>
+    <string name="tab_calendar">Calendario</string>
+    <string name="shelf_up_next">Prossimi</string>
+    <string name="status_watching">In visione</string>
+    <string name="status_plan_to_watch">Da vedere</string>
+    <string name="status_watched">Visti</string>
+    <string name="status_completed">Completati</string>
+    <string name="status_on_hold">In pausa</string>
+    <string name="status_dropped">Abbandonati</string>
+    <string name="theme_system">Sistema</string>
+    <string name="theme_light">Chiaro</string>
+    <string name="theme_dark">Scuro</string>
+
+    <!-- Discover rows. Keep "Simkl". -->
+    <string name="discover_trending_today">Di tendenza su Simkl oggi</string>
+    <string name="discover_trending_week">Di tendenza su Simkl questa settimana</string>
+    <string name="discover_trending_month">Di tendenza su Simkl questo mese</string>
+    <string name="discover_airing_today">In onda oggi</string>
+    <string name="discover_new_premieres">Nuove uscite</string>
+    <string name="discover_premiering_soon">Presto in arrivo</string>
+    <string name="discover_dvd">Novità in DVD e digitale</string>
+    <string name="discover_best_year">Il meglio dell’anno</string>
+    <string name="discover_best_month">Il meglio del mese</string>
+    <string name="discover_most_watched">I più visti</string>
+    <string name="discover_best_all">I migliori di sempre</string>
+    <string name="discover_most_voted">I più votati</string>
+</resources>

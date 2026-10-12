@@ -43,8 +43,10 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.unit.dp
+import io.github.impca201.simklr.R
 import io.github.impca201.simklr.data.CatalogRepository
 import io.github.impca201.simklr.data.DiscoverSection
 import io.github.impca201.simklr.data.NavTab
@@ -58,7 +60,7 @@ import io.github.impca201.simklr.ui.components.rememberApp
 import io.github.impca201.simklr.ui.library.SectionHeader
 import io.github.impca201.simklr.ui.library.bottomPadding
 import io.github.impca201.simklr.ui.main.MainTopBar
-import io.github.impca201.simklr.ui.search.label
+import io.github.impca201.simklr.ui.components.label
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -66,6 +68,7 @@ import kotlinx.coroutines.launch
 fun DiscoverScreen() {
     val app = rememberApp()
     val navigator = LocalNavigator.current
+    val context = androidx.compose.ui.platform.LocalContext.current
     val scope = rememberCoroutineScope()
     val snackbar = remember { SnackbarHostState() }
     var typeName by rememberSaveable { mutableStateOf(MediaType.Tv.name) }
@@ -79,7 +82,7 @@ fun DiscoverScreen() {
         modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
         contentWindowInsets = WindowInsets(0),
         snackbarHost = { SnackbarHost(snackbar, Modifier.padding(bottom = bottomPadding())) },
-        topBar = { MainTopBar(NavTab.Discover.label, scrollBehavior, type) },
+        topBar = { MainTopBar(NavTab.Discover.label(), scrollBehavior, type) },
     ) { padding ->
         PullToRefreshBox(
             isRefreshing = refreshing,
@@ -100,7 +103,16 @@ fun DiscoverScreen() {
                     ) {
                         Row(Modifier.padding(horizontal = 20.dp), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(16.dp)) {
                             Icon(Icons.Rounded.Search, null)
-                            Text("Search ${type.label().lowercase()}", color = MaterialTheme.colorScheme.onSurfaceVariant)
+                            Text(
+                                stringResource(
+                                    when (type) {
+                                        MediaType.Tv -> R.string.screens_discover_search_tv
+                                        MediaType.Anime -> R.string.screens_discover_search_anime
+                                        MediaType.Movie -> R.string.screens_discover_search_movies
+                                    },
+                                ),
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            )
                         }
                     }
                 }
@@ -114,10 +126,10 @@ fun DiscoverScreen() {
                                 onClick = {
                                     scope.launch {
                                         val id = runCatching { app.catalog.random(type) }.getOrNull()
-                                        if (id != null) navigator.openDetail(type, id) else snackbar.showSnackbar("SIMKL had no suggestion this time")
+                                        if (id != null) navigator.openDetail(type, id) else snackbar.showSnackbar(context.getString(R.string.screens_discover_no_suggestion))
                                     }
                                 },
-                                label = { Text("Surprise me") },
+                                label = { Text(stringResource(R.string.screens_discover_surprise)) },
                                 leadingIcon = { Icon(Icons.Rounded.Casino, null, Modifier.size(18.dp)) },
                             )
                         }
@@ -127,11 +139,10 @@ fun DiscoverScreen() {
                     item(key = "${section.id}:$refresh") { SectionRow(section, refresh) }
                 }
                 item(key = "attribution") {
-                    val context = androidx.compose.ui.platform.LocalContext.current
                     androidx.compose.material3.TextButton(
                         onClick = { context.openUrl("https://simkl.com/") },
                         modifier = Modifier.fillMaxWidth().padding(16.dp),
-                    ) { Text("Powered by SIMKL · simkl.com") }
+                    ) { Text(stringResource(R.string.screens_powered_by)) }
                 }
             }
         }
@@ -153,12 +164,12 @@ private fun SectionRow(
     when {
         list == null ->
             Column {
-                SectionHeader(section.title, modifier = Modifier.padding(horizontal = 8.dp))
+                SectionHeader(stringResource(section.title), modifier = Modifier.padding(horizontal = 8.dp))
                 Box(Modifier.fillMaxWidth().height(200.dp), contentAlignment = Alignment.Center) { CircularProgressIndicator() }
             }
         list.isNotEmpty() ->
             Column {
-                SectionHeader(section.title, modifier = Modifier.padding(horizontal = 8.dp))
+                SectionHeader(stringResource(section.title), modifier = Modifier.padding(horizontal = 8.dp))
                 PosterRow(
                     list.take(30),
                     onClick = { navigator.openDetail(it.type, it.simklId, it.title, it.poster) },

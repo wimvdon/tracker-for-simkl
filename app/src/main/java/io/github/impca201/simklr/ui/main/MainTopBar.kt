@@ -12,7 +12,9 @@ import androidx.compose.material3.TopAppBarScrollBehavior
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.produceState
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import io.github.impca201.simklr.R
 import io.github.impca201.simklr.data.model.MediaType
 import io.github.impca201.simklr.ui.LocalNavigator
 import io.github.impca201.simklr.ui.Route
@@ -36,7 +38,7 @@ fun MainTopBar(
         actions = {
             actions()
             IconButton(onClick = { navigator.push(Route.Search(searchType)) }) {
-                Icon(Icons.Rounded.Search, contentDescription = "Search")
+                Icon(Icons.Rounded.Search, contentDescription = stringResource(R.string.lib_search))
             }
             AvatarButton(avatar) { navigator.push(Route.Profile) }
         },

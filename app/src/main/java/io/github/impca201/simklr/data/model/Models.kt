@@ -3,8 +3,10 @@ package io.github.impca201.simklr.data.model
 import kotlinx.serialization.Serializable
 import java.time.Instant
 import java.time.LocalDate
+import java.time.LocalDateTime
 import java.time.OffsetDateTime
 import java.time.ZoneId
+import java.time.ZoneOffset
 import java.time.format.DateTimeParseException
 
 /** The three SIMKL catalogues, with the names the API uses for each of them. */
@@ -92,7 +94,7 @@ enum class AiringState {
             return when {
                 // /tv and /anime "status": ended | tba | airing. /ratings "release_status": ended,
                 // cancelled | returning series, ongoing, upcoming, planned, rumored, in/post production.
-                "end" in s || "cancel" in s -> Ended
+                s.startsWith("end") || "cancel" in s -> Ended
                 "air" in s || "return" in s || "tba" in s || "upcoming" in s || "production" in s ||
                     "ongoing" in s || "planned" in s || "rumored" in s -> Airing
                 else -> Unknown
@@ -106,7 +108,7 @@ data class EpisodeRef(
     val season: Int?,
     val episode: Int,
 ) {
-    val label: String get() = if (season != null) "S%02dE%02d".format(season, episode) else "E%02d".format(episode)
+    val label: String get() = if (season != null) "S%02dE%02d".format(java.util.Locale.ROOT, season, episode) else "E%02d".format(java.util.Locale.ROOT, episode)
 
     companion object {
         private val pattern = Regex("""(?:S(\d+))?\s*E(\d+)""", RegexOption.IGNORE_CASE)
@@ -355,9 +357,14 @@ object Dates {
                 Instant.parse(v)
             } catch (_: DateTimeParseException) {
                 try {
-                    LocalDate.parse(v.take(10)).atStartOfDay(ZoneId.systemDefault()).toInstant()
+                    // A date-time without an offset ("2024-05-01T20:00:00"): SIMKL times are UTC.
+                    LocalDateTime.parse(v.replace(' ', 'T')).toInstant(ZoneOffset.UTC)
                 } catch (_: DateTimeParseException) {
-                    null
+                    try {
+                        LocalDate.parse(v.take(10)).atStartOfDay(ZoneId.systemDefault()).toInstant()
+                    } catch (_: DateTimeParseException) {
+                        null
+                    }
                 }
             }
         }

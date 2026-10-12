@@ -32,10 +32,12 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import coil3.compose.SubcomposeAsyncImage
+import io.github.impca201.simklr.R
 import io.github.impca201.simklr.data.model.AiringState
 import io.github.impca201.simklr.data.model.Images
 import io.github.impca201.simklr.data.model.MediaSummary
@@ -95,14 +97,14 @@ fun AiringBadge(
     when (state) {
         AiringState.Airing ->
             PosterBadge(
-                "Airing",
+                stringResource(R.string.lib_badge_airing),
                 modifier,
                 MaterialTheme.colorScheme.tertiaryContainer,
                 MaterialTheme.colorScheme.onTertiaryContainer,
             )
         AiringState.Ended ->
             PosterBadge(
-                "Ended",
+                stringResource(R.string.lib_badge_ended),
                 modifier,
                 MaterialTheme.colorScheme.surfaceContainerHighest,
                 MaterialTheme.colorScheme.onSurfaceVariant,
@@ -152,7 +154,7 @@ fun PosterTile(
             if (inLibrary) {
                 Icon(
                     Icons.Rounded.CheckCircle,
-                    contentDescription = "In your lists",
+                    contentDescription = stringResource(R.string.lib_in_your_lists),
                     tint = MaterialTheme.colorScheme.primary,
                     modifier =
                         Modifier.align(Alignment.BottomEnd).padding(6.dp).size(22.dp)

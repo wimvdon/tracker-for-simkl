@@ -1,5 +1,7 @@
 package io.github.impca201.simklr.ui.detail
 
+import android.icu.text.CompactDecimalFormat
+import androidx.annotation.StringRes
 import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
@@ -94,10 +96,13 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.pluralStringResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImage
+import io.github.impca201.simklr.R
 import io.github.impca201.simklr.data.AppSettings
 import io.github.impca201.simklr.data.model.AiringState
 import io.github.impca201.simklr.data.model.Episode
@@ -117,18 +122,12 @@ import io.github.impca201.simklr.ui.components.Poster
 import io.github.impca201.simklr.ui.components.PosterRow
 import io.github.impca201.simklr.ui.components.openUrl
 import io.github.impca201.simklr.ui.components.rememberApp
+import io.github.impca201.simklr.ui.components.label
 import io.github.impca201.simklr.ui.components.share
 import io.github.impca201.simklr.ui.library.SectionHeader
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.launch
-
-fun ListStatus.label(type: MediaType): String =
-    when (this) {
-        ListStatus.Watching -> "Watching"
-        ListStatus.PlanToWatch -> "Plan to watch"
-        ListStatus.OnHold -> "On hold"
-        ListStatus.Completed -> if (type == MediaType.Movie) "Watched" else "Completed"
-        ListStatus.Dropped -> "Dropped"
-    }
+import java.util.Locale
 
 fun webUrl(
     type: MediaType,
@@ -161,8 +160,10 @@ fun DetailScreen(
             val d = app.catalog.details(route.type, route.simklId, refresh = reload > 0)
             details = d
             app.library.rememberDetails(d)
+        } catch (e: CancellationException) {
+            throw e
         } catch (e: Exception) {
-            error = e.message ?: "Could not load the details"
+            error = e.message ?: context.getString(R.string.detail_load_failed_fallback)
         }
     }
     LaunchedEffect(route.simklId, reload) {
@@ -181,8 +182,10 @@ fun DetailScreen(
         scope.launch {
             try {
                 block()
+            } catch (e: CancellationException) {
+                throw e
             } catch (e: Exception) {
-                snackbar.showSnackbar("$failure: ${e.message}")
+                snackbar.showSnackbar(e.message?.let { context.getString(R.string.detail_failure_reason, failure, it) } ?: failure)
             }
         }
     }
@@ -192,7 +195,7 @@ fun DetailScreen(
     confirmPlayback?.let { pb ->
         ConfirmWatchedDialog(
             playback = pb,
-            onConfirm = { run("Couldn't mark watched") { app.library.markPlaybackWatched(pb, item) } },
+            onConfirm = { run(context.getString(R.string.detail_error_mark_watched)) { app.library.markPlaybackWatched(pb, item) } },
             onDismiss = { confirmPlayback = null },
         )
     }
@@ -208,14 +211,14 @@ fun DetailScreen(
                 title = { if (scrolled) Text(title, maxLines = 1, overflow = TextOverflow.Ellipsis) },
                 navigationIcon = {
                     IconButton(onClick = { navigator.pop() }, colors = IconButtonDefaults.filledTonalIconButtonColors()) {
-                        Icon(Icons.AutoMirrored.Rounded.ArrowBack, contentDescription = "Back")
+                        Icon(Icons.AutoMirrored.Rounded.ArrowBack, contentDescription = stringResource(R.string.detail_back))
                     }
                 },
                 actions = {
                     IconButton(
                         onClick = { context.share(title, webUrl(route.type, route.simklId, ids.slug)) },
                         colors = IconButtonDefaults.filledTonalIconButtonColors(),
-                    ) { Icon(Icons.Rounded.Share, contentDescription = "Share") }
+                    ) { Icon(Icons.Rounded.Share, contentDescription = stringResource(R.string.detail_share)) }
                 },
                 colors =
                     TopAppBarDefaults.topAppBarColors(
@@ -225,8 +228,8 @@ fun DetailScreen(
         },
     ) { _ ->
         if (details == null && error != null && item == null) {
-            EmptyState(Icons.Rounded.ErrorOutline, "Couldn't load this title", error) {
-                Button(onClick = { reload++ }) { Text("Try again") }
+            EmptyState(Icons.Rounded.ErrorOutline, stringResource(R.string.detail_load_failed_title), error) {
+                Button(onClick = { reload++ }) { Text(stringResource(R.string.detail_try_again)) }
             }
             return@Scaffold
         }
@@ -244,7 +247,7 @@ fun DetailScreen(
                     playback = playback,
                     onPlaybackWatched = { confirmPlayback = it },
                     onStatus = { status ->
-                        run("Couldn't update the list") {
+                        run(context.getString(R.string.detail_error_update_list)) {
                             if (status == null) {
                                 app.library.remove(route.type, ids.simkl)
                             } else {
@@ -252,17 +255,17 @@ fun DetailScreen(
                             }
                         }
                     },
-                    onRate = { rating -> run("Couldn't save the rating") { app.library.rate(route.type, ids.simkl, rating) } },
-                    onMovieWatched = { run("Couldn't mark watched") { app.library.markMovieWatched(ids, title, poster, year) } },
+                    onRate = { rating -> run(context.getString(R.string.detail_error_save_rating)) { app.library.rate(route.type, ids.simkl, rating) } },
+                    onMovieWatched = { run(context.getString(R.string.detail_error_mark_watched)) { app.library.markMovieWatched(ids, title, poster, year) } },
                     onWatchNext = { next ->
-                        run("Couldn't mark ${next.label} watched") {
+                        run(context.getString(R.string.detail_error_mark_episode_watched, next.label)) {
                             app.library.setEpisodesWatched(route.type, ids, title, poster, listOf(next), true, episodes)
                         }
                     },
                     onCheckIn = { episode ->
-                        run("Couldn't check in") {
+                        run(context.getString(R.string.detail_error_check_in)) {
                             app.library.checkIn(route.type, ids.simkl, episode)
-                            snackbar.showSnackbar("Checked in. SIMKL marks it watched when it ends.")
+                            snackbar.showSnackbar(context.getString(R.string.detail_checked_in))
                         }
                     },
                 )
@@ -270,7 +273,17 @@ fun DetailScreen(
             val d = details
             if (d == null) {
                 item(key = "loading") {
-                    Box(Modifier.fillMaxWidth().padding(32.dp), contentAlignment = Alignment.Center) { CircularProgressIndicator() }
+                    Box(Modifier.fillMaxWidth().padding(32.dp), contentAlignment = Alignment.Center) {
+                        val failed = error
+                        if (failed != null) {
+                            Column(horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                                Text(failed, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                                Button(onClick = { reload++ }) { Text(stringResource(R.string.detail_try_again)) }
+                            }
+                        } else {
+                            CircularProgressIndicator()
+                        }
+                    }
                 }
             } else {
                 item(key = "about") { About(d) }
@@ -278,29 +291,28 @@ fun DetailScreen(
                     item(key = "trailers") { Trailers(d) }
                 }
             }
-            if (route.type.isEpisodic && episodes.isNotEmpty()) {
+            val shownEpisodes = if (settings.hideSpecials) episodes.filterNot { it.special } else episodes
+            // Only specials + "hide specials" leaves nothing; EpisodesBlock needs at least one season.
+            if (route.type.isEpisodic && shownEpisodes.isNotEmpty()) {
                 episodesSection(
                     playback = playback,
                     onPlaybackWatched = { confirmPlayback = it },
-                    episodes = if (settings.hideSpecials) episodes.filterNot { it.special } else episodes,
+                    episodes = shownEpisodes,
                     item = item,
                     onToggle = { refs, watched ->
-                        run("Couldn't update the episodes") {
+                        // An empty change would still add the title to the library as Watching.
+                        if (refs.isNotEmpty()) run(context.getString(R.string.detail_error_update_episodes)) {
                             app.library.setEpisodesWatched(route.type, ids, title, poster, refs, watched, episodes)
                         }
                     },
                     onAllWatched = {
-                        run("Couldn't mark the episodes watched") {
-                            app.library.setEpisodesWatched(
-                                route.type,
-                                ids,
-                                title,
-                                poster,
-                                episodes.filter { it.aired && !it.special && item?.isWatched(it.season, it.episode) != true }
-                                    .map { EpisodeRef(it.season, it.episode) },
-                                true,
-                                episodes,
-                            )
+                        val refs =
+                            episodes.filter { it.aired && !it.special && item?.isWatched(it.season, it.episode) != true }
+                                .map { EpisodeRef(it.season, it.episode) }
+                        if (refs.isNotEmpty()) {
+                            run(context.getString(R.string.detail_error_mark_episodes_watched)) {
+                                app.library.setEpisodesWatched(route.type, ids, title, poster, refs, true, episodes)
+                            }
                         }
                     },
                 )
@@ -308,7 +320,7 @@ fun DetailScreen(
             if (d != null && d.recommendations.isNotEmpty()) {
                 item(key = "recs") {
                     Column {
-                        SectionHeader("If you like this", modifier = Modifier.padding(horizontal = 8.dp))
+                        SectionHeader(stringResource(R.string.detail_if_you_like), modifier = Modifier.padding(horizontal = 8.dp))
                         PosterRow(
                             d.recommendations,
                             onClick = { navigator.openDetail(it.type, it.simklId, it.title, it.poster) },
@@ -359,11 +371,12 @@ private fun Header(
                 details?.originalTitle?.let {
                     Text(it, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant, maxLines = 1)
                 }
+                val runtime = details?.runtime?.takeIf { it > 0 }?.let { stringResource(R.string.detail_runtime_min, it) }
                 val meta =
                     listOfNotNull(
                         (details?.year ?: item?.year)?.toString(),
                         details?.animeType?.uppercase(),
-                        details?.runtime?.takeIf { it > 0 }?.let { "$it min" },
+                        runtime,
                         details?.certification,
                         details?.network,
                     ).joinToString(" · ")
@@ -396,7 +409,7 @@ private fun Actions(
                     Button(onClick = { menu = true }, modifier = Modifier.fillMaxWidth()) {
                         Icon(Icons.Rounded.Add, null, Modifier.size(18.dp))
                         Spacer(Modifier.width(8.dp))
-                        Text("Add to list")
+                        Text(stringResource(R.string.detail_add_to_list))
                     }
                 } else {
                     FilledTonalButton(onClick = { menu = true }, modifier = Modifier.fillMaxWidth()) {
@@ -421,7 +434,7 @@ private fun Actions(
                     if (item != null) {
                         HorizontalDivider()
                         DropdownMenuItem(
-                            text = { Text("Remove from my lists", color = MaterialTheme.colorScheme.error) },
+                            text = { Text(stringResource(R.string.detail_remove_from_lists), color = MaterialTheme.colorScheme.error) },
                             onClick = {
                                 menu = false
                                 onStatus(null)
@@ -434,7 +447,7 @@ private fun Actions(
                 val rated = item?.userRating
                 Icon(if (rated != null) Icons.Rounded.Star else Icons.Rounded.StarOutline, null, Modifier.size(18.dp))
                 Spacer(Modifier.width(6.dp))
-                Text(rated?.toString() ?: "Rate")
+                Text(rated?.toString() ?: stringResource(R.string.detail_rate))
             }
         }
         if (type == MediaType.Movie) {
@@ -446,13 +459,13 @@ private fun Actions(
                     ) {
                         Icon(Icons.Rounded.Check, null, Modifier.size(18.dp))
                         Spacer(Modifier.width(8.dp))
-                        Text("Mark as watched")
+                        Text(stringResource(R.string.detail_mark_as_watched))
                     }
                 }
                 OutlinedButton(onClick = { onCheckIn(null) }, modifier = Modifier.weight(1f)) {
                     Icon(Icons.Rounded.PlayArrow, null, Modifier.size(18.dp))
                     Spacer(Modifier.width(8.dp))
-                    Text("Watching now")
+                    Text(stringResource(R.string.detail_watching_now))
                 }
             }
         }
@@ -461,7 +474,8 @@ private fun Actions(
                 Row(Modifier.fillMaxWidth().padding(start = 16.dp, end = 8.dp, top = 8.dp, bottom = 8.dp), verticalAlignment = Alignment.CenterVertically) {
                     Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(6.dp)) {
                         Text(
-                            "In progress" + (playback.episode?.let { " · ${it.label}" } ?: "") + " · ${playback.progress.roundToInt()}%",
+                            playback.episode?.let { stringResource(R.string.detail_in_progress_episode, it.label, playback.progress.roundToInt()) }
+                                ?: stringResource(R.string.detail_in_progress, playback.progress.roundToInt()),
                             style = MaterialTheme.typography.labelLarge,
                         )
                         LinearProgressIndicator(
@@ -469,7 +483,7 @@ private fun Actions(
                             modifier = Modifier.fillMaxWidth().height(4.dp).clip(RoundedCornerShape(2.dp)),
                         )
                     }
-                    TextButton(onClick = { onPlaybackWatched(playback) }) { Text("Mark watched") }
+                    TextButton(onClick = { onPlaybackWatched(playback) }) { Text(stringResource(R.string.detail_mark_watched)) }
                 }
             }
         }
@@ -481,17 +495,20 @@ private fun Actions(
                 ) {
                     Icon(Icons.Rounded.Check, null, Modifier.size(18.dp))
                     Spacer(Modifier.width(8.dp))
-                    Text("Watched ${next.ref.label}" + (next.title?.let { " · $it" } ?: ""), maxLines = 1, overflow = TextOverflow.Ellipsis)
+                    Text(
+                        next.title?.let { stringResource(R.string.detail_watched_episode_titled, next.ref.label, it) }
+                            ?: stringResource(R.string.detail_watched_episode, next.ref.label),
+                        maxLines = 1, overflow = TextOverflow.Ellipsis)
                 }
                 OutlinedButton(onClick = { onCheckIn(next.ref) }) {
-                    Icon(Icons.Rounded.PlayArrow, contentDescription = "Watching ${next.ref.label} now", modifier = Modifier.size(18.dp))
+                    Icon(Icons.Rounded.PlayArrow, contentDescription = stringResource(R.string.detail_watching_episode_now, next.ref.label), modifier = Modifier.size(18.dp))
                 }
             }
         }
         item?.memo?.let { memo ->
             Surface(shape = RoundedCornerShape(16.dp), color = MaterialTheme.colorScheme.tertiaryContainer) {
                 Text(
-                    "Your note: $memo",
+                    stringResource(R.string.detail_your_note, memo),
                     style = MaterialTheme.typography.bodyMedium,
                     modifier = Modifier.fillMaxWidth().padding(12.dp),
                 )
@@ -499,8 +516,8 @@ private fun Actions(
         }
         if (item != null && type.isEpisodic && item.totalEpisodes > 0) {
             Text(
-                "${item.watchedEpisodes} of ${item.totalEpisodes} episodes watched" +
-                    (item.lastWatchedAt?.let { " · last ${Format.ago(it)}" } ?: ""),
+                pluralStringResource(R.plurals.detail_episodes_watched, item.totalEpisodes, item.watchedEpisodes, item.totalEpisodes) +
+                    (Format.ago(item.lastWatchedAt)?.let { " · " + stringResource(R.string.detail_last_watched, it) } ?: ""),
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
@@ -524,36 +541,37 @@ private fun RatingDialog(
     AlertDialog(
         onDismissRequest = onDismiss,
         icon = { Icon(Icons.Rounded.Star, null) },
-        title = { Text("Your rating") },
+        title = { Text(stringResource(R.string.detail_your_rating)) },
         text = {
             Column(horizontalAlignment = Alignment.CenterHorizontally) {
                 Text(value.toInt().toString(), style = MaterialTheme.typography.displayMedium, fontWeight = FontWeight.Bold)
-                Text(ratingWord(value.toInt()), style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                Text(stringResource(ratingWord(value.toInt())), style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
                 Slider(value = value, onValueChange = { value = it }, valueRange = 1f..10f, steps = 8)
             }
         },
-        confirmButton = { TextButton(onClick = { onRate(value.toInt()) }) { Text("Save") } },
+        confirmButton = { TextButton(onClick = { onRate(value.toInt()) }) { Text(stringResource(R.string.detail_save)) } },
         dismissButton = {
             Row {
-                if (current != null) TextButton(onClick = { onRate(null) }) { Text("Remove") }
-                TextButton(onClick = onDismiss) { Text("Cancel") }
+                if (current != null) TextButton(onClick = { onRate(null) }) { Text(stringResource(R.string.detail_remove)) }
+                TextButton(onClick = onDismiss) { Text(stringResource(R.string.detail_cancel)) }
             }
         },
     )
 }
 
-private fun ratingWord(value: Int) =
+@StringRes
+private fun ratingWord(value: Int): Int =
     when (value) {
-        1 -> "Unwatchable"
-        2 -> "Terrible"
-        3 -> "Bad"
-        4 -> "Poor"
-        5 -> "Average"
-        6 -> "Fair"
-        7 -> "Good"
-        8 -> "Very good"
-        9 -> "Great"
-        else -> "Masterpiece"
+        1 -> R.string.detail_rating_1
+        2 -> R.string.detail_rating_2
+        3 -> R.string.detail_rating_3
+        4 -> R.string.detail_rating_4
+        5 -> R.string.detail_rating_5
+        6 -> R.string.detail_rating_6
+        7 -> R.string.detail_rating_7
+        8 -> R.string.detail_rating_8
+        9 -> R.string.detail_rating_9
+        else -> R.string.detail_rating_10
     }
 
 @Composable
@@ -569,7 +587,7 @@ private fun About(d: MediaDetails) {
                         icon = { Icon(Icons.Rounded.Star, null, Modifier.size(16.dp), tint = Color(0xFFFFB300)) },
                     )
                 }
-                d.rank?.let { rank -> item { SuggestionChip(onClick = {}, label = { Text("Rank #$rank") }) } }
+                d.rank?.let { rank -> item { SuggestionChip(onClick = {}, label = { Text(stringResource(R.string.detail_rank, rank)) }) } }
             }
         }
         if (d.genres.isNotEmpty()) {
@@ -588,23 +606,23 @@ private fun About(d: MediaDetails) {
         }
         val facts =
             listOfNotNull(
-                d.status?.let { "Status" to it.replaceFirstChar { c -> c.uppercase() } },
-                d.airs?.let { "Airs" to it },
-                d.firstAired?.let { (if (d.type == MediaType.Movie) "Released" else "First aired") to (Format.date(it) ?: it) },
-                d.totalEpisodes?.takeIf { it > 0 }?.let { "Episodes" to it.toString() },
-                d.network?.let { "Network" to it },
-                d.country?.let { "Country" to it },
-                d.director?.let { "Director" to it },
-                d.budget?.let { "Budget" to money(it) },
-                d.revenue?.let { "Box office" to money(it) },
-                d.alternativeTitles.takeIf { it.isNotEmpty() }?.let { "Also known as" to it.take(4).joinToString(", ") },
+                d.status?.let { R.string.detail_fact_status to it.replaceFirstChar { c -> c.uppercase() } },
+                d.airs?.let { R.string.detail_fact_airs to it },
+                d.firstAired?.let { (if (d.type == MediaType.Movie) R.string.detail_fact_released else R.string.detail_fact_first_aired) to (Format.date(it) ?: it) },
+                d.totalEpisodes?.takeIf { it > 0 }?.let { R.string.detail_fact_episodes to it.toString() },
+                d.network?.let { R.string.detail_fact_network to it },
+                d.country?.let { R.string.detail_fact_country to it },
+                d.director?.let { R.string.detail_fact_director to it },
+                d.budget?.let { R.string.detail_fact_budget to money(it) },
+                d.revenue?.let { R.string.detail_fact_box_office to money(it) },
+                d.alternativeTitles.takeIf { it.isNotEmpty() }?.let { R.string.detail_fact_also_known_as to it.take(4).joinToString(", ") },
             )
         if (facts.isNotEmpty()) {
             Surface(shape = RoundedCornerShape(20.dp), color = MaterialTheme.colorScheme.surfaceContainerLow) {
                 Column(Modifier.fillMaxWidth().padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
                     facts.forEach { (label, value) ->
                         Row {
-                            Text(label, style = MaterialTheme.typography.labelLarge, color = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.width(110.dp))
+                            Text(stringResource(label), style = MaterialTheme.typography.labelLarge, color = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.width(110.dp))
                             Text(value, style = MaterialTheme.typography.bodyMedium, modifier = Modifier.weight(1f))
                         }
                     }
@@ -621,18 +639,15 @@ private fun money(value: Long): String =
         else -> "$%,d".format(value)
     }
 
+/** Locale-aware short vote count ("12K", "12 k", "1,2 Mio."). */
 private fun compact(votes: Int): String =
-    when {
-        votes >= 1_000_000 -> "%.1fM".format(votes / 1_000_000.0)
-        votes >= 1_000 -> "%.1fk".format(votes / 1_000.0)
-        else -> votes.toString()
-    }
+    CompactDecimalFormat.getInstance(Locale.getDefault(), CompactDecimalFormat.CompactStyle.SHORT).format(votes.toLong())
 
 @Composable
 private fun Trailers(d: MediaDetails) {
     val context = LocalContext.current
     Column {
-        SectionHeader("Trailers", modifier = Modifier.padding(horizontal = 8.dp))
+        SectionHeader(stringResource(R.string.detail_trailers), modifier = Modifier.padding(horizontal = 8.dp))
         LazyRow(contentPadding = PaddingValues(horizontal = 16.dp), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
             items(d.trailers) { t ->
                 Column(
@@ -647,7 +662,7 @@ private fun Trailers(d: MediaDetails) {
                             modifier = Modifier.fillMaxWidth().aspectRatio(16f / 9f).clip(RoundedCornerShape(16.dp)).background(MaterialTheme.colorScheme.surfaceVariant),
                         )
                         Surface(shape = RoundedCornerShape(50), color = Color.Black.copy(alpha = 0.6f), contentColor = Color.White) {
-                            Icon(Icons.Rounded.PlayArrow, "Play", Modifier.padding(8.dp))
+                            Icon(Icons.Rounded.PlayArrow, stringResource(R.string.detail_play), Modifier.padding(8.dp))
                         }
                     }
                     t.name?.let { Text(it, style = MaterialTheme.typography.labelMedium, maxLines = 1, overflow = TextOverflow.Ellipsis) }
@@ -701,12 +716,12 @@ private fun EpisodesBlock(
 
     Column(Modifier.padding(top = 8.dp)) {
         Row(Modifier.padding(horizontal = 8.dp), verticalAlignment = Alignment.CenterVertically) {
-            SectionHeader("Episodes", modifier = Modifier.weight(1f))
+            SectionHeader(stringResource(R.string.detail_episodes), modifier = Modifier.weight(1f))
             Box {
-                IconButton(onClick = { menu = true }) { Icon(Icons.Rounded.MoreVert, contentDescription = "Season options") }
+                IconButton(onClick = { menu = true }) { Icon(Icons.Rounded.MoreVert, contentDescription = stringResource(R.string.detail_season_options)) }
                 DropdownMenu(expanded = menu, onDismissRequest = { menu = false }) {
                     DropdownMenuItem(
-                        text = { Text("Mark season watched") },
+                        text = { Text(stringResource(R.string.detail_mark_season_watched)) },
                         leadingIcon = { Icon(Icons.Rounded.DoneAll, null) },
                         onClick = {
                             menu = false
@@ -714,7 +729,7 @@ private fun EpisodesBlock(
                         },
                     )
                     DropdownMenuItem(
-                        text = { Text("Mark all aired episodes watched") },
+                        text = { Text(stringResource(R.string.detail_mark_all_aired_watched)) },
                         leadingIcon = { Icon(Icons.Rounded.DoneAll, null) },
                         onClick = {
                             menu = false
@@ -722,7 +737,7 @@ private fun EpisodesBlock(
                         },
                     )
                     DropdownMenuItem(
-                        text = { Text("Mark season unwatched") },
+                        text = { Text(stringResource(R.string.detail_mark_season_unwatched)) },
                         leadingIcon = { Icon(Icons.Rounded.RemoveDone, null) },
                         onClick = {
                             menu = false
@@ -740,7 +755,7 @@ private fun EpisodesBlock(
                     FilterChip(
                         selected = n == current,
                         onClick = { selected = n },
-                        label = { Text(if (n == 0) "Specials" else "Season $n") },
+                        label = { Text(if (n == 0) stringResource(R.string.detail_specials) else stringResource(R.string.detail_season_n, n)) },
                         leadingIcon = if (done) ({ Icon(Icons.Rounded.CheckCircle, null, Modifier.size(18.dp)) }) else null,
                     )
                 }
@@ -775,18 +790,18 @@ private fun EpisodesBlock(
                     ) { Text(e.ref().label, style = MaterialTheme.typography.labelSmall, modifier = Modifier.padding(horizontal = 4.dp, vertical = 1.dp)) }
                 }
                 Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(2.dp)) {
-                    Text(e.title ?: "Episode ${e.episode}", style = MaterialTheme.typography.titleSmall, maxLines = 2, overflow = TextOverflow.Ellipsis)
+                    Text(e.title ?: stringResource(R.string.detail_episode_n, e.episode), style = MaterialTheme.typography.titleSmall, maxLines = 2, overflow = TextOverflow.Ellipsis)
                     val date = io.github.impca201.simklr.data.model.Dates.parse(e.date)
                     if (date != null) {
                         Text(
-                            if (e.aired) Format.date(date) else "Airs ${Format.relative(date)}",
+                            if (e.aired) Format.date(date) else stringResource(R.string.detail_airs_when, Format.relative(date)),
                             style = MaterialTheme.typography.labelSmall,
                             color = MaterialTheme.colorScheme.onSurfaceVariant,
                         )
                     }
                     if (!watched && playback != null && playback.episode == e.ref()) {
                         Text(
-                            "In progress · ${playback.progress.roundToInt()}%",
+                            stringResource(R.string.detail_in_progress, playback.progress.roundToInt()),
                             style = MaterialTheme.typography.labelSmall,
                             color = MaterialTheme.colorScheme.primary,
                         )
@@ -803,7 +818,7 @@ private fun EpisodesBlock(
             }
         }
         Text(
-            "Tap an episode to toggle it, long-press to mark everything up to it.",
+            stringResource(R.string.detail_tap_hint),
             style = MaterialTheme.typography.labelSmall,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
             modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
@@ -828,7 +843,7 @@ private fun Links(
             ids.trakt?.let { "Trakt" to "https://trakt.tv/${if (type == MediaType.Movie) "movies" else "shows"}/$it" },
         )
     Column {
-        SectionHeader("Links", modifier = Modifier.padding(horizontal = 8.dp))
+        SectionHeader(stringResource(R.string.detail_links), modifier = Modifier.padding(horizontal = 8.dp))
         LazyRow(contentPadding = PaddingValues(horizontal = 16.dp), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
             items(links) { (label, url) ->
                 AssistChip(

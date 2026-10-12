@@ -68,7 +68,9 @@ android {
     }
 
     androidResources {
-        localeFilters += listOf("en")
+        localeFilters += listOf("en", "nl", "fr", "de", "es", "it")
+        // Lists the languages for Android 13+'s per-app language setting.
+        generateLocaleConfig = true
     }
 
     testOptions {

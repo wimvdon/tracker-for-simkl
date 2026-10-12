@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="lib_no_app_for_url">Aucune application ne peut ouvrir %1$s</string>
+    <string name="lib_profile">Profil</string>
+    <string name="lib_day_today">Aujourd\'hui</string>
+    <string name="lib_day_tomorrow">Demain</string>
+    <string name="lib_day_yesterday">Hier</string>
+    <string name="lib_relative_today">aujourd\'hui à %1$s</string>
+    <string name="lib_relative_tomorrow">demain à %1$s</string>
+    <string name="lib_ago_just_now">à l\'instant</string>
+    <string name="lib_duration_days_hours">%1$dj %2$dh</string>
+    <string name="lib_duration_hours_minutes">%1$dh %2$dmin</string>
+    <string name="lib_duration_minutes">%1$dmin</string>
+    <string name="lib_confirm_watched_title">Marquer comme vu ?</string>
+    <string name="lib_confirm_watched_text">Vous avez arrêté %1$s à %2$d %%. Le marquer comme vu supprime cette progression enregistrée sur SIMKL.</string>
+    <string name="lib_mark_watched">Marquer comme vu</string>
+    <string name="lib_cancel">Annuler</string>
+    <string name="lib_badge_airing">En cours</string>
+    <string name="lib_badge_ended">Terminée</string>
+    <string name="lib_in_your_lists">Dans vos listes</string>
+    <string name="lib_search">Rechercher</string>
+    <string name="lib_sort_recent">Vus récemment</string>
+    <string name="lib_sort_added">Ajoutés récemment</string>
+    <string name="lib_sort_title">Titre</string>
+    <string name="lib_sort_rating">Note</string>
+    <string name="lib_sort_release">Date de sortie</string>
+    <string name="lib_filter_all">Tous</string>
+    <string name="lib_filter_still_airing">En cours</string>
+    <string name="lib_filter_upcoming">À venir</string>
+    <string name="lib_filter_ended">Terminées</string>
+    <string name="lib_filter_released">Sortis</string>
+    <string name="lib_filter_any">Toutes</string>
+    <string name="lib_filter_rated">Notés par moi</string>
+    <string name="lib_filter_unrated">Non notés</string>
+    <string name="lib_anime_type_tv">TV</string>
+    <string name="lib_anime_type_movie">Film</string>
+    <string name="lib_anime_type_ova">OVA</string>
+    <string name="lib_anime_type_ona">ONA</string>
+    <string name="lib_anime_type_special">Spécial</string>
+    <string name="lib_chip_release">Sortie</string>
+    <string name="lib_chip_status">Statut</string>
+    <string name="lib_chip_rating">Note</string>
+    <string name="lib_chip_type">Type</string>
+    <string name="lib_close_search">Fermer la recherche</string>
+    <string name="lib_clear_filter">Effacer %1$s</string>
+    <string name="lib_next_air">Prochain : %1$s</string>
+    <string name="lib_empty_up_next_text">Rien à regarder pour l\'instant. Les nouveaux épisodes des séries que vous suivez apparaissent ici.</string>
+    <string name="lib_empty_watched_text">Les séries à jour ou terminées apparaissent ici.</string>
+    <string name="lib_empty_plan_text">Ajoutez les séries que vous voulez voir depuis Découvrir ou la recherche.</string>
+    <string name="lib_empty_other_text">Rien pour l\'instant.</string>
+    <string name="lib_empty_up_next_shows">Aucune série à suivre</string>
+    <string name="lib_empty_up_next_anime">Aucun anime à suivre</string>
+    <string name="lib_empty_watched_shows">Aucune série vue</string>
+    <string name="lib_empty_watched_anime">Aucun anime vu</string>
+    <string name="lib_empty_plan_shows">Aucune série à voir</string>
+    <string name="lib_empty_plan_anime">Aucun anime à voir</string>
+    <string name="lib_empty_on_hold_shows">Aucune série en pause</string>
+    <string name="lib_empty_on_hold_anime">Aucun anime en pause</string>
+    <string name="lib_empty_dropped_shows">Aucune série abandonnée</string>
+    <string name="lib_empty_dropped_anime">Aucun anime abandonné</string>
+    <string name="lib_empty_plan_movies">Aucun film à voir</string>
+    <string name="lib_empty_watched_movies">Aucun film vu</string>
+    <string name="lib_empty_dropped_movies">Aucun film abandonné</string>
+    <string name="lib_empty_plan_movies_text">Trouvez des films à voir dans Découvrir.</string>
+    <string name="lib_search_up_next">Rechercher dans À suivre</string>
+    <string name="lib_search_watched">Rechercher dans Vu</string>
+    <string name="lib_search_plan_to_watch">Rechercher dans À voir</string>
+    <string name="lib_search_on_hold">Rechercher dans En pause</string>
+    <string name="lib_search_dropped">Rechercher dans Abandonnés</string>
+    <string name="lib_no_matches">Aucun résultat avec ces filtres</string>
+    <string name="lib_clear_filters">Effacer les filtres</string>
+    <string name="lib_mark_failed">Impossible de marquer %1$s comme vu : %2$s</string>
+    <string name="lib_playback_progress">▶ %1$s · vu à %2$d %%</string>
+    <string name="lib_continue_watching">Reprendre</string>
+    <string name="lib_watched_ago">vu %1$s</string>
+    <string name="lib_mark_episode_watched">Marquer %1$s comme vu</string>
+    <plurals name="lib_relative_in_days">
+        <item quantity="one">dans %d jour</item>
+        <item quantity="many">dans %d jours</item>
+        <item quantity="other">dans %d jours</item>
+    </plurals>
+    <plurals name="lib_ago_hours">
+        <item quantity="one">il y a %d h</item>
+        <item quantity="many">il y a %d h</item>
+        <item quantity="other">il y a %d h</item>
+    </plurals>
+    <plurals name="lib_ago_days">
+        <item quantity="one">il y a %d jour</item>
+        <item quantity="many">il y a %d jours</item>
+        <item quantity="other">il y a %d jours</item>
+    </plurals>
+    <plurals name="lib_ago_months">
+        <item quantity="one">il y a %d mois</item>
+        <item quantity="many">il y a %d mois</item>
+        <item quantity="other">il y a %d mois</item>
+    </plurals>
+    <plurals name="lib_ago_years">
+        <item quantity="one">il y a %d an</item>
+        <item quantity="many">il y a %d ans</item>
+        <item quantity="other">il y a %d ans</item>
+    </plurals>
+    <plurals name="lib_episodes_left">
+        <item quantity="one">%d épisode restant</item>
+        <item quantity="many">%d épisodes restants</item>
+        <item quantity="other">%d épisodes restants</item>
+    </plurals>
+</resources>

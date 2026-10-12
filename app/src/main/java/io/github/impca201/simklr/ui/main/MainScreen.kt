@@ -1,5 +1,6 @@
 package io.github.impca201.simklr.ui.main
 
+import io.github.impca201.simklr.ui.components.label
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.Spring
@@ -45,6 +46,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.saveable.rememberSaveableStateHolder
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -98,13 +100,18 @@ fun MainScreen(settings: AppSettings) {
             }
         }
 
+    // Each tab keeps its own saved state (shelf, sort, filters, scroll) while another tab is shown.
+    val tabStates = rememberSaveableStateHolder()
+
     Box(Modifier.fillMaxSize().nestedScroll(hideOnScroll)) {
-        when (selected) {
-            NavTab.Tv -> ShowsScreen(MediaType.Tv, settings)
-            NavTab.Anime -> ShowsScreen(MediaType.Anime, settings)
-            NavTab.Movies -> MoviesScreen()
-            NavTab.Discover -> DiscoverScreen()
-            NavTab.Calendar -> CalendarScreen()
+        tabStates.SaveableStateProvider(selected.name) {
+            when (selected) {
+                NavTab.Tv -> ShowsScreen(MediaType.Tv, settings)
+                NavTab.Anime -> ShowsScreen(MediaType.Anime, settings)
+                NavTab.Movies -> MoviesScreen()
+                NavTab.Discover -> DiscoverScreen()
+                NavTab.Calendar -> CalendarScreen()
+            }
         }
         AnimatedVisibility(
             visible = barVisible || tabs.size == 1,
@@ -164,7 +171,7 @@ private fun FloatingBar(
                         .padding(horizontal = 16.dp),
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
-                    Icon(tab.icon(isSelected), contentDescription = tab.label, tint = content, modifier = Modifier.size(24.dp))
+                    Icon(tab.icon(isSelected), contentDescription = tab.label(), tint = content, modifier = Modifier.size(24.dp))
                     AnimatedVisibility(
                         visible = isSelected,
                         enter = expandHorizontally(spring(stiffness = Spring.StiffnessMediumLow)) + fadeIn(),
@@ -172,7 +179,7 @@ private fun FloatingBar(
                     ) {
                         Row {
                             Spacer(Modifier.width(8.dp))
-                            Text(tab.label, style = MaterialTheme.typography.labelLarge, color = content, maxLines = 1)
+                            Text(tab.label(), style = MaterialTheme.typography.labelLarge, color = content, maxLines = 1)
                         }
                     }
                 }

@@ -30,9 +30,13 @@ An Android client for [SIMKL](https://simkl.com), built with Jetpack Compose and
 - **Calendar** of upcoming episodes and releases (your lists or everything).
 - **Profile** with watch-time statistics per type and status.
 - **Notifications** (optional) when a new episode of a show you're watching becomes available.
+- **Languages**: English, Dutch, French, German, Spanish and Italian (follows the system or
+  Android 13+'s per-app language setting).
 - Offline cache and efficient sync (`/sync/activities` first, then incremental `/sync/all-items`).
 
 ## Signing in
+
+The app has a step-by-step sign-in guide on the setup screen and under Settings → SIMKL.
 
 SIMKL's API needs a client ID. Create a free app at <https://simkl.com/settings/developer/new/>:
 choose **AUTH V2** and the **TV, devices & command line** type (any name). Paste its **Client ID**

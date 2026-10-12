@@ -1,5 +1,11 @@
 package io.github.impca201.simklr.ui.library
 
+import io.github.impca201.simklr.ui.components.label
+import androidx.annotation.StringRes
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.pluralStringResource
+import androidx.compose.ui.res.stringResource
+import io.github.impca201.simklr.R
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -59,6 +65,7 @@ import io.github.impca201.simklr.ui.components.EmptyState
 import io.github.impca201.simklr.ui.components.Format
 import io.github.impca201.simklr.ui.components.rememberApp
 import io.github.impca201.simklr.ui.main.MainTopBar
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.launch
 import java.time.Instant
 import kotlin.math.roundToInt
@@ -72,12 +79,35 @@ private fun Shelf.emptyIcon(): ImageVector =
         Shelf.Dropped -> Icons.Rounded.Block
     }
 
-private fun Shelf.emptyText(): String =
+@StringRes
+private fun Shelf.emptyText(): Int =
     when (this) {
-        Shelf.UpNext -> "Nothing to watch right now. New episodes of shows you're watching show up here."
-        Shelf.Watched -> "Shows you're caught up on or have finished show up here."
-        Shelf.PlanToWatch -> "Add shows you want to watch from Discover or search."
-        else -> "Nothing here yet."
+        Shelf.UpNext -> R.string.lib_empty_up_next_text
+        Shelf.Watched -> R.string.lib_empty_watched_text
+        Shelf.PlanToWatch -> R.string.lib_empty_plan_text
+        else -> R.string.lib_empty_other_text
+    }
+
+@StringRes
+private fun Shelf.emptyTitle(type: MediaType): Int {
+    val anime = type == MediaType.Anime
+    return when (this) {
+        Shelf.UpNext -> if (anime) R.string.lib_empty_up_next_anime else R.string.lib_empty_up_next_shows
+        Shelf.Watched -> if (anime) R.string.lib_empty_watched_anime else R.string.lib_empty_watched_shows
+        Shelf.PlanToWatch -> if (anime) R.string.lib_empty_plan_anime else R.string.lib_empty_plan_shows
+        Shelf.OnHold -> if (anime) R.string.lib_empty_on_hold_anime else R.string.lib_empty_on_hold_shows
+        Shelf.Dropped -> if (anime) R.string.lib_empty_dropped_anime else R.string.lib_empty_dropped_shows
+    }
+}
+
+@StringRes
+private fun Shelf.searchHint(): Int =
+    when (this) {
+        Shelf.UpNext -> R.string.lib_search_up_next
+        Shelf.Watched -> R.string.lib_search_watched
+        Shelf.PlanToWatch -> R.string.lib_search_plan_to_watch
+        Shelf.OnHold -> R.string.lib_search_on_hold
+        Shelf.Dropped -> R.string.lib_search_dropped
     }
 
 /** TV Shows and Anime: the user's shows split into shelves, "Up next" first. */
@@ -124,7 +154,7 @@ fun ShowsScreen(
         topBar = {
             Column {
                 MainTopBar(
-                    title = if (type == MediaType.Tv) NavTab.Tv.label else NavTab.Anime.label,
+                    title = if (type == MediaType.Tv) NavTab.Tv.label() else NavTab.Anime.label(),
                     scrollBehavior = scrollBehavior,
                     searchType = type,
                 )
@@ -133,7 +163,7 @@ fun ShowsScreen(
                         Tab(
                             selected = pagerState.currentPage == index,
                             onClick = { scope.launch { pagerState.animateScrollToPage(index) } },
-                            text = { TabLabel(shelf.label, byShelf[shelf]?.size ?: 0) },
+                            text = { TabLabel(shelf.label(), byShelf[shelf]?.size ?: 0) },
                         )
                     }
                 }
@@ -145,7 +175,7 @@ fun ShowsScreen(
             val items = byShelf[shelf].orEmpty()
             val filter = options.filter(page)
             Column(Modifier.fillMaxSize()) {
-            LibraryControls(type, "Search ${shelf.label.lowercase()}", options.sort(page), { options.setSort(page, it) }, filter) {
+            LibraryControls(type, stringResource(shelf.searchHint()), options.sort(page), { options.setSort(page, it) }, filter) {
                 options.setFilter(page, it)
             }
             PullToRefreshBox(
@@ -155,11 +185,11 @@ fun ShowsScreen(
             ) {
                 when {
                     items.isEmpty() && filter.active ->
-                        EmptyState(Icons.Rounded.SearchOff, "Nothing matches the filters") {
-                            TextButton(onClick = { options.setFilter(page, LibraryFilter()) }) { Text("Clear filters") }
+                        EmptyState(Icons.Rounded.SearchOff, stringResource(R.string.lib_no_matches)) {
+                            TextButton(onClick = { options.setFilter(page, LibraryFilter()) }) { Text(stringResource(R.string.lib_clear_filters)) }
                         }
                     items.isEmpty() && state.loaded && !state.syncing ->
-                        EmptyState(shelf.emptyIcon(), "No ${shelf.label.lowercase()} ${if (type == MediaType.Anime) "anime" else "shows"}", shelf.emptyText())
+                        EmptyState(shelf.emptyIcon(), stringResource(shelf.emptyTitle(type)), stringResource(shelf.emptyText()))
                     shelf == Shelf.UpNext ->
                         UpNextList(items, state, fromLatest, ::open) { message -> scope.launch { snackbar.showSnackbar(message) } }
                     else ->
@@ -186,6 +216,7 @@ private fun UpNextList(
     onError: (String) -> Unit,
 ) {
     val app = rememberApp()
+    val context = LocalContext.current
     val scope = rememberCoroutineScope()
     var busy by remember { mutableStateOf(setOf<String>()) }
     var confirm by remember { mutableStateOf<Pair<Playback, LibraryItem>?>(null) }
@@ -199,8 +230,10 @@ private fun UpNextList(
         scope.launch {
             try {
                 block()
+            } catch (e: CancellationException) {
+                throw e
             } catch (e: Exception) {
-                onError("Couldn't mark $label watched: ${e.message}")
+                onError(context.getString(R.string.lib_mark_failed, label, e.message.orEmpty()))
             }
             busy = busy - item.key
         }
@@ -219,15 +252,15 @@ private fun UpNextList(
                 item = item,
                 headline =
                     if (playback != null) {
-                        "▶ ${playback.episode!!.label} · ${playback.progress.roundToInt()}% watched"
+                        stringResource(R.string.lib_playback_progress, playback.episode!!.label, playback.progress.roundToInt())
                     } else {
-                        next?.let { listOfNotNull(it.ref.label, it.title).joinToString(" · ") } ?: "Continue watching"
+                        next?.let { listOfNotNull(it.ref.label, it.title).joinToString(" · ") } ?: stringResource(R.string.lib_continue_watching)
                     },
                 supporting =
                     listOfNotNull(
                         playback?.episodeTitle,
-                        if (playback == null && left > 0) "$left episode${if (left == 1) "" else "s"} left" else null,
-                        Format.ago(item.lastWatchedAt)?.let { "watched $it" },
+                        if (playback == null && left > 0) pluralStringResource(R.plurals.lib_episodes_left, left, left) else null,
+                        Format.ago(item.lastWatchedAt)?.let { stringResource(R.string.lib_watched_ago, it) },
                     ).joinToString(" · ").ifEmpty { null },
                 airing = Shelves.airingOf(item, state.showInfo[item.key], state.nextAirDate(item)),
                 onClick = { onOpen(item) },
@@ -237,12 +270,12 @@ private fun UpNextList(
                     item.key in busy -> CircularProgressIndicator(Modifier.size(24.dp), strokeWidth = 2.dp)
                     playback != null ->
                         FilledTonalIconButton(onClick = { confirm = playback to item }) {
-                            Icon(Icons.Rounded.Check, contentDescription = "Mark ${playback.episode!!.label} watched")
+                            Icon(Icons.Rounded.Check, contentDescription = stringResource(R.string.lib_mark_episode_watched, playback.episode!!.label))
                         }
                     next != null ->
                         FilledTonalIconButton(onClick = {
                             run(item, next.ref.label) { app.library.markEpisodeWatched(item, next.ref) }
-                        }) { Icon(Icons.Rounded.Check, contentDescription = "Mark ${next.ref.label} watched") }
+                        }) { Icon(Icons.Rounded.Check, contentDescription = stringResource(R.string.lib_mark_episode_watched, next.ref.label)) }
                 }
             }
         }

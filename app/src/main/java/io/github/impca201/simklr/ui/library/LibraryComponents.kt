@@ -1,5 +1,8 @@
 package io.github.impca201.simklr.ui.library
 
+import androidx.annotation.StringRes
+import androidx.compose.ui.res.stringResource
+import io.github.impca201.simklr.R
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
@@ -75,13 +78,13 @@ import io.github.impca201.simklr.ui.components.PosterTile
 import io.github.impca201.simklr.ui.main.FloatingBarSpace
 
 enum class SortOrder(
-    val label: String,
+    @StringRes val label: Int,
 ) {
-    Recent("Recently watched"),
-    Added("Recently added"),
-    Title("Title"),
-    Rating("My rating"),
-    Release("Release date"),
+    Recent(R.string.lib_sort_recent),
+    Added(R.string.lib_sort_added),
+    Title(R.string.lib_sort_title),
+    Rating(R.string.lib_sort_rating),
+    Release(R.string.lib_sort_release),
     ;
 
     fun sort(items: List<LibraryItem>): List<LibraryItem> =
@@ -97,20 +100,20 @@ enum class SortOrder(
 
 /** Ended or still running (TV, anime); released or upcoming (movies). */
 enum class ReleaseFilter(
-    val showLabel: String,
-    val movieLabel: String,
+    @StringRes val showLabel: Int,
+    @StringRes val movieLabel: Int,
 ) {
-    All("All", "All"),
-    Running("Still airing", "Upcoming"),
-    Finished("Ended", "Released"),
+    All(R.string.lib_filter_all, R.string.lib_filter_all),
+    Running(R.string.lib_filter_still_airing, R.string.lib_filter_upcoming),
+    Finished(R.string.lib_filter_ended, R.string.lib_filter_released),
 }
 
 enum class RatingFilter(
-    val label: String,
+    @StringRes val label: Int,
 ) {
-    Any("Any"),
-    Rated("Rated by me"),
-    Unrated("Not rated"),
+    Any(R.string.lib_filter_any),
+    Rated(R.string.lib_filter_rated),
+    Unrated(R.string.lib_filter_unrated),
 }
 
 data class LibraryFilter(
@@ -159,7 +162,15 @@ data class LibraryFilter(
     fun encode(): String = "${release.name}|${rating.name}|${animeType.orEmpty()}|$query"
 
     companion object {
-        val animeTypes = listOf("tv" to "TV", "movie" to "Movie", "ova" to "OVA", "ona" to "ONA", "special" to "Special")
+        /** SIMKL anime_type and its label. */
+        val animeTypes =
+            listOf(
+                "tv" to R.string.lib_anime_type_tv,
+                "movie" to R.string.lib_anime_type_movie,
+                "ova" to R.string.lib_anime_type_ova,
+                "ona" to R.string.lib_anime_type_ona,
+                "special" to R.string.lib_anime_type_special,
+            )
 
         fun decode(value: String): LibraryFilter {
             // The query is last and may itself contain "|".
@@ -244,6 +255,15 @@ fun LibraryControls(
     }
     val movie = type == MediaType.Movie
     fun releaseLabel(value: ReleaseFilter) = if (movie) value.movieLabel else value.showLabel
+    // Labels resolved here, since the chip's option labels are plain lambdas.
+    val sortLabels = SortOrder.entries.associateWith { stringResource(it.label) }
+    val releaseLabels = ReleaseFilter.entries.associateWith { stringResource(releaseLabel(it)) }
+    val ratingLabels = RatingFilter.entries.associateWith { stringResource(it.label) }
+    val animeTypeLabels = LibraryFilter.animeTypes.associate { (key, label) -> key to stringResource(label) }
+    val allLabel = stringResource(R.string.lib_filter_all)
+    val statusChip = stringResource(if (movie) R.string.lib_chip_release else R.string.lib_chip_status)
+    val ratingChip = stringResource(R.string.lib_chip_rating)
+    val typeChip = stringResource(R.string.lib_chip_type)
     LazyRow(
         contentPadding = PaddingValues(horizontal = 12.dp, vertical = 4.dp),
         horizontalArrangement = Arrangement.spacedBy(8.dp),
@@ -251,34 +271,34 @@ fun LibraryControls(
     ) {
         item(key = "sort") {
             DropdownChip(
-                label = sort.label,
+                label = sortLabels.getValue(sort),
                 selected = false,
                 leading = Icons.AutoMirrored.Rounded.Sort,
                 options = SortOrder.entries,
                 current = sort,
-                optionLabel = { it.label },
+                optionLabel = { sortLabels.getValue(it) },
                 onSelect = onSort,
                 onClear = null,
             )
         }
         item(key = "status") {
             DropdownChip(
-                label = if (filter.release == ReleaseFilter.All) (if (movie) "Release" else "Status") else releaseLabel(filter.release),
+                label = if (filter.release == ReleaseFilter.All) statusChip else releaseLabels.getValue(filter.release),
                 selected = filter.release != ReleaseFilter.All,
                 options = ReleaseFilter.entries,
                 current = filter.release,
-                optionLabel = { if (it == ReleaseFilter.All) "All" else releaseLabel(it) },
+                optionLabel = { releaseLabels.getValue(it) },
                 onSelect = { onFilter(filter.copy(release = it)) },
                 onClear = { onFilter(filter.copy(release = ReleaseFilter.All)) },
             )
         }
         item(key = "rating") {
             DropdownChip(
-                label = if (filter.rating == RatingFilter.Any) "My rating" else filter.rating.label,
+                label = if (filter.rating == RatingFilter.Any) ratingChip else ratingLabels.getValue(filter.rating),
                 selected = filter.rating != RatingFilter.Any,
                 options = RatingFilter.entries,
                 current = filter.rating,
-                optionLabel = { it.label },
+                optionLabel = { ratingLabels.getValue(it) },
                 onSelect = { onFilter(filter.copy(rating = it)) },
                 onClear = { onFilter(filter.copy(rating = RatingFilter.Any)) },
             )
@@ -286,9 +306,9 @@ fun LibraryControls(
         if (type == MediaType.Anime) {
             item(key = "type") {
                 val types = listOf<String?>(null) + LibraryFilter.animeTypes.map { it.first }
-                fun typeLabel(key: String?) = LibraryFilter.animeTypes.firstOrNull { it.first == key }?.second ?: "All"
+                fun typeLabel(key: String?) = key?.let { animeTypeLabels[it] } ?: allLabel
                 DropdownChip(
-                    label = if (filter.animeType == null) "Type" else typeLabel(filter.animeType),
+                    label = if (filter.animeType == null) typeChip else typeLabel(filter.animeType),
                     selected = filter.animeType != null,
                     options = types,
                     current = filter.animeType,
@@ -321,7 +341,7 @@ private fun TitleSearchField(
         placeholder = { Text(hint) },
         singleLine = true,
         leadingIcon = { Icon(Icons.Rounded.Search, null) },
-        trailingIcon = { IconButton(onClick = onClose) { Icon(Icons.Rounded.Close, contentDescription = "Close search") } },
+        trailingIcon = { IconButton(onClick = onClose) { Icon(Icons.Rounded.Close, contentDescription = stringResource(R.string.lib_close_search)) } },
         keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search),
         keyboardActions = KeyboardActions(onSearch = { keyboard?.hide() }),
         shape = RoundedCornerShape(28.dp),
@@ -360,7 +380,7 @@ private fun <T> DropdownChip(
                 if (selected && onClear != null) {
                     Icon(
                         Icons.Rounded.Close,
-                        contentDescription = "Clear $label",
+                        contentDescription = stringResource(R.string.lib_clear_filter, label),
                         modifier = Modifier.size(18.dp).clip(CircleShape).clickable(onClick = onClear),
                     )
                 } else {
@@ -423,7 +443,7 @@ fun LibraryGrid(
                 title = item.title,
                 poster = item.poster,
                 subtitle =
-                    nextAir?.let { "Next ${Format.relative(it)}" }
+                    nextAir?.let { stringResource(R.string.lib_next_air, Format.relative(it)) }
                         ?: listOfNotNull(
                             item.year?.toString(),
                             item.userRating?.let { "★ $it" },

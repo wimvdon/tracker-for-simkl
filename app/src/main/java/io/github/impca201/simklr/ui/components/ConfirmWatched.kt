@@ -7,6 +7,8 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.res.stringResource
+import io.github.impca201.simklr.R
 import io.github.impca201.simklr.data.model.Playback
 import kotlin.math.roundToInt
 
@@ -21,19 +23,16 @@ fun ConfirmWatchedDialog(
     AlertDialog(
         onDismissRequest = onDismiss,
         icon = { Icon(Icons.Rounded.CheckCircle, null) },
-        title = { Text("Mark as watched?") },
+        title = { Text(stringResource(R.string.lib_confirm_watched_title)) },
         text = {
-            Text(
-                "You stopped $what at ${playback.progress.roundToInt()}%. " +
-                    "Marking it watched removes that saved progress on SIMKL.",
-            )
+            Text(stringResource(R.string.lib_confirm_watched_text, what, playback.progress.roundToInt()))
         },
         confirmButton = {
             TextButton(onClick = {
                 onDismiss()
                 onConfirm()
-            }) { Text("Mark watched") }
+            }) { Text(stringResource(R.string.lib_mark_watched)) }
         },
-        dismissButton = { TextButton(onClick = onDismiss) { Text("Cancel") } },
+        dismissButton = { TextButton(onClick = onDismiss) { Text(stringResource(R.string.lib_cancel)) } },
     )
 }

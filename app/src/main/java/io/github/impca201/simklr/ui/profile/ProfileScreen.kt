@@ -50,9 +50,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.pluralStringResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImage
+import io.github.impca201.simklr.R
 import io.github.impca201.simklr.data.model.Images
 import io.github.impca201.simklr.data.model.TypeStats
 import io.github.impca201.simklr.data.model.UserProfile
@@ -62,8 +65,7 @@ import io.github.impca201.simklr.ui.Route
 import io.github.impca201.simklr.ui.components.Format
 import io.github.impca201.simklr.ui.components.openUrl
 import io.github.impca201.simklr.ui.components.rememberApp
-import io.github.impca201.simklr.ui.detail.label
-import io.github.impca201.simklr.ui.search.label
+import io.github.impca201.simklr.ui.components.label
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -82,9 +84,9 @@ fun ProfileScreen() {
         contentWindowInsets = WindowInsets(0),
         topBar = {
             TopAppBar(
-                title = { Text("Profile") },
-                navigationIcon = { IconButton(onClick = { navigator.pop() }) { Icon(Icons.AutoMirrored.Rounded.ArrowBack, "Back") } },
-                actions = { IconButton(onClick = { navigator.push(Route.Settings) }) { Icon(Icons.Rounded.Settings, "Settings") } },
+                title = { Text(stringResource(R.string.screens_profile_title)) },
+                navigationIcon = { IconButton(onClick = { navigator.pop() }) { Icon(Icons.AutoMirrored.Rounded.ArrowBack, stringResource(R.string.screens_back)) } },
+                actions = { IconButton(onClick = { navigator.push(Route.Settings) }) { Icon(Icons.Rounded.Settings, stringResource(R.string.screens_settings)) } },
             )
         },
     ) { padding ->
@@ -112,9 +114,18 @@ fun ProfileScreen() {
                     Column {
                         val colors = ListItemDefaults.colors(containerColor = MaterialTheme.colorScheme.surfaceContainerLow)
                         ListItem(
-                            headlineContent = { Text("Sync now") },
+                            headlineContent = { Text(stringResource(R.string.screens_profile_sync_now)) },
                             supportingContent = {
-                                Text(if (library.syncedAt > 0) "Last synced ${Format.ago(java.time.Instant.ofEpochMilli(library.syncedAt).toString())}" else "Never synced")
+                                Column {
+                                Text(
+                                    if (library.syncedAt > 0) {
+                                        stringResource(R.string.screens_profile_last_synced, Format.ago(java.time.Instant.ofEpochMilli(library.syncedAt).toString()).orEmpty())
+                                    } else {
+                                        stringResource(R.string.screens_profile_never_synced)
+                                    },
+                                )
+                                library.error?.let { Text(it, color = MaterialTheme.colorScheme.error) }
+                                }
                             },
                             leadingContent = { Icon(Icons.Rounded.Sync, null) },
                             colors = colors,
@@ -122,26 +133,26 @@ fun ProfileScreen() {
                                 if (library.syncing) {
                                     CircularProgressIndicator(Modifier.size(20.dp), strokeWidth = 2.dp)
                                 } else {
-                                    TextButton(onClick = { scope.launch { app.library.sync() } }) { Text("Sync") }
+                                    TextButton(onClick = { scope.launch { app.library.sync() } }) { Text(stringResource(R.string.screens_profile_sync)) }
                                 }
                             },
                         )
                         profile?.let { p ->
                             ListItem(
-                                headlineContent = { Text("Open my SIMKL page") },
+                                headlineContent = { Text(stringResource(R.string.screens_profile_open_page)) },
                                 leadingContent = { Icon(Icons.AutoMirrored.Rounded.OpenInNew, null) },
                                 colors = colors,
                                 modifier = Modifier.clickableRow { context.openUrl("https://simkl.com/${p.id}/") },
                             )
                         }
                         ListItem(
-                            headlineContent = { Text("Settings") },
+                            headlineContent = { Text(stringResource(R.string.screens_settings)) },
                             leadingContent = { Icon(Icons.Rounded.Settings, null) },
                             colors = colors,
                             modifier = Modifier.clickableRow { navigator.push(Route.Settings) },
                         )
                         ListItem(
-                            headlineContent = { Text("Log out", color = MaterialTheme.colorScheme.error) },
+                            headlineContent = { Text(stringResource(R.string.screens_profile_log_out), color = MaterialTheme.colorScheme.error) },
                             leadingContent = { Icon(Icons.AutoMirrored.Rounded.Logout, null, tint = MaterialTheme.colorScheme.error) },
                             colors = colors,
                             modifier = Modifier.clickableRow { confirmLogout = true },
@@ -154,10 +165,10 @@ fun ProfileScreen() {
     if (confirmLogout) {
         AlertDialog(
             onDismissRequest = { confirmLogout = false },
-            title = { Text("Log out?") },
-            text = { Text("Your lists stay on SIMKL. This only removes them from this device.") },
-            confirmButton = { TextButton(onClick = { scope.launch { app.logout() } }) { Text("Log out") } },
-            dismissButton = { TextButton(onClick = { confirmLogout = false }) { Text("Cancel") } },
+            title = { Text(stringResource(R.string.screens_profile_log_out_title)) },
+            text = { Text(stringResource(R.string.screens_profile_log_out_body)) },
+            confirmButton = { TextButton(onClick = { scope.launch { app.logout() } }) { Text(stringResource(R.string.screens_profile_log_out)) } },
+            dismissButton = { TextButton(onClick = { confirmLogout = false }) { Text(stringResource(R.string.screens_cancel)) } },
         )
     }
 }
@@ -180,7 +191,7 @@ private fun ProfileHeader(profile: UserProfile?) {
             val meta =
                 listOfNotNull(
                     profile?.accountType?.replaceFirstChar { it.uppercase() },
-                    profile?.joinedAt?.let { Format.date(it) }?.let { "Joined $it" },
+                    profile?.joinedAt?.let { Format.date(it) }?.let { stringResource(R.string.screens_profile_joined, it) },
                     profile?.location,
                 ).joinToString(" · ")
             if (meta.isNotEmpty()) Text(meta, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
@@ -193,8 +204,8 @@ private fun ProfileHeader(profile: UserProfile?) {
 private fun Totals(stats: UserStats) {
     Surface(shape = RoundedCornerShape(24.dp), color = MaterialTheme.colorScheme.primaryContainer) {
         Row(Modifier.fillMaxWidth().padding(20.dp), horizontalArrangement = Arrangement.SpaceAround) {
-            Stat("Time watched", Format.duration(stats.totalMinutes))
-            stats.lastWeekMinutes?.let { Stat("Last 7 days", Format.duration(it)) }
+            Stat(stringResource(R.string.screens_profile_time_watched), Format.duration(stats.totalMinutes))
+            stats.lastWeekMinutes?.let { Stat(stringResource(R.string.screens_profile_last_7_days), Format.duration(it)) }
         }
     }
 }
@@ -219,8 +230,8 @@ private fun TypeCard(t: TypeStats) {
                 Text(
                     listOfNotNull(
                         Format.duration(t.minutes),
-                        t.watchedEpisodes?.let { "$it episodes" },
-                        t.leftToWatchMinutes?.takeIf { it > 0 }?.let { "${Format.duration(it)} left" },
+                        t.watchedEpisodes?.let { pluralStringResource(R.plurals.screens_profile_episodes, it, it) },
+                        t.leftToWatchMinutes?.takeIf { it > 0 }?.let { stringResource(R.string.screens_profile_time_left, Format.duration(it)) },
                     ).joinToString(" · "),
                     style = MaterialTheme.typography.labelLarge,
                     color = MaterialTheme.colorScheme.primary,

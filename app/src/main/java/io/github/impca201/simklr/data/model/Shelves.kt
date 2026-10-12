@@ -4,16 +4,14 @@ import kotlinx.serialization.Serializable
 import java.time.Instant
 
 /** The tabs of the TV Shows and Anime screens. */
-enum class Shelf(
-    val label: String,
-) {
-    UpNext("Up next"),
-    PlanToWatch("Plan to watch"),
+enum class Shelf {
+    UpNext,
+    PlanToWatch,
 
     /** Caught-up shows (watching, nothing to watch now) and completed ones together. */
-    Watched("Watched"),
-    OnHold("On hold"),
-    Dropped("Dropped"),
+    Watched,
+    OnHold,
+    Dropped,
 }
 
 /**
@@ -31,12 +29,11 @@ data class LatestNext(
 
 /** The tabs of the Movies screen. */
 enum class MovieShelf(
-    val label: String,
     val status: ListStatus,
 ) {
-    PlanToWatch("Plan to watch", ListStatus.PlanToWatch),
-    Completed("Watched", ListStatus.Completed),
-    Dropped("Dropped", ListStatus.Dropped),
+    PlanToWatch(ListStatus.PlanToWatch),
+    Completed(ListStatus.Completed),
+    Dropped(ListStatus.Dropped),
 }
 
 object Shelves {

@@ -69,8 +69,8 @@ class NewEpisodesWorker(
 
         fun createChannel(context: Context) {
             if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) return
-            val channel = NotificationChannel(CHANNEL, "New episodes", NotificationManager.IMPORTANCE_DEFAULT)
-            channel.description = "When a new episode of a show you are watching is available"
+            val channel = NotificationChannel(CHANNEL, context.getString(R.string.data_notif_channel_name), NotificationManager.IMPORTANCE_DEFAULT)
+            channel.description = context.getString(R.string.data_notif_channel_description)
             context.getSystemService(NotificationManager::class.java).createNotificationChannel(channel)
         }
 
@@ -108,7 +108,7 @@ class NewEpisodesWorker(
                     PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE,
                 )
             val text =
-                listOfNotNull(next?.ref?.label, next?.title).joinToString(" · ").ifEmpty { "New episode available" }
+                listOfNotNull(next?.ref?.label, next?.title).joinToString(" · ").ifEmpty { context.getString(R.string.data_notif_new_episode) }
             val notification =
                 NotificationCompat.Builder(context, CHANNEL)
                     .setSmallIcon(R.drawable.ic_notification)

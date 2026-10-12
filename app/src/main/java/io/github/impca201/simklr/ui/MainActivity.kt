@@ -54,7 +54,7 @@ class MainActivity : ComponentActivity() {
             intent.data?.toString()?.let { link ->
                 val m = linkPattern.find(link) ?: return null
                 val type = MediaType.fromApi(m.groupValues[1]) ?: return null
-                return Route.Detail(type, m.groupValues[2].toLong())
+                return Route.Detail(type, m.groupValues[2].toLongOrNull() ?: return null)
             }
             val type = MediaType.entries.firstOrNull { it.name == intent.getStringExtra(EXTRA_TYPE) } ?: return null
             val id = intent.getLongExtra(EXTRA_ID, 0).takeIf { it > 0 } ?: return null

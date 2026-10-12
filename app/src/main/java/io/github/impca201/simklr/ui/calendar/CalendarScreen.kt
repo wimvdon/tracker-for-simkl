@@ -38,8 +38,10 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.nestedscroll.nestedScroll
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import io.github.impca201.simklr.R
 import io.github.impca201.simklr.data.NavTab
 import io.github.impca201.simklr.data.model.CalendarEntry
 import io.github.impca201.simklr.data.model.MediaType
@@ -52,11 +54,10 @@ import io.github.impca201.simklr.ui.components.rememberApp
 import io.github.impca201.simklr.ui.library.SectionHeader
 import io.github.impca201.simklr.ui.library.bottomPadding
 import io.github.impca201.simklr.ui.main.MainTopBar
-import io.github.impca201.simklr.ui.search.label
+import io.github.impca201.simklr.ui.components.label
 import kotlinx.coroutines.launch
-import java.time.Instant
+import java.time.LocalDate
 import java.time.ZoneId
-import java.time.temporal.ChronoUnit
 
 /** Upcoming episodes and releases from SIMKL's calendars, by day. */
 @OptIn(ExperimentalMaterial3Api::class)
@@ -76,11 +77,12 @@ fun CalendarScreen() {
     val zone = ZoneId.systemDefault()
     val days =
         remember(state.calendar, state.items, mine, hidden) {
-            val from = Instant.now().truncatedTo(ChronoUnit.DAYS).minus(1, ChronoUnit.DAYS)
+            // Start of yesterday in the user's time zone (not UTC), so day groups below are never partial.
+            val from = LocalDate.now(zone).minusDays(1).atStartOfDay(zone).toInstant()
             state.calendar
                 .filterKeys { it.name !in hidden }
                 .values.flatten()
-                .filter { it.date.isAfter(from) }
+                .filter { !it.date.isBefore(from) }
                 .filter { !mine || state.item(it.type, it.simklId) != null }
                 .sortedBy { it.date }
                 .groupBy { it.date.atZone(zone).toLocalDate() }
@@ -91,7 +93,7 @@ fun CalendarScreen() {
         contentWindowInsets = WindowInsets(0),
         topBar = {
             Column {
-                MainTopBar(NavTab.Calendar.label, scrollBehavior)
+                MainTopBar(NavTab.Calendar.label(), scrollBehavior)
                 LazyRow(
                     contentPadding = PaddingValues(horizontal = 16.dp, vertical = 4.dp),
                     horizontalArrangement = Arrangement.spacedBy(8.dp),
@@ -100,7 +102,7 @@ fun CalendarScreen() {
                         FilterChip(
                             selected = mine,
                             onClick = { mine = !mine },
-                            label = { Text("My lists") },
+                            label = { Text(stringResource(R.string.screens_calendar_my_lists)) },
                             leadingIcon = { Icon(Icons.Rounded.Bookmark, null, Modifier.size(18.dp)) },
                         )
                     }
@@ -129,8 +131,8 @@ fun CalendarScreen() {
             if (days.isEmpty()) {
                 EmptyState(
                     Icons.Rounded.EventBusy,
-                    if (state.calendar.isEmpty()) "Loading the calendar…" else "Nothing coming up",
-                    if (mine) "Only titles in your lists are shown. Turn off “My lists” to see everything." else null,
+                    stringResource(if (state.calendar.isEmpty()) R.string.screens_calendar_loading else R.string.screens_calendar_nothing),
+                    if (mine) stringResource(R.string.screens_calendar_mine_hint) else null,
                 )
             } else {
                 LazyColumn(
@@ -168,12 +170,12 @@ private fun CalendarRow(
             Column(Modifier.weight(1f)) {
                 Text(entry.title, style = MaterialTheme.typography.titleSmall, maxLines = 1, overflow = TextOverflow.Ellipsis)
                 Text(
-                    listOfNotNull(entry.episode?.label, if (entry.type == MediaType.Movie) "Release" else null, Format.time(entry.date)).joinToString(" · "),
+                    listOfNotNull(entry.episode?.label, if (entry.type == MediaType.Movie) stringResource(R.string.screens_calendar_release) else null, Format.time(entry.date)).joinToString(" · "),
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
             }
-            if (inList) PosterBadge("In your list")
+            if (inList) PosterBadge(stringResource(R.string.screens_calendar_in_list))
             PosterBadge(entry.type.label())
         }
     }
