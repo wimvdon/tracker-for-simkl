@@ -98,8 +98,12 @@ class SettingsStore(
     suspend fun setClientId(value: String) = context.dataStore.edit { it[Keys.clientId] = value.trim() }
 
     suspend fun setToken(value: String?) =
-        context.dataStore.edit {
-            if (value == null) it.remove(Keys.token) else it[Keys.token] = value
+        context.dataStore.edit { prefs ->
+            if (value == null) {
+                prefs.remove(Keys.token)
+            } else {
+                prefs[Keys.token] = value
+            }
         }
 
     suspend fun setTheme(value: ThemeMode) = context.dataStore.edit { it[Keys.theme] = value.name }
