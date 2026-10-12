@@ -66,7 +66,7 @@
     <string name="detail_season_n">Season %1$d</string>
     <string name="detail_episode_n">Episode %1$d</string>
     <string name="detail_airs_when">Airs %1$s</string>
-    <string name="detail_tap_hint">Tap an episode to toggle it, long-press to mark everything up to it.</string>
+    <string name="detail_tap_hint">Tap an episode to read more, use the checkbox to mark it, long-press to mark everything up to it.</string>
     <string name="detail_links">Links</string>
     <plurals name="detail_episodes_watched">
         <item quantity="one">%1$d of %2$d episode watched</item>
