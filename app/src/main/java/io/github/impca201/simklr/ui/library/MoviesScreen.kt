@@ -10,12 +10,15 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Block
 import androidx.compose.material.icons.rounded.Bookmark
 import androidx.compose.material.icons.rounded.CheckCircle
+import androidx.compose.material.icons.rounded.SearchOff
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.PrimaryTabRow
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Tab
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.runtime.Composable
@@ -47,12 +50,13 @@ fun MoviesScreen() {
     val state by app.library.state.collectAsState()
     val snackbar = remember { SnackbarHostState() }
     var sort by rememberSaveable { mutableStateOf(SortOrder.Recent) }
+    var filter by rememberSaveable(stateSaver = LibraryFilter.Saver) { mutableStateOf(LibraryFilter()) }
     val shelves = MovieShelf.entries
     val pagerState = rememberPagerState { shelves.size }
     val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
     val byStatus =
-        remember(state.items, sort) {
-            state.items.filter { it.type == MediaType.Movie }.groupBy { it.status }.mapValues { (_, v) -> sort.sort(v) }
+        remember(state, sort, filter) {
+            filter.apply(state.items.filter { it.type == MediaType.Movie }, state).groupBy { it.status }.mapValues { (_, v) -> sort.sort(v) }
         }
 
     LaunchedEffect(state.error) { state.error?.let { snackbar.showSnackbar(it) } }
@@ -63,7 +67,7 @@ fun MoviesScreen() {
         snackbarHost = { SnackbarHost(snackbar, Modifier.padding(bottom = bottomPadding())) },
         topBar = {
             Column {
-                MainTopBar(NavTab.Movies.label, scrollBehavior, MediaType.Movie) { SortMenu(sort) { sort = it } }
+                MainTopBar(NavTab.Movies.label, scrollBehavior, MediaType.Movie) { SortFilterButton(MediaType.Movie, sort, { sort = it }, filter, { filter = it }) }
                 PrimaryTabRow(selectedTabIndex = pagerState.currentPage) {
                     shelves.forEachIndexed { index, shelf ->
                         Tab(
@@ -84,7 +88,11 @@ fun MoviesScreen() {
                 onRefresh = { scope.launch { app.library.sync() } },
                 modifier = Modifier.fillMaxSize(),
             ) {
-                if (items.isEmpty() && state.loaded && !state.syncing) {
+                if (items.isEmpty() && filter.active) {
+                    EmptyState(Icons.Rounded.SearchOff, "Nothing matches the filters") {
+                        TextButton(onClick = { filter = LibraryFilter() }) { Text("Clear filters") }
+                    }
+                } else if (items.isEmpty() && state.loaded && !state.syncing) {
                     val icon =
                         when (shelf) {
                             MovieShelf.PlanToWatch -> Icons.Rounded.Bookmark
@@ -94,7 +102,7 @@ fun MoviesScreen() {
                     EmptyState(icon, "No movies here", if (shelf == MovieShelf.PlanToWatch) "Find movies to watch in Discover." else null)
                 } else {
                     LibraryGrid(
-                        sections = listOf(GridSection(null, items)),
+                        items = items,
                         state = state,
                         onOpen = { navigator.openDetail(it.type, it.ids.simkl, it.title, it.poster) },
                         showProgress = false,

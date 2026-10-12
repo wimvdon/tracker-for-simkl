@@ -10,12 +10,15 @@ import io.github.impca201.simklr.data.model.AiringState
 import io.github.impca201.simklr.data.model.CalendarEntry
 import io.github.impca201.simklr.data.model.Episode
 import io.github.impca201.simklr.data.model.EpisodeRef
+import io.github.impca201.simklr.data.model.LatestNext
 import io.github.impca201.simklr.data.model.LibraryItem
 import io.github.impca201.simklr.data.model.ListStatus
 import io.github.impca201.simklr.data.model.MediaDetails
 import io.github.impca201.simklr.data.model.MediaIds
 import io.github.impca201.simklr.data.model.MediaType
 import io.github.impca201.simklr.data.model.NextEpisode
+import io.github.impca201.simklr.data.model.Playback
+import io.github.impca201.simklr.data.model.Shelves
 import io.github.impca201.simklr.data.model.ShowInfo
 import io.github.impca201.simklr.data.model.WatchedSeason
 import kotlinx.coroutines.CoroutineScope
@@ -31,7 +34,9 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.Semaphore
 import kotlinx.coroutines.sync.withLock
+import kotlinx.coroutines.sync.withPermit
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.builtins.MapSerializer
@@ -51,6 +56,11 @@ private data class LibrarySnapshot(
     /** The rated_at timestamps at the last sync. */
     val ratedStamp: String? = null,
     val syncedAt: Long = 0,
+    /** Paused, partly watched episodes and movies, and the playback timestamps they belong to. */
+    val playback: List<Playback> = emptyList(),
+    val playbackStamp: String? = null,
+    /** Episode after the latest watched one, per item key (continue-from-latest setting). */
+    val latestNext: Map<String, LatestNext> = emptyMap(),
 )
 
 data class LibraryState(
@@ -59,6 +69,8 @@ data class LibraryState(
     val showInfo: Map<String, ShowInfo> = emptyMap(),
     /** Upcoming releases from the SIMKL calendars. */
     val calendar: Map<MediaType, List<CalendarEntry>> = emptyMap(),
+    val playback: List<Playback> = emptyList(),
+    val latestNext: Map<String, LatestNext> = emptyMap(),
     val loaded: Boolean = false,
     val syncing: Boolean = false,
     val error: String? = null,
@@ -80,6 +92,12 @@ data class LibraryState(
         simklId: Long,
     ): LibraryItem? = byKey["${type.name}:$simklId"]
 
+    /** The paused session of a title (a show has at most one, for one episode). */
+    fun playbackFor(
+        type: MediaType,
+        simklId: Long,
+    ): Playback? = playback.firstOrNull { it.type == type && it.simklId == simklId }
+
     fun nextAirDate(item: LibraryItem): Instant? {
         nextAirDates[item.key]?.let { return it }
         val date = io.github.impca201.simklr.data.model.Dates.parse(item.nextToWatch?.date)
@@ -98,6 +116,7 @@ data class LibraryState(
 class LibraryRepository(
     context: Context,
     private val api: SimklApi,
+    private val settings: SettingsStore,
     private val scope: CoroutineScope,
 ) {
     private val libraryFile = File(context.filesDir, "library.json")
@@ -118,7 +137,16 @@ class LibraryRepository(
         withContext(Dispatchers.IO) {
             snapshot = runCatching { json.decodeFromString(LibrarySnapshot.serializer(), libraryFile.readText()) }.getOrDefault(LibrarySnapshot())
             val info = runCatching { json.decodeFromString(showInfoSerializer, showInfoFile.readText()) }.getOrDefault(emptyMap())
-            _state.update { it.copy(items = snapshot.items, showInfo = info, loaded = true, syncedAt = snapshot.syncedAt) }
+            _state.update {
+                it.copy(
+                    items = snapshot.items,
+                    showInfo = info,
+                    playback = snapshot.playback,
+                    latestNext = snapshot.latestNext,
+                    loaded = true,
+                    syncedAt = snapshot.syncedAt,
+                )
+            }
         }
     }
 
@@ -139,6 +167,7 @@ class LibraryRepository(
         if (error == null) {
             scope.launch { runCatching { refreshCalendar() } }
             scope.launch { runCatching { refreshShowInfo() } }
+            scope.launch { runCatching { refreshLatestNext() } }
         }
         return error
     }
@@ -149,13 +178,17 @@ class LibraryRepository(
         fun stamp(key: String) = listOf("tv_shows", "anime", "movies").joinToString("|") { activities?.obj(it)?.str(key).orEmpty() }
         val removed = stamp("removed_from_list")
         val rated = stamp("rated_at")
+        val playbackStamp = stamp("playback")
         val since = snapshot.activitiesAll
         if (force || since == null) {
-            save(LibrarySnapshot(Parsers.library(api.allItems()), all, removed, rated, System.currentTimeMillis()))
+            val items = Parsers.library(api.allItems())
+            save(snapshot.copy(items = items, activitiesAll = all, removedStamp = removed, ratedStamp = rated, syncedAt = System.currentTimeMillis()))
+            syncPlayback(playbackStamp)
             return
         }
         if (all != null && all == since) {
             save(snapshot.copy(syncedAt = System.currentTimeMillis()))
+            if (playbackStamp != snapshot.playbackStamp) syncPlayback(playbackStamp)
             return
         }
         var items = snapshot.items
@@ -171,12 +204,30 @@ class LibraryRepository(
             val ratings = Parsers.library(api.ratings(dateFrom = since)).associateBy { it.key }
             items = items.map { item -> ratings[item.key]?.let { item.copy(userRating = it.userRating) } ?: item }
         }
-        save(LibrarySnapshot(items, all, removed, rated, System.currentTimeMillis()))
+        save(snapshot.copy(items = items, activitiesAll = all, removedStamp = removed, ratedStamp = rated, syncedAt = System.currentTimeMillis()))
+        // Watching an episode also hides its paused session, so refresh both together.
+        syncPlayback(playbackStamp)
+    }
+
+    /** GET /sync/playback; failures keep the previous list (it is only a convenience). */
+    private suspend fun syncPlayback(stamp: String) {
+        val items = snapshot.items
+        val list =
+            runCatching {
+                Parsers.playback(api.playback()) { id ->
+                    when {
+                        items.any { it.type == MediaType.Anime && it.ids.simkl == id } -> MediaType.Anime
+                        items.any { it.type == MediaType.Tv && it.ids.simkl == id } -> MediaType.Tv
+                        else -> null
+                    }
+                }
+            }.getOrNull() ?: return
+        save(snapshot.copy(playback = list, playbackStamp = stamp))
     }
 
     private suspend fun save(value: LibrarySnapshot) {
         snapshot = value
-        _state.update { it.copy(items = value.items, syncedAt = value.syncedAt) }
+        _state.update { it.copy(items = value.items, playback = value.playback, latestNext = value.latestNext, syncedAt = value.syncedAt) }
         withContext(Dispatchers.IO) { runCatching { libraryFile.writeText(json.encodeToString(LibrarySnapshot.serializer(), value)) } }
     }
 
@@ -227,8 +278,8 @@ class LibraryRepository(
         _state.update { state ->
             val info = state.showInfo.toMutableMap()
             fetched.filterNotNull().flatten().forEach { (key, value) ->
-                val (airing, rating) = value
-                info[key] = ShowInfo(airing, now, rating, info[key]?.fanart)
+                val (status, rating) = value
+                info[key] = ShowInfo(AiringState.fromApi(status), now, rating, info[key]?.fanart, status)
             }
             state.copy(showInfo = info)
         }
@@ -236,7 +287,42 @@ class LibraryRepository(
     }
 
     private fun MediaDetails.toShowInfo(old: ShowInfo?) =
-        ShowInfo(if (airing != AiringState.Unknown) airing else old?.airing ?: AiringState.Unknown, System.currentTimeMillis(), old?.rating, fanart)
+        ShowInfo(
+            if (airing != AiringState.Unknown) airing else old?.airing ?: AiringState.Unknown,
+            System.currentTimeMillis(),
+            old?.rating,
+            fanart,
+            old?.releaseStatus ?: status,
+        )
+
+    /**
+     * For the "continue from the latest episode" setting: finds the episode after the latest
+     * watched one for shows where SIMKL's next episode lies before it (skipped episodes).
+     * Uses the shows' episode lists, a few at a time, and keeps the results until the show's
+     * watched count changes.
+     */
+    suspend fun refreshLatestNext() {
+        if (!settings.current().continueFromLatest) return
+        val wanted =
+            snapshot.items.filter { item ->
+                Shelves.hasGap(item) && snapshot.latestNext[item.key]?.watchedCount != item.watchedEpisodes
+            }
+        if (wanted.isEmpty()) return
+        val semaphore = Semaphore(3)
+        val found =
+            coroutineScope {
+                wanted.map { item ->
+                    async {
+                        semaphore.withPermit {
+                            runCatching { Parsers.episodes(api.episodes(item.type, item.ids.simkl)) }.getOrNull()?.let {
+                                item.key to Shelves.latestNextFrom(item, it)
+                            }
+                        }
+                    }
+                }.awaitAll().filterNotNull()
+            }
+        mutex.withLock { save(snapshot.copy(latestNext = snapshot.latestNext + found)) }
+    }
 
     private suspend fun saveShowInfo() {
         val info = _state.value.showInfo
@@ -357,9 +443,28 @@ class LibraryRepository(
     ) = change { api.checkIn(type, simklId, episode) }
 
     /** The checkmark on an "Up next" card. */
-    suspend fun markNextWatched(item: LibraryItem) {
-        val next = item.nextToWatch?.ref ?: return
-        setEpisodesWatched(item.type, item.ids, item.title, item.poster, listOf(next), true)
+    suspend fun markEpisodeWatched(
+        item: LibraryItem,
+        ref: EpisodeRef,
+    ) = setEpisodesWatched(item.type, item.ids, item.title, item.poster, listOf(ref), true)
+
+    /**
+     * Marks a paused (partly watched) episode or movie watched and removes its saved progress.
+     * SIMKL hides a session once the item is watched; deleting it keeps the playback list clean.
+     */
+    suspend fun markPlaybackWatched(
+        playback: Playback,
+        item: LibraryItem?,
+    ) {
+        val ids = item?.ids ?: MediaIds(playback.simklId)
+        if (playback.type == MediaType.Movie) {
+            markMovieWatched(ids, playback.title, item?.poster, item?.year)
+        } else {
+            val ref = playback.episode ?: return
+            setEpisodesWatched(playback.type, ids, playback.title, item?.poster, listOf(ref), true)
+        }
+        runCatching { api.deletePlayback(playback.id) }
+        save(snapshot.copy(playback = snapshot.playback.filterNot { it.id == playback.id }))
     }
 
     suspend fun clear() {

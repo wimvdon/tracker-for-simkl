@@ -51,6 +51,8 @@ data class AppSettings(
     val nav: NavConfig = NavConfig(NavTab.defaultOrder, NavTab.defaultEnabled),
     val notifications: Boolean = false,
     val hideSpecials: Boolean = true,
+    /** Up next starts after the most recently watched episode, ignoring skipped ones before it. */
+    val continueFromLatest: Boolean = false,
 )
 
 class SettingsStore(
@@ -67,6 +69,7 @@ class SettingsStore(
         val navEnabled = stringSetPreferencesKey("nav_enabled")
         val notifications = booleanPreferencesKey("notifications")
         val hideSpecials = booleanPreferencesKey("hide_specials")
+        val continueFromLatest = booleanPreferencesKey("continue_from_latest")
         val notified = stringSetPreferencesKey("notified_episodes")
     }
 
@@ -89,6 +92,7 @@ class SettingsStore(
                     ),
                 notifications = p[Keys.notifications] ?: false,
                 hideSpecials = p[Keys.hideSpecials] ?: true,
+                continueFromLatest = p[Keys.continueFromLatest] ?: false,
             )
         }
 
@@ -142,6 +146,8 @@ class SettingsStore(
     suspend fun setNotifications(value: Boolean) = context.dataStore.edit { it[Keys.notifications] = value }
 
     suspend fun setHideSpecials(value: Boolean) = context.dataStore.edit { it[Keys.hideSpecials] = value }
+
+    suspend fun setContinueFromLatest(value: Boolean) = context.dataStore.edit { it[Keys.continueFromLatest] = value }
 
     suspend fun notifiedEpisodes(): Set<String> = context.dataStore.data.first()[Keys.notified].orEmpty()
 

@@ -12,6 +12,7 @@ import io.github.impca201.simklr.data.model.MediaIds
 import io.github.impca201.simklr.data.model.MediaSummary
 import io.github.impca201.simklr.data.model.MediaType
 import io.github.impca201.simklr.data.model.NextEpisode
+import io.github.impca201.simklr.data.model.Playback
 import io.github.impca201.simklr.data.model.Rating
 import io.github.impca201.simklr.data.model.StatusCount
 import io.github.impca201.simklr.data.model.Trailer
@@ -113,11 +114,45 @@ object Parsers {
     }
 
     /** /ratings/{type}?user_watchlist=all: release status and SIMKL rating per simkl id. */
-    fun watchlistRatings(root: JsonElement?): Map<Long, Pair<AiringState, Double?>> =
+    fun watchlistRatings(root: JsonElement?): Map<Long, Pair<String?, Double?>> =
         root.objects().mapNotNull { e ->
             val id = e.long("id") ?: return@mapNotNull null
-            id to (AiringState.fromApi(e.str("release_status")) to e.obj("simkl")?.double("rating"))
+            id to (e.str("release_status") to e.obj("simkl")?.double("rating"))
         }.toMap()
+
+    /**
+     * GET /sync/playback. Shows come as "show" for TV and anime alike; [typeOf] tells which one a
+     * show id is (from the library), defaulting to TV.
+     */
+    fun playback(
+        root: JsonElement?,
+        typeOf: (Long) -> MediaType?,
+    ): List<Playback> =
+        root.objects().mapNotNull { e ->
+            val id = e.long("id") ?: return@mapNotNull null
+            val movie = e.obj("movie")
+            val anime = e.obj("anime")
+            val media = movie ?: anime ?: e.obj("show") ?: return@mapNotNull null
+            val simklId = ids(media.obj("ids"))?.simkl ?: return@mapNotNull null
+            val type =
+                when {
+                    movie != null -> MediaType.Movie
+                    anime != null -> MediaType.Anime
+                    else -> typeOf(simklId) ?: MediaType.Tv
+                }
+            val ep = e.obj("episode")
+            Playback(
+                id = id,
+                type = type,
+                simklId = simklId,
+                title = media.str("title") ?: "#$simklId",
+                progress = (e.double("progress") ?: 0.0).coerceIn(0.0, 100.0),
+                pausedAt = e.str("paused_at"),
+                // Anime episodes are numbered without seasons in the rest of the app.
+                episode = ep?.let { (it.int("episode") ?: it.int("number"))?.let { n -> EpisodeRef(if (type == MediaType.Anime) null else it.int("season"), n) } },
+                episodeTitle = ep?.str("title"),
+            )
+        }
 
     /** {"id": 179868, "url": "..."} from /search/random. */
     fun randomId(root: JsonElement?): Long? {

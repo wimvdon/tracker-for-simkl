@@ -53,6 +53,12 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.LinearProgressIndicator
+import io.github.impca201.simklr.data.model.NextEpisode
+import io.github.impca201.simklr.data.model.Playback
+import io.github.impca201.simklr.data.model.Shelves
+import io.github.impca201.simklr.ui.components.ConfirmWatchedDialog
+import kotlin.math.roundToInt
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.IconButtonDefaults
@@ -181,6 +187,16 @@ fun DetailScreen(
         }
     }
 
+    val playback = library.playbackFor(route.type, route.simklId)
+    var confirmPlayback by remember { mutableStateOf<Playback?>(null) }
+    confirmPlayback?.let { pb ->
+        ConfirmWatchedDialog(
+            playback = pb,
+            onConfirm = { run("Couldn't mark watched") { app.library.markPlaybackWatched(pb, item) } },
+            onDismiss = { confirmPlayback = null },
+        )
+    }
+
     val listState = rememberLazyListState()
     val scrolled by remember { derivedStateOf { listState.firstVisibleItemIndex > 0 } }
 
@@ -224,6 +240,9 @@ fun DetailScreen(
                 Actions(
                     type = route.type,
                     item = item,
+                    next = item?.let { Shelves.nextEpisode(it, settings.continueFromLatest, library.latestNext[it.key]) },
+                    playback = playback,
+                    onPlaybackWatched = { confirmPlayback = it },
                     onStatus = { status ->
                         run("Couldn't update the list") {
                             if (status == null) {
@@ -261,6 +280,8 @@ fun DetailScreen(
             }
             if (route.type.isEpisodic && episodes.isNotEmpty()) {
                 episodesSection(
+                    playback = playback,
+                    onPlaybackWatched = { confirmPlayback = it },
                     episodes = if (settings.hideSpecials) episodes.filterNot { it.special } else episodes,
                     item = item,
                     onToggle = { refs, watched ->
@@ -357,6 +378,9 @@ private fun Header(
 private fun Actions(
     type: MediaType,
     item: LibraryItem?,
+    next: NextEpisode?,
+    playback: Playback?,
+    onPlaybackWatched: (Playback) -> Unit,
     onStatus: (ListStatus?) -> Unit,
     onRate: (Int?) -> Unit,
     onMovieWatched: () -> Unit,
@@ -416,7 +440,10 @@ private fun Actions(
         if (type == MediaType.Movie) {
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 if (item?.status != ListStatus.Completed) {
-                    FilledTonalButton(onClick = onMovieWatched, modifier = Modifier.weight(1f)) {
+                    FilledTonalButton(
+                        onClick = { if (playback != null) onPlaybackWatched(playback) else onMovieWatched() },
+                        modifier = Modifier.weight(1f),
+                    ) {
                         Icon(Icons.Rounded.Check, null, Modifier.size(18.dp))
                         Spacer(Modifier.width(8.dp))
                         Text("Mark as watched")
@@ -429,10 +456,29 @@ private fun Actions(
                 }
             }
         }
-        val next = item?.nextToWatch
+        if (playback != null) {
+            Surface(shape = RoundedCornerShape(16.dp), color = MaterialTheme.colorScheme.secondaryContainer) {
+                Row(Modifier.fillMaxWidth().padding(start = 16.dp, end = 8.dp, top = 8.dp, bottom = 8.dp), verticalAlignment = Alignment.CenterVertically) {
+                    Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                        Text(
+                            "In progress" + (playback.episode?.let { " · ${it.label}" } ?: "") + " · ${playback.progress.roundToInt()}%",
+                            style = MaterialTheme.typography.labelLarge,
+                        )
+                        LinearProgressIndicator(
+                            progress = { (playback.progress / 100).toFloat() },
+                            modifier = Modifier.fillMaxWidth().height(4.dp).clip(RoundedCornerShape(2.dp)),
+                        )
+                    }
+                    TextButton(onClick = { onPlaybackWatched(playback) }) { Text("Mark watched") }
+                }
+            }
+        }
         if (type.isEpisodic && next != null && item?.status == ListStatus.Watching) {
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalAlignment = Alignment.CenterVertically) {
-                FilledTonalButton(onClick = { onWatchNext(next.ref) }, modifier = Modifier.weight(1f)) {
+                FilledTonalButton(
+                    onClick = { if (playback != null && playback.episode == next.ref) onPlaybackWatched(playback) else onWatchNext(next.ref) },
+                    modifier = Modifier.weight(1f),
+                ) {
                     Icon(Icons.Rounded.Check, null, Modifier.size(18.dp))
                     Spacer(Modifier.width(8.dp))
                     Text("Watched ${next.ref.label}" + (next.title?.let { " · $it" } ?: ""), maxLines = 1, overflow = TextOverflow.Ellipsis)
@@ -613,6 +659,8 @@ private fun Trailers(d: MediaDetails) {
 
 @OptIn(ExperimentalFoundationApi::class)
 private fun androidx.compose.foundation.lazy.LazyListScope.episodesSection(
+    playback: Playback?,
+    onPlaybackWatched: (Playback) -> Unit,
     episodes: List<Episode>,
     item: LibraryItem?,
     onToggle: (List<EpisodeRef>, Boolean) -> Unit,
@@ -620,7 +668,7 @@ private fun androidx.compose.foundation.lazy.LazyListScope.episodesSection(
 ) {
     val seasons = episodes.groupBy { if (it.special) 0 else it.season ?: 1 }.toSortedMap(compareBy { if (it == 0) Int.MAX_VALUE else it })
     item(key = "episodes") {
-        EpisodesBlock(seasons, item, onToggle, onAllWatched)
+        EpisodesBlock(seasons, item, playback, onPlaybackWatched, onToggle, onAllWatched)
     }
 }
 
@@ -629,15 +677,26 @@ private fun androidx.compose.foundation.lazy.LazyListScope.episodesSection(
 private fun EpisodesBlock(
     seasons: Map<Int, List<Episode>>,
     item: LibraryItem?,
+    playback: Playback?,
+    onPlaybackWatched: (Playback) -> Unit,
     onToggle: (List<EpisodeRef>, Boolean) -> Unit,
     onAllWatched: () -> Unit,
 ) {
-    val defaultSeason = item?.nextToWatch?.ref?.season?.takeIf { it in seasons } ?: seasons.keys.first()
+    val defaultSeason =
+        (playback?.episode?.season ?: item?.nextToWatch?.ref?.season)?.takeIf { it in seasons } ?: seasons.keys.first()
     var selected by rememberSaveable { mutableIntStateOf(defaultSeason) }
     val current = if (selected in seasons) selected else seasons.keys.first()
     val list = seasons[current].orEmpty()
     fun Episode.ref() = EpisodeRef(this.season, this.episode)
     fun Episode.watched() = item?.isWatched(this.season, this.episode) == true
+
+    /** Marking the paused episode watched asks first, because it removes the saved progress. */
+    fun toggle(
+        e: Episode,
+        watched: Boolean,
+    ) {
+        if (watched && playback != null && playback.episode == e.ref()) onPlaybackWatched(playback) else onToggle(listOf(e.ref()), watched)
+    }
     var menu by remember { mutableStateOf(false) }
 
     Column(Modifier.padding(top = 8.dp)) {
@@ -695,7 +754,7 @@ private fun EpisodesBlock(
                     .fillMaxWidth()
                     .combinedClickable(
                         enabled = e.aired,
-                        onClick = { onToggle(listOf(e.ref()), !watched) },
+                        onClick = { toggle(e, !watched) },
                         onLongClick = {
                             // Long-press: everything up to and including this episode.
                             val upTo = list.takeWhile { it != e } + e
@@ -725,11 +784,22 @@ private fun EpisodesBlock(
                             color = MaterialTheme.colorScheme.onSurfaceVariant,
                         )
                     }
+                    if (!watched && playback != null && playback.episode == e.ref()) {
+                        Text(
+                            "In progress · ${playback.progress.roundToInt()}%",
+                            style = MaterialTheme.typography.labelSmall,
+                            color = MaterialTheme.colorScheme.primary,
+                        )
+                        LinearProgressIndicator(
+                            progress = { (playback.progress / 100).toFloat() },
+                            modifier = Modifier.fillMaxWidth().height(3.dp).clip(RoundedCornerShape(2.dp)),
+                        )
+                    }
                     e.description?.let {
                         Text(it, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant, maxLines = 2, overflow = TextOverflow.Ellipsis)
                     }
                 }
-                Checkbox(checked = watched, onCheckedChange = if (e.aired) ({ onToggle(listOf(e.ref()), it) }) else null, enabled = e.aired)
+                Checkbox(checked = watched, onCheckedChange = if (e.aired) ({ toggle(e, it) }) else null, enabled = e.aired)
             }
         }
         Text(

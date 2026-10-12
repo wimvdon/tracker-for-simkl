@@ -12,25 +12,24 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.Block
 import androidx.compose.material.icons.rounded.Bookmark
 import androidx.compose.material.icons.rounded.Check
 import androidx.compose.material.icons.rounded.CheckCircle
-import androidx.compose.material.icons.rounded.DoneAll
-import androidx.compose.material.icons.rounded.HourglassEmpty
+import androidx.compose.material.icons.rounded.SearchOff
 import androidx.compose.material.icons.rounded.Pause
 import androidx.compose.material.icons.rounded.PlayCircle
-import androidx.compose.material.icons.rounded.Block
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilledTonalIconButton
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.PrimaryScrollableTabRow
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Tab
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.runtime.Composable
@@ -49,34 +48,34 @@ import androidx.compose.ui.unit.dp
 import io.github.impca201.simklr.data.AppSettings
 import io.github.impca201.simklr.data.LibraryState
 import io.github.impca201.simklr.data.NavTab
-import io.github.impca201.simklr.data.model.AiringState
 import io.github.impca201.simklr.data.model.LibraryItem
-import io.github.impca201.simklr.data.model.ListStatus
 import io.github.impca201.simklr.data.model.MediaType
+import io.github.impca201.simklr.data.model.Playback
 import io.github.impca201.simklr.data.model.Shelf
 import io.github.impca201.simklr.data.model.Shelves
 import io.github.impca201.simklr.ui.LocalNavigator
+import io.github.impca201.simklr.ui.components.ConfirmWatchedDialog
 import io.github.impca201.simklr.ui.components.EmptyState
 import io.github.impca201.simklr.ui.components.Format
 import io.github.impca201.simklr.ui.components.rememberApp
 import io.github.impca201.simklr.ui.main.MainTopBar
 import kotlinx.coroutines.launch
 import java.time.Instant
+import kotlin.math.roundToInt
 
 private fun Shelf.emptyIcon(): ImageVector =
     when (this) {
         Shelf.UpNext -> Icons.Rounded.PlayCircle
-        Shelf.Waiting -> Icons.Rounded.HourglassEmpty
+        Shelf.Watched -> Icons.Rounded.CheckCircle
         Shelf.PlanToWatch -> Icons.Rounded.Bookmark
         Shelf.OnHold -> Icons.Rounded.Pause
-        Shelf.Completed -> Icons.Rounded.CheckCircle
         Shelf.Dropped -> Icons.Rounded.Block
     }
 
 private fun Shelf.emptyText(): String =
     when (this) {
         Shelf.UpNext -> "Nothing to watch right now. New episodes of shows you're watching show up here."
-        Shelf.Waiting -> "Shows you're caught up on, waiting for new episodes, show up here."
+        Shelf.Watched -> "Shows you're caught up on or have finished show up here."
         Shelf.PlanToWatch -> "Add shows you want to watch from Discover or search."
         else -> "Nothing here yet."
     }
@@ -94,17 +93,26 @@ fun ShowsScreen(
     val state by app.library.state.collectAsState()
     val snackbar = remember { SnackbarHostState() }
     var sort by rememberSaveable { mutableStateOf(SortOrder.Recent) }
+    var filter by rememberSaveable(stateSaver = LibraryFilter.Saver) { mutableStateOf(LibraryFilter()) }
     val shelves = Shelf.entries
     val pagerState = rememberPagerState { shelves.size }
     val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
+    val fromLatest = settings.continueFromLatest
 
-    val now = remember(state.items) { Instant.now() }
     val byShelf =
-        remember(state.items, type, sort) {
-            state.items.filter { it.type == type }.groupBy { Shelves.shelfOf(it, now) }.mapValues { (_, v) -> sort.sort(v) }
+        remember(state, type, sort, filter, fromLatest) {
+            val now = Instant.now()
+            filter.apply(state.items.filter { it.type == type }, state)
+                .groupBy { Shelves.shelfOf(it, now, fromLatest, state.latestNext[it.key]) }
+                .mapValues { (shelf, v) ->
+                    val sorted = sort.sort(v)
+                    // Episodes in progress come first in Up next.
+                    if (shelf == Shelf.UpNext) sorted.sortedByDescending { state.playbackFor(it.type, it.ids.simkl) != null } else sorted
+                }
         }
 
     LaunchedEffect(state.error) { state.error?.let { snackbar.showSnackbar(it) } }
+    LaunchedEffect(fromLatest) { if (fromLatest) app.library.refreshLatestNext() }
 
     fun open(item: LibraryItem) = navigator.openDetail(item.type, item.ids.simkl, item.title, item.poster)
 
@@ -118,7 +126,7 @@ fun ShowsScreen(
                     title = if (type == MediaType.Tv) NavTab.Tv.label else NavTab.Anime.label,
                     scrollBehavior = scrollBehavior,
                     searchType = type,
-                ) { SortMenu(sort) { sort = it } }
+                ) { SortFilterButton(type, sort, { sort = it }, filter, { filter = it }) }
                 PrimaryScrollableTabRow(selectedTabIndex = pagerState.currentPage, edgePadding = 16.dp) {
                     shelves.forEachIndexed { index, shelf ->
                         Tab(
@@ -140,153 +148,103 @@ fun ShowsScreen(
                 modifier = Modifier.fillMaxSize(),
             ) {
                 when {
+                    items.isEmpty() && filter.active ->
+                        EmptyState(Icons.Rounded.SearchOff, "Nothing matches the filters") {
+                            TextButton(onClick = { filter = LibraryFilter() }) { Text("Clear filters") }
+                        }
                     items.isEmpty() && state.loaded && !state.syncing ->
                         EmptyState(shelf.emptyIcon(), "No ${shelf.label.lowercase()} ${if (type == MediaType.Anime) "anime" else "shows"}", shelf.emptyText())
-                    shelf == Shelf.UpNext -> UpNextList(items, state, ::open) { message -> scope.launch { snackbar.showSnackbar(message) } }
-                    shelf == Shelf.Waiting -> WaitingList(items, state, ::open) { message -> scope.launch { snackbar.showSnackbar(message) } }
-                    else -> {
-                        val sections = splitByAiring(items, state)
+                    shelf == Shelf.UpNext ->
+                        UpNextList(items, state, fromLatest, ::open) { message -> scope.launch { snackbar.showSnackbar(message) } }
+                    else ->
                         LibraryGrid(
-                            sections = sections,
+                            items = items,
                             state = state,
                             onOpen = ::open,
-                            showProgress = shelf != Shelf.Completed && shelf != Shelf.PlanToWatch,
+                            showProgress = shelf == Shelf.OnHold || shelf == Shelf.Dropped,
                             showAiring = true,
                         )
-                    }
                 }
             }
         }
     }
-}
-
-/** "Still airing" / "Ended" sections, so it's clear which shows will get new episodes. */
-private fun splitByAiring(
-    items: List<LibraryItem>,
-    state: LibraryState,
-): List<GridSection> {
-    val groups = items.groupBy { Shelves.airingOf(it, state.showInfo[it.key], state.nextAirDate(it)) }
-    val nonEmpty = groups.filterValues { it.isNotEmpty() }
-    if (nonEmpty.size <= 1) return listOf(GridSection(null, items))
-    return listOf(
-        GridSection("Still airing", groups[AiringState.Airing].orEmpty()),
-        GridSection("Ended", groups[AiringState.Ended].orEmpty()),
-        GridSection("Status unknown", groups[AiringState.Unknown].orEmpty()),
-    )
 }
 
 @Composable
 private fun UpNextList(
     items: List<LibraryItem>,
     state: LibraryState,
+    fromLatest: Boolean,
     onOpen: (LibraryItem) -> Unit,
     onError: (String) -> Unit,
 ) {
     val app = rememberApp()
     val scope = rememberCoroutineScope()
     var busy by remember { mutableStateOf(setOf<String>()) }
+    var confirm by remember { mutableStateOf<Pair<Playback, LibraryItem>?>(null) }
+
+    fun run(
+        item: LibraryItem,
+        label: String,
+        block: suspend () -> Unit,
+    ) {
+        busy = busy + item.key
+        scope.launch {
+            try {
+                block()
+            } catch (e: Exception) {
+                onError("Couldn't mark $label watched: ${e.message}")
+            }
+            busy = busy - item.key
+        }
+    }
+
     LazyColumn(
         contentPadding = PaddingValues(start = 12.dp, end = 12.dp, top = 12.dp, bottom = bottomPadding()),
         verticalArrangement = Arrangement.spacedBy(10.dp),
         modifier = Modifier.fillMaxSize(),
     ) {
         items(items, key = { it.key }) { item ->
-            val next = item.nextToWatch
+            val playback = state.playbackFor(item.type, item.ids.simkl)?.takeIf { it.episode != null }
+            val next = Shelves.nextEpisode(item, fromLatest, state.latestNext[item.key])
             val left = item.airedUnwatched
             ShowRow(
                 item = item,
-                headline = next?.let { listOfNotNull(it.ref.label, it.title).joinToString(" · ") } ?: "Continue watching",
+                headline =
+                    if (playback != null) {
+                        "▶ ${playback.episode!!.label} · ${playback.progress.roundToInt()}% watched"
+                    } else {
+                        next?.let { listOfNotNull(it.ref.label, it.title).joinToString(" · ") } ?: "Continue watching"
+                    },
                 supporting =
                     listOfNotNull(
-                        if (left > 0) "$left episode${if (left == 1) "" else "s"} left" else null,
+                        playback?.episodeTitle,
+                        if (playback == null && left > 0) "$left episode${if (left == 1) "" else "s"} left" else null,
                         Format.ago(item.lastWatchedAt)?.let { "watched $it" },
                     ).joinToString(" · ").ifEmpty { null },
                 airing = Shelves.airingOf(item, state.showInfo[item.key], state.nextAirDate(item)),
                 onClick = { onOpen(item) },
                 modifier = Modifier.animateItem(),
             ) {
-                if (item.key in busy) {
-                    CircularProgressIndicator(Modifier.size(24.dp), strokeWidth = 2.dp)
-                } else if (next != null) {
-                    FilledTonalIconButton(onClick = {
-                        busy = busy + item.key
-                        scope.launch {
-                            try {
-                                app.library.markNextWatched(item)
-                            } catch (e: Exception) {
-                                onError("Couldn't mark ${next.ref.label} watched: ${e.message}")
-                            }
-                            busy = busy - item.key
+                when {
+                    item.key in busy -> CircularProgressIndicator(Modifier.size(24.dp), strokeWidth = 2.dp)
+                    playback != null ->
+                        FilledTonalIconButton(onClick = { confirm = playback to item }) {
+                            Icon(Icons.Rounded.Check, contentDescription = "Mark ${playback.episode!!.label} watched")
                         }
-                    }) { Icon(Icons.Rounded.Check, contentDescription = "Mark ${next.ref.label} watched") }
+                    next != null ->
+                        FilledTonalIconButton(onClick = {
+                            run(item, next.ref.label) { app.library.markEpisodeWatched(item, next.ref) }
+                        }) { Icon(Icons.Rounded.Check, contentDescription = "Mark ${next.ref.label} watched") }
                 }
             }
         }
     }
-}
-
-@Composable
-private fun WaitingList(
-    items: List<LibraryItem>,
-    state: LibraryState,
-    onOpen: (LibraryItem) -> Unit,
-    onError: (String) -> Unit,
-) {
-    val app = rememberApp()
-    val scope = rememberCoroutineScope()
-    val withDates = items.map { it to state.nextAirDate(it) }
-    val comingSoon = withDates.filter { it.second != null }.sortedBy { it.second }
-    val rest = withDates.filter { it.second == null }.map { it.first }
-    val byAiring = rest.groupBy { Shelves.airingOf(it, state.showInfo[it.key], null) }
-    LazyColumn(
-        contentPadding = PaddingValues(start = 12.dp, end = 12.dp, top = 4.dp, bottom = bottomPadding()),
-        verticalArrangement = Arrangement.spacedBy(10.dp),
-        modifier = Modifier.fillMaxSize(),
-    ) {
-        if (comingSoon.isNotEmpty()) {
-            item(key = "h-soon") { SectionHeader("Coming soon", comingSoon.size) }
-            items(comingSoon, key = { it.first.key }) { (item, date) ->
-                val next = item.nextToWatch
-                ShowRow(
-                    item = item,
-                    headline = listOfNotNull(next?.ref?.label, date?.let { Format.relative(it) }).joinToString(" · "),
-                    supporting = next?.title ?: "${item.watchedEpisodes} episodes watched",
-                    airing = AiringState.Airing,
-                    onClick = { onOpen(item) },
-                    modifier = Modifier.animateItem(),
-                )
-            }
-        }
-        val returning = byAiring[AiringState.Airing].orEmpty()
-        if (returning.isNotEmpty()) {
-            item(key = "h-returning") { SectionHeader("Still airing · no date yet", returning.size) }
-            items(returning, key = { it.key }) { item ->
-                ShowRow(item, "All caught up", item.lastWatched?.let { "Last watched $it" }, AiringState.Airing, { onOpen(item) }, Modifier.animateItem())
-            }
-        }
-        val ended = byAiring[AiringState.Ended].orEmpty()
-        if (ended.isNotEmpty()) {
-            item(key = "h-ended") { SectionHeader("Ended · nothing left to watch", ended.size) }
-            items(ended, key = { it.key }) { item ->
-                ShowRow(item, "Show ended", "Move it to Completed?", AiringState.Ended, { onOpen(item) }, Modifier.animateItem()) {
-                    IconButton(onClick = {
-                        scope.launch {
-                            try {
-                                app.library.setStatus(item.type, item.ids, item.title, item.poster, item.year, ListStatus.Completed)
-                            } catch (e: Exception) {
-                                onError("Couldn't update ${item.title}: ${e.message}")
-                            }
-                        }
-                    }) { Icon(Icons.Rounded.DoneAll, contentDescription = "Mark completed") }
-                }
-            }
-        }
-        val unknown = byAiring[AiringState.Unknown].orEmpty()
-        if (unknown.isNotEmpty()) {
-            item(key = "h-unknown") { SectionHeader("Caught up", unknown.size) }
-            items(unknown, key = { it.key }) { item ->
-                ShowRow(item, "All caught up", item.lastWatched?.let { "Last watched $it" }, AiringState.Unknown, { onOpen(item) }, Modifier.animateItem())
-            }
-        }
+    confirm?.let { (playback, item) ->
+        ConfirmWatchedDialog(
+            playback = playback,
+            onConfirm = { run(item, playback.episode?.label ?: playback.title) { app.library.markPlaybackWatched(playback, item) } },
+            onDismiss = { confirm = null },
+        )
     }
 }

@@ -7,13 +7,17 @@ An Android client for [SIMKL](https://simkl.com), built with Jetpack Compose and
 
 - **Floating bottom bar** with **TV Shows**, **Movies**, **Anime**, **Discover** and **Calendar**.
   Re-order and enable/disable destinations in *Settings › Bottom bar*.
-- **TV Shows / Anime** shelves:
-  - **Up next** – shows you're watching that have an aired, unwatched episode. One tap on ✓ marks
-    the next episode watched.
-  - **Waiting** – shows you're caught up on, split into *Coming soon* (with the next air date),
-    *Still airing · no date yet*, and *Ended · nothing left to watch* (one tap moves them to Completed).
-  - **Plan to watch**, **On hold**, **Completed**, **Dropped** – split into *Still airing* and
-    *Ended*, with an Airing/Ended badge on every poster.
+- **TV Shows / Anime** shelves: **Up next** (shows with an aired, unwatched episode; one tap on ✓
+  marks the next episode watched; episodes in progress come first), **Watched** (caught up or
+  completed, with the next air date when known), **Plan to watch**, **On hold** and **Dropped**.
+  Airing/Ended badges on every poster.
+- **Sort & filter**: recently watched, recently added, title, my rating, release date; filter on
+  still airing / ended (released / upcoming for movies), my rating and anime type.
+- **In progress**: paused episodes and movies (SIMKL playback) show their progress; marking one
+  watched asks first, because it removes the saved progress.
+- **Continue from the latest episode** (setting): Up next starts after the most recently watched
+  episode, so skipped earlier episodes or seasons don't keep a show in Up next. (SIMKL's API has
+  no "skip" option.)
 - **Movies**: Plan to watch, Watched, Dropped.
 - **Details**: fanart, ratings (SIMKL, IMDb, MAL…), genres, overview, airing info, trailers,
   recommendations, links (SIMKL, IMDb, TMDB, MAL, AniList…), list status, your 1–10 rating,

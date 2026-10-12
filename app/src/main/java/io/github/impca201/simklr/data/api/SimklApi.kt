@@ -147,6 +147,7 @@ class SimklApi(
                     val requestBody = body?.toString()?.toRequestBody(jsonType)
                     when (method) {
                         "POST" -> post(requestBody ?: "{}".toRequestBody(jsonType))
+                        "DELETE" -> delete()
                         else -> get()
                     }
                 }.build()
@@ -302,6 +303,14 @@ class SimklApi(
 
     /** Ratings changed since [dateFrom] (same item format as /sync/all-items). */
     suspend fun ratings(dateFrom: String?): JsonElement = call("POST", "/sync/ratings/", mapOf("date_from" to dateFrom))
+
+    /** Paused, partly watched episodes and movies ("Continue watching"). */
+    suspend fun playback(): JsonElement = get("/sync/playback")
+
+    /** Removes a paused session's saved progress. */
+    suspend fun deletePlayback(id: Long) {
+        call("DELETE", "/sync/playback/$id")
+    }
 
     /** Release status and ratings of every title in the user's lists of one type. */
     suspend fun watchlistRatings(type: MediaType): JsonElement =
