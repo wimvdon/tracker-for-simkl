@@ -1,6 +1,8 @@
 package io.github.impca201.simklr
 
 import android.app.Application
+import android.content.Context
+import androidx.work.Configuration
 import coil3.ImageLoader
 import coil3.PlatformContext
 import coil3.SingletonImageLoader
@@ -22,7 +24,8 @@ import java.util.concurrent.TimeUnit
 
 class SimklrApp :
     Application(),
-    SingletonImageLoader.Factory {
+    SingletonImageLoader.Factory,
+    Configuration.Provider {
     val scope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
 
     val http: OkHttpClient by lazy {
@@ -39,9 +42,18 @@ class SimklrApp :
     val catalog by lazy { CatalogRepository(api) }
     val account by lazy { AccountRepository(api) }
 
+    // WorkManager starts on first use (only when notifications are on), not at app start.
+    override val workManagerConfiguration: Configuration get() = Configuration.Builder().build()
+
+    override fun attachBaseContext(base: Context) {
+        super.attachBaseContext(base)
+        // Before the libraries' start-up providers run, so their crashes are reported too.
+        CrashReporter.install(this)
+    }
+
     override fun onCreate() {
         super.onCreate()
-        NewEpisodesWorker.createChannel(this)
+        runCatching { NewEpisodesWorker.createChannel(this) }
     }
 
     override fun newImageLoader(context: PlatformContext): ImageLoader =
