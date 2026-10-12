@@ -296,16 +296,18 @@ class LibraryRepository(
         )
 
     /**
-     * For the "continue from the latest episode" setting: finds the episode after the latest
-     * watched one for shows where SIMKL's next episode lies before it (skipped episodes).
-     * Uses the shows' episode lists, a few at a time, and keeps the results until the show's
-     * watched count changes.
+     * For the "continue from the latest episode" setting: finds the first aired episode after the
+     * latest watched one, from the episode lists of shows that would otherwise be in Up next.
+     * A few at a time; results are kept until the watched count changes or they are 6 hours old.
      */
     suspend fun refreshLatestNext() {
         if (!settings.current().continueFromLatest) return
+        val now = System.currentTimeMillis()
         val wanted =
             snapshot.items.filter { item ->
-                Shelves.hasGap(item) && snapshot.latestNext[item.key]?.watchedCount != item.watchedEpisodes
+                val known = snapshot.latestNext[item.key]
+                Shelves.needsLatestLookup(item) &&
+                    (known?.watchedCount != item.watchedEpisodes || now - known.computedAt > TimeUnit.HOURS.toMillis(6))
             }
         if (wanted.isEmpty()) return
         val semaphore = Semaphore(3)

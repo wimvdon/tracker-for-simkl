@@ -8,10 +8,10 @@ enum class Shelf(
     val label: String,
 ) {
     UpNext("Up next"),
+    PlanToWatch("Plan to watch"),
 
     /** Caught-up shows (watching, nothing to watch now) and completed ones together. */
     Watched("Watched"),
-    PlanToWatch("Plan to watch"),
     OnHold("On hold"),
     Dropped("Dropped"),
 }
@@ -25,6 +25,8 @@ enum class Shelf(
 data class LatestNext(
     val watchedCount: Int,
     val next: NextEpisode?,
+    /** When it was worked out (epoch ms); episodes air over time, so it goes stale. */
+    val computedAt: Long = 0,
 )
 
 /** The tabs of the Movies screen. */
@@ -50,8 +52,7 @@ object Shelves {
 
     /**
      * True when SIMKL's next episode lies before the latest watched one (the user skipped
-     * episodes or seasons), so the "continue from the latest episode" setting needs the
-     * episode list to find what comes after the latest one.
+     * episodes or seasons).
      */
     fun hasGap(item: LibraryItem): Boolean {
         if (item.status != ListStatus.Watching || !item.type.isEpisodic) return false
@@ -59,6 +60,22 @@ object Shelves {
         val latest = latestWatched(item) ?: return false
         return order(next) < order(latest)
     }
+
+    /**
+     * Whether the "continue from the latest episode" setting needs this show's episode list:
+     * a show being watched that SIMKL's data would put in Up next (its counts include skipped
+     * episodes, so they can't tell), or whose next episode lies before the latest watched one.
+     */
+    fun needsLatestLookup(item: LibraryItem): Boolean {
+        if (item.status != ListStatus.Watching || !item.type.isEpisodic || latestWatched(item) == null) return false
+        return hasGap(item) || hasAvailableEpisode(item)
+    }
+
+    /** A lookup result that still matches the item (computed for its current watched count). */
+    fun validLatest(
+        item: LibraryItem,
+        latest: LatestNext?,
+    ): LatestNext? = latest?.takeIf { it.watchedCount == item.watchedEpisodes }
 
     /** The first aired, regular episode after the latest watched one, from the episode list. */
     fun latestNextFrom(
@@ -71,7 +88,11 @@ object Shelves {
                 .filter { !it.special && it.aired }
                 .sortedBy { order(EpisodeRef(it.season, it.episode)) }
                 .firstOrNull { order(EpisodeRef(it.season, it.episode)) > latest }
-        return LatestNext(item.watchedEpisodes, next?.let { NextEpisode(EpisodeRef(it.season, it.episode), it.title, it.date) })
+        return LatestNext(
+            item.watchedEpisodes,
+            next?.let { NextEpisode(EpisodeRef(it.season, it.episode), it.title, it.date) },
+            System.currentTimeMillis(),
+        )
     }
 
     /**
@@ -83,8 +104,9 @@ object Shelves {
         fromLatest: Boolean,
         latest: LatestNext?,
     ): NextEpisode? {
-        if (!fromLatest || !hasGap(item) || latest == null || latest.watchedCount != item.watchedEpisodes) return item.nextToWatch
-        return latest.next
+        if (!fromLatest || item.status != ListStatus.Watching) return item.nextToWatch
+        val valid = validLatest(item, latest) ?: return item.nextToWatch
+        return valid.next
     }
 
     /**
@@ -97,9 +119,9 @@ object Shelves {
         fromLatest: Boolean = false,
         latest: LatestNext? = null,
     ): Boolean {
-        if (fromLatest && hasGap(item) && latest != null && latest.watchedCount == item.watchedEpisodes) {
-            // Only aired episodes are considered in latestNextFrom.
-            return latest.next != null
+        if (fromLatest && item.status == ListStatus.Watching) {
+            // Only aired episodes after the latest watched one count (see latestNextFrom).
+            validLatest(item, latest)?.let { return it.next != null }
         }
         val date = Dates.parse(item.nextToWatch?.date)
         if (date != null) return !date.isAfter(now)
