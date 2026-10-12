@@ -29,10 +29,15 @@ An Android client for [SIMKL](https://simkl.com), built with Jetpack Compose and
 
 ## Signing in
 
-SIMKL's API needs a client ID. Create a free app at
-<https://simkl.com/settings/developer/new/> (any name and redirect URI),
-paste its **Client ID** into SIMKLr on first launch, then tap **Sign in with SIMKL** and enter
-the shown code on simkl.com (PIN login – no client secret needed).
+SIMKL's API needs a client ID. Create a free app at <https://simkl.com/settings/developer/new/>:
+choose **AUTH V2** and the **TV, devices & command line** type (any name). Paste its **Client ID**
+into SIMKLr on first launch (the Client Secret is not needed), tap **Sign in with SIMKL** and
+approve the shown code on simkl.com.
+
+SIMKLr uses SIMKL's OAuth 2.0 device flow (`POST /oauth2/device`, then `POST /oauth2/token`)
+with the `media:read media:write` scope, and renews the week-long access token with the refresh
+token. Older AUTH V1 apps still work through the PIN flow (`/oauth/pin`), which SIMKL plans to
+retire around April 2027.
 
 To bake a client ID into a build, pass `-PsimklClientId=...` to Gradle.
 

@@ -52,7 +52,8 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import io.github.impca201.simklr.data.AppSettings
-import io.github.impca201.simklr.data.api.PinCode
+import io.github.impca201.simklr.data.api.LoginCode
+import io.github.impca201.simklr.data.api.LoginPoll
 import io.github.impca201.simklr.data.api.SimklApi
 import io.github.impca201.simklr.ui.components.openUrl
 import io.github.impca201.simklr.ui.components.rememberApp
@@ -70,7 +71,7 @@ fun LoginScreen(settings: AppSettings) {
     val scope = rememberCoroutineScope()
     var editingClientId by rememberSaveable { mutableStateOf(settings.clientId.isBlank()) }
     var clientId by rememberSaveable { mutableStateOf(settings.clientId) }
-    var pin by remember { mutableStateOf<PinCode?>(null) }
+    var pin by remember { mutableStateOf<LoginCode?>(null) }
     var busy by remember { mutableStateOf(false) }
     var error by remember { mutableStateOf<String?>(null) }
 
@@ -81,12 +82,19 @@ fun LoginScreen(settings: AppSettings) {
         var interval = code.intervalSeconds.coerceAtLeast(1)
         while (System.currentTimeMillis() < deadline) {
             delay(interval * 1000L)
-            val status = runCatching { app.api.pollPin(code.userCode) }.getOrNull() ?: continue
-            if (status.slowDown) interval += 2
-            val token = status.accessToken
-            if (token != null) {
-                app.settings.setToken(token)
-                return@LaunchedEffect
+            when (val status = runCatching { app.api.pollLogin(code) }.getOrNull() ?: continue) {
+                LoginPoll.Pending -> Unit
+                LoginPoll.SlowDown -> interval += 5
+                LoginPoll.Expired -> break
+                is LoginPoll.Approved -> {
+                    app.settings.setTokens(status.accessToken, status.refreshToken, status.expiresAt)
+                    return@LaunchedEffect
+                }
+                is LoginPoll.Failed -> {
+                    pin = null
+                    error = status.message
+                    return@LaunchedEffect
+                }
             }
         }
         pin = null
@@ -118,7 +126,8 @@ fun LoginScreen(settings: AppSettings) {
                     }
                     Text(
                         "SIMKLr talks to SIMKL with your own free API app. Create one on SIMKL " +
-                            "(any name and redirect URI), then paste its Client ID here.",
+                            "(AUTH V2, type \"TV, devices & command line\"; any name), then paste its Client ID here. " +
+                            "Older AUTH V1 apps work too.",
                         style = MaterialTheme.typography.bodyMedium,
                     )
                     OutlinedButton(onClick = { context.openUrl(SimklApi.DEVELOPER_URL) }) {
@@ -156,7 +165,7 @@ fun LoginScreen(settings: AppSettings) {
                         error = null
                         scope.launch {
                             try {
-                                pin = app.api.requestPin()
+                                pin = app.api.startLogin()
                             } catch (e: Exception) {
                                 error = "Could not start the login: ${e.message}. Check the Client ID."
                             }
@@ -189,7 +198,7 @@ fun LoginScreen(settings: AppSettings) {
 }
 
 @Composable
-private fun PinCard(code: PinCode) {
+private fun PinCard(code: LoginCode) {
     val context = LocalContext.current
     Card(
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primaryContainer),
@@ -217,7 +226,7 @@ private fun PinCard(code: PinCode) {
                     Spacer(Modifier.size(8.dp))
                     Text("Copy")
                 }
-                Button(onClick = { context.openUrl(code.verificationUrl.trimEnd('/') + "/" + code.userCode) }) {
+                Button(onClick = { context.openUrl(code.openUrl) }) {
                     Icon(Icons.AutoMirrored.Rounded.OpenInNew, null, Modifier.size(18.dp))
                     Spacer(Modifier.size(8.dp))
                     Text("Open SIMKL")

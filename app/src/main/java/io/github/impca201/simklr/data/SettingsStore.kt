@@ -5,6 +5,7 @@ import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
+import androidx.datastore.preferences.core.longPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.core.stringSetPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
@@ -58,6 +59,8 @@ class SettingsStore(
     private object Keys {
         val clientId = stringPreferencesKey("client_id")
         val token = stringPreferencesKey("access_token")
+        val refreshToken = stringPreferencesKey("refresh_token")
+        val tokenExpiresAt = longPreferencesKey("token_expires_at")
         val theme = stringPreferencesKey("theme")
         val dynamicColor = booleanPreferencesKey("dynamic_color")
         val navOrder = stringPreferencesKey("nav_order")
@@ -95,14 +98,34 @@ class SettingsStore(
 
     suspend fun token(): String? = current().accessToken
 
+    /** AUTH V2 refresh token and access-token expiry (epoch ms); null for AUTH V1 tokens, which never expire. */
+    suspend fun refreshToken(): String? = context.dataStore.data.first()[Keys.refreshToken]
+
+    suspend fun tokenExpiresAt(): Long? = context.dataStore.data.first()[Keys.tokenExpiresAt]
+
+    suspend fun setTokens(
+        accessToken: String,
+        refreshToken: String?,
+        expiresAt: Long?,
+    ) = context.dataStore.edit { prefs ->
+        prefs[Keys.token] = accessToken
+        if (refreshToken != null) prefs[Keys.refreshToken] = refreshToken else prefs.remove(Keys.refreshToken)
+        if (expiresAt != null) prefs[Keys.tokenExpiresAt] = expiresAt else prefs.remove(Keys.tokenExpiresAt)
+    }
+
     suspend fun setClientId(value: String) = context.dataStore.edit { it[Keys.clientId] = value.trim() }
 
     suspend fun setToken(value: String?) =
         context.dataStore.edit { prefs ->
             if (value == null) {
                 prefs.remove(Keys.token)
+                prefs.remove(Keys.refreshToken)
+                prefs.remove(Keys.tokenExpiresAt)
             } else {
+                // An AUTH V1 token: it never expires and has no refresh token.
                 prefs[Keys.token] = value
+                prefs.remove(Keys.refreshToken)
+                prefs.remove(Keys.tokenExpiresAt)
             }
         }
 

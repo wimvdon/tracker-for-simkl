@@ -37,7 +37,7 @@ class SimklrApp :
     }
 
     val settings by lazy { SettingsStore(this) }
-    val api by lazy { SimklApi(http, { settings.clientId() }, { settings.token() }) }
+    val api by lazy { SimklApi(http, settings) }
     val library by lazy { LibraryRepository(this, api, scope) }
     val catalog by lazy { CatalogRepository(api) }
     val account by lazy { AccountRepository(api) }
