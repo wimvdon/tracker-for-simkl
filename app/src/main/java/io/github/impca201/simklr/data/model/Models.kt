@@ -1,0 +1,326 @@
+package io.github.impca201.simklr.data.model
+
+import kotlinx.serialization.Serializable
+import java.time.Instant
+import java.time.LocalDate
+import java.time.OffsetDateTime
+import java.time.ZoneId
+import java.time.format.DateTimeParseException
+
+/** The three SIMKL catalogues, with the names the API uses for each of them. */
+@Serializable
+enum class MediaType(
+    /** Path segment of the catalogue endpoints: /tv/{id}, /anime/{id}, /movies/{id}. */
+    val catalogPath: String,
+    /** Path segment of /sync/all-items/{type}. */
+    val syncPath: String,
+    /** Path segment of /search/{type}. */
+    val searchPath: String,
+    /** Key of the request body arrays in /sync/... calls (anime goes with the shows). */
+    val bodyKey: String,
+    /** simkl.com URL segment. */
+    val webPath: String,
+) {
+    Tv("tv", "shows", "tv", "shows", "tv"),
+    Anime("anime", "anime", "anime", "shows", "anime"),
+    Movie("movies", "movies", "movie", "movies", "movies"),
+    ;
+
+    val isEpisodic get() = this != Movie
+
+    companion object {
+        fun fromApi(value: String?): MediaType? =
+            when (value?.lowercase()) {
+                "tv", "show", "shows", "tv_shows", "series" -> Tv
+                "anime" -> Anime
+                "movie", "movies", "film" -> Movie
+                else -> null
+            }
+    }
+}
+
+/** SIMKL list statuses. Movies only use plan to watch, completed and dropped. */
+@Serializable
+enum class ListStatus(
+    val api: String,
+) {
+    Watching("watching"),
+    PlanToWatch("plantowatch"),
+    OnHold("hold"),
+    Completed("completed"),
+    Dropped("dropped"),
+    ;
+
+    companion object {
+        fun fromApi(value: String?): ListStatus? = entries.firstOrNull { it.api == value?.lowercase() }
+
+        fun forType(type: MediaType): List<ListStatus> =
+            if (type == MediaType.Movie) listOf(PlanToWatch, Completed, Dropped) else entries
+    }
+}
+
+@Serializable
+data class MediaIds(
+    val simkl: Long,
+    val slug: String? = null,
+    val imdb: String? = null,
+    val tmdb: String? = null,
+    val tvdb: String? = null,
+    val mal: String? = null,
+    val anilist: String? = null,
+    val anidb: String? = null,
+    val kitsu: String? = null,
+    val trakt: String? = null,
+)
+
+/** Whether a show will get more episodes. */
+@Serializable
+enum class AiringState {
+    /** Still running: new episodes are airing or the show is coming back. */
+    Airing,
+
+    /** Ended or cancelled: no new episodes will come. */
+    Ended,
+
+    /** Not known yet (details not loaded). */
+    Unknown,
+    ;
+
+    companion object {
+        fun fromApi(status: String?): AiringState {
+            val s = status?.lowercase() ?: return Unknown
+            return when {
+                "end" in s || "cancel" in s || "finished" in s || s == "released" -> Ended
+                "air" in s || "return" in s || "tba" in s || "upcoming" in s || "production" in s || "ongoing" in s -> Airing
+                else -> Unknown
+            }
+        }
+    }
+}
+
+@Serializable
+data class EpisodeRef(
+    val season: Int?,
+    val episode: Int,
+) {
+    val label: String get() = if (season != null) "S%02dE%02d".format(season, episode) else "E%02d".format(episode)
+
+    companion object {
+        private val pattern = Regex("""(?:S(\d+))?\s*E(\d+)""", RegexOption.IGNORE_CASE)
+
+        /** Parses SIMKL's "S01E05" / "E05" episode labels. */
+        fun parse(value: String?): EpisodeRef? {
+            val m = pattern.find(value ?: return null) ?: return null
+            return EpisodeRef(m.groupValues[1].toIntOrNull(), m.groupValues[2].toIntOrNull() ?: return null)
+        }
+    }
+}
+
+@Serializable
+data class NextEpisode(
+    val ref: EpisodeRef,
+    val title: String? = null,
+    /** ISO date or date-time when the episode airs. */
+    val date: String? = null,
+)
+
+@Serializable
+data class WatchedSeason(
+    val number: Int,
+    val episodes: List<Int>,
+)
+
+/** One title in the user's SIMKL lists (from /sync/all-items). */
+@Serializable
+data class LibraryItem(
+    val type: MediaType,
+    val ids: MediaIds,
+    val title: String,
+    val year: Int? = null,
+    val poster: String? = null,
+    val status: ListStatus,
+    val userRating: Int? = null,
+    val addedAt: String? = null,
+    val lastWatchedAt: String? = null,
+    val lastWatched: String? = null,
+    val nextToWatch: NextEpisode? = null,
+    val watchedEpisodes: Int = 0,
+    val totalEpisodes: Int = 0,
+    val notAiredEpisodes: Int = 0,
+    val animeType: String? = null,
+    val watched: List<WatchedSeason> = emptyList(),
+) {
+    val key: String get() = "${type.name}:${ids.simkl}"
+
+    /** Episodes that have aired but are not watched yet. */
+    val airedUnwatched: Int
+        get() = (totalEpisodes - notAiredEpisodes - watchedEpisodes).coerceAtLeast(0)
+
+    fun isWatched(
+        season: Int?,
+        episode: Int,
+    ): Boolean = watched.any { it.number == (season ?: 1) && episode in it.episodes }
+}
+
+/** Details of a show that the library needs but /sync/all-items does not include. */
+@Serializable
+data class ShowInfo(
+    val airing: AiringState,
+    val fetchedAt: Long,
+    val network: String? = null,
+    val fanart: String? = null,
+)
+
+/** A title anywhere in the catalogue: search results, trending lists, recommendations. */
+@Serializable
+data class MediaSummary(
+    val type: MediaType,
+    val simklId: Long,
+    val title: String,
+    val year: Int? = null,
+    val poster: String? = null,
+    val rating: Double? = null,
+    val subtitle: String? = null,
+    val overview: String? = null,
+)
+
+data class Rating(
+    val source: String,
+    val value: Double,
+    val votes: Int?,
+)
+
+data class Trailer(
+    val name: String?,
+    val youtubeId: String,
+)
+
+data class MediaDetails(
+    val type: MediaType,
+    val ids: MediaIds,
+    val title: String,
+    val originalTitle: String?,
+    val year: Int?,
+    val poster: String?,
+    val fanart: String?,
+    val overview: String?,
+    val genres: List<String>,
+    val status: String?,
+    val airing: AiringState,
+    val network: String?,
+    val country: String?,
+    val certification: String?,
+    val runtime: Int?,
+    val firstAired: String?,
+    val airs: String?,
+    val totalEpisodes: Int?,
+    val animeType: String?,
+    val director: String?,
+    val ratings: List<Rating>,
+    val rank: Int?,
+    val trailers: List<Trailer>,
+    val recommendations: List<MediaSummary>,
+    val alternativeTitles: List<String>,
+)
+
+data class Episode(
+    val season: Int?,
+    val episode: Int,
+    val title: String?,
+    val description: String?,
+    val image: String?,
+    val date: String?,
+    val aired: Boolean,
+    val special: Boolean,
+)
+
+data class CalendarEntry(
+    val type: MediaType,
+    val simklId: Long,
+    val title: String,
+    val poster: String?,
+    val date: Instant,
+    val episode: EpisodeRef?,
+)
+
+data class UserProfile(
+    val id: Long,
+    val name: String,
+    val avatar: String?,
+    val joinedAt: String?,
+    val location: String?,
+    val bio: String?,
+    val accountType: String?,
+    val timezone: String?,
+)
+
+data class StatusCount(
+    val status: ListStatus,
+    val count: Int,
+)
+
+data class TypeStats(
+    val type: MediaType,
+    val minutes: Long,
+    val watchedEpisodes: Int?,
+    val counts: List<StatusCount>,
+)
+
+data class UserStats(
+    val totalMinutes: Long,
+    val lastWeekMinutes: Long?,
+    val types: List<TypeStats>,
+)
+
+object Images {
+    private fun normalize(path: String): String? =
+        when {
+            path.isBlank() -> null
+            path.startsWith("//") -> "https:$path"
+            path.startsWith("http") -> path
+            else -> null
+        }
+
+    fun poster(
+        path: String?,
+        large: Boolean = false,
+    ): String? {
+        path ?: return null
+        normalize(path)?.let { return it }
+        return "https://simkl.in/posters/${path}_${if (large) "w" else "m"}.jpg"
+    }
+
+    fun fanart(path: String?): String? {
+        path ?: return null
+        normalize(path)?.let { return it }
+        return "https://simkl.in/fanart/${path}_medium.jpg"
+    }
+
+    fun episode(path: String?): String? {
+        path ?: return null
+        normalize(path)?.let { return it }
+        return "https://simkl.in/episodes/${path}_w.jpg"
+    }
+
+    fun avatar(path: String?): String? = path?.let { normalize(it) ?: "https://simkl.in/avatars/$it" }
+}
+
+object Dates {
+    /** Parses SIMKL dates ("2024-05-01T20:00:00Z", "2024-05-01T20:00:00-04:00" or "2024-05-01"). */
+    fun parse(value: String?): Instant? {
+        val v = value?.trim()?.takeIf { it.isNotEmpty() } ?: return null
+        return try {
+            OffsetDateTime.parse(v).toInstant()
+        } catch (_: DateTimeParseException) {
+            try {
+                Instant.parse(v)
+            } catch (_: DateTimeParseException) {
+                try {
+                    LocalDate.parse(v.take(10)).atStartOfDay(ZoneId.systemDefault()).toInstant()
+                } catch (_: DateTimeParseException) {
+                    null
+                }
+            }
+        }
+    }
+}
