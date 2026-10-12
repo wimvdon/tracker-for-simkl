@@ -109,8 +109,8 @@ class SettingsStore(
         expiresAt: Long?,
     ) = context.dataStore.edit { prefs ->
         prefs[Keys.token] = accessToken
-        if (refreshToken != null) prefs[Keys.refreshToken] = refreshToken else prefs.remove(Keys.refreshToken)
-        if (expiresAt != null) prefs[Keys.tokenExpiresAt] = expiresAt else prefs.remove(Keys.tokenExpiresAt)
+        if (refreshToken != null) prefs[Keys.refreshToken] = refreshToken else prefs -= Keys.refreshToken
+        if (expiresAt != null) prefs[Keys.tokenExpiresAt] = expiresAt else prefs -= Keys.tokenExpiresAt
     }
 
     suspend fun setClientId(value: String) = context.dataStore.edit { it[Keys.clientId] = value.trim() }
@@ -118,14 +118,14 @@ class SettingsStore(
     suspend fun setToken(value: String?) =
         context.dataStore.edit { prefs ->
             if (value == null) {
-                prefs.remove(Keys.token)
-                prefs.remove(Keys.refreshToken)
-                prefs.remove(Keys.tokenExpiresAt)
+                prefs -= Keys.token
+                prefs -= Keys.refreshToken
+                prefs -= Keys.tokenExpiresAt
             } else {
                 // An AUTH V1 token: it never expires and has no refresh token.
                 prefs[Keys.token] = value
-                prefs.remove(Keys.refreshToken)
-                prefs.remove(Keys.tokenExpiresAt)
+                prefs -= Keys.refreshToken
+                prefs -= Keys.tokenExpiresAt
             }
         }
 
