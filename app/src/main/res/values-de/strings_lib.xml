@@ -98,6 +98,4 @@
         <item quantity="one">noch %d Folge</item>
         <item quantity="other">noch %d Folgen</item>
     </plurals>
-    <string name="lib_now_playing">Läuft gerade</string>
-    <string name="lib_percent_watched">%1$d %% gesehen</string>
 </resources>

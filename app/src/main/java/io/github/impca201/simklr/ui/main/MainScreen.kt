@@ -42,6 +42,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -99,6 +100,9 @@ fun MainScreen(settings: AppSettings) {
                 }
             }
         }
+
+    // A screen that can't scroll could never bring a hidden bar back, so a new tab always shows it.
+    LaunchedEffect(selected) { barVisible = true }
 
     // Each tab keeps its own saved state (shelf, sort, filters, scroll) while another tab is shown.
     val tabStates = rememberSaveableStateHolder()
@@ -171,7 +175,8 @@ private fun FloatingBar(
                         .padding(horizontal = 16.dp),
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
-                    Icon(tab.icon(isSelected), contentDescription = tab.label(), tint = content, modifier = Modifier.size(24.dp))
+                    // The selected tab shows its label, which TalkBack reads; don't read it twice.
+                    Icon(tab.icon(isSelected), contentDescription = if (isSelected) null else tab.label(), tint = content, modifier = Modifier.size(24.dp))
                     AnimatedVisibility(
                         visible = isSelected,
                         enter = expandHorizontally(spring(stiffness = Spring.StiffnessMediumLow)) + fadeIn(),

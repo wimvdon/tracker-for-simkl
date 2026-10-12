@@ -17,8 +17,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.EventBusy
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilterChip
-import androidx.compose.material3.PrimaryTabRow
-import androidx.compose.material3.Tab
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
@@ -66,7 +64,6 @@ fun CalendarScreen() {
     val navigator = LocalNavigator.current
     val scope = rememberCoroutineScope()
     val state by app.library.state.collectAsState()
-    var mine by rememberSaveable { mutableStateOf(true) }
     var hidden by rememberSaveable { mutableStateOf(setOf<String>()) }
     var refreshing by remember { mutableStateOf(false) }
     val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
@@ -75,14 +72,15 @@ fun CalendarScreen() {
 
     val zone = ZoneId.systemDefault()
     val days =
-        remember(state.calendar, state.items, mine, hidden) {
+        remember(state.calendar, state.items, hidden) {
             // Start of yesterday in the user's time zone (not UTC), so day groups below are never partial.
             val from = LocalDate.now(zone).minusDays(1).atStartOfDay(zone).toInstant()
             state.calendar
                 .filterKeys { it.name !in hidden }
                 .values.flatten()
                 .filter { !it.date.isBefore(from) }
-                .filter { !mine || state.item(it.type, it.simklId) != null }
+                // Only titles in the user's lists; SIMKL's full calendar is too long to be useful.
+                .filter { state.item(it.type, it.simklId) != null }
                 .sortedBy { it.date }
                 .groupBy { it.date.atZone(zone).toLocalDate() }
         }
@@ -93,10 +91,6 @@ fun CalendarScreen() {
         topBar = {
             Column {
                 MainTopBar(NavTab.Calendar.label(), scrollBehavior)
-                PrimaryTabRow(selectedTabIndex = if (mine) 0 else 1) {
-                    Tab(selected = mine, onClick = { mine = true }, text = { Text(stringResource(R.string.screens_calendar_my_lists)) })
-                    Tab(selected = !mine, onClick = { mine = false }, text = { Text(stringResource(R.string.screens_calendar_all)) })
-                }
                 LazyRow(
                     contentPadding = PaddingValues(horizontal = 16.dp, vertical = 4.dp),
                     horizontalArrangement = Arrangement.spacedBy(8.dp),
@@ -127,7 +121,7 @@ fun CalendarScreen() {
                 EmptyState(
                     Icons.Rounded.EventBusy,
                     stringResource(if (state.calendar.isEmpty()) R.string.screens_calendar_loading else R.string.screens_calendar_nothing),
-                    if (mine) stringResource(R.string.screens_calendar_mine_hint) else null,
+                    stringResource(R.string.screens_calendar_mine_hint),
                 )
             } else {
                 LazyColumn(
@@ -138,7 +132,7 @@ fun CalendarScreen() {
                     days.forEach { (day, entries) ->
                         item(key = "d-$day") { SectionHeader(Format.day(day), entries.size) }
                         items(entries, key = { "${it.type}:${it.simklId}:${it.episode?.label}:${it.date}" }) { entry ->
-                            CalendarRow(entry, inList = state.item(entry.type, entry.simklId) != null) {
+                            CalendarRow(entry) {
                                 navigator.openDetail(entry.type, entry.simklId, entry.title, entry.poster)
                             }
                         }
@@ -152,7 +146,6 @@ fun CalendarScreen() {
 @Composable
 private fun CalendarRow(
     entry: CalendarEntry,
-    inList: Boolean,
     onClick: () -> Unit,
 ) {
     Surface(onClick = onClick, shape = RoundedCornerShape(16.dp), color = MaterialTheme.colorScheme.surfaceContainerLow) {
@@ -170,7 +163,6 @@ private fun CalendarRow(
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
             }
-            if (inList) PosterBadge(stringResource(R.string.screens_calendar_in_list))
             PosterBadge(entry.type.label())
         }
     }
