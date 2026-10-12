@@ -18,7 +18,7 @@
     <string name="screens_calendar_my_lists">My lists</string>
     <string name="screens_calendar_loading">Loading the calendar…</string>
     <string name="screens_calendar_nothing">Nothing coming up</string>
-    <string name="screens_calendar_mine_hint">Only titles in your lists are shown. Turn off “My lists” to see everything.</string>
+    <string name="screens_calendar_mine_hint">Only titles in your lists are shown. Open “All” to see everything.</string>
     <string name="screens_calendar_release">Release</string>
     <string name="screens_calendar_in_list">In your list</string>
     <string name="screens_profile_title">Profile</string>
@@ -75,4 +75,5 @@
         <item quantity="one">%1$d episode</item>
         <item quantity="other">%1$d episodes</item>
     </plurals>
+    <string name="screens_calendar_all">All</string>
 </resources>

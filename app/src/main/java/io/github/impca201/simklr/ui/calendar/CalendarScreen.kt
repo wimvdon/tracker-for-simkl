@@ -8,18 +8,17 @@ import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.rounded.Bookmark
 import androidx.compose.material.icons.rounded.EventBusy
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilterChip
-import androidx.compose.material3.Icon
+import androidx.compose.material3.PrimaryTabRow
+import androidx.compose.material3.Tab
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
@@ -94,18 +93,14 @@ fun CalendarScreen() {
         topBar = {
             Column {
                 MainTopBar(NavTab.Calendar.label(), scrollBehavior)
+                PrimaryTabRow(selectedTabIndex = if (mine) 0 else 1) {
+                    Tab(selected = mine, onClick = { mine = true }, text = { Text(stringResource(R.string.screens_calendar_my_lists)) })
+                    Tab(selected = !mine, onClick = { mine = false }, text = { Text(stringResource(R.string.screens_calendar_all)) })
+                }
                 LazyRow(
                     contentPadding = PaddingValues(horizontal = 16.dp, vertical = 4.dp),
                     horizontalArrangement = Arrangement.spacedBy(8.dp),
                 ) {
-                    item {
-                        FilterChip(
-                            selected = mine,
-                            onClick = { mine = !mine },
-                            label = { Text(stringResource(R.string.screens_calendar_my_lists)) },
-                            leadingIcon = { Icon(Icons.Rounded.Bookmark, null, Modifier.size(18.dp)) },
-                        )
-                    }
                     items(MediaType.entries) { t ->
                         FilterChip(
                             selected = t.name !in hidden,

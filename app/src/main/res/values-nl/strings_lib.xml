@@ -98,4 +98,6 @@
         <item quantity="one">nog %d aflevering</item>
         <item quantity="other">nog %d afleveringen</item>
     </plurals>
+    <string name="lib_now_playing">Nu aan het kijken</string>
+    <string name="lib_percent_watched">%1$d%% gezien</string>
 </resources>
