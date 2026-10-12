@@ -1,6 +1,5 @@
 package io.github.impca201.simklr.ui.components
 
-import android.app.Application
 import android.content.ActivityNotFoundException
 import android.content.Context
 import android.content.Intent
@@ -117,20 +116,11 @@ fun AvatarButton(
 }
 
 object Format {
-    /**
-     * Context for the localised strings. Set by [rememberApp]; before that (or outside the UI)
-     * the running Application is looked up, so the helpers keep their Context-free signatures.
-     */
+    /** Context for the localised strings, set by SimklrApp.onCreate (and [rememberApp]). */
     @Volatile
-    internal var context: Context? = null
+    var context: Context? = null
 
-    private val res
-        get() = (context ?: currentApplication()?.also { context = it })?.resources
-            ?: error("No application context")
-
-    @Suppress("PrivateApi")
-    private fun currentApplication(): Application? =
-        runCatching { Class.forName("android.app.ActivityThread").getMethod("currentApplication").invoke(null) as Application? }.getOrNull()
+    private val res get() = (context ?: error("No application context")).resources
 
     private val zone get() = ZoneId.systemDefault()
 
