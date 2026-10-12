@@ -119,6 +119,7 @@ import io.github.impca201.simklr.ui.components.openUrl
 import io.github.impca201.simklr.ui.components.rememberApp
 import io.github.impca201.simklr.ui.components.share
 import io.github.impca201.simklr.ui.library.SectionHeader
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.launch
 
 fun ListStatus.label(type: MediaType): String =
@@ -161,6 +162,8 @@ fun DetailScreen(
             val d = app.catalog.details(route.type, route.simklId, refresh = reload > 0)
             details = d
             app.library.rememberDetails(d)
+        } catch (e: CancellationException) {
+            throw e
         } catch (e: Exception) {
             error = e.message ?: "Could not load the details"
         }
@@ -181,6 +184,8 @@ fun DetailScreen(
         scope.launch {
             try {
                 block()
+            } catch (e: CancellationException) {
+                throw e
             } catch (e: Exception) {
                 snackbar.showSnackbar("$failure: ${e.message}")
             }
@@ -270,7 +275,17 @@ fun DetailScreen(
             val d = details
             if (d == null) {
                 item(key = "loading") {
-                    Box(Modifier.fillMaxWidth().padding(32.dp), contentAlignment = Alignment.Center) { CircularProgressIndicator() }
+                    Box(Modifier.fillMaxWidth().padding(32.dp), contentAlignment = Alignment.Center) {
+                        val failed = error
+                        if (failed != null) {
+                            Column(horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                                Text(failed, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                                Button(onClick = { reload++ }) { Text("Try again") }
+                            }
+                        } else {
+                            CircularProgressIndicator()
+                        }
+                    }
                 }
             } else {
                 item(key = "about") { About(d) }
@@ -278,29 +293,28 @@ fun DetailScreen(
                     item(key = "trailers") { Trailers(d) }
                 }
             }
-            if (route.type.isEpisodic && episodes.isNotEmpty()) {
+            val shownEpisodes = if (settings.hideSpecials) episodes.filterNot { it.special } else episodes
+            // Only specials + "hide specials" leaves nothing; EpisodesBlock needs at least one season.
+            if (route.type.isEpisodic && shownEpisodes.isNotEmpty()) {
                 episodesSection(
                     playback = playback,
                     onPlaybackWatched = { confirmPlayback = it },
-                    episodes = if (settings.hideSpecials) episodes.filterNot { it.special } else episodes,
+                    episodes = shownEpisodes,
                     item = item,
                     onToggle = { refs, watched ->
-                        run("Couldn't update the episodes") {
+                        // An empty change would still add the title to the library as Watching.
+                        if (refs.isNotEmpty()) run("Couldn't update the episodes") {
                             app.library.setEpisodesWatched(route.type, ids, title, poster, refs, watched, episodes)
                         }
                     },
                     onAllWatched = {
-                        run("Couldn't mark the episodes watched") {
-                            app.library.setEpisodesWatched(
-                                route.type,
-                                ids,
-                                title,
-                                poster,
-                                episodes.filter { it.aired && !it.special && item?.isWatched(it.season, it.episode) != true }
-                                    .map { EpisodeRef(it.season, it.episode) },
-                                true,
-                                episodes,
-                            )
+                        val refs =
+                            episodes.filter { it.aired && !it.special && item?.isWatched(it.season, it.episode) != true }
+                                .map { EpisodeRef(it.season, it.episode) }
+                        if (refs.isNotEmpty()) {
+                            run("Couldn't mark the episodes watched") {
+                                app.library.setEpisodesWatched(route.type, ids, title, poster, refs, true, episodes)
+                            }
                         }
                     },
                 )

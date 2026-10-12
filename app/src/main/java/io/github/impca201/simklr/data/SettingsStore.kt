@@ -2,19 +2,27 @@ package io.github.impca201.simklr.data
 
 import android.content.Context
 import androidx.datastore.core.DataStore
+import androidx.datastore.core.handlers.ReplaceFileCorruptionHandler
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
+import androidx.datastore.preferences.core.emptyPreferences
 import androidx.datastore.preferences.core.longPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.core.stringSetPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
 import io.github.impca201.simklr.BuildConfig
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
+import java.io.IOException
 
-private val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = "settings")
+// A corrupt settings file is reset instead of crashing every launch.
+private val Context.dataStore: DataStore<Preferences> by preferencesDataStore(
+    name = "settings",
+    corruptionHandler = ReplaceFileCorruptionHandler { emptyPreferences() },
+)
 
 /** Destinations of the floating bottom bar. Labels follow SIMKL's own naming. */
 enum class NavTab(
@@ -74,7 +82,9 @@ class SettingsStore(
     }
 
     val settings: Flow<AppSettings> =
-        context.dataStore.data.map { p ->
+        context.dataStore.data
+            .catch { e -> if (e is IOException) emit(emptyPreferences()) else throw e }
+            .map { p ->
             val order =
                 p[Keys.navOrder]?.split(",")?.mapNotNull { n -> NavTab.entries.firstOrNull { it.name == n } }.orEmpty()
             AppSettings(

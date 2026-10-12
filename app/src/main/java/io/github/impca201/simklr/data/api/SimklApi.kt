@@ -6,6 +6,7 @@ import io.github.impca201.simklr.data.model.ListStatus
 import io.github.impca201.simklr.data.model.MediaType
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import kotlinx.serialization.SerializationException
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonElement
 import kotlinx.serialization.json.JsonNull
@@ -114,6 +115,8 @@ class SimklApi(
             val current = settings.token()
             if (current != token) return@withLock current
             val result = postForm("/oauth2/token", mapOf("grant_type" to "refresh_token", "client_id" to clientId(), "refresh_token" to refresh))
+            // Logged out (or in again) while the refresh was running: do not bring the old session back.
+            if (settings.token() != token) return@withLock settings.token()
             val obj = result.second.asObject()
             val newToken = obj?.str("access_token")
             if (result.first in 200..299 && newToken != null) {
@@ -164,7 +167,13 @@ class SimklApi(
             val message = runCatching { json.parseToJsonElement(text).asObject()?.let { it.str("message") ?: it.str("error") } }.getOrNull()
             throw ApiException(code, message ?: "HTTP $code")
         }
-        return if (text.isBlank()) JsonNull else json.parseToJsonElement(text)
+        if (text.isBlank()) return JsonNull
+        // A 2xx that is not JSON (e.g. a captive portal or proxy page) is reported as an API error.
+        return try {
+            json.parseToJsonElement(text)
+        } catch (e: SerializationException) {
+            throw ApiException(code, "Unexpected response from SIMKL")
+        }
     }
 
     /** A form-encoded POST to the AUTH V2 /oauth2 endpoints, which take the client ID in the body. */
