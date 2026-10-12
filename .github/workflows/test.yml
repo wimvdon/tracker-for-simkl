@@ -30,8 +30,9 @@ jobs:
       - name: Check R8 keeps reflection entry points in the release build
         run: |
           ./gradlew assembleRelease
-          seeds=app/build/outputs/r8-seeds.txt
-          test -s "$seeds" || { echo "::error::R8 seeds file missing"; exit 1; }
+          seeds=$(find app/build build -name '*seeds*.txt' -size +0 2>/dev/null | head -n1)
+          test -n "$seeds" || { echo "::error::R8 seeds file missing"; find . -name '*seeds*' | head; exit 1; }
+          echo "Seeds: $seeds"
           for entry in "androidx.work.impl.WorkDatabase_Impl: WorkDatabase_Impl()" \
                        "io.github.impca201.simklr.work.NewEpisodesWorker: NewEpisodesWorker(android.content.Context,androidx.work.WorkerParameters)"; do
             grep -qF "$entry" "$seeds" || { echo "::error::R8 did not keep $entry"; grep -F "WorkDatabase_Impl" "$seeds" | head; exit 1; }
