@@ -1,23 +1,52 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!-- Minimal TV-and-play mark with a blue → violet → magenta gradient on the white background.
+     Everything sits inside the 66dp adaptive-icon safe zone (21..87). -->
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:aapt="http://schemas.android.com/aapt"
     android:width="108dp"
     android:height="108dp"
     android:viewportWidth="108"
     android:viewportHeight="108">
-    <!-- Screen -->
-    <path
-        android:pathData="M36,40h36a6,6 0,0 1,6 6v20a6,6 0,0 1,-6 6h-36a6,6 0,0 1,-6 -6v-20a6,6 0,0 1,6 -6z"
-        android:strokeWidth="4"
-        android:strokeColor="#FF7FC4FF" />
-    <!-- Antenna -->
-    <path
-        android:pathData="M46,32l8,8l8,-8"
-        android:strokeWidth="4"
-        android:strokeColor="#FF7FC4FF"
-        android:strokeLineCap="round"
-        android:strokeLineJoin="round" />
-    <!-- Play -->
-    <path
-        android:fillColor="#FFFFC857"
-        android:pathData="M49,48.5v15l12,-7.5z" />
+    <group
+        android:pivotX="54"
+        android:pivotY="54"
+        android:scaleX="1.12"
+        android:scaleY="1.12">
+        <!-- Screen -->
+        <path android:pathData="M40,30h28a12,12 0,0 1,12 12v16a12,12 0,0 1,-12 12h-28a12,12 0,0 1,-12 -12v-16a12,12 0,0 1,12 -12z">
+            <aapt:attr name="android:fillColor">
+                <gradient
+                    android:type="linear"
+                    android:startX="28"
+                    android:startY="30"
+                    android:endX="80"
+                    android:endY="70">
+                    <item android:offset="0" android:color="#FF3D7BFF" />
+                    <item android:offset="0.55" android:color="#FF7A5CFF" />
+                    <item android:offset="1" android:color="#FFD15CE6" />
+                </gradient>
+            </aapt:attr>
+        </path>
+        <!-- Stand -->
+        <path android:pathData="M45,75h18a2,2 0,0 1,0 4h-18a2,2 0,0 1,0 -4z">
+            <aapt:attr name="android:fillColor">
+                <gradient
+                    android:type="linear"
+                    android:startX="43"
+                    android:startY="77"
+                    android:endX="65"
+                    android:endY="77">
+                    <item android:offset="0" android:color="#FF6E8BFF" />
+                    <item android:offset="1" android:color="#FFC27BF0" />
+                </gradient>
+            </aapt:attr>
+        </path>
+        <!-- Play, with rounded corners -->
+        <path
+            android:fillColor="#FFFFFFFF"
+            android:pathData="M49.5,43.5L49.5,56.5L60,50Z"
+            android:strokeColor="#FFFFFFFF"
+            android:strokeWidth="3"
+            android:strokeLineJoin="round" />
+    </group>
 </vector>

@@ -5,6 +5,7 @@ import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
+import androidx.datastore.preferences.core.longPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.core.stringSetPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
@@ -50,6 +51,8 @@ data class AppSettings(
     val nav: NavConfig = NavConfig(NavTab.defaultOrder, NavTab.defaultEnabled),
     val notifications: Boolean = false,
     val hideSpecials: Boolean = true,
+    /** Up next starts after the most recently watched episode, ignoring skipped ones before it. */
+    val continueFromLatest: Boolean = false,
 )
 
 class SettingsStore(
@@ -58,12 +61,15 @@ class SettingsStore(
     private object Keys {
         val clientId = stringPreferencesKey("client_id")
         val token = stringPreferencesKey("access_token")
+        val refreshToken = stringPreferencesKey("refresh_token")
+        val tokenExpiresAt = longPreferencesKey("token_expires_at")
         val theme = stringPreferencesKey("theme")
         val dynamicColor = booleanPreferencesKey("dynamic_color")
         val navOrder = stringPreferencesKey("nav_order")
         val navEnabled = stringSetPreferencesKey("nav_enabled")
         val notifications = booleanPreferencesKey("notifications")
         val hideSpecials = booleanPreferencesKey("hide_specials")
+        val continueFromLatest = booleanPreferencesKey("continue_from_latest")
         val notified = stringSetPreferencesKey("notified_episodes")
     }
 
@@ -86,6 +92,7 @@ class SettingsStore(
                     ),
                 notifications = p[Keys.notifications] ?: false,
                 hideSpecials = p[Keys.hideSpecials] ?: true,
+                continueFromLatest = p[Keys.continueFromLatest] ?: false,
             )
         }
 
@@ -95,14 +102,34 @@ class SettingsStore(
 
     suspend fun token(): String? = current().accessToken
 
+    /** AUTH V2 refresh token and access-token expiry (epoch ms); null for AUTH V1 tokens, which never expire. */
+    suspend fun refreshToken(): String? = context.dataStore.data.first()[Keys.refreshToken]
+
+    suspend fun tokenExpiresAt(): Long? = context.dataStore.data.first()[Keys.tokenExpiresAt]
+
+    suspend fun setTokens(
+        accessToken: String,
+        refreshToken: String?,
+        expiresAt: Long?,
+    ) = context.dataStore.edit { prefs ->
+        prefs[Keys.token] = accessToken
+        if (refreshToken != null) prefs[Keys.refreshToken] = refreshToken else prefs -= Keys.refreshToken
+        if (expiresAt != null) prefs[Keys.tokenExpiresAt] = expiresAt else prefs -= Keys.tokenExpiresAt
+    }
+
     suspend fun setClientId(value: String) = context.dataStore.edit { it[Keys.clientId] = value.trim() }
 
     suspend fun setToken(value: String?) =
         context.dataStore.edit { prefs ->
             if (value == null) {
-                prefs.remove(Keys.token)
+                prefs -= Keys.token
+                prefs -= Keys.refreshToken
+                prefs -= Keys.tokenExpiresAt
             } else {
+                // An AUTH V1 token: it never expires and has no refresh token.
                 prefs[Keys.token] = value
+                prefs -= Keys.refreshToken
+                prefs -= Keys.tokenExpiresAt
             }
         }
 
@@ -119,6 +146,8 @@ class SettingsStore(
     suspend fun setNotifications(value: Boolean) = context.dataStore.edit { it[Keys.notifications] = value }
 
     suspend fun setHideSpecials(value: Boolean) = context.dataStore.edit { it[Keys.hideSpecials] = value }
+
+    suspend fun setContinueFromLatest(value: Boolean) = context.dataStore.edit { it[Keys.continueFromLatest] = value }
 
     suspend fun notifiedEpisodes(): Set<String> = context.dataStore.data.first()[Keys.notified].orEmpty()
 

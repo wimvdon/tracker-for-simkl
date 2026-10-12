@@ -1,6 +1,18 @@
 package io.github.impca201.simklr.ui.library
 
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.items
+import androidx.compose.material.icons.rounded.Tune
+import androidx.compose.material3.BadgedBox
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FilterChip
+import androidx.compose.material3.ModalBottomSheet
+import androidx.compose.material3.RadioButton
+import androidx.compose.material3.TextButton
+import androidx.compose.runtime.saveable.listSaver
+import io.github.impca201.simklr.data.model.MediaType
+import io.github.impca201.simklr.ui.components.Format
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -15,16 +27,12 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.grid.GridCells
-import androidx.compose.foundation.lazy.grid.GridItemSpan
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.rounded.Sort
 import androidx.compose.material.icons.rounded.Check
 import androidx.compose.material3.Badge
-import androidx.compose.material3.DropdownMenu
-import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.LinearProgressIndicator
@@ -59,7 +67,7 @@ enum class SortOrder(
     Added("Recently added"),
     Title("Title"),
     Rating("My rating"),
-    Year("Year"),
+    Release("Release date"),
     ;
 
     fun sort(items: List<LibraryItem>): List<LibraryItem> =
@@ -68,32 +76,145 @@ enum class SortOrder(
             Added -> items.sortedByDescending { it.addedAt ?: "" }
             Title -> items.sortedBy { it.title.lowercase() }
             Rating -> items.sortedByDescending { it.userRating ?: 0 }
-            Year -> items.sortedByDescending { it.year ?: 0 }
+            // The library only carries the release year; titles keep a stable order within a year.
+            Release -> items.sortedWith(compareByDescending<LibraryItem> { it.year ?: 0 }.thenBy { it.title.lowercase() })
         }
+}
+
+/** Ended or still running (TV, anime); released or upcoming (movies). */
+enum class ReleaseFilter(
+    val showLabel: String,
+    val movieLabel: String,
+) {
+    All("All", "All"),
+    Running("Still airing", "Upcoming"),
+    Finished("Ended", "Released"),
+}
+
+enum class RatingFilter(
+    val label: String,
+) {
+    Any("Any"),
+    Rated("Rated by me"),
+    Unrated("Not rated"),
+}
+
+data class LibraryFilter(
+    val release: ReleaseFilter = ReleaseFilter.All,
+    val rating: RatingFilter = RatingFilter.Any,
+    /** SIMKL anime_type ("tv", "movie", "ova", ...), anime only. */
+    val animeType: String? = null,
+) {
+    val active: Boolean get() = this != LibraryFilter()
+
+    fun apply(
+        items: List<LibraryItem>,
+        state: LibraryState,
+    ): List<LibraryItem> =
+        items.filter { item ->
+            val info = state.showInfo[item.key]
+            val releaseOk =
+                when (release) {
+                    ReleaseFilter.All -> true
+                    ReleaseFilter.Running ->
+                        if (item.type == MediaType.Movie) {
+                            info?.releaseStatus != null && info.releaseStatus != "released"
+                        } else {
+                            Shelves.airingOf(item, info, state.nextAirDate(item)) == AiringState.Airing
+                        }
+                    ReleaseFilter.Finished ->
+                        if (item.type == MediaType.Movie) {
+                            info?.releaseStatus == "released"
+                        } else {
+                            Shelves.airingOf(item, info, state.nextAirDate(item)) == AiringState.Ended
+                        }
+                }
+            val ratingOk =
+                when (rating) {
+                    RatingFilter.Any -> true
+                    RatingFilter.Rated -> item.userRating != null
+                    RatingFilter.Unrated -> item.userRating == null
+                }
+            releaseOk && ratingOk && (animeType == null || item.animeType.equals(animeType, ignoreCase = true))
+        }
+
+    companion object {
+        val animeTypes = listOf("tv" to "TV", "movie" to "Movie", "ova" to "OVA", "ona" to "ONA", "special" to "Special")
+
+        val Saver =
+            listSaver<LibraryFilter, String>(
+                save = { listOf(it.release.name, it.rating.name, it.animeType.orEmpty()) },
+                restore = { LibraryFilter(ReleaseFilter.valueOf(it[0]), RatingFilter.valueOf(it[1]), it[2].ifEmpty { null }) },
+            )
+    }
 }
 
 @Composable
 fun bottomPadding(): Dp = FloatingBarSpace + WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding()
 
+/** Top bar button opening the sort and filter sheet; shows a dot while a filter is on. */
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun SortMenu(
-    current: SortOrder,
-    onChange: (SortOrder) -> Unit,
+fun SortFilterButton(
+    type: MediaType,
+    sort: SortOrder,
+    onSort: (SortOrder) -> Unit,
+    filter: LibraryFilter,
+    onFilter: (LibraryFilter) -> Unit,
 ) {
     var open by remember { mutableStateOf(false) }
-    Box {
-        IconButton(onClick = { open = true }) { Icon(Icons.AutoMirrored.Rounded.Sort, contentDescription = "Sort") }
-        DropdownMenu(expanded = open, onDismissRequest = { open = false }) {
+    IconButton(onClick = { open = true }) {
+        BadgedBox(badge = { if (filter.active) Badge() }) {
+            Icon(Icons.Rounded.Tune, contentDescription = "Sort and filter")
+        }
+    }
+    if (!open) return
+    ModalBottomSheet(onDismissRequest = { open = false }) {
+        Column(Modifier.fillMaxWidth().padding(start = 24.dp, end = 24.dp, bottom = 32.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+            Text("Sort by", style = MaterialTheme.typography.titleSmall, color = MaterialTheme.colorScheme.primary)
             SortOrder.entries.forEach { order ->
-                DropdownMenuItem(
-                    text = { Text(order.label) },
-                    onClick = {
-                        onChange(order)
-                        open = false
-                    },
-                    trailingIcon = { if (order == current) Icon(Icons.Rounded.Check, null) },
-                )
+                Row(
+                    Modifier.fillMaxWidth().clip(RoundedCornerShape(12.dp)).clickable { onSort(order) }.padding(vertical = 4.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    RadioButton(selected = order == sort, onClick = { onSort(order) })
+                    Text(order.label, style = MaterialTheme.typography.bodyLarge)
+                }
             }
+            Text(
+                if (type == MediaType.Movie) "Release" else "Status",
+                style = MaterialTheme.typography.titleSmall,
+                color = MaterialTheme.colorScheme.primary,
+                modifier = Modifier.padding(top = 8.dp),
+            )
+            ChipRow(ReleaseFilter.entries, filter.release, { if (type == MediaType.Movie) it.movieLabel else it.showLabel }) {
+                onFilter(filter.copy(release = it))
+            }
+            Text("My rating", style = MaterialTheme.typography.titleSmall, color = MaterialTheme.colorScheme.primary, modifier = Modifier.padding(top = 8.dp))
+            ChipRow(RatingFilter.entries, filter.rating, { it.label }) { onFilter(filter.copy(rating = it)) }
+            if (type == MediaType.Anime) {
+                Text("Type", style = MaterialTheme.typography.titleSmall, color = MaterialTheme.colorScheme.primary, modifier = Modifier.padding(top = 8.dp))
+                ChipRow(listOf<String?>(null) + LibraryFilter.animeTypes.map { it.first }, filter.animeType, { key ->
+                    LibraryFilter.animeTypes.firstOrNull { it.first == key }?.second ?: "All"
+                }) { onFilter(filter.copy(animeType = it)) }
+            }
+            if (filter.active) {
+                TextButton(onClick = { onFilter(LibraryFilter()) }, modifier = Modifier.align(Alignment.End)) { Text("Clear filters") }
+            }
+        }
+    }
+}
+
+@Composable
+private fun <T> ChipRow(
+    options: List<T>,
+    selected: T,
+    label: (T) -> String,
+    onSelect: (T) -> Unit,
+) {
+    LazyRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+        items(options) { option ->
+            FilterChip(selected = option == selected, onClick = { onSelect(option) }, label = { Text(label(option)) })
         }
     }
 }
@@ -117,16 +238,10 @@ fun TabLabel(
 fun progressOf(item: LibraryItem): Float? =
     if (item.type.isEpisodic && item.totalEpisodes > 0) (item.watchedEpisodes.toFloat() / item.totalEpisodes).coerceIn(0f, 1f) else null
 
-/** A titled group of items in a grid. */
-data class GridSection(
-    val title: String?,
-    val items: List<LibraryItem>,
-)
-
-/** Poster grid, optionally split into sections with full-width headers. */
+/** Poster grid of library items, with airing badges, ratings and the next air date. */
 @Composable
 fun LibraryGrid(
-    sections: List<GridSection>,
+    items: List<LibraryItem>,
     state: LibraryState,
     onOpen: (LibraryItem) -> Unit,
     showProgress: Boolean,
@@ -137,29 +252,26 @@ fun LibraryGrid(
         contentPadding = PaddingValues(start = 8.dp, end = 8.dp, top = 8.dp, bottom = bottomPadding()),
         modifier = Modifier.fillMaxWidth(),
     ) {
-        sections.filter { it.items.isNotEmpty() }.forEach { section ->
-            if (section.title != null) {
-                item(span = { GridItemSpan(maxLineSpan) }, key = "header:${section.title}") {
-                    SectionHeader(section.title, section.items.size)
-                }
-            }
-            items(section.items, key = { it.key }) { item ->
-                PosterTile(
-                    title = item.title,
-                    poster = item.poster,
-                    subtitle =
-                        listOfNotNull(
+        items(items, key = { it.key }) { item ->
+            val playback = state.playbackFor(item.type, item.ids.simkl)
+            val nextAir = if (item.type.isEpisodic) state.nextAirDate(item) else null
+            PosterTile(
+                title = item.title,
+                poster = item.poster,
+                subtitle =
+                    nextAir?.let { "Next ${Format.relative(it)}" }
+                        ?: listOfNotNull(
                             item.year?.toString(),
                             item.userRating?.let { "★ $it" },
                             if (item.type.isEpisodic && item.totalEpisodes > 0) "${item.watchedEpisodes}/${item.totalEpisodes}" else null,
                         ).joinToString(" · ").ifEmpty { null },
-                    progress = if (showProgress) progressOf(item) else null,
-                    rating = state.showInfo[item.key]?.rating?.takeIf { it > 0 },
-                    airing =
-                        if (showAiring) Shelves.airingOf(item, state.showInfo[item.key], state.nextAirDate(item)) else AiringState.Unknown,
-                    onClick = { onOpen(item) },
-                )
-            }
+                // A paused movie shows how far it got.
+                progress = playback?.takeIf { item.type == MediaType.Movie }?.let { (it.progress / 100).toFloat() } ?: if (showProgress) progressOf(item) else null,
+                rating = state.showInfo[item.key]?.rating?.takeIf { it > 0 },
+                airing =
+                    if (showAiring) Shelves.airingOf(item, state.showInfo[item.key], state.nextAirDate(item)) else AiringState.Unknown,
+                onClick = { onOpen(item) },
+            )
         }
     }
 }

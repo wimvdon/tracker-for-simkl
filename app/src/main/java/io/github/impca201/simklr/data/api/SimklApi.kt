@@ -16,6 +16,10 @@ import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.put
 import kotlinx.serialization.json.putJsonArray
 import kotlinx.serialization.json.putJsonObject
+import io.github.impca201.simklr.data.SettingsStore
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
+import okhttp3.FormBody
 import okhttp3.HttpUrl
 import okhttp3.HttpUrl.Companion.toHttpUrl
 import okhttp3.MediaType.Companion.toMediaType
@@ -24,6 +28,7 @@ import okhttp3.Request
 import okhttp3.RequestBody.Companion.toRequestBody
 import java.io.IOException
 import java.time.Instant
+import java.util.concurrent.TimeUnit
 
 class ApiException(
     val code: Int,
@@ -32,19 +37,36 @@ class ApiException(
     val unauthorized get() = code == 401 || code == 403
 }
 
-/** Result of polling a PIN code: the token once approved, or a request to poll slower. */
-data class PinStatus(
-    val accessToken: String? = null,
-    val slowDown: Boolean = false,
-)
-
-/** A pending PIN (device code) login: the user enters [userCode] at [verificationUrl]. */
-data class PinCode(
+/**
+ * A pending sign-in: the user enters [userCode] on simkl.com ([openUrl] has it filled in).
+ * AUTH V2 apps use the OAuth 2.0 device flow ([deviceCode] set), AUTH V1 apps the older PIN flow.
+ */
+data class LoginCode(
     val userCode: String,
-    val verificationUrl: String,
+    val openUrl: String,
     val expiresInSeconds: Int,
     val intervalSeconds: Int,
+    val deviceCode: String? = null,
 )
+
+sealed interface LoginPoll {
+    data object Pending : LoginPoll
+
+    data object SlowDown : LoginPoll
+
+    data object Expired : LoginPoll
+
+    data class Approved(
+        val accessToken: String,
+        val refreshToken: String?,
+        /** Epoch ms, or null when the token does not expire (AUTH V1). */
+        val expiresAt: Long?,
+    ) : LoginPoll
+
+    data class Failed(
+        val message: String,
+    ) : LoginPoll
+}
 
 /**
  * Thin client for https://api.simkl.com, following SIMKL's API documentation (github.com/SIMKL/api,
@@ -53,9 +75,12 @@ data class PinCode(
  */
 class SimklApi(
     private val http: OkHttpClient,
-    private val clientId: suspend () -> String?,
-    private val token: suspend () -> String?,
+    private val settings: SettingsStore,
 ) {
+    private val refreshLock = Mutex()
+
+    private suspend fun clientId(): String? = settings.clientId()
+
     private val json = Json { ignoreUnknownKeys = true; isLenient = true }
     private val jsonType = "application/json; charset=utf-8".toMediaType()
 
@@ -74,14 +99,42 @@ class SimklApi(
         }.build()
     }
 
+    /**
+     * The access token to send. An AUTH V2 token is refreshed shortly before it expires
+     * (V2 access tokens last about a week; the refresh token 180 days from its last use).
+     */
+    private suspend fun accessToken(forceRefresh: Boolean = false): String? {
+        val token = settings.token() ?: return null
+        val refresh = settings.refreshToken() ?: return token
+        val expiresAt = settings.tokenExpiresAt()
+        val due = forceRefresh || (expiresAt != null && System.currentTimeMillis() > expiresAt - TimeUnit.HOURS.toMillis(12))
+        if (!due) return token
+        return refreshLock.withLock {
+            // Another call may have refreshed while this one waited.
+            val current = settings.token()
+            if (current != token) return@withLock current
+            val result = postForm("/oauth2/token", mapOf("grant_type" to "refresh_token", "client_id" to clientId(), "refresh_token" to refresh))
+            val obj = result.second.asObject()
+            val newToken = obj?.str("access_token")
+            if (result.first in 200..299 && newToken != null) {
+                settings.setTokens(newToken, obj?.str("refresh_token") ?: refresh, obj?.long("expires_in")?.let { System.currentTimeMillis() + it * 1000 })
+                newToken
+            } else {
+                token
+            }
+        }
+    }
+
     private suspend fun call(
         method: String,
         path: String,
         params: Map<String, String?> = emptyMap(),
         body: JsonElement? = null,
         auth: Boolean = true,
+        retried: Boolean = false,
     ): JsonElement {
         val id = clientId()?.takeIf { it.isNotBlank() } ?: throw ApiException(0, "No SIMKL client ID set")
+        val bearer = if (auth) accessToken() else null
         val request =
             Request.Builder()
                 .url(url(path, params))
@@ -90,22 +143,47 @@ class SimklApi(
                 .header("Accept", "application/json")
                 .header("Content-Type", "application/json")
                 .apply {
-                    if (auth) token()?.let { header("Authorization", "Bearer $it") }
+                    bearer?.let { header("Authorization", "Bearer $it") }
                     val requestBody = body?.toString()?.toRequestBody(jsonType)
                     when (method) {
                         "POST" -> post(requestBody ?: "{}".toRequestBody(jsonType))
+                        "DELETE" -> delete()
                         else -> get()
                     }
                 }.build()
+        val (code, text) =
+            withContext(Dispatchers.IO) {
+                http.newCall(request).execute().use { response -> response.code to response.body.string() }
+            }
+        // An expired AUTH V2 token: refresh once and retry.
+        if (code == 401 && bearer != null && !retried && settings.refreshToken() != null) {
+            accessToken(forceRefresh = true)
+            return call(method, path, params, body, auth, retried = true)
+        }
+        if (code !in 200..299) {
+            val message = runCatching { json.parseToJsonElement(text).asObject()?.let { it.str("message") ?: it.str("error") } }.getOrNull()
+            throw ApiException(code, message ?: "HTTP $code")
+        }
+        return if (text.isBlank()) JsonNull else json.parseToJsonElement(text)
+    }
+
+    /** A form-encoded POST to the AUTH V2 /oauth2 endpoints, which take the client ID in the body. */
+    private suspend fun postForm(
+        path: String,
+        form: Map<String, String?>,
+    ): Pair<Int, JsonElement> {
+        val body = FormBody.Builder().apply { form.forEach { (k, v) -> if (v != null) add(k, v) } }.build()
+        val request =
+            Request.Builder()
+                .url(BASE + path)
+                .header("User-Agent", "$APP_NAME/${BuildConfig.VERSION_NAME}")
+                .header("Accept", "application/json")
+                .post(body)
+                .build()
         return withContext(Dispatchers.IO) {
             http.newCall(request).execute().use { response ->
                 val text = response.body.string()
-                if (!response.isSuccessful) {
-                    val message =
-                        runCatching { json.parseToJsonElement(text).asObject()?.let { it.str("message") ?: it.str("error") } }.getOrNull()
-                    throw ApiException(response.code, message ?: "HTTP ${response.code}")
-                }
-                if (text.isBlank()) JsonNull else json.parseToJsonElement(text)
+                response.code to (runCatching { json.parseToJsonElement(text) }.getOrNull() ?: JsonNull)
             }
         }
     }
@@ -121,24 +199,86 @@ class SimklApi(
         body: JsonElement? = null,
     ) = call("POST", path, body = body)
 
-    // ---- Login (PIN / device code flow; needs only the client ID) ------------------------------
+    // ---- Login (needs only the client ID) ----------------------------------------------------
 
-    suspend fun requestPin(): PinCode {
+    /**
+     * Starts a sign-in. AUTH V2 apps use the OAuth 2.0 device flow (POST /oauth2/device); SIMKL
+     * answers an AUTH V1 client ID there with invalid_client, and the older PIN flow is used.
+     */
+    suspend fun startLogin(): LoginCode {
+        val id = clientId() ?: throw ApiException(0, "No SIMKL client ID set")
+        val (status, element) = postForm("/oauth2/device", mapOf("client_id" to id, "scope" to "media:read media:write"))
+        val obj = element.asObject()
+        if (status in 200..299) {
+            val deviceCode = obj?.str("device_code")
+            val userCode = obj?.str("user_code")
+            if (deviceCode != null && userCode != null) {
+                return LoginCode(
+                    userCode = userCode,
+                    openUrl = obj?.str("verification_uri_complete") ?: obj?.str("verification_uri") ?: "https://simkl.com/pin/",
+                    expiresInSeconds = obj?.int("expires_in") ?: 900,
+                    intervalSeconds = obj?.int("interval") ?: 5,
+                    deviceCode = deviceCode,
+                )
+            }
+            throw ApiException(status, "SIMKL returned an incomplete sign-in code")
+        }
+        if (status == 401 || obj?.str("error") == "invalid_client") return startPinLogin()
+        throw ApiException(status, obj?.str("error_description") ?: obj?.str("error") ?: "HTTP $status")
+    }
+
+    private suspend fun startPinLogin(): LoginCode {
         val obj = get("/oauth/pin", auth = false).asObject()
         val code = obj?.str("user_code") ?: throw ApiException(0, obj?.str("message") ?: "SIMKL did not return a code")
-        return PinCode(
+        val url = obj.str("verification_url") ?: "https://simkl.com/pin/"
+        return LoginCode(
             userCode = code,
-            verificationUrl = obj.str("verification_url") ?: "https://simkl.com/pin/",
+            openUrl = url.trimEnd('/') + "/" + code,
             expiresInSeconds = obj.int("expires_in") ?: 900,
             intervalSeconds = obj.int("interval") ?: 5,
         )
     }
 
-    /** "KO" with "Authorization pending" or "Slow down" until the user approves, then "OK" with the token. */
-    suspend fun pollPin(userCode: String): PinStatus {
-        val obj = get("/oauth/pin/$userCode", auth = false).asObject() ?: return PinStatus()
-        if (obj.str("result") == "OK") return PinStatus(accessToken = obj.str("access_token"))
-        return PinStatus(slowDown = obj.str("message")?.contains("slow", ignoreCase = true) == true)
+    /** One poll of a pending sign-in. Poll no faster than [LoginCode.intervalSeconds]. */
+    suspend fun pollLogin(code: LoginCode): LoginPoll {
+        val deviceCode = code.deviceCode
+        if (deviceCode == null) {
+            // AUTH V1: "KO" with "Authorization pending" or "Slow down", then "OK" with a token that never expires.
+            val obj = get("/oauth/pin/${code.userCode}", auth = false).asObject() ?: return LoginPoll.Pending
+            val token = obj.str("access_token")
+            if (obj.str("result") == "OK" && token != null) return LoginPoll.Approved(token, null, null)
+            return if (obj.str("message")?.contains("slow", ignoreCase = true) == true) LoginPoll.SlowDown else LoginPoll.Pending
+        }
+        val (status, element) =
+            postForm(
+                "/oauth2/token",
+                mapOf(
+                    "grant_type" to "urn:ietf:params:oauth:grant-type:device_code",
+                    "client_id" to clientId(),
+                    "device_code" to deviceCode,
+                ),
+            )
+        val obj = element.asObject()
+        val token = obj?.str("access_token")
+        if (status in 200..299 && token != null) {
+            val scope = obj?.str("scope")
+            if (scope != null && "media:write" !in scope.split(" ")) {
+                return LoginPoll.Failed("SIMKL granted read-only access. Sign in again and allow SIMKLr to update your lists.")
+            }
+            return LoginPoll.Approved(token, obj?.str("refresh_token"), obj?.long("expires_in")?.let { System.currentTimeMillis() + it * 1000 })
+        }
+        if (status == 429) return LoginPoll.SlowDown
+        return when (obj?.str("error")) {
+            "authorization_pending" -> LoginPoll.Pending
+            "slow_down" -> LoginPoll.SlowDown
+            "expired_token", "invalid_grant" -> LoginPoll.Expired
+            "invalid_client" ->
+                LoginPoll.Failed(
+                    "This SIMKL app needs a client secret. Register a SIMKL app of the " +
+                        "\"TV, devices & command line\" type and use its Client ID.",
+                )
+            else -> LoginPoll.Failed(obj?.str("error_description") ?: "SIMKL sign-in failed (HTTP $status)")
+        }
     }
 
     // ---- Sync ---------------------------------------------------------------------------------
@@ -163,6 +303,14 @@ class SimklApi(
 
     /** Ratings changed since [dateFrom] (same item format as /sync/all-items). */
     suspend fun ratings(dateFrom: String?): JsonElement = call("POST", "/sync/ratings/", mapOf("date_from" to dateFrom))
+
+    /** Paused, partly watched episodes and movies ("Continue watching"). */
+    suspend fun playback(): JsonElement = get("/sync/playback")
+
+    /** Removes a paused session's saved progress. */
+    suspend fun deletePlayback(id: Long) {
+        call("DELETE", "/sync/playback/$id")
+    }
 
     /** Release status and ratings of every title in the user's lists of one type. */
     suspend fun watchlistRatings(type: MediaType): JsonElement =

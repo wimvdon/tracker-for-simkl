@@ -93,9 +93,9 @@ class ParsersTest {
         assertEquals(Shelf.UpNext, Shelves.shelfOf(items.first { it.ids.simkl == 101L }, now))
         // Next episode airs in the future: waiting, and still airing.
         val b = items.first { it.ids.simkl == 102L }
-        assertEquals(Shelf.Waiting, Shelves.shelfOf(b, now))
+        assertEquals(Shelf.Watched, Shelves.shelfOf(b, now))
         assertEquals(AiringState.Airing, Shelves.airingOf(b, null, null))
-        assertEquals(Shelf.Completed, Shelves.shelfOf(items.first { it.type == MediaType.Anime }, now))
+        assertEquals(Shelf.Watched, Shelves.shelfOf(items.first { it.type == MediaType.Anime }, now))
     }
 
     @Test
@@ -193,10 +193,11 @@ class ParsersTest {
              {"id":6,"type":"tv","release_status":"ended"}]
             """.trimIndent()
         val map = Parsers.watchlistRatings(Json.parseToJsonElement(json))
-        assertEquals(AiringState.Airing, map[2331788L]?.first)
+        assertEquals(AiringState.Airing, AiringState.fromApi(map[2331788L]?.first))
         assertEquals(7.0, map[2331788L]?.second)
-        assertEquals(AiringState.Airing, map[5L]?.first)
-        assertEquals(AiringState.Ended, map[6L]?.first)
+        assertEquals(AiringState.Airing, AiringState.fromApi(map[5L]?.first))
+        assertEquals(AiringState.Ended, AiringState.fromApi(map[6L]?.first))
+        assertEquals("released", map[268470L]?.first)
     }
 
     @Test
@@ -226,5 +227,66 @@ class ParsersTest {
         assertEquals(4723, tv.watchedEpisodes)
         assertEquals(411040L, tv.leftToWatchMinutes)
         assertEquals(130L, stats.lastWeekMinutes)
+    }
+
+    @Test
+    fun continueFromLatestEpisode() {
+        // Watched S05E01-S07E02 (all of season 7), skipped seasons 1 to 4: SIMKL's next is S01E01.
+        val item =
+            io.github.impca201.simklr.data.model.LibraryItem(
+                type = MediaType.Tv,
+                ids = io.github.impca201.simklr.data.model.MediaIds(1),
+                title = "Show",
+                status = ListStatus.Watching,
+                nextToWatch = io.github.impca201.simklr.data.model.NextEpisode(EpisodeRef(1, 1)),
+                watchedEpisodes = 4,
+                totalEpisodes = 20,
+                watched =
+                    listOf(
+                        io.github.impca201.simklr.data.model.WatchedSeason(5, listOf(1)),
+                        io.github.impca201.simklr.data.model.WatchedSeason(6, listOf(1)),
+                        io.github.impca201.simklr.data.model.WatchedSeason(7, listOf(1, 2)),
+                    ),
+            )
+        assertTrue(Shelves.hasGap(item))
+        assertEquals(EpisodeRef(7, 2), Shelves.latestWatched(item))
+        fun ep(
+            s: Int,
+            e: Int,
+            aired: Boolean = true,
+        ) = io.github.impca201.simklr.data.model.Episode(s, e, null, null, null, null, aired, false)
+        val caughtUp = Shelves.latestNextFrom(item, listOf(ep(1, 1), ep(7, 1), ep(7, 2), ep(8, 1, aired = false)))
+        assertNull(caughtUp.next)
+        // Off: SIMKL's own next episode keeps it in Up next. On: caught up, so Watched.
+        assertEquals(Shelf.UpNext, Shelves.shelfOf(item, fromLatest = false, latest = caughtUp))
+        assertEquals(Shelf.Watched, Shelves.shelfOf(item, fromLatest = true, latest = caughtUp))
+        val newEpisode = Shelves.latestNextFrom(item, listOf(ep(1, 1), ep(7, 2), ep(8, 1)))
+        assertEquals(EpisodeRef(8, 1), newEpisode.next?.ref)
+        assertEquals(Shelf.UpNext, Shelves.shelfOf(item, fromLatest = true, latest = newEpisode))
+        assertEquals(EpisodeRef(8, 1), Shelves.nextEpisode(item, true, newEpisode)?.ref)
+        // A stale lookup (different watched count) is ignored until recomputed.
+        assertEquals(EpisodeRef(1, 1), Shelves.nextEpisode(item, true, newEpisode.copy(watchedCount = 3))?.ref)
+    }
+
+    @Test
+    fun playbackFromDocs() {
+        val json =
+            """
+            [{"id":123,"progress":45.5,"paused_at":"2024-01-15T10:30:00.000Z","type":"episode",
+              "episode":{"season":1,"episode":5,"title":"Episode 5","tvdb_season":1,"tvdb_number":5},
+              "show":{"title":"Breaking Bad","year":2008,"ids":{"simkl":12345,"slug":"breaking-bad"}}},
+             {"id":124,"progress":75,"paused_at":"2024-01-15T11:15:00.000Z","type":"movie",
+              "movie":{"title":"Inception","year":2010,"ids":{"simkl":67890}}}]
+            """.trimIndent()
+        val list = Parsers.playback(Json.parseToJsonElement(json)) { id -> if (id == 12345L) MediaType.Anime else null }
+        assertEquals(2, list.size)
+        val episode = list.first { it.id == 123L }
+        assertEquals(MediaType.Anime, episode.type)
+        // Anime episodes are matched without a season number.
+        assertEquals(EpisodeRef(null, 5), episode.episode)
+        assertEquals(45.5, episode.progress, 0.0)
+        val movie = list.first { it.id == 124L }
+        assertEquals(MediaType.Movie, movie.type)
+        assertNull(movie.episode)
     }
 }

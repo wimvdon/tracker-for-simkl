@@ -20,7 +20,9 @@ import androidx.work.WorkManager
 import androidx.work.WorkerParameters
 import io.github.impca201.simklr.R
 import io.github.impca201.simklr.SimklrApp
+import io.github.impca201.simklr.data.LibraryState
 import io.github.impca201.simklr.data.model.LibraryItem
+import io.github.impca201.simklr.data.model.NextEpisode
 import io.github.impca201.simklr.data.model.Shelf
 import io.github.impca201.simklr.data.model.Shelves
 import io.github.impca201.simklr.ui.MainActivity
@@ -36,10 +38,14 @@ class NewEpisodesWorker(
         val settings = app.settings.current()
         if (settings.accessToken == null || !settings.notifications) return Result.success()
         if (app.library.sync() != null) return Result.retry()
-        val upNext = upNextKeys(app.library.state.value.items)
+        app.library.refreshLatestNext()
+        val upNext = upNextKeys(app.library.state.value, settings.continueFromLatest)
         val notified = app.settings.notifiedEpisodes()
         val fresh = upNext.filterKeys { it !in notified }.values
-        fresh.take(MAX_NOTIFICATIONS).forEach { notify(applicationContext, it) }
+        val state = app.library.state.value
+        fresh.take(MAX_NOTIFICATIONS).forEach {
+            notify(applicationContext, it, Shelves.nextEpisode(it, settings.continueFromLatest, state.latestNext[it.key]))
+        }
         app.settings.setNotifiedEpisodes(upNext.keys)
         return Result.success()
     }
@@ -50,10 +56,16 @@ class NewEpisodesWorker(
         private const val MAX_NOTIFICATIONS = 5
 
         /** "Up next" episodes keyed by show and episode, so each episode is announced once. */
-        fun upNextKeys(items: List<LibraryItem>): Map<String, LibraryItem> =
-            items
-                .filter { it.type.isEpisodic && Shelves.shelfOf(it) == Shelf.UpNext }
-                .associateBy { "${it.key}:${it.nextToWatch?.ref?.label ?: it.watchedEpisodes}" }
+        fun upNextKeys(
+            state: LibraryState,
+            fromLatest: Boolean,
+        ): Map<String, LibraryItem> =
+            state.items
+                .filter { it.type.isEpisodic && Shelves.shelfOf(it, fromLatest = fromLatest, latest = state.latestNext[it.key]) == Shelf.UpNext }
+                .associateBy {
+                    val next = Shelves.nextEpisode(it, fromLatest, state.latestNext[it.key])
+                    "${it.key}:${next?.ref?.label ?: it.watchedEpisodes}"
+                }
 
         fun createChannel(context: Context) {
             if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) return
@@ -65,7 +77,7 @@ class NewEpisodesWorker(
         /** Starts the periodic check, remembering what is already up next so only new episodes notify. */
         suspend fun enable(context: Context) {
             val app = context.applicationContext as SimklrApp
-            app.settings.setNotifiedEpisodes(upNextKeys(app.library.state.value.items).keys)
+            app.settings.setNotifiedEpisodes(upNextKeys(app.library.state.value, app.settings.current().continueFromLatest).keys)
             val request =
                 PeriodicWorkRequestBuilder<NewEpisodesWorker>(4, TimeUnit.HOURS)
                     .setConstraints(Constraints.Builder().setRequiredNetworkType(NetworkType.CONNECTED).build())
@@ -81,6 +93,7 @@ class NewEpisodesWorker(
         private fun notify(
             context: Context,
             item: LibraryItem,
+            next: NextEpisode?,
         ) {
             if (Build.VERSION.SDK_INT >= 33 &&
                 ContextCompat.checkSelfPermission(context, Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED
@@ -94,7 +107,6 @@ class NewEpisodesWorker(
                     MainActivity.detailIntent(context, item.type, item.ids.simkl),
                     PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE,
                 )
-            val next = item.nextToWatch
             val text =
                 listOfNotNull(next?.ref?.label, next?.title).joinToString(" · ").ifEmpty { "New episode available" }
             val notification =

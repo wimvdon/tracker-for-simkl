@@ -177,6 +177,25 @@ data class ShowInfo(
     val fetchedAt: Long,
     val rating: Double? = null,
     val fanart: String? = null,
+    /** /ratings "release_status", e.g. "released" or "upcoming" for movies. */
+    val releaseStatus: String? = null,
+)
+
+/**
+ * A paused, partly watched episode or movie (GET /sync/playback). Marking it watched also
+ * removes the saved progress.
+ */
+@Serializable
+data class Playback(
+    val id: Long,
+    val type: MediaType,
+    val simklId: Long,
+    val title: String,
+    /** 0 to 100. */
+    val progress: Double,
+    val pausedAt: String? = null,
+    val episode: EpisodeRef? = null,
+    val episodeTitle: String? = null,
 )
 
 /** A title anywhere in the catalogue: search results, trending lists, recommendations. */

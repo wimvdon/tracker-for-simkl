@@ -7,13 +7,17 @@ An Android client for [SIMKL](https://simkl.com), built with Jetpack Compose and
 
 - **Floating bottom bar** with **TV Shows**, **Movies**, **Anime**, **Discover** and **Calendar**.
   Re-order and enable/disable destinations in *Settings › Bottom bar*.
-- **TV Shows / Anime** shelves:
-  - **Up next** – shows you're watching that have an aired, unwatched episode. One tap on ✓ marks
-    the next episode watched.
-  - **Waiting** – shows you're caught up on, split into *Coming soon* (with the next air date),
-    *Still airing · no date yet*, and *Ended · nothing left to watch* (one tap moves them to Completed).
-  - **Plan to watch**, **On hold**, **Completed**, **Dropped** – split into *Still airing* and
-    *Ended*, with an Airing/Ended badge on every poster.
+- **TV Shows / Anime** shelves: **Up next** (shows with an aired, unwatched episode; one tap on ✓
+  marks the next episode watched; episodes in progress come first), **Watched** (caught up or
+  completed, with the next air date when known), **Plan to watch**, **On hold** and **Dropped**.
+  Airing/Ended badges on every poster.
+- **Sort & filter**: recently watched, recently added, title, my rating, release date; filter on
+  still airing / ended (released / upcoming for movies), my rating and anime type.
+- **In progress**: paused episodes and movies (SIMKL playback) show their progress; marking one
+  watched asks first, because it removes the saved progress.
+- **Continue from the latest episode** (setting): Up next starts after the most recently watched
+  episode, so skipped earlier episodes or seasons don't keep a show in Up next. (SIMKL's API has
+  no "skip" option.)
 - **Movies**: Plan to watch, Watched, Dropped.
 - **Details**: fanart, ratings (SIMKL, IMDb, MAL…), genres, overview, airing info, trailers,
   recommendations, links (SIMKL, IMDb, TMDB, MAL, AniList…), list status, your 1–10 rating,
@@ -29,10 +33,15 @@ An Android client for [SIMKL](https://simkl.com), built with Jetpack Compose and
 
 ## Signing in
 
-SIMKL's API needs a client ID. Create a free app at
-<https://simkl.com/settings/developer/new/> (any name and redirect URI),
-paste its **Client ID** into SIMKLr on first launch, then tap **Sign in with SIMKL** and enter
-the shown code on simkl.com (PIN login – no client secret needed).
+SIMKL's API needs a client ID. Create a free app at <https://simkl.com/settings/developer/new/>:
+choose **AUTH V2** and the **TV, devices & command line** type (any name). Paste its **Client ID**
+into SIMKLr on first launch (the Client Secret is not needed), tap **Sign in with SIMKL** and
+approve the shown code on simkl.com.
+
+SIMKLr uses SIMKL's OAuth 2.0 device flow (`POST /oauth2/device`, then `POST /oauth2/token`)
+with the `media:read media:write` scope, and renews the week-long access token with the refresh
+token. Older AUTH V1 apps still work through the PIN flow (`/oauth/pin`), which SIMKL plans to
+retire around April 2027.
 
 To bake a client ID into a build, pass `-PsimklClientId=...` to Gradle.
 

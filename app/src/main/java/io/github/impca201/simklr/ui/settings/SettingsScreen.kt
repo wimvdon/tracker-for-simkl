@@ -24,6 +24,7 @@ import androidx.compose.material.icons.rounded.KeyboardArrowDown
 import androidx.compose.material.icons.rounded.KeyboardArrowUp
 import androidx.compose.material.icons.rounded.Notifications
 import androidx.compose.material.icons.rounded.Palette
+import androidx.compose.material.icons.rounded.SkipNext
 import androidx.compose.material.icons.rounded.VisibilityOff
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -184,6 +185,17 @@ fun SettingsScreen(settings: AppSettings) {
                 Group {
                     SwitchRow("Hide specials", "Leave out special episodes in episode lists", settings.hideSpecials, Icons.Rounded.VisibilityOff) {
                         scope.launch { app.settings.setHideSpecials(it) }
+                    }
+                    SwitchRow(
+                        "Continue from the latest episode",
+                        "Up next starts after the most recently watched episode. Unwatched episodes or seasons before it are skipped.",
+                        settings.continueFromLatest,
+                        Icons.Rounded.SkipNext,
+                    ) { on ->
+                        scope.launch {
+                            app.settings.setContinueFromLatest(on)
+                            if (on) app.library.refreshLatestNext()
+                        }
                     }
                     SwitchRow(
                         "New episode notifications",
