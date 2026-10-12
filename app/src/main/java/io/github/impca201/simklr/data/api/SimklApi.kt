@@ -117,7 +117,7 @@ class SimklApi(
             val obj = result.second.asObject()
             val newToken = obj?.str("access_token")
             if (result.first in 200..299 && newToken != null) {
-                settings.setTokens(newToken, obj.str("refresh_token") ?: refresh, obj.long("expires_in")?.let { System.currentTimeMillis() + it * 1000 })
+                settings.setTokens(newToken, obj?.str("refresh_token") ?: refresh, obj?.long("expires_in")?.let { System.currentTimeMillis() + it * 1000 })
                 newToken
             } else {
                 token
@@ -214,9 +214,9 @@ class SimklApi(
             if (deviceCode != null && userCode != null) {
                 return LoginCode(
                     userCode = userCode,
-                    openUrl = obj.str("verification_uri_complete") ?: obj.str("verification_uri") ?: "https://simkl.com/pin/",
-                    expiresInSeconds = obj.int("expires_in") ?: 900,
-                    intervalSeconds = obj.int("interval") ?: 5,
+                    openUrl = obj?.str("verification_uri_complete") ?: obj?.str("verification_uri") ?: "https://simkl.com/pin/",
+                    expiresInSeconds = obj?.int("expires_in") ?: 900,
+                    intervalSeconds = obj?.int("interval") ?: 5,
                     deviceCode = deviceCode,
                 )
             }
@@ -260,11 +260,11 @@ class SimklApi(
         val obj = element.asObject()
         val token = obj?.str("access_token")
         if (status in 200..299 && token != null) {
-            val scope = obj.str("scope")
+            val scope = obj?.str("scope")
             if (scope != null && "media:write" !in scope.split(" ")) {
                 return LoginPoll.Failed("SIMKL granted read-only access. Sign in again and allow SIMKLr to update your lists.")
             }
-            return LoginPoll.Approved(token, obj.str("refresh_token"), obj.long("expires_in")?.let { System.currentTimeMillis() + it * 1000 })
+            return LoginPoll.Approved(token, obj?.str("refresh_token"), obj?.long("expires_in")?.let { System.currentTimeMillis() + it * 1000 })
         }
         if (status == 429) return LoginPoll.SlowDown
         return when (obj?.str("error")) {
