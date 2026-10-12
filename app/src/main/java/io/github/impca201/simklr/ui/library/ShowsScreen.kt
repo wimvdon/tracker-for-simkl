@@ -145,7 +145,9 @@ fun ShowsScreen(
             val items = byShelf[shelf].orEmpty()
             val filter = options.filter(page)
             Column(Modifier.fillMaxSize()) {
-            LibraryControls(type, options.sort(page), { options.setSort(page, it) }, filter) { options.setFilter(page, it) }
+            LibraryControls(type, "Search ${shelf.label.lowercase()}", options.sort(page), { options.setSort(page, it) }, filter) {
+                options.setFilter(page, it)
+            }
             PullToRefreshBox(
                 isRefreshing = state.syncing,
                 onRefresh = { scope.launch { app.library.sync() } },

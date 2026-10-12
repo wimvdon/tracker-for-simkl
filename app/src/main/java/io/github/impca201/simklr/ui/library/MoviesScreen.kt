@@ -87,7 +87,9 @@ fun MoviesScreen() {
             val items = byStatus[shelf.status].orEmpty()
             val filter = options.filter(page)
             Column(Modifier.fillMaxSize()) {
-            LibraryControls(MediaType.Movie, options.sort(page), { options.setSort(page, it) }, filter) { options.setFilter(page, it) }
+            LibraryControls(MediaType.Movie, "Search ${shelf.label.lowercase()}", options.sort(page), { options.setSort(page, it) }, filter) {
+                options.setFilter(page, it)
+            }
             PullToRefreshBox(
                 isRefreshing = state.syncing,
                 onRefresh = { scope.launch { app.library.sync() } },

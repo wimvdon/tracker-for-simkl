@@ -1,12 +1,23 @@
 package io.github.impca201.simklr.ui.library
 
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material.icons.rounded.Search
+import androidx.compose.material3.TextField
+import androidx.compose.material3.TextFieldDefaults
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.automirrored.rounded.Sort
 import androidx.compose.material.icons.rounded.ArrowDropDown
 import androidx.compose.material.icons.rounded.Close
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
@@ -107,6 +118,8 @@ data class LibraryFilter(
     val rating: RatingFilter = RatingFilter.Any,
     /** SIMKL anime_type ("tv", "movie", "ova", ...), anime only. */
     val animeType: String? = null,
+    /** Title search within the tab. */
+    val query: String = "",
 ) {
     val active: Boolean get() = this != LibraryFilter()
 
@@ -138,21 +151,24 @@ data class LibraryFilter(
                     RatingFilter.Rated -> item.userRating != null
                     RatingFilter.Unrated -> item.userRating == null
                 }
-            releaseOk && ratingOk && (animeType == null || item.animeType.equals(animeType, ignoreCase = true))
+            releaseOk && ratingOk && (animeType == null || item.animeType.equals(animeType, ignoreCase = true)) &&
+                (query.isBlank() || item.title.contains(query.trim(), ignoreCase = true))
         }
 
     /** Compact form for rememberSaveable: "release|rating|animeType". */
-    fun encode(): String = "${release.name}|${rating.name}|${animeType.orEmpty()}"
+    fun encode(): String = "${release.name}|${rating.name}|${animeType.orEmpty()}|$query"
 
     companion object {
         val animeTypes = listOf("tv" to "TV", "movie" to "Movie", "ova" to "OVA", "ona" to "ONA", "special" to "Special")
 
         fun decode(value: String): LibraryFilter {
-            val parts = value.split("|")
+            // The query is last and may itself contain "|".
+            val parts = value.split("|", limit = 4)
             return LibraryFilter(
                 release = ReleaseFilter.entries.firstOrNull { it.name == parts.getOrNull(0) } ?: ReleaseFilter.All,
                 rating = RatingFilter.entries.firstOrNull { it.name == parts.getOrNull(1) } ?: RatingFilter.Any,
                 animeType = parts.getOrNull(2)?.ifEmpty { null },
+                query = parts.getOrNull(3).orEmpty(),
             )
         }
     }
@@ -206,11 +222,26 @@ fun bottomPadding(): Dp = FloatingBarSpace + WindowInsets.navigationBars.asPaddi
 @Composable
 fun LibraryControls(
     type: MediaType,
+    searchHint: String,
     sort: SortOrder,
     onSort: (SortOrder) -> Unit,
     filter: LibraryFilter,
     onFilter: (LibraryFilter) -> Unit,
 ) {
+    // The search icon at the end of the row swaps the chips for a title search field.
+    var searching by remember { mutableStateOf(filter.query.isNotEmpty()) }
+    if (searching) {
+        TitleSearchField(
+            query = filter.query,
+            hint = searchHint,
+            onQuery = { onFilter(filter.copy(query = it)) },
+            onClose = {
+                onFilter(filter.copy(query = ""))
+                searching = false
+            },
+        )
+        return
+    }
     val movie = type == MediaType.Movie
     fun releaseLabel(value: ReleaseFilter) = if (movie) value.movieLabel else value.showLabel
     LazyRow(
@@ -267,8 +298,44 @@ fun LibraryControls(
                 )
             }
         }
+        item(key = "search") {
+            IconButton(onClick = { searching = true }) { Icon(Icons.Rounded.Search, contentDescription = searchHint) }
+        }
     }
 }
+
+/** Title search for one tab: filters as you type; the close button clears it and shows the chips again. */
+@Composable
+private fun TitleSearchField(
+    query: String,
+    hint: String,
+    onQuery: (String) -> Unit,
+    onClose: () -> Unit,
+) {
+    val focus = remember { FocusRequester() }
+    val keyboard = LocalSoftwareKeyboardController.current
+    LaunchedEffect(Unit) { if (query.isEmpty()) focus.requestFocus() }
+    TextField(
+        value = query,
+        onValueChange = onQuery,
+        placeholder = { Text(hint) },
+        singleLine = true,
+        leadingIcon = { Icon(Icons.Rounded.Search, null) },
+        trailingIcon = { IconButton(onClick = onClose) { Icon(Icons.Rounded.Close, contentDescription = "Close search") } },
+        keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search),
+        keyboardActions = KeyboardActions(onSearch = { keyboard?.hide() }),
+        shape = RoundedCornerShape(28.dp),
+        colors =
+            TextFieldDefaults.colors(
+                focusedIndicatorColor = Color.Transparent,
+                unfocusedIndicatorColor = Color.Transparent,
+                focusedContainerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
+                unfocusedContainerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
+            ),
+        modifier = Modifier.fillMaxWidth().padding(horizontal = 12.dp, vertical = 4.dp).focusRequester(focus),
+    )
+}
+
 
 /** A filter chip that opens a menu of [options]; when [selected], its ✕ calls [onClear]. */
 @Composable
