@@ -4,6 +4,7 @@ import android.Manifest
 import android.os.Build
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -18,6 +19,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.ArrowBack
+import androidx.compose.material.icons.automirrored.rounded.HelpOutline
 import androidx.compose.material.icons.automirrored.rounded.OpenInNew
 import androidx.compose.material.icons.rounded.Key
 import androidx.compose.material.icons.rounded.KeyboardArrowDown
@@ -52,8 +54,10 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import io.github.impca201.simklr.BuildConfig
+import io.github.impca201.simklr.R
 import io.github.impca201.simklr.data.AppSettings
 import io.github.impca201.simklr.data.NavConfig
 import io.github.impca201.simklr.data.ThemeMode
@@ -62,6 +66,7 @@ import io.github.impca201.simklr.ui.LocalNavigator
 import io.github.impca201.simklr.ui.components.openUrl
 import io.github.impca201.simklr.ui.components.rememberApp
 import io.github.impca201.simklr.ui.library.SectionHeader
+import io.github.impca201.simklr.ui.login.AuthGuideDialog
 import io.github.impca201.simklr.ui.main.icon
 import io.github.impca201.simklr.work.NewEpisodesWorker
 import kotlinx.coroutines.launch
@@ -74,6 +79,7 @@ fun SettingsScreen(settings: AppSettings) {
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
     var editClientId by remember { mutableStateOf(false) }
+    var showGuide by remember { mutableStateOf(false) }
 
     fun enableNotifications() {
         scope.launch {
@@ -227,6 +233,13 @@ fun SettingsScreen(settings: AppSettings) {
                     )
                     ListItem(
                         colors = ListItemDefaults.colors(containerColor = MaterialTheme.colorScheme.surfaceContainerLow),
+                        leadingContent = { Icon(Icons.AutoMirrored.Rounded.HelpOutline, null) },
+                        headlineContent = { Text(stringResource(R.string.guide_title)) },
+                        supportingContent = { Text("How to create a SIMKL app and sign in") },
+                        modifier = Modifier.clickable { showGuide = true },
+                    )
+                    ListItem(
+                        colors = ListItemDefaults.colors(containerColor = MaterialTheme.colorScheme.surfaceContainerLow),
                         leadingContent = { Icon(Icons.AutoMirrored.Rounded.OpenInNew, null) },
                         headlineContent = { Text("Manage your SIMKL apps") },
                         trailingContent = { TextButton(onClick = { context.openUrl("https://simkl.com/settings/developer/") }) { Text("Open") } },
@@ -245,6 +258,8 @@ fun SettingsScreen(settings: AppSettings) {
             }
         }
     }
+
+    if (showGuide) AuthGuideDialog { showGuide = false }
 
     if (editClientId) {
         var value by remember { mutableStateOf(settings.clientId) }

@@ -80,7 +80,7 @@ enum class SortOrder(
     Recent("Recently watched"),
     Added("Recently added"),
     Title("Title"),
-    Rating("My rating"),
+    Rating("Rating"),
     Release("Release date"),
     ;
 
@@ -274,7 +274,7 @@ fun LibraryControls(
         }
         item(key = "rating") {
             DropdownChip(
-                label = if (filter.rating == RatingFilter.Any) "My rating" else filter.rating.label,
+                label = if (filter.rating == RatingFilter.Any) "Rating" else filter.rating.label,
                 selected = filter.rating != RatingFilter.Any,
                 options = RatingFilter.entries,
                 current = filter.rating,

@@ -18,6 +18,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.rounded.HelpOutline
 import androidx.compose.material.icons.automirrored.rounded.Login
 import androidx.compose.material.icons.automirrored.rounded.OpenInNew
 import androidx.compose.material.icons.rounded.ContentCopy
@@ -45,12 +46,14 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import io.github.impca201.simklr.R
 import io.github.impca201.simklr.data.AppSettings
 import io.github.impca201.simklr.data.api.LoginCode
 import io.github.impca201.simklr.data.api.LoginPoll
@@ -74,6 +77,7 @@ fun LoginScreen(settings: AppSettings) {
     var pin by remember { mutableStateOf<LoginCode?>(null) }
     var busy by remember { mutableStateOf(false) }
     var error by remember { mutableStateOf<String?>(null) }
+    var showGuide by rememberSaveable { mutableStateOf(false) }
 
     // Poll until the user approved the code (or it expired).
     LaunchedEffect(pin) {
@@ -130,10 +134,15 @@ fun LoginScreen(settings: AppSettings) {
                             "Older AUTH V1 apps work too.",
                         style = MaterialTheme.typography.bodyMedium,
                     )
-                    OutlinedButton(onClick = { context.openUrl(SimklApi.DEVELOPER_URL) }) {
-                        Icon(Icons.AutoMirrored.Rounded.OpenInNew, null, Modifier.size(18.dp))
-                        Spacer(Modifier.size(8.dp))
-                        Text("Create a SIMKL app")
+                    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                        FilledTonalButton(onClick = { showGuide = true }) {
+                            Icon(Icons.AutoMirrored.Rounded.HelpOutline, null, Modifier.size(18.dp))
+                            Spacer(Modifier.size(8.dp))
+                            Text(stringResource(R.string.guide_open))
+                        }
+                        OutlinedButton(onClick = { context.openUrl(SimklApi.DEVELOPER_URL) }) {
+                            Icon(Icons.AutoMirrored.Rounded.OpenInNew, stringResource(R.string.create_simkl_app), Modifier.size(18.dp))
+                        }
                     }
                     OutlinedTextField(
                         value = clientId,
@@ -186,15 +195,19 @@ fun LoginScreen(settings: AppSettings) {
             } else {
                 PinCard(code)
             }
-            TextButton(onClick = {
-                pin = null
-                editingClientId = true
-            }) { Text("Change API key") }
+            Row {
+                TextButton(onClick = {
+                    pin = null
+                    editingClientId = true
+                }) { Text("Change API key") }
+                TextButton(onClick = { showGuide = true }) { Text(stringResource(R.string.guide_title)) }
+            }
         }
         error?.let {
             Text(it, color = MaterialTheme.colorScheme.error, style = MaterialTheme.typography.bodyMedium, textAlign = TextAlign.Center)
         }
     }
+    if (showGuide) AuthGuideDialog { showGuide = false }
 }
 
 @Composable
