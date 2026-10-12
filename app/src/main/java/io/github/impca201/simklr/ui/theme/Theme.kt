@@ -1,6 +1,12 @@
 package io.github.impca201.simklr.ui.theme
 
+import android.content.Context
+import android.content.ContextWrapper
+import android.graphics.Color.TRANSPARENT
 import android.os.Build
+import androidx.activity.ComponentActivity
+import androidx.activity.SystemBarStyle
+import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.darkColorScheme
@@ -8,6 +14,8 @@ import androidx.compose.material3.dynamicDarkColorScheme
 import androidx.compose.material3.dynamicLightColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.remember
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import io.github.impca201.simklr.data.ThemeMode
@@ -92,5 +100,24 @@ fun SimklrTheme(
             dark -> DarkColors
             else -> LightColors
         }
+    // enableEdgeToEdge() picks the system bar icon colours from the system's dark mode; follow the
+    // app's own theme instead, or a forced light/dark theme gets unreadable status bar icons.
+    val activity = remember(context) { context.findActivity() }
+    LaunchedEffect(activity, dark) {
+        activity ?: return@LaunchedEffect
+        val lightScrim = android.graphics.Color.argb(0xe6, 0xFF, 0xFF, 0xFF)
+        val darkScrim = android.graphics.Color.argb(0x80, 0x1b, 0x1b, 0x1b)
+        activity.enableEdgeToEdge(
+            statusBarStyle = if (dark) SystemBarStyle.dark(TRANSPARENT) else SystemBarStyle.light(TRANSPARENT, TRANSPARENT),
+            navigationBarStyle = if (dark) SystemBarStyle.dark(darkScrim) else SystemBarStyle.light(lightScrim, darkScrim),
+        )
+    }
     MaterialTheme(colorScheme = colors, content = content)
 }
+
+private tailrec fun Context.findActivity(): ComponentActivity? =
+    when (this) {
+        is ComponentActivity -> this
+        is ContextWrapper -> baseContext.findActivity()
+        else -> null
+    }

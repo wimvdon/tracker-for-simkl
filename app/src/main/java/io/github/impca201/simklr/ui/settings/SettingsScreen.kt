@@ -1,6 +1,7 @@
 package io.github.impca201.simklr.ui.settings
 
 import android.Manifest
+import android.content.pm.PackageManager
 import android.os.Build
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -56,6 +57,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import androidx.core.content.ContextCompat
 import io.github.impca201.simklr.BuildConfig
 import io.github.impca201.simklr.R
 import io.github.impca201.simklr.data.AppSettings
@@ -87,8 +89,15 @@ fun SettingsScreen(settings: AppSettings) {
             NewEpisodesWorker.enable(context)
         }
     }
+    var notificationsAllowed by remember {
+        mutableStateOf(
+            Build.VERSION.SDK_INT < 33 ||
+                ContextCompat.checkSelfPermission(context, Manifest.permission.POST_NOTIFICATIONS) == PackageManager.PERMISSION_GRANTED,
+        )
+    }
     val permission =
         rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) { granted ->
+            notificationsAllowed = granted
             if (granted) enableNotifications()
         }
 
@@ -206,7 +215,8 @@ fun SettingsScreen(settings: AppSettings) {
                     SwitchRow(
                         "New episode notifications",
                         "Checks SIMKL a few times a day for new episodes of shows you're watching",
-                        settings.notifications,
+                        // Shown off when the permission was denied or revoked, so turning it on asks again.
+                        settings.notifications && notificationsAllowed,
                         Icons.Rounded.Notifications,
                     ) { on ->
                         if (on) {

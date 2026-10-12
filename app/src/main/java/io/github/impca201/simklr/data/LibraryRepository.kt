@@ -21,6 +21,7 @@ import io.github.impca201.simklr.data.model.Playback
 import io.github.impca201.simklr.data.model.Shelves
 import io.github.impca201.simklr.data.model.ShowInfo
 import io.github.impca201.simklr.data.model.WatchedSeason
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -124,7 +125,7 @@ class LibraryRepository(
     private val json = Json { ignoreUnknownKeys = true }
     private val showInfoSerializer = MapSerializer(String.serializer(), ShowInfo.serializer())
     private val mutex = Mutex()
-    private var snapshot = LibrarySnapshot()
+    @Volatile private var snapshot = LibrarySnapshot()
     private var syncJob: Job? = null
     private var calendarFetchedAt = 0L
     private var showInfoFetchedAt = 0L
@@ -134,6 +135,11 @@ class LibraryRepository(
 
     suspend fun load() {
         if (_state.value.loaded) return
+        // Under the lock so concurrent callers don't read the file twice and overwrite a newer snapshot.
+        mutex.withLock { if (!_state.value.loaded) loadLocked() }
+    }
+
+    private suspend fun loadLocked() {
         withContext(Dispatchers.IO) {
             snapshot = runCatching { json.decodeFromString(LibrarySnapshot.serializer(), libraryFile.readText()) }.getOrDefault(LibrarySnapshot())
             val info = runCatching { json.decodeFromString(showInfoSerializer, showInfoFile.readText()) }.getOrDefault(emptyMap())
@@ -158,6 +164,10 @@ class LibraryRepository(
             try {
                 mutex.withLock { syncLocked(force) }
                 null
+            } catch (e: CancellationException) {
+                // Cancelled (syncSoon restarting, screen left): not an error to show.
+                _state.update { it.copy(syncing = false) }
+                throw e
             } catch (e: ApiException) {
                 if (e.unauthorized) "Your SIMKL login expired. Log out and in again." else e.message
             } catch (e: Exception) {
@@ -228,7 +238,22 @@ class LibraryRepository(
     private suspend fun save(value: LibrarySnapshot) {
         snapshot = value
         _state.update { it.copy(items = value.items, playback = value.playback, latestNext = value.latestNext, syncedAt = value.syncedAt) }
-        withContext(Dispatchers.IO) { runCatching { libraryFile.writeText(json.encodeToString(LibrarySnapshot.serializer(), value)) } }
+        withContext(Dispatchers.IO) { runCatching { writeAtomically(libraryFile, json.encodeToString(LibrarySnapshot.serializer(), value)) } }
+    }
+
+    /** Writes via a temporary file and a rename, so a crash or a concurrent write can't leave a truncated cache. */
+    private fun writeAtomically(
+        file: File,
+        text: String,
+    ) {
+        synchronized(file) {
+            val tmp = File(file.path + ".tmp")
+            tmp.writeText(text)
+            if (!tmp.renameTo(file)) {
+                file.writeText(text)
+                tmp.delete()
+            }
+        }
     }
 
     /** Syncs a moment after local changes so several quick taps end up in one sync. */
@@ -246,11 +271,12 @@ class LibraryRepository(
         val result =
             coroutineScope {
                 MediaType.entries.map { type ->
-                    async { type to runCatching { Parsers.calendar(api.calendar(type), type) }.getOrDefault(emptyList()) }
-                }.awaitAll().toMap()
+                    async { type to runCatching { Parsers.calendar(api.calendar(type), type) }.getOrNull() }
+                }.awaitAll()
             }
-        if (result.values.any { it.isNotEmpty() }) calendarFetchedAt = System.currentTimeMillis()
-        _state.update { it.copy(calendar = result) }
+        if (result.any { it.second?.isNotEmpty() == true }) calendarFetchedAt = System.currentTimeMillis()
+        // A failed fetch (offline) keeps that type's previous calendar instead of wiping it.
+        _state.update { state -> state.copy(calendar = result.associate { (type, list) -> type to (list ?: state.calendar[type].orEmpty()) }) }
     }
 
     /**
@@ -279,7 +305,10 @@ class LibraryRepository(
             val info = state.showInfo.toMutableMap()
             fetched.filterNotNull().flatten().forEach { (key, value) ->
                 val (status, rating) = value
-                info[key] = ShowInfo(AiringState.fromApi(status), now, rating, info[key]?.fanart, status)
+                val old = info[key]
+                // A missing release status keeps what was known (e.g. from the details screen).
+                val airing = AiringState.fromApi(status).takeIf { it != AiringState.Unknown } ?: old?.airing ?: AiringState.Unknown
+                info[key] = ShowInfo(airing, now, rating ?: old?.rating, old?.fanart, status ?: old?.releaseStatus)
             }
             state.copy(showInfo = info)
         }
@@ -328,7 +357,7 @@ class LibraryRepository(
 
     private suspend fun saveShowInfo() {
         val info = _state.value.showInfo
-        withContext(Dispatchers.IO) { runCatching { showInfoFile.writeText(json.encodeToString(showInfoSerializer, info)) } }
+        withContext(Dispatchers.IO) { runCatching { writeAtomically(showInfoFile, json.encodeToString(showInfoSerializer, info)) } }
     }
 
     /** Called by the details screen, which loads the details anyway. */
@@ -362,8 +391,9 @@ class LibraryRepository(
         try {
             block().also { syncSoon() }
         } catch (e: Exception) {
-            // Undo the optimistic change by syncing with SIMKL.
-            scope.launch { sync() }
+            // Undo the optimistic change by syncing with SIMKL. A failed change leaves the
+            // activities unchanged, so a normal sync would keep the optimistic item: force it.
+            if (e !is CancellationException) scope.launch { sync(force = true) }
             throw e
         }
 
@@ -470,7 +500,10 @@ class LibraryRepository(
     }
 
     suspend fun clear() {
+        syncJob?.cancel()
         mutex.withLock {
+            calendarFetchedAt = 0L
+            showInfoFetchedAt = 0L
             snapshot = LibrarySnapshot()
             _state.value = LibraryState(loaded = true)
             withContext(Dispatchers.IO) {

@@ -54,9 +54,8 @@ import io.github.impca201.simklr.ui.library.bottomPadding
 import io.github.impca201.simklr.ui.main.MainTopBar
 import io.github.impca201.simklr.ui.search.label
 import kotlinx.coroutines.launch
-import java.time.Instant
+import java.time.LocalDate
 import java.time.ZoneId
-import java.time.temporal.ChronoUnit
 
 /** Upcoming episodes and releases from SIMKL's calendars, by day. */
 @OptIn(ExperimentalMaterial3Api::class)
@@ -76,11 +75,12 @@ fun CalendarScreen() {
     val zone = ZoneId.systemDefault()
     val days =
         remember(state.calendar, state.items, mine, hidden) {
-            val from = Instant.now().truncatedTo(ChronoUnit.DAYS).minus(1, ChronoUnit.DAYS)
+            // Start of yesterday in the user's time zone (not UTC), so day groups below are never partial.
+            val from = LocalDate.now(zone).minusDays(1).atStartOfDay(zone).toInstant()
             state.calendar
                 .filterKeys { it.name !in hidden }
                 .values.flatten()
-                .filter { it.date.isAfter(from) }
+                .filter { !it.date.isBefore(from) }
                 .filter { !mine || state.item(it.type, it.simklId) != null }
                 .sortedBy { it.date }
                 .groupBy { it.date.atZone(zone).toLocalDate() }

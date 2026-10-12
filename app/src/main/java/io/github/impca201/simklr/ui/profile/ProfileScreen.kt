@@ -114,7 +114,10 @@ fun ProfileScreen() {
                         ListItem(
                             headlineContent = { Text("Sync now") },
                             supportingContent = {
+                                Column {
                                 Text(if (library.syncedAt > 0) "Last synced ${Format.ago(java.time.Instant.ofEpochMilli(library.syncedAt).toString())}" else "Never synced")
+                                library.error?.let { Text(it, color = MaterialTheme.colorScheme.error) }
+                                }
                             },
                             leadingContent = { Icon(Icons.Rounded.Sync, null) },
                             colors = colors,

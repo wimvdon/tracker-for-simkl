@@ -93,8 +93,9 @@ fun SearchScreen(initialType: MediaType?) {
             loading = false
             return@LaunchedEffect
         }
-        delay(350) // Debounce typing.
+        // Loading covers the debounce too, so "No results" doesn't flash before the search runs.
         loading = true
+        delay(350) // Debounce typing.
         results = app.catalog.search(q, type?.let { listOf(it) } ?: MediaType.entries)
         loading = false
     }

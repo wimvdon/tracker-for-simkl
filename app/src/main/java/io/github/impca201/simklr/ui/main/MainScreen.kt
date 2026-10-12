@@ -45,6 +45,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.saveable.rememberSaveableStateHolder
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -98,13 +99,18 @@ fun MainScreen(settings: AppSettings) {
             }
         }
 
+    // Each tab keeps its own saved state (shelf, sort, filters, scroll) while another tab is shown.
+    val tabStates = rememberSaveableStateHolder()
+
     Box(Modifier.fillMaxSize().nestedScroll(hideOnScroll)) {
-        when (selected) {
-            NavTab.Tv -> ShowsScreen(MediaType.Tv, settings)
-            NavTab.Anime -> ShowsScreen(MediaType.Anime, settings)
-            NavTab.Movies -> MoviesScreen()
-            NavTab.Discover -> DiscoverScreen()
-            NavTab.Calendar -> CalendarScreen()
+        tabStates.SaveableStateProvider(selected.name) {
+            when (selected) {
+                NavTab.Tv -> ShowsScreen(MediaType.Tv, settings)
+                NavTab.Anime -> ShowsScreen(MediaType.Anime, settings)
+                NavTab.Movies -> MoviesScreen()
+                NavTab.Discover -> DiscoverScreen()
+                NavTab.Calendar -> CalendarScreen()
+            }
         }
         AnimatedVisibility(
             visible = barVisible || tabs.size == 1,

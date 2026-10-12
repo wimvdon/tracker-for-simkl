@@ -18,6 +18,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.saveable.rememberSaveableStateHolder
 import androidx.compose.ui.Modifier
 import io.github.impca201.simklr.data.AppSettings
@@ -57,7 +58,7 @@ private fun LoggedIn(
     onRequestHandled: () -> Unit,
 ) {
     val app = rememberApp()
-    val navigator = remember { Navigator() }
+    val navigator = rememberSaveable(saver = Navigator.Saver) { Navigator() }
     val stateHolder = rememberSaveableStateHolder()
 
     LaunchedEffect(Unit) { app.library.sync() }

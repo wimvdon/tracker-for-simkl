@@ -59,6 +59,7 @@ import io.github.impca201.simklr.ui.components.EmptyState
 import io.github.impca201.simklr.ui.components.Format
 import io.github.impca201.simklr.ui.components.rememberApp
 import io.github.impca201.simklr.ui.main.MainTopBar
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.launch
 import java.time.Instant
 import kotlin.math.roundToInt
@@ -199,6 +200,8 @@ private fun UpNextList(
         scope.launch {
             try {
                 block()
+            } catch (e: CancellationException) {
+                throw e
             } catch (e: Exception) {
                 onError("Couldn't mark $label watched: ${e.message}")
             }
