@@ -10,7 +10,7 @@
     <string name="guide_step_5">Tik op Inloggen met SIMKL. SIMKLr toont een korte code.</string>
     <string name="guide_step_6">Tik op SIMKL openen, controleer of de code klopt (of typ hem in) en keur goed. Ga terug naar SIMKLr: je wordt vanzelf ingelogd.</string>
     <string name="guide_trouble_title">Problemen met inloggen?</string>
-    <string name="guide_trouble">• „Could not start the login”: controleer of je de hele Client ID hebt gekopieerd, zonder spaties.\n• De code is verlopen: tik opnieuw op Inloggen met SIMKL voor een nieuwe code.\n• De goedkeuringspagina toont een fout: bewerk je app op SIMKL en zorg dat het type „TV, devices &amp; command line” is.\n• Oudere AUTH V1-apps blijven werken.</string>
+    <string name="guide_trouble">• „Kan het inloggen niet starten”: controleer of je de hele Client ID hebt gekopieerd, zonder spaties.\n• De code is verlopen: tik opnieuw op Inloggen met SIMKL voor een nieuwe code.\n• De goedkeuringspagina toont een fout: bewerk je app op SIMKL en zorg dat het type „TV, devices &amp; command line” is.\n• Oudere AUTH V1-apps blijven werken.</string>
     <string name="create_simkl_app">SIMKL-app maken</string>
     <string name="done">Klaar</string>
 

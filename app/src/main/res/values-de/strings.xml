@@ -10,7 +10,7 @@
     <string name="guide_step_5">Tippe auf Mit SIMKL anmelden. SIMKLr zeigt einen kurzen Code an.</string>
     <string name="guide_step_6">Tippe auf SIMKL öffnen, prüfe, ob der Code übereinstimmt (oder gib ihn ein), und bestätige. Kehre zu SIMKLr zurück: Die Anmeldung erfolgt automatisch.</string>
     <string name="guide_trouble_title">Probleme bei der Anmeldung?</string>
-    <string name="guide_trouble">• „Could not start the login“: Prüfe, ob du die ganze Client ID ohne Leerzeichen kopiert hast.\n• Der Code ist abgelaufen: Tippe erneut auf Mit SIMKL anmelden, um einen neuen zu erhalten.\n• Die Bestätigungsseite zeigt einen Fehler: Bearbeite deine App auf SIMKL und stelle sicher, dass ihr Typ „TV, devices &amp; command line“ ist.\n• Ältere AUTH-V1-Apps funktionieren weiterhin.</string>
+    <string name="guide_trouble">• „Anmeldung konnte nicht gestartet werden“: Prüfe, ob du die ganze Client ID ohne Leerzeichen kopiert hast.\n• Der Code ist abgelaufen: Tippe erneut auf Mit SIMKL anmelden, um einen neuen zu erhalten.\n• Die Bestätigungsseite zeigt einen Fehler: Bearbeite deine App auf SIMKL und stelle sicher, dass ihr Typ „TV, devices &amp; command line“ ist.\n• Ältere AUTH-V1-Apps funktionieren weiterhin.</string>
     <string name="create_simkl_app">SIMKL-App erstellen</string>
     <string name="done">Fertig</string>
 

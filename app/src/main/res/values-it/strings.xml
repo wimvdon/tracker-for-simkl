@@ -10,7 +10,7 @@
     <string name="guide_step_5">Tocca Accedi con SIMKL. SIMKLr mostra un breve codice.</string>
     <string name="guide_step_6">Tocca Apri SIMKL, controlla che il codice corrisponda (o digitalo) e approva. Torna su SIMKLr: l’accesso avviene in automatico.</string>
     <string name="guide_trouble_title">Problemi di accesso?</string>
-    <string name="guide_trouble">• «Could not start the login»: controlla di aver copiato l’intero Client ID, senza spazi.\n• Il codice è scaduto: tocca di nuovo Accedi con SIMKL per riceverne uno nuovo.\n• La pagina di approvazione mostra un errore: modifica la tua app su SIMKL e assicurati che il tipo sia «TV, devices &amp; command line».\n• Le vecchie app AUTH V1 continuano a funzionare.</string>
+    <string name="guide_trouble">• «Impossibile avviare l\'accesso»: controlla di aver copiato l’intero Client ID, senza spazi.\n• Il codice è scaduto: tocca di nuovo Accedi con SIMKL per riceverne uno nuovo.\n• La pagina di approvazione mostra un errore: modifica la tua app su SIMKL e assicurati che il tipo sia «TV, devices &amp; command line».\n• Le vecchie app AUTH V1 continuano a funzionare.</string>
     <string name="create_simkl_app">Crea un’app SIMKL</string>
     <string name="done">Fine</string>
 

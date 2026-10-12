@@ -10,7 +10,7 @@
     <string name="guide_step_5">Toca Iniciar sesión con SIMKL. SIMKLr muestra un código corto.</string>
     <string name="guide_step_6">Toca Abrir SIMKL, comprueba que el código coincide (o escríbelo) y aprueba. Vuelve a SIMKLr: iniciará sesión automáticamente.</string>
     <string name="guide_trouble_title">¿Problemas para iniciar sesión?</string>
-    <string name="guide_trouble">• «Could not start the login»: comprueba que copiaste el Client ID completo, sin espacios.\n• El código ha caducado: toca de nuevo Iniciar sesión con SIMKL para obtener uno nuevo.\n• La página de aprobación muestra un error: edita tu app en SIMKL y asegúrate de que su tipo es «TV, devices &amp; command line».\n• Las apps antiguas AUTH V1 siguen funcionando.</string>
+    <string name="guide_trouble">• «No se pudo iniciar sesión»: comprueba que copiaste el Client ID completo, sin espacios.\n• El código ha caducado: toca de nuevo Iniciar sesión con SIMKL para obtener uno nuevo.\n• La página de aprobación muestra un error: edita tu app en SIMKL y asegúrate de que su tipo es «TV, devices &amp; command line».\n• Las apps antiguas AUTH V1 siguen funcionando.</string>
     <string name="create_simkl_app">Crear una app de SIMKL</string>
     <string name="done">Listo</string>
 

@@ -106,8 +106,8 @@ fun SettingsScreen(settings: AppSettings) {
         contentWindowInsets = WindowInsets(0),
         topBar = {
             TopAppBar(
-                title = { Text("Settings") },
-                navigationIcon = { IconButton(onClick = { navigator.pop() }) { Icon(Icons.AutoMirrored.Rounded.ArrowBack, "Back") } },
+                title = { Text(stringResource(R.string.screens_settings)) },
+                navigationIcon = { IconButton(onClick = { navigator.pop() }) { Icon(Icons.AutoMirrored.Rounded.ArrowBack, stringResource(R.string.screens_back)) } },
             )
         },
     ) { padding ->
@@ -122,13 +122,13 @@ fun SettingsScreen(settings: AppSettings) {
             verticalArrangement = Arrangement.spacedBy(8.dp),
             modifier = Modifier.fillMaxSize(),
         ) {
-            item { SectionHeader("Appearance") }
+            item { SectionHeader(stringResource(R.string.screens_settings_appearance)) }
             item {
                 Group {
                     Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
                         Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(16.dp)) {
                             Icon(Icons.Rounded.Palette, null)
-                            Text("Theme", style = MaterialTheme.typography.titleMedium)
+                            Text(stringResource(R.string.screens_settings_theme), style = MaterialTheme.typography.titleMedium)
                         }
                         SingleChoiceSegmentedButtonRow(Modifier.fillMaxWidth()) {
                             ThemeMode.entries.forEachIndexed { index, mode ->
@@ -141,18 +141,18 @@ fun SettingsScreen(settings: AppSettings) {
                         }
                     }
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-                        SwitchRow("Dynamic color", "Use colors from your wallpaper instead of SIMKLr violet", settings.dynamicColor) {
+                        SwitchRow(stringResource(R.string.screens_settings_dynamic_color), stringResource(R.string.screens_settings_dynamic_color_sub), settings.dynamicColor) {
                             scope.launch { app.settings.setDynamicColor(it) }
                         }
                     }
                 }
             }
 
-            item { SectionHeader("Bottom bar") }
+            item { SectionHeader(stringResource(R.string.screens_settings_bottom_bar)) }
             item {
                 Group {
                     Text(
-                        "Choose and order the destinations of the bottom bar.",
+                        stringResource(R.string.screens_settings_bottom_bar_hint),
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                         modifier = Modifier.padding(start = 16.dp, end = 16.dp, top = 16.dp),
@@ -172,14 +172,14 @@ fun SettingsScreen(settings: AppSettings) {
                                             val list = order.toMutableList().apply { add(index - 1, removeAt(index)) }
                                             scope.launch { app.settings.setNav(NavConfig(list, settings.nav.enabled)) }
                                         },
-                                    ) { Icon(Icons.Rounded.KeyboardArrowUp, "Move up") }
+                                    ) { Icon(Icons.Rounded.KeyboardArrowUp, stringResource(R.string.screens_settings_move_up)) }
                                     IconButton(
                                         enabled = index < order.lastIndex,
                                         onClick = {
                                             val list = order.toMutableList().apply { add(index + 1, removeAt(index)) }
                                             scope.launch { app.settings.setNav(NavConfig(list, settings.nav.enabled)) }
                                         },
-                                    ) { Icon(Icons.Rounded.KeyboardArrowDown, "Move down") }
+                                    ) { Icon(Icons.Rounded.KeyboardArrowDown, stringResource(R.string.screens_settings_move_down)) }
                                     Switch(
                                         checked = enabled,
                                         // At least one destination stays on.
@@ -196,15 +196,15 @@ fun SettingsScreen(settings: AppSettings) {
                 }
             }
 
-            item { SectionHeader("Library") }
+            item { SectionHeader(stringResource(R.string.screens_settings_library)) }
             item {
                 Group {
-                    SwitchRow("Hide specials", "Leave out special episodes in episode lists", settings.hideSpecials, Icons.Rounded.VisibilityOff) {
+                    SwitchRow(stringResource(R.string.screens_settings_hide_specials), stringResource(R.string.screens_settings_hide_specials_sub), settings.hideSpecials, Icons.Rounded.VisibilityOff) {
                         scope.launch { app.settings.setHideSpecials(it) }
                     }
                     SwitchRow(
-                        "Continue from the latest episode",
-                        "Up next starts after the most recently watched episode. Unwatched episodes or seasons before it are skipped.",
+                        stringResource(R.string.screens_settings_continue_latest),
+                        stringResource(R.string.screens_settings_continue_latest_sub),
                         settings.continueFromLatest,
                         Icons.Rounded.SkipNext,
                     ) { on ->
@@ -214,8 +214,8 @@ fun SettingsScreen(settings: AppSettings) {
                         }
                     }
                     SwitchRow(
-                        "New episode notifications",
-                        "Checks SIMKL a few times a day for new episodes of shows you're watching",
+                        stringResource(R.string.screens_settings_notifications),
+                        stringResource(R.string.screens_settings_notifications_sub),
                         // Shown off when the permission was denied or revoked, so turning it on asks again.
                         settings.notifications && notificationsAllowed,
                         Icons.Rounded.Notifications,
@@ -238,30 +238,30 @@ fun SettingsScreen(settings: AppSettings) {
                     ListItem(
                         colors = ListItemDefaults.colors(containerColor = MaterialTheme.colorScheme.surfaceContainerLow),
                         leadingContent = { Icon(Icons.Rounded.Key, null) },
-                        headlineContent = { Text("API client ID") },
+                        headlineContent = { Text(stringResource(R.string.screens_settings_client_id)) },
                         supportingContent = { Text(settings.clientId.take(6) + "••••••" + settings.clientId.takeLast(4)) },
-                        trailingContent = { TextButton(onClick = { editClientId = true }) { Text("Change") } },
+                        trailingContent = { TextButton(onClick = { editClientId = true }) { Text(stringResource(R.string.screens_settings_change)) } },
                     )
                     ListItem(
                         colors = ListItemDefaults.colors(containerColor = MaterialTheme.colorScheme.surfaceContainerLow),
                         leadingContent = { Icon(Icons.AutoMirrored.Rounded.HelpOutline, null) },
                         headlineContent = { Text(stringResource(R.string.guide_title)) },
-                        supportingContent = { Text("How to create a SIMKL app and sign in") },
+                        supportingContent = { Text(stringResource(R.string.screens_settings_guide_sub)) },
                         modifier = Modifier.clickable { showGuide = true },
                     )
                     ListItem(
                         colors = ListItemDefaults.colors(containerColor = MaterialTheme.colorScheme.surfaceContainerLow),
                         leadingContent = { Icon(Icons.AutoMirrored.Rounded.OpenInNew, null) },
-                        headlineContent = { Text("Manage your SIMKL apps") },
-                        trailingContent = { TextButton(onClick = { context.openUrl("https://simkl.com/settings/developer/") }) { Text("Open") } },
+                        headlineContent = { Text(stringResource(R.string.screens_settings_manage_apps)) },
+                        trailingContent = { TextButton(onClick = { context.openUrl("https://simkl.com/settings/developer/") }) { Text(stringResource(R.string.screens_settings_open)) } },
                     )
                 }
             }
 
             item {
-                TextButton(onClick = { context.openUrl("https://simkl.com/") }) { Text("Powered by SIMKL · simkl.com") }
+                TextButton(onClick = { context.openUrl("https://simkl.com/") }) { Text(stringResource(R.string.screens_powered_by)) }
                 Text(
-                    "SIMKLr ${BuildConfig.VERSION_NAME} · Not affiliated with SIMKL. Data and images © SIMKL and their sources.",
+                    stringResource(R.string.screens_settings_about, BuildConfig.VERSION_NAME),
                     style = MaterialTheme.typography.labelSmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                     modifier = Modifier.padding(16.dp),
@@ -276,12 +276,12 @@ fun SettingsScreen(settings: AppSettings) {
         var value by remember { mutableStateOf(settings.clientId) }
         AlertDialog(
             onDismissRequest = { editClientId = false },
-            title = { Text("SIMKL client ID") },
+            title = { Text(stringResource(R.string.screens_settings_client_id_dialog_title)) },
             text = {
                 Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                    Text("Changing it logs you out, because tokens belong to one app.", style = MaterialTheme.typography.bodySmall)
-                    OutlinedTextField(value, { value = it.trim() }, singleLine = true, label = { Text("Client ID") })
-                    TextButton(onClick = { context.openUrl(SimklApi.DEVELOPER_URL) }) { Text("Create a SIMKL app") }
+                    Text(stringResource(R.string.screens_settings_client_id_dialog_body), style = MaterialTheme.typography.bodySmall)
+                    OutlinedTextField(value, { value = it.trim() }, singleLine = true, label = { Text(stringResource(R.string.screens_client_id)) })
+                    TextButton(onClick = { context.openUrl(SimklApi.DEVELOPER_URL) }) { Text(stringResource(R.string.create_simkl_app)) }
                 }
             },
             confirmButton = {
@@ -296,9 +296,9 @@ fun SettingsScreen(settings: AppSettings) {
                             }
                         }
                     },
-                ) { Text("Save") }
+                ) { Text(stringResource(R.string.screens_settings_save)) }
             },
-            dismissButton = { TextButton(onClick = { editClientId = false }) { Text("Cancel") } },
+            dismissButton = { TextButton(onClick = { editClientId = false }) { Text(stringResource(R.string.screens_cancel)) } },
         )
     }
 }

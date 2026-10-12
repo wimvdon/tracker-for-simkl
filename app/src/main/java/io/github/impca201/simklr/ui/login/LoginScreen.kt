@@ -102,7 +102,7 @@ fun LoginScreen(settings: AppSettings) {
             }
         }
         pin = null
-        error = "The code expired. Try again."
+        error = context.getString(R.string.screens_login_code_expired)
     }
 
     Column(
@@ -114,7 +114,7 @@ fun LoginScreen(settings: AppSettings) {
         Icon(Icons.Rounded.LiveTv, null, Modifier.size(72.dp), tint = MaterialTheme.colorScheme.primary)
         Text("SIMKLr", style = MaterialTheme.typography.displaySmall, fontWeight = FontWeight.Bold)
         Text(
-            "Track your TV shows, anime and movies with SIMKL.",
+            stringResource(R.string.screens_login_tagline),
             style = MaterialTheme.typography.bodyLarge,
             textAlign = TextAlign.Center,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
@@ -126,12 +126,10 @@ fun LoginScreen(settings: AppSettings) {
                 Column(Modifier.padding(20.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
                     Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                         Icon(Icons.Rounded.Key, null, tint = MaterialTheme.colorScheme.primary)
-                        Text("Your SIMKL API key", style = MaterialTheme.typography.titleMedium)
+                        Text(stringResource(R.string.screens_login_api_key_title), style = MaterialTheme.typography.titleMedium)
                     }
                     Text(
-                        "SIMKLr talks to SIMKL with your own free API app. Create one on SIMKL " +
-                            "(AUTH V2, type \"TV, devices & command line\"; any name), then paste its Client ID here. " +
-                            "Older AUTH V1 apps work too.",
+                        stringResource(R.string.screens_login_api_key_body),
                         style = MaterialTheme.typography.bodyMedium,
                     )
                     Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -147,7 +145,7 @@ fun LoginScreen(settings: AppSettings) {
                     OutlinedTextField(
                         value = clientId,
                         onValueChange = { clientId = it.trim() },
-                        label = { Text("Client ID") },
+                        label = { Text(stringResource(R.string.screens_client_id)) },
                         singleLine = true,
                         keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
                         modifier = Modifier.fillMaxWidth(),
@@ -162,7 +160,7 @@ fun LoginScreen(settings: AppSettings) {
                         },
                         enabled = clientId.length >= 16,
                         modifier = Modifier.align(Alignment.End),
-                    ) { Text("Continue") }
+                    ) { Text(stringResource(R.string.screens_login_continue)) }
                 }
             }
         } else {
@@ -176,7 +174,7 @@ fun LoginScreen(settings: AppSettings) {
                             try {
                                 pin = app.api.startLogin()
                             } catch (e: Exception) {
-                                error = "Could not start the login: ${e.message}. Check the Client ID."
+                                error = context.getString(R.string.screens_login_start_failed, e.message.orEmpty())
                             }
                             busy = false
                         }
@@ -189,7 +187,7 @@ fun LoginScreen(settings: AppSettings) {
                     } else {
                         Icon(Icons.AutoMirrored.Rounded.Login, null)
                         Spacer(Modifier.size(8.dp))
-                        Text("Sign in with SIMKL")
+                        Text(stringResource(R.string.screens_login_sign_in))
                     }
                 }
             } else {
@@ -199,7 +197,7 @@ fun LoginScreen(settings: AppSettings) {
                 TextButton(onClick = {
                     pin = null
                     editingClientId = true
-                }) { Text("Change API key") }
+                }) { Text(stringResource(R.string.screens_login_change_api_key)) }
                 TextButton(onClick = { showGuide = true }) { Text(stringResource(R.string.guide_title)) }
             }
         }
@@ -222,7 +220,7 @@ private fun PinCard(code: LoginCode) {
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.spacedBy(16.dp),
         ) {
-            Text("Enter this code on SIMKL", style = MaterialTheme.typography.titleMedium)
+            Text(stringResource(R.string.screens_login_enter_code), style = MaterialTheme.typography.titleMedium)
             Text(
                 code.userCode,
                 fontFamily = FontFamily.Monospace,
@@ -237,17 +235,17 @@ private fun PinCard(code: LoginCode) {
                 }) {
                     Icon(Icons.Rounded.ContentCopy, null, Modifier.size(18.dp))
                     Spacer(Modifier.size(8.dp))
-                    Text("Copy")
+                    Text(stringResource(R.string.screens_login_copy))
                 }
                 Button(onClick = { context.openUrl(code.openUrl) }) {
                     Icon(Icons.AutoMirrored.Rounded.OpenInNew, null, Modifier.size(18.dp))
                     Spacer(Modifier.size(8.dp))
-                    Text("Open SIMKL")
+                    Text(stringResource(R.string.screens_login_open_simkl))
                 }
             }
             Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                 CircularProgressIndicator(Modifier.size(16.dp), strokeWidth = 2.dp)
-                Text("Waiting for approval…", style = MaterialTheme.typography.bodyMedium)
+                Text(stringResource(R.string.screens_login_waiting), style = MaterialTheme.typography.bodyMedium)
             }
         }
     }
