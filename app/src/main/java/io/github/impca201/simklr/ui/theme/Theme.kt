@@ -75,7 +75,7 @@ private val DarkColors =
 @Composable
 fun SimklrTheme(
     mode: ThemeMode = ThemeMode.System,
-    dynamicColor: Boolean = true,
+    dynamicColor: Boolean = false,
     content: @Composable () -> Unit,
 ) {
     val dark =

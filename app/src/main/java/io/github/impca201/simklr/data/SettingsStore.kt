@@ -47,7 +47,7 @@ data class AppSettings(
     val clientId: String = "",
     val accessToken: String? = null,
     val theme: ThemeMode = ThemeMode.System,
-    val dynamicColor: Boolean = true,
+    val dynamicColor: Boolean = false,
     val nav: NavConfig = NavConfig(NavTab.defaultOrder, NavTab.defaultEnabled),
     val notifications: Boolean = false,
     val hideSpecials: Boolean = true,
@@ -81,7 +81,7 @@ class SettingsStore(
                 clientId = p[Keys.clientId] ?: BuildConfig.DEFAULT_CLIENT_ID,
                 accessToken = p[Keys.token],
                 theme = ThemeMode.entries.firstOrNull { it.name == p[Keys.theme] } ?: ThemeMode.System,
-                dynamicColor = p[Keys.dynamicColor] ?: true,
+                dynamicColor = p[Keys.dynamicColor] ?: false,
                 nav =
                     NavConfig(
                         // Tabs added in later versions are appended to a saved order.
