@@ -41,6 +41,7 @@ class SimklrApp :
 
     override fun onCreate() {
         super.onCreate()
+        CrashReporter.install(this)
         NewEpisodesWorker.createChannel(this)
     }
 

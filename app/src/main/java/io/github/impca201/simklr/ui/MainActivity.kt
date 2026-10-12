@@ -7,6 +7,7 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.runtime.mutableStateOf
+import io.github.impca201.simklr.CrashReporter
 import io.github.impca201.simklr.data.model.MediaType
 
 class MainActivity : ComponentActivity() {
@@ -17,6 +18,10 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         super.onCreate(savedInstanceState)
         if (savedInstanceState == null) requested.value = detailFrom(intent)
+        if (!CrashReporter.showIfCrashed(this, ::showApp)) showApp()
+    }
+
+    private fun showApp() {
         setContent {
             AppRoot(requested = requested.value, onRequestHandled = { requested.value = null })
         }

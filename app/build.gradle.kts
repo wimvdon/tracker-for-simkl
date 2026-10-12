@@ -71,6 +71,18 @@ android {
         localeFilters += listOf("en")
     }
 
+    testOptions {
+        // Robolectric launches the real activity in the JVM unit tests (see LaunchTest).
+        unitTests.isIncludeAndroidResources = true
+        unitTests.all {
+            it.testLogging {
+                events("failed")
+                exceptionFormat = org.gradle.api.tasks.testing.logging.TestExceptionFormat.FULL
+                showStandardStreams = false
+            }
+        }
+    }
+
     dependenciesInfo {
         includeInApk = false
     }
@@ -98,4 +110,7 @@ dependencies {
     implementation(libs.coil.network.okhttp)
 
     testImplementation(libs.junit)
+    testImplementation(libs.robolectric)
+    testImplementation(libs.androidx.test.core)
+    testImplementation(libs.androidx.test.junit)
 }
