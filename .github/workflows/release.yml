@@ -3,18 +3,14 @@ name: Release
 # Push a tag like v1.2.0 to build the APK and publish it as a GitHub Release.
 # "Run workflow" on the Actions tab with "Release" set to patch, minor or major
 # picks the next version after the latest v* tag, builds the APK and publishes
-# that release (creating the tag). With "Release" left at none, or on a pull
-# request that changes this workflow, it only builds a downloadable artifact.
+# that release (creating the tag). With "Release" left at none it only builds a
+# downloadable artifact. (Pull requests are checked by the CI workflow.)
 # Signing needs four repository secrets: ANDROID_KEYSTORE_BASE64, ANDROID_KEYSTORE_PASSWORD,
 # ANDROID_KEY_ALIAS and ANDROID_KEY_PASSWORD (the same names without ANDROID_ also work).
 on:
   push:
     tags:
       - "v*"
-  pull_request:
-    paths:
-      - .github/workflows/release.yml
-      - .github/scripts/restore_keystore.py
   workflow_dispatch:
     inputs:
       bump:

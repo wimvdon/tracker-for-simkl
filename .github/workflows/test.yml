@@ -1,12 +1,13 @@
-name: Launch test
+name: CI
 
-# Runs the unit tests, including LaunchTest, which starts MainActivity under Robolectric
-# (no emulator) so start-up crashes fail with their full stack trace in the log, and uploads
-# the debug APK of the commit.
+# Unit tests (including LaunchTest, which starts MainActivity under Robolectric, so start-up
+# crashes fail with their full stack trace), the debug APK of the commit, and a release build
+# that checks R8 keeps the reflection entry points. Runs once per pull request push, and on main
+# after a merge.
 on:
-  push:
-    branches-ignore: [main]
   pull_request:
+  push:
+    branches: [main]
   workflow_dispatch:
 
 permissions:

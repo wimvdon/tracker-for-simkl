@@ -474,12 +474,6 @@ class LibraryRepository(
         api.setEpisodesWatched(type, ids.simkl, refs, watched)
     }
 
-    /** Marks every aired episode watched (an ended show moves to Completed). */
-    suspend fun markAllWatched(
-        type: MediaType,
-        ids: MediaIds,
-    ) = change { api.markWatched(type, ids.simkl) }
-
     /** "Watching now" check-in; SIMKL marks it watched when the runtime is over. */
     suspend fun checkIn(
         type: MediaType,
