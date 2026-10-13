@@ -34,4 +34,6 @@
     <string name="discover_most_watched">Most watched</string>
     <string name="discover_best_all">Best of all time</string>
     <string name="discover_most_voted">Most voted</string>
+    <string name="section_expanded">Expanded</string>
+    <string name="section_collapsed">Collapsed</string>
 </resources>

@@ -32,4 +32,6 @@
     <string name="discover_most_watched">Meest bekeken</string>
     <string name="discover_best_all">Beste aller tijden</string>
     <string name="discover_most_voted">Meeste stemmen</string>
+    <string name="section_expanded">Uitgevouwen</string>
+    <string name="section_collapsed">Ingevouwen</string>
 </resources>
