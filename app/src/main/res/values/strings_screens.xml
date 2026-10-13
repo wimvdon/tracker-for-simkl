@@ -52,7 +52,7 @@
         <item quantity="other">%1$d episodes</item>
     </plurals>
     <string name="screens_login_waiting_browser">Approve the sign-in on simkl.com. You’ll come back here automatically.</string>
-    <string name="screens_login_denied">The sign-in was cancelled on SIMKL (%1$s).</string>
+    <string name="screens_login_denied">The sign-in was canceled on SIMKL (%1$s).</string>
     <string name="screens_login_redirect_invalid">That sign-in link doesn\'t match the one this app started. Tap Sign in with SIMKL again.</string>
     <string name="screens_login_failed">Sign-in failed: %1$s</string>
     <string name="screens_login_note">You sign in on simkl.com; this app never sees your password. Tracker for Simkl is not affiliated with Simkl.</string>

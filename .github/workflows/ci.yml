@@ -18,7 +18,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
         with:
           # Tags, so the debug build is versioned from the latest release (git describe).
           fetch-depth: 0
@@ -42,11 +42,11 @@ jobs:
             grep -qF "$entry" "$seeds" || { echo "::error::R8 did not keep $entry"; grep -F "WorkDatabase_Impl" "$seeds" | head; exit 1; }
           done
           echo "Release build keeps the WorkManager/Room constructors."
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: tracker-for-simkl-debug-apk
           path: app/build/outputs/apk/debug/app-debug.apk
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         if: always()
         with:
           name: test-reports
