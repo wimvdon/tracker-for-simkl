@@ -25,9 +25,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilterChip
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.saveable.rememberSaveable
 import io.github.impca201.trackerforsimkl.data.model.MediaType
 import io.github.impca201.trackerforsimkl.ui.components.Format
