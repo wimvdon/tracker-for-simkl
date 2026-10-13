@@ -41,6 +41,23 @@
             </intent-filter>
         </activity>
 
+        <!-- Sign-in redirect from simkl.com (OAuth 2.0 authorization code with PKCE). -->
+        <activity
+            android:name=".auth.AuthRedirectActivity"
+            android:exported="true"
+            android:launchMode="singleTask"
+            android:noHistory="true"
+            android:theme="@android:style/Theme.Translucent.NoTitleBar">
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data
+                    android:host="oauth"
+                    android:scheme="trackerforsimkl" />
+            </intent-filter>
+        </activity>
+
         <!-- WorkManager is initialised on demand (TrackerApp is a Configuration.Provider). -->
         <provider
             android:name="androidx.startup.InitializationProvider"

@@ -7,4 +7,5 @@
     <string name="data_crash_title">Tracker for Simkl crashed last time</string>
     <string name="data_crash_copy">Copy crash report</string>
     <string name="data_crash_continue">Continue</string>
+    <string name="data_notif_episode_aired">%1$s is out</string>
 </resources>

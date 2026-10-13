@@ -1,5 +1,9 @@
 package io.github.impca201.trackerforsimkl.ui.search
 
+import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -64,6 +68,7 @@ import io.github.impca201.trackerforsimkl.ui.components.Poster
 import io.github.impca201.trackerforsimkl.ui.components.rememberApp
 import io.github.impca201.trackerforsimkl.ui.components.label
 import io.github.impca201.trackerforsimkl.ui.library.SectionHeader
+import io.github.impca201.trackerforsimkl.ui.theme.Motion
 import kotlinx.coroutines.delay
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -138,28 +143,38 @@ fun SearchScreen(initialType: MediaType?) {
         },
     ) { padding ->
         val sections = results.filterValues { it.isNotEmpty() }
-        if (sections.isEmpty()) {
-            if (query.trim().length >= 2 && !loading) {
-                EmptyState(Icons.Rounded.SearchOff, stringResource(R.string.screens_search_no_results, query.trim()), modifier = Modifier.padding(padding))
-            } else {
-                EmptyState(Icons.Rounded.Search, stringResource(R.string.screens_search_empty_title), stringResource(R.string.screens_search_empty_body), Modifier.padding(padding))
-            }
-            return@Scaffold
-        }
-        LazyColumn(
-            contentPadding =
-                PaddingValues(
-                    top = padding.calculateTopPadding(),
-                    bottom = 16.dp + WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding(),
-                ),
+        AnimatedContent(
+            targetState = sections,
+            contentKey = { it.isEmpty() },
+            transitionSpec = { fadeIn(Motion.fadeSpec(210, delayMillis = 90)) togetherWith fadeOut(Motion.fadeSpec(90)) },
+            label = "searchContent",
             modifier = Modifier.fillMaxSize(),
-        ) {
-            sections.forEach { (t, list) ->
-                if (sections.size > 1) item(key = "h-$t") { SectionHeader(t.label(), list.size, Modifier.padding(horizontal = 8.dp)) }
-                items(list, key = { "$t:${it.simklId}" }) { result ->
-                    val inLibrary = library.item(result.type, result.simklId)
-                    ResultRow(result, inLibrary?.status?.label(result.type)) {
-                        navigator.openDetail(result.type, result.simklId, result.title, result.poster)
+        ) { shown ->
+            if (shown.isEmpty()) {
+                if (query.trim().length >= 2 && !loading) {
+                    EmptyState(Icons.Rounded.SearchOff, stringResource(R.string.screens_search_no_results, query.trim()), modifier = Modifier.padding(padding))
+                } else {
+                    EmptyState(Icons.Rounded.Search, stringResource(R.string.screens_search_empty_title), stringResource(R.string.screens_search_empty_body), Modifier.padding(padding))
+                }
+            } else {
+                LazyColumn(
+                    contentPadding =
+                        PaddingValues(
+                            top = padding.calculateTopPadding(),
+                            bottom = 16.dp + WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding(),
+                        ),
+                    modifier = Modifier.fillMaxSize(),
+                ) {
+                    shown.forEach { (t, list) ->
+                        if (shown.size > 1) {
+                            item(key = "h-$t") { SectionHeader(t.label(), list.size, Modifier.padding(horizontal = 8.dp).animateItem()) }
+                        }
+                        items(list, key = { "$t:${it.simklId}" }) { result ->
+                            val inLibrary = library.item(result.type, result.simklId)
+                            ResultRow(result, inLibrary?.status?.label(result.type), Modifier.animateItem()) {
+                                navigator.openDetail(result.type, result.simklId, result.title, result.poster)
+                            }
+                        }
                     }
                 }
             }
@@ -171,9 +186,10 @@ fun SearchScreen(initialType: MediaType?) {
 fun ResultRow(
     item: MediaSummary,
     status: String?,
+    modifier: Modifier = Modifier,
     onClick: () -> Unit,
 ) {
-    Surface(onClick = onClick, color = Color.Transparent) {
+    Surface(onClick = onClick, modifier = modifier, color = Color.Transparent) {
         Row(
             Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 8.dp),
             horizontalArrangement = Arrangement.spacedBy(14.dp),

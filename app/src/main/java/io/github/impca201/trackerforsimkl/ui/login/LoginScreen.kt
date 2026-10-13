@@ -1,5 +1,8 @@
 package io.github.impca201.trackerforsimkl.ui.login
 
+import androidx.compose.animation.AnimatedVisibility
+import io.github.impca201.trackerforsimkl.data.api.Pkce
+import kotlinx.coroutines.CancellationException
 import android.content.ClipData
 import android.content.ClipboardManager
 import androidx.compose.foundation.layout.Arrangement
@@ -79,7 +82,39 @@ fun LoginScreen(settings: AppSettings) {
     var error by remember { mutableStateOf<String?>(null) }
     var showGuide by rememberSaveable { mutableStateOf(false) }
 
-    // Poll until the user approved the code (or it expired).
+    var waitingForBrowser by rememberSaveable { mutableStateOf(false) }
+
+    // The browser sign-in comes back through AuthRedirectActivity, possibly after Android
+    // restarted the app, so the state and code verifier are read back from settings.
+    LaunchedEffect(Unit) {
+        app.authRedirect.collect { uri ->
+            if (uri == null) return@collect
+            app.authRedirect.value = null
+            val pending = app.settings.pendingAuth()
+            val code = uri.getQueryParameter("code")
+            val denied = uri.getQueryParameter("error")
+            error = null
+            when {
+                denied != null ->
+                    error = context.getString(R.string.screens_login_denied, uri.getQueryParameter("error_description") ?: denied)
+                pending == null || code == null || uri.getQueryParameter("state") != pending.first ->
+                    error = context.getString(R.string.screens_login_redirect_invalid)
+                else -> {
+                    busy = true
+                    when (val result = runCatching { app.api.exchangeCode(code, pending.second) }.getOrElse { LoginPoll.Failed(it.message.orEmpty()) }) {
+                        is LoginPoll.Approved -> app.settings.setTokens(result.accessToken, result.refreshToken, result.expiresAt)
+                        is LoginPoll.Failed -> error = context.getString(R.string.screens_login_start_failed, result.message)
+                        else -> Unit
+                    }
+                    busy = false
+                }
+            }
+            app.settings.clearPendingAuth()
+            waitingForBrowser = false
+        }
+    }
+
+    // Code sign-in: poll until the user approved the code (or it expired).
     LaunchedEffect(pin) {
         val code = pin ?: return@LaunchedEffect
         val deadline = System.currentTimeMillis() + code.expiresInSeconds * 1000L
@@ -168,15 +203,21 @@ fun LoginScreen(settings: AppSettings) {
             if (code == null) {
                 Button(
                     onClick = {
-                        busy = true
                         error = null
                         scope.launch {
                             try {
-                                pin = app.api.startLogin()
+                                // Mobile sign-in: OAuth 2.0 authorization code with PKCE in the browser.
+                                val verifier = Pkce.randomToken()
+                                val state = Pkce.randomToken(16)
+                                app.settings.setPendingAuth(state, verifier)
+                                val url = app.api.authorizeUrl(state, Pkce.challenge(verifier))
+                                waitingForBrowser = true
+                                context.openUrl(url)
+                            } catch (e: CancellationException) {
+                                throw e
                             } catch (e: Exception) {
                                 error = context.getString(R.string.screens_login_start_failed, e.message.orEmpty())
                             }
-                            busy = false
                         }
                     },
                     enabled = !busy,
@@ -190,6 +231,33 @@ fun LoginScreen(settings: AppSettings) {
                         Text(stringResource(R.string.screens_login_sign_in))
                     }
                 }
+                AnimatedVisibility(waitingForBrowser && !busy) {
+                    Text(
+                        stringResource(R.string.screens_login_waiting_browser),
+                        style = MaterialTheme.typography.bodyMedium,
+                        textAlign = TextAlign.Center,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
+                }
+                // For SIMKL apps of the "TV, devices & command line" type, and older AUTH V1 apps.
+                TextButton(
+                    onClick = {
+                        busy = true
+                        error = null
+                        waitingForBrowser = false
+                        scope.launch {
+                            try {
+                                pin = app.api.startLogin()
+                            } catch (e: CancellationException) {
+                                throw e
+                            } catch (e: Exception) {
+                                error = context.getString(R.string.screens_login_start_failed, e.message.orEmpty())
+                            }
+                            busy = false
+                        }
+                    },
+                    enabled = !busy,
+                ) { Text(stringResource(R.string.screens_login_with_code)) }
             } else {
                 PinCard(code)
             }

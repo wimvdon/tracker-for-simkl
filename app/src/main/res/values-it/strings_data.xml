@@ -7,4 +7,5 @@
     <string name="data_crash_title">Tracker for Simkl si è chiuso in modo anomalo l’ultima volta</string>
     <string name="data_crash_copy">Copia il report dell’arresto anomalo</string>
     <string name="data_crash_continue">Continua</string>
+    <string name="data_notif_episode_aired">%1$s è uscito</string>
 </resources>

@@ -46,7 +46,7 @@
     <string name="screens_settings_continue_latest">Doorgaan vanaf de laatste aflevering</string>
     <string name="screens_settings_continue_latest_sub">“Volgende” begint na de laatst geziene aflevering. Ongeziene afleveringen of seizoenen daarvoor worden overgeslagen.</string>
     <string name="screens_settings_notifications">Meldingen voor nieuwe afleveringen</string>
-    <string name="screens_settings_notifications_sub">Controleert SIMKL een paar keer per dag op nieuwe afleveringen van series die je kijkt</string>
+    <string name="screens_settings_notifications_sub">Kijkt een paar keer per dag in de afleveringskalender van SIMKL voor series die je volgt</string>
     <string name="screens_settings_client_id">API-client-ID</string>
     <string name="screens_settings_change">Wijzigen</string>
     <string name="screens_settings_guide_sub">Zo maak je een SIMKL-app en log je in</string>
@@ -59,7 +59,7 @@
     <string name="screens_client_id">Client ID</string>
     <string name="screens_login_tagline">Houd je series, anime en films bij met SIMKL.</string>
     <string name="screens_login_api_key_title">Je SIMKL-API-sleutel</string>
-    <string name="screens_login_api_key_body">Tracker for Simkl praat met SIMKL via je eigen gratis API-app. Maak er een aan op SIMKL (AUTH V2, type “TV, devices &amp; command line”; naam maakt niet uit) en plak de Client ID hier. Oudere AUTH V1-apps werken ook.</string>
+    <string name="screens_login_api_key_body">Tracker for Simkl praat met SIMKL via je eigen gratis API-app. Maak er een aan op SIMKL (AUTH V2, naam naar keuze) met als redirect-URI trackerforsimkl://oauth en plak hier de Client ID.</string>
     <string name="screens_login_continue">Doorgaan</string>
     <string name="screens_login_sign_in">Inloggen met SIMKL</string>
     <string name="screens_login_open_simkl">SIMKL openen</string>
@@ -73,4 +73,8 @@
         <item quantity="one">%1$d aflevering</item>
         <item quantity="other">%1$d afleveringen</item>
     </plurals>
+    <string name="screens_login_waiting_browser">Keur het inloggen goed op simkl.com. Je komt daarna vanzelf hier terug.</string>
+    <string name="screens_login_with_code">Liever inloggen met een code</string>
+    <string name="screens_login_denied">Het inloggen is op SIMKL geannuleerd (%1$s).</string>
+    <string name="screens_login_redirect_invalid">Die inloglink hoort niet bij de inlogpoging van deze app. Tik opnieuw op Inloggen met SIMKL.</string>
 </resources>

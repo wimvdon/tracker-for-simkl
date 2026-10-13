@@ -7,4 +7,5 @@
     <string name="data_crash_title">Tracker for Simkl se cerró inesperadamente la última vez</string>
     <string name="data_crash_copy">Copiar informe de error</string>
     <string name="data_crash_continue">Continuar</string>
+    <string name="data_notif_episode_aired">%1$s ya está disponible</string>
 </resources>

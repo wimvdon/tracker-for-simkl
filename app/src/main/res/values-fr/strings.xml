@@ -3,14 +3,14 @@
     <!-- Auth guide -->
     <string name="guide_title">Guide de connexion</string>
     <string name="guide_open">Guide pas à pas</string>
-    <string name="guide_step_1">Ouvrez la page développeur de SIMKL dans votre navigateur et connectez-vous à SIMKL si on vous le demande.</string>
-    <string name="guide_step_2">Créez une nouvelle app. Donnez-lui le nom de votre choix (par exemple « Tracker for Simkl »), choisissez AUTH V2 et le type d’app « TV, devices &amp; command line ». Laissez les autres champs tels quels et enregistrez.</string>
+    <string name="guide_step_1">Ouvrez la page développeur de SIMKL dans votre navigateur et connectez-vous à SIMKL si demandé.</string>
+    <string name="guide_step_2">Créez une nouvelle app. Donnez-lui le nom de votre choix (par exemple « Tracker for Simkl ») et choisissez AUTH V2. Comme URI de redirection, saisissez exactement trackerforsimkl://oauth. Laissez les autres champs tels quels et enregistrez.</string>
     <string name="guide_step_3">Copiez le Client ID de l’app. Tracker for Simkl n’a pas besoin du Client Secret.</string>
     <string name="guide_step_4">Collez le Client ID dans Tracker for Simkl et appuyez sur Continuer.</string>
-    <string name="guide_step_5">Appuyez sur Se connecter avec SIMKL. Tracker for Simkl affiche un code court.</string>
-    <string name="guide_step_6">Appuyez sur Ouvrir SIMKL, vérifiez que le code correspond (ou saisissez-le) et approuvez. Revenez dans Tracker for Simkl : la connexion se fait toute seule.</string>
+    <string name="guide_step_5">Appuyez sur Se connecter avec SIMKL. Votre navigateur ouvre la page de connexion de SIMKL.</string>
+    <string name="guide_step_6">Autorisez l’accès. SIMKL vous renvoie vers Tracker for Simkl, qui vous connecte tout seul.</string>
     <string name="guide_trouble_title">Un problème pour vous connecter ?</string>
-    <string name="guide_trouble">• « Impossible de lancer la connexion » : vérifiez que vous avez copié tout le Client ID, sans espaces.\n• Le code a expiré : appuyez à nouveau sur Se connecter avec SIMKL pour en obtenir un nouveau.\n• La page d’approbation affiche une erreur : modifiez votre app sur SIMKL et vérifiez que son type est « TV, devices &amp; command line ».\n• Les anciennes apps AUTH V1 continuent de fonctionner.</string>
+    <string name="guide_trouble">• « Impossible de lancer la connexion » : vérifiez que vous avez copié tout le Client ID, sans espaces.\n• SIMKL affiche une erreur d’URI de redirection : dans votre app SIMKL, indiquez exactement trackerforsimkl://oauth.\n• Votre app SIMKL est de type « TV, devices &amp; command line » ou une ancienne app AUTH V1 : appuyez sur Se connecter plutôt avec un code.</string>
     <string name="create_simkl_app">Créer une app SIMKL</string>
     <string name="done">OK</string>
 

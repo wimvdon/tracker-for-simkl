@@ -46,7 +46,7 @@
     <string name="screens_settings_continue_latest">Continua dall\'ultimo episodio</string>
     <string name="screens_settings_continue_latest_sub">“Prossimi” inizia dopo l\'ultimo episodio visto. Gli episodi o le stagioni precedenti non visti vengono saltati.</string>
     <string name="screens_settings_notifications">Notifiche nuovi episodi</string>
-    <string name="screens_settings_notifications_sub">Controlla SIMKL alcune volte al giorno per i nuovi episodi delle serie che guardi</string>
+    <string name="screens_settings_notifications_sub">Controlla più volte al giorno il calendario degli episodi di SIMKL per le serie che stai guardando</string>
     <string name="screens_settings_client_id">ID client API</string>
     <string name="screens_settings_change">Modifica</string>
     <string name="screens_settings_guide_sub">Come creare un\'app SIMKL e accedere</string>
@@ -59,7 +59,7 @@
     <string name="screens_client_id">Client ID</string>
     <string name="screens_login_tagline">Tieni traccia di serie TV, anime e film con SIMKL.</string>
     <string name="screens_login_api_key_title">La tua chiave API SIMKL</string>
-    <string name="screens_login_api_key_body">Tracker for Simkl comunica con SIMKL tramite la tua app API gratuita. Creane una su SIMKL (AUTH V2, tipo “TV, devices &amp; command line”, nome a piacere), poi incolla qui il suo Client ID. Funzionano anche le vecchie app AUTH V1.</string>
+    <string name="screens_login_api_key_body">Tracker for Simkl comunica con SIMKL tramite la tua app API gratuita. Creane una su SIMKL (AUTH V2, nome a piacere) con l\'URI di reindirizzamento trackerforsimkl://oauth, poi incolla qui il suo Client ID.</string>
     <string name="screens_login_continue">Continua</string>
     <string name="screens_login_sign_in">Accedi con SIMKL</string>
     <string name="screens_login_open_simkl">Apri SIMKL</string>
@@ -73,4 +73,8 @@
         <item quantity="one">%1$d episodio</item>
         <item quantity="other">%1$d episodi</item>
     </plurals>
+    <string name="screens_login_waiting_browser">Approva l\'accesso su simkl.com. Tornerai qui automaticamente.</string>
+    <string name="screens_login_with_code">Accedi invece con un codice</string>
+    <string name="screens_login_denied">L\'accesso è stato annullato su SIMKL (%1$s).</string>
+    <string name="screens_login_redirect_invalid">Questo link di accesso non corrisponde a quello avviato dall\'app. Tocca di nuovo Accedi con SIMKL.</string>
 </resources>

@@ -1,5 +1,9 @@
 package io.github.impca201.trackerforsimkl.ui.calendar
 
+import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -39,6 +43,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import io.github.impca201.trackerforsimkl.R
+import io.github.impca201.trackerforsimkl.ui.theme.Motion
 import io.github.impca201.trackerforsimkl.data.NavTab
 import io.github.impca201.trackerforsimkl.data.model.CalendarEntry
 import io.github.impca201.trackerforsimkl.data.model.MediaType
@@ -117,23 +122,31 @@ fun CalendarScreen() {
             },
             modifier = Modifier.fillMaxSize().padding(top = padding.calculateTopPadding()),
         ) {
-            if (days.isEmpty()) {
-                EmptyState(
-                    Icons.Rounded.EventBusy,
-                    stringResource(if (state.calendar.isEmpty()) R.string.screens_calendar_loading else R.string.screens_calendar_nothing),
-                    stringResource(R.string.screens_calendar_mine_hint),
-                )
-            } else {
-                LazyColumn(
-                    contentPadding = PaddingValues(start = 12.dp, end = 12.dp, bottom = bottomPadding()),
-                    verticalArrangement = Arrangement.spacedBy(8.dp),
-                    modifier = Modifier.fillMaxSize(),
-                ) {
-                    days.forEach { (day, entries) ->
-                        item(key = "d-$day") { SectionHeader(Format.day(day), entries.size) }
-                        items(entries, key = { "${it.type}:${it.simklId}:${it.episode?.label}:${it.date}" }) { entry ->
-                            CalendarRow(entry) {
-                                navigator.openDetail(entry.type, entry.simklId, entry.title, entry.poster)
+            AnimatedContent(
+                targetState = days,
+                contentKey = { it.isEmpty() },
+                transitionSpec = { fadeIn(Motion.fadeSpec(210, delayMillis = 90)) togetherWith fadeOut(Motion.fadeSpec(90)) },
+                label = "calendarContent",
+                modifier = Modifier.fillMaxSize(),
+            ) { shownDays ->
+                if (shownDays.isEmpty()) {
+                    EmptyState(
+                        Icons.Rounded.EventBusy,
+                        stringResource(if (state.calendar.isEmpty()) R.string.screens_calendar_loading else R.string.screens_calendar_nothing),
+                        stringResource(R.string.screens_calendar_mine_hint),
+                    )
+                } else {
+                    LazyColumn(
+                        contentPadding = PaddingValues(start = 12.dp, end = 12.dp, bottom = bottomPadding()),
+                        verticalArrangement = Arrangement.spacedBy(8.dp),
+                        modifier = Modifier.fillMaxSize(),
+                    ) {
+                        shownDays.forEach { (day, entries) ->
+                            item(key = "d-$day") { SectionHeader(Format.day(day), entries.size, Modifier.animateItem()) }
+                            items(entries, key = { "${it.type}:${it.simklId}:${it.episode?.label}:${it.date}" }) { entry ->
+                                CalendarRow(entry, Modifier.animateItem()) {
+                                    navigator.openDetail(entry.type, entry.simklId, entry.title, entry.poster)
+                                }
                             }
                         }
                     }
@@ -146,9 +159,10 @@ fun CalendarScreen() {
 @Composable
 private fun CalendarRow(
     entry: CalendarEntry,
+    modifier: Modifier = Modifier,
     onClick: () -> Unit,
 ) {
-    Surface(onClick = onClick, shape = RoundedCornerShape(16.dp), color = MaterialTheme.colorScheme.surfaceContainerLow) {
+    Surface(onClick = onClick, modifier = modifier, shape = RoundedCornerShape(16.dp), color = MaterialTheme.colorScheme.surfaceContainerLow) {
         Row(
             Modifier.fillMaxWidth().padding(8.dp),
             horizontalArrangement = Arrangement.spacedBy(12.dp),

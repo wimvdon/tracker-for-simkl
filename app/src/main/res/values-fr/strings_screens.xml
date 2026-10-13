@@ -46,7 +46,7 @@
     <string name="screens_settings_continue_latest">Reprendre après le dernier épisode</string>
     <string name="screens_settings_continue_latest_sub">« À suivre » commence après le dernier épisode vu. Les épisodes ou saisons non vus avant celui-ci sont ignorés.</string>
     <string name="screens_settings_notifications">Notifications de nouveaux épisodes</string>
-    <string name="screens_settings_notifications_sub">Vérifie SIMKL plusieurs fois par jour pour les nouveaux épisodes des séries que vous regardez</string>
+    <string name="screens_settings_notifications_sub">Consulte le calendrier des épisodes de SIMKL plusieurs fois par jour pour les séries que vous regardez</string>
     <string name="screens_settings_client_id">ID client de l\'API</string>
     <string name="screens_settings_change">Modifier</string>
     <string name="screens_settings_guide_sub">Créer une app SIMKL et se connecter</string>
@@ -59,7 +59,7 @@
     <string name="screens_client_id">Client ID</string>
     <string name="screens_login_tagline">Suivez vos séries, animés et films avec SIMKL.</string>
     <string name="screens_login_api_key_title">Votre clé API SIMKL</string>
-    <string name="screens_login_api_key_body">Tracker for Simkl communique avec SIMKL via votre propre app API gratuite. Créez-en une sur SIMKL (AUTH V2, type « TV, devices &amp; command line », nom au choix), puis collez son Client ID ici. Les anciennes apps AUTH V1 fonctionnent aussi.</string>
+    <string name="screens_login_api_key_body">Tracker for Simkl communique avec SIMKL via votre propre app API gratuite. Créez-en une sur SIMKL (AUTH V2, nom au choix) avec l\'URI de redirection trackerforsimkl://oauth, puis collez ici son Client ID.</string>
     <string name="screens_login_continue">Continuer</string>
     <string name="screens_login_sign_in">Se connecter avec SIMKL</string>
     <string name="screens_login_open_simkl">Ouvrir SIMKL</string>
@@ -74,4 +74,8 @@
         <item quantity="many">%1$d épisodes</item>
         <item quantity="other">%1$d épisodes</item>
     </plurals>
+    <string name="screens_login_waiting_browser">Approuvez la connexion sur simkl.com. Vous reviendrez ici automatiquement.</string>
+    <string name="screens_login_with_code">Se connecter plutôt avec un code</string>
+    <string name="screens_login_denied">La connexion a été annulée sur SIMKL (%1$s).</string>
+    <string name="screens_login_redirect_invalid">Ce lien de connexion ne correspond pas à celui lancé par l\'app. Appuyez à nouveau sur Se connecter avec SIMKL.</string>
 </resources>

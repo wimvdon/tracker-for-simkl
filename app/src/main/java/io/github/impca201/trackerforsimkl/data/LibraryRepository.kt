@@ -158,6 +158,16 @@ class LibraryRepository(
         }
     }
 
+    /**
+     * The automatic sync when the app comes to the foreground: skipped when the last sync is less
+     * than [AUTO_SYNC_INTERVAL] old, as SIMKL's API rules ask. Pull-to-refresh calls [sync] directly.
+     */
+    suspend fun syncIfStale(): String? {
+        load()
+        if (System.currentTimeMillis() - snapshot.syncedAt < AUTO_SYNC_INTERVAL) return null
+        return sync()
+    }
+
     /** Syncs with SIMKL; returns an error message or null. */
     suspend fun sync(force: Boolean = false): String? {
         load()
@@ -517,6 +527,9 @@ class LibraryRepository(
     }
 
     companion object {
+        /** Minimum time between automatic (foreground) syncs. */
+        val AUTO_SYNC_INTERVAL = TimeUnit.MINUTES.toMillis(15)
+
         fun applyEpisodes(
             item: LibraryItem,
             refs: List<EpisodeRef>,

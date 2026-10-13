@@ -21,6 +21,9 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.saveable.rememberSaveableStateHolder
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.unit.IntOffset
+import androidx.compose.ui.unit.dp
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.repeatOnLifecycle
@@ -32,6 +35,7 @@ import io.github.impca201.trackerforsimkl.ui.main.MainScreen
 import io.github.impca201.trackerforsimkl.ui.profile.ProfileScreen
 import io.github.impca201.trackerforsimkl.ui.search.SearchScreen
 import io.github.impca201.trackerforsimkl.ui.settings.SettingsScreen
+import io.github.impca201.trackerforsimkl.ui.theme.Motion
 import io.github.impca201.trackerforsimkl.ui.theme.TrackerTheme
 
 @Composable
@@ -78,13 +82,21 @@ private fun LoggedIn(
     }
     BackHandler(enabled = navigator.stack.size > 1) { navigator.pop() }
 
+    // Material 3 shared-axis X: both screens slide 30dp along the axis; the old one fades out
+    // quickly, then the new one fades in, so they never overlap at full opacity.
+    val axisOffset = with(LocalDensity.current) { 30.dp.roundToPx() }
     CompositionLocalProvider(LocalNavigator provides navigator) {
         AnimatedContent(
             targetState = navigator.current,
             transitionSpec = {
                 val forward = navigator.stack.contains(initialState)
-                val enter = slideInHorizontally(tween(300)) { if (forward) it / 4 else -it / 4 } + fadeIn(tween(300))
-                val exit = slideOutHorizontally(tween(300)) { if (forward) -it / 4 else it / 4 } + fadeOut(tween(200))
+                val slide = tween<IntOffset>(Motion.MEDIUM_2, easing = Motion.Emphasized)
+                val enter =
+                    slideInHorizontally(slide) { if (forward) axisOffset else -axisOffset } +
+                        fadeIn(tween(210, delayMillis = 90, easing = Motion.EmphasizedDecelerate))
+                val exit =
+                    slideOutHorizontally(slide) { if (forward) -axisOffset else axisOffset } +
+                        fadeOut(tween(90, easing = Motion.EmphasizedAccelerate))
                 enter togetherWith exit
             },
             contentKey = { it.key },

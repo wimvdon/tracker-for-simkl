@@ -3,6 +3,7 @@ package io.github.impca201.trackerforsimkl.ui.library
 import androidx.annotation.StringRes
 import androidx.compose.ui.res.stringResource
 import io.github.impca201.trackerforsimkl.R
+import io.github.impca201.trackerforsimkl.ui.theme.Motion
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
@@ -57,6 +58,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -455,6 +457,7 @@ fun LibraryGrid(
                 airing =
                     if (showAiring) Shelves.airingOf(item, state.showInfo[item.key], state.nextAirDate(item)) else AiringState.Unknown,
                 onClick = { onOpen(item) },
+                modifier = Modifier.animateItem(),
             )
         }
     }
@@ -525,8 +528,9 @@ fun ShowRow(
                     )
                 }
                 progressOf(item)?.let { p ->
+                    val animated by animateFloatAsState(p, Motion.progressSpec(), label = "showProgress")
                     LinearProgressIndicator(
-                        progress = { p },
+                        progress = { animated },
                         modifier = Modifier.fillMaxWidth().padding(top = 4.dp).height(4.dp).clip(RoundedCornerShape(2.dp)),
                     )
                 }

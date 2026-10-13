@@ -77,6 +77,8 @@ class SettingsStore(
         val hideSpecials = booleanPreferencesKey("hide_specials")
         val continueFromLatest = booleanPreferencesKey("continue_from_latest")
         val notified = stringSetPreferencesKey("notified_episodes")
+        val authState = stringPreferencesKey("auth_state")
+        val authVerifier = stringPreferencesKey("auth_verifier")
     }
 
     val settings: Flow<AppSettings> =
@@ -124,6 +126,29 @@ class SettingsStore(
         if (refreshToken != null) prefs[Keys.refreshToken] = refreshToken else prefs -= Keys.refreshToken
         if (expiresAt != null) prefs[Keys.tokenExpiresAt] = expiresAt else prefs -= Keys.tokenExpiresAt
     }
+
+    /**
+     * The state and PKCE code verifier of a sign-in waiting for the browser to come back. Kept on
+     * disk because Android may stop the app while the user is approving on simkl.com.
+     */
+    suspend fun setPendingAuth(
+        state: String,
+        verifier: String,
+    ) = context.dataStore.edit {
+        it[Keys.authState] = state
+        it[Keys.authVerifier] = verifier
+    }
+
+    suspend fun pendingAuth(): Pair<String, String>? {
+        val prefs = context.dataStore.data.first()
+        return (prefs[Keys.authState] ?: return null) to (prefs[Keys.authVerifier] ?: return null)
+    }
+
+    suspend fun clearPendingAuth() =
+        context.dataStore.edit {
+            it -= Keys.authState
+            it -= Keys.authVerifier
+        }
 
     suspend fun setClientId(value: String) = context.dataStore.edit { it[Keys.clientId] = value.trim() }
 

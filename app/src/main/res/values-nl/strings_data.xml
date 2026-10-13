@@ -7,4 +7,5 @@
     <string name="data_crash_title">Tracker for Simkl is de vorige keer gecrasht</string>
     <string name="data_crash_copy">Crashrapport kopiëren</string>
     <string name="data_crash_continue">Doorgaan</string>
+    <string name="data_notif_episode_aired">%1$s is uit</string>
 </resources>

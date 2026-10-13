@@ -119,8 +119,13 @@ fun MainScreen(settings: AppSettings) {
         }
         AnimatedVisibility(
             visible = barVisible || tabs.size == 1,
-            enter = slideInVertically { it } + fadeIn(),
-            exit = slideOutVertically { it } + fadeOut(),
+            // M3 spatial spring for the movement, effects spring (no bounce) for the fade.
+            enter =
+                slideInVertically(spring(dampingRatio = 0.9f, stiffness = Spring.StiffnessMediumLow)) { it } +
+                    fadeIn(spring(stiffness = Spring.StiffnessMedium)),
+            exit =
+                slideOutVertically(spring(dampingRatio = 1f, stiffness = Spring.StiffnessMedium)) { it } +
+                    fadeOut(spring(stiffness = Spring.StiffnessMedium)),
             modifier = Modifier.align(Alignment.BottomCenter),
         ) {
             if (tabs.size > 1) {
@@ -160,10 +165,12 @@ private fun FloatingBar(
                 val isSelected = tab == selected
                 val background by animateColorAsState(
                     if (isSelected) MaterialTheme.colorScheme.secondaryContainer else Color.Transparent,
+                    animationSpec = spring(stiffness = Spring.StiffnessMedium),
                     label = "tabBackground",
                 )
                 val content by animateColorAsState(
                     if (isSelected) MaterialTheme.colorScheme.onSecondaryContainer else MaterialTheme.colorScheme.onSurfaceVariant,
+                    animationSpec = spring(stiffness = Spring.StiffnessMedium),
                     label = "tabContent",
                 )
                 Row(
@@ -179,8 +186,8 @@ private fun FloatingBar(
                     Icon(tab.icon(isSelected), contentDescription = if (isSelected) null else tab.label(), tint = content, modifier = Modifier.size(24.dp))
                     AnimatedVisibility(
                         visible = isSelected,
-                        enter = expandHorizontally(spring(stiffness = Spring.StiffnessMediumLow)) + fadeIn(),
-                        exit = shrinkHorizontally(spring(stiffness = Spring.StiffnessMediumLow)) + fadeOut(),
+                        enter = expandHorizontally(spring(dampingRatio = 0.9f, stiffness = Spring.StiffnessMediumLow)) + fadeIn(spring(stiffness = Spring.StiffnessMedium)),
+                        exit = shrinkHorizontally(spring(dampingRatio = 0.9f, stiffness = Spring.StiffnessMediumLow)) + fadeOut(spring(stiffness = Spring.StiffnessMedium)),
                     ) {
                         Row {
                             Spacer(Modifier.width(8.dp))

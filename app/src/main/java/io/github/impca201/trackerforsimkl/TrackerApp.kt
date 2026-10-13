@@ -2,6 +2,7 @@ package io.github.impca201.trackerforsimkl
 
 import android.app.Application
 import android.content.Context
+import android.net.Uri
 import androidx.work.Configuration
 import coil3.ImageLoader
 import coil3.PlatformContext
@@ -17,6 +18,7 @@ import io.github.impca201.trackerforsimkl.work.NewEpisodesWorker
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.MutableStateFlow
 import okhttp3.Cache
 import okhttp3.OkHttpClient
 import java.io.File
@@ -41,6 +43,9 @@ class TrackerApp :
     val library by lazy { LibraryRepository(this, api, settings, scope) }
     val catalog by lazy { CatalogRepository(api) }
     val account by lazy { AccountRepository(api) }
+
+    /** The latest sign-in redirect from simkl.com, until the login screen has handled it. */
+    val authRedirect = MutableStateFlow<Uri?>(null)
 
     // WorkManager starts on first use (only when notifications are on), not at app start.
     override val workManagerConfiguration: Configuration get() = Configuration.Builder().build()

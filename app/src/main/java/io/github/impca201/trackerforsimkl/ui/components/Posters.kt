@@ -1,5 +1,6 @@
 package io.github.impca201.trackerforsimkl.ui.components
 
+import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -26,6 +27,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -38,6 +40,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import coil3.compose.SubcomposeAsyncImage
 import io.github.impca201.trackerforsimkl.R
+import io.github.impca201.trackerforsimkl.ui.theme.Motion
 import io.github.impca201.trackerforsimkl.data.model.AiringState
 import io.github.impca201.trackerforsimkl.data.model.Images
 import io.github.impca201.trackerforsimkl.data.model.MediaSummary
@@ -162,8 +165,9 @@ fun PosterTile(
                 )
             }
             if (progress != null) {
+                val animated by animateFloatAsState(progress, Motion.progressSpec(), label = "posterProgress")
                 LinearProgressIndicator(
-                    progress = { progress },
+                    progress = { animated },
                     modifier = Modifier.align(Alignment.BottomCenter).fillMaxWidth().padding(8.dp).height(4.dp).clip(RoundedCornerShape(2.dp)),
                     trackColor = Color.Black.copy(alpha = 0.4f),
                 )

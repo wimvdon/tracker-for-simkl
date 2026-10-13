@@ -1,5 +1,9 @@
 package io.github.impca201.trackerforsimkl.ui.discover
 
+import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -51,6 +55,7 @@ import io.github.impca201.trackerforsimkl.ui.components.rememberApp
 import io.github.impca201.trackerforsimkl.ui.library.SectionHeader
 import io.github.impca201.trackerforsimkl.ui.library.bottomPadding
 import io.github.impca201.trackerforsimkl.ui.main.MainTopBar
+import io.github.impca201.trackerforsimkl.ui.theme.Motion
 import io.github.impca201.trackerforsimkl.ui.components.label
 import kotlinx.coroutines.launch
 
@@ -128,21 +133,29 @@ private fun SectionRow(
     val library by app.library.state.collectAsState()
     var items by remember { mutableStateOf<List<MediaSummary>?>(null) }
     LaunchedEffect(section.id, refresh) { items = app.catalog.section(section, refresh = refresh > 0) }
-    val list = items
-    when {
-        list == null ->
-            Column {
-                SectionHeader(stringResource(section.title), modifier = Modifier.padding(horizontal = 8.dp))
-                Box(Modifier.fillMaxWidth().height(200.dp), contentAlignment = Alignment.Center) { CircularProgressIndicator() }
-            }
-        list.isNotEmpty() ->
-            Column {
-                SectionHeader(stringResource(section.title), modifier = Modifier.padding(horizontal = 8.dp))
-                PosterRow(
-                    list.take(30),
-                    onClick = { navigator.openDetail(it.type, it.simklId, it.title, it.poster) },
-                    inLibrary = { library.item(it.type, it.simklId) != null },
-                )
-            }
+    // Fade through from the spinner to the posters; the row's height change animates with it.
+    AnimatedContent(
+        targetState = items,
+        contentKey = { list -> if (list == null) 0 else if (list.isEmpty()) 1 else 2 },
+        transitionSpec = { fadeIn(Motion.fadeSpec(210, delayMillis = 90)) togetherWith fadeOut(Motion.fadeSpec(90)) },
+        label = "discoverRow",
+    ) { list ->
+        when {
+            list == null ->
+                Column {
+                    SectionHeader(stringResource(section.title), modifier = Modifier.padding(horizontal = 8.dp))
+                    Box(Modifier.fillMaxWidth().height(200.dp), contentAlignment = Alignment.Center) { CircularProgressIndicator() }
+                }
+            list.isNotEmpty() ->
+                Column {
+                    SectionHeader(stringResource(section.title), modifier = Modifier.padding(horizontal = 8.dp))
+                    PosterRow(
+                        list.take(30),
+                        onClick = { navigator.openDetail(it.type, it.simklId, it.title, it.poster) },
+                        inLibrary = { library.item(it.type, it.simklId) != null },
+                    )
+                }
+            else -> {}
+        }
     }
 }

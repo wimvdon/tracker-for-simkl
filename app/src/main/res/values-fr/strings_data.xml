@@ -7,4 +7,5 @@
     <string name="data_crash_title">Tracker for Simkl a planté la dernière fois</string>
     <string name="data_crash_copy">Copier le rapport de plantage</string>
     <string name="data_crash_continue">Continuer</string>
+    <string name="data_notif_episode_aired">%1$s est disponible</string>
 </resources>

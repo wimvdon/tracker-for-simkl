@@ -7,4 +7,5 @@
     <string name="data_crash_title">Tracker for Simkl ist beim letzten Mal abgestürzt</string>
     <string name="data_crash_copy">Absturzbericht kopieren</string>
     <string name="data_crash_continue">Weiter</string>
+    <string name="data_notif_episode_aired">%1$s ist erschienen</string>
 </resources>

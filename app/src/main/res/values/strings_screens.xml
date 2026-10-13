@@ -46,7 +46,7 @@
     <string name="screens_settings_continue_latest">Continue from the latest episode</string>
     <string name="screens_settings_continue_latest_sub">Up next starts after the most recently watched episode. Unwatched episodes or seasons before it are skipped.</string>
     <string name="screens_settings_notifications">New episode notifications</string>
-    <string name="screens_settings_notifications_sub">Checks SIMKL a few times a day for new episodes of shows you\'re watching</string>
+    <string name="screens_settings_notifications_sub">Checks SIMKL’s episode calendar a few times a day for shows you\'re watching</string>
     <string name="screens_settings_client_id">API client ID</string>
     <string name="screens_settings_change">Change</string>
     <string name="screens_settings_guide_sub">How to create a SIMKL app and sign in</string>
@@ -59,7 +59,7 @@
     <string name="screens_client_id">Client ID</string>
     <string name="screens_login_tagline">Track your TV shows, anime and movies with SIMKL.</string>
     <string name="screens_login_api_key_title">Your SIMKL API key</string>
-    <string name="screens_login_api_key_body">Tracker for Simkl talks to SIMKL with your own free API app. Create one on SIMKL (AUTH V2, type “TV, devices &amp; command line”; any name), then paste its Client ID here. Older AUTH V1 apps work too.</string>
+    <string name="screens_login_api_key_body">Tracker for Simkl talks to SIMKL with your own free API app. Create one on SIMKL (AUTH V2, any name) with the redirect URI trackerforsimkl://oauth, then paste its Client ID here.</string>
     <string name="screens_login_continue">Continue</string>
     <string name="screens_login_sign_in">Sign in with SIMKL</string>
     <string name="screens_login_open_simkl">Open SIMKL</string>
@@ -73,4 +73,8 @@
         <item quantity="one">%1$d episode</item>
         <item quantity="other">%1$d episodes</item>
     </plurals>
+    <string name="screens_login_waiting_browser">Approve the sign-in on simkl.com. You’ll come back here automatically.</string>
+    <string name="screens_login_with_code">Sign in with a code instead</string>
+    <string name="screens_login_denied">The sign-in was cancelled on SIMKL (%1$s).</string>
+    <string name="screens_login_redirect_invalid">That sign-in link doesn\'t match the one this app started. Tap Sign in with SIMKL again.</string>
 </resources>

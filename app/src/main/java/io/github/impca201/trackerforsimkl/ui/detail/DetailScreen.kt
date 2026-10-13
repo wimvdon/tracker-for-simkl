@@ -2,7 +2,13 @@ package io.github.impca201.trackerforsimkl.ui.detail
 
 import android.icu.text.CompactDecimalFormat
 import androidx.annotation.StringRes
+import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.Crossfade
 import androidx.compose.animation.animateContentSize
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -125,6 +131,7 @@ import io.github.impca201.trackerforsimkl.ui.components.rememberApp
 import io.github.impca201.trackerforsimkl.ui.components.label
 import io.github.impca201.trackerforsimkl.ui.components.share
 import io.github.impca201.trackerforsimkl.ui.library.SectionHeader
+import io.github.impca201.trackerforsimkl.ui.theme.Motion
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.launch
 import java.util.Locale
@@ -227,109 +234,118 @@ fun DetailScreen(
             )
         },
     ) { _ ->
-        if (details == null && error != null && item == null) {
-            EmptyState(Icons.Rounded.ErrorOutline, stringResource(R.string.detail_load_failed_title), error) {
-                Button(onClick = { reload++ }) { Text(stringResource(R.string.detail_try_again)) }
-            }
-            return@Scaffold
-        }
-        LazyColumn(
-            state = listState,
-            contentPadding = PaddingValues(bottom = 24.dp + WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding()),
+        // Fade through between the full-screen error and the content.
+        AnimatedContent(
+            targetState = details == null && error != null && item == null,
+            transitionSpec = { fadeIn(Motion.fadeSpec(210, delayMillis = 90)) togetherWith fadeOut(Motion.fadeSpec(90)) },
+            label = "detailContent",
             modifier = Modifier.fillMaxSize(),
-        ) {
-            item(key = "header") { Header(route.type, title, poster, details, item, library.showInfo[item?.key ?: ""]?.fanart) }
-            item(key = "actions") {
-                Actions(
-                    type = route.type,
-                    item = item,
-                    next = item?.let { Shelves.nextEpisode(it, settings.continueFromLatest, library.latestNext[it.key]) },
-                    playback = playback,
-                    onPlaybackWatched = { confirmPlayback = it },
-                    onStatus = { status ->
-                        run(context.getString(R.string.detail_error_update_list)) {
-                            if (status == null) {
-                                app.library.remove(route.type, ids.simkl)
-                            } else {
-                                app.library.setStatus(route.type, ids, title, poster, year, status)
-                            }
-                        }
-                    },
-                    onRate = { rating -> run(context.getString(R.string.detail_error_save_rating)) { app.library.rate(route.type, ids.simkl, rating) } },
-                    onMovieWatched = { run(context.getString(R.string.detail_error_mark_watched)) { app.library.markMovieWatched(ids, title, poster, year) } },
-                    onWatchNext = { next ->
-                        run(context.getString(R.string.detail_error_mark_episode_watched, next.label)) {
-                            app.library.setEpisodesWatched(route.type, ids, title, poster, listOf(next), true, episodes)
-                        }
-                    },
-                    onCheckIn = { episode ->
-                        run(context.getString(R.string.detail_error_check_in)) {
-                            app.library.checkIn(route.type, ids.simkl, episode)
-                            snackbar.showSnackbar(context.getString(R.string.detail_checked_in))
-                        }
-                    },
-                )
+        ) { showError ->
+            if (showError) {
+                EmptyState(Icons.Rounded.ErrorOutline, stringResource(R.string.detail_load_failed_title), error) {
+                    Button(onClick = { reload++ }) { Text(stringResource(R.string.detail_try_again)) }
+                }
+                return@AnimatedContent
             }
-            val d = details
-            if (d == null) {
-                item(key = "loading") {
-                    Box(Modifier.fillMaxWidth().padding(32.dp), contentAlignment = Alignment.Center) {
-                        val failed = error
-                        if (failed != null) {
-                            Column(horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                                Text(failed, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                                Button(onClick = { reload++ }) { Text(stringResource(R.string.detail_try_again)) }
+            LazyColumn(
+                state = listState,
+                contentPadding = PaddingValues(bottom = 24.dp + WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding()),
+                modifier = Modifier.fillMaxSize(),
+            ) {
+                item(key = "header") { Header(route.type, title, poster, details, item, library.showInfo[item?.key ?: ""]?.fanart) }
+                item(key = "actions") {
+                    Actions(
+                        type = route.type,
+                        item = item,
+                        next = item?.let { Shelves.nextEpisode(it, settings.continueFromLatest, library.latestNext[it.key]) },
+                        playback = playback,
+                        onPlaybackWatched = { confirmPlayback = it },
+                        onStatus = { status ->
+                            run(context.getString(R.string.detail_error_update_list)) {
+                                if (status == null) {
+                                    app.library.remove(route.type, ids.simkl)
+                                } else {
+                                    app.library.setStatus(route.type, ids, title, poster, year, status)
+                                }
                             }
-                        } else {
-                            CircularProgressIndicator()
+                        },
+                        onRate = { rating -> run(context.getString(R.string.detail_error_save_rating)) { app.library.rate(route.type, ids.simkl, rating) } },
+                        onMovieWatched = { run(context.getString(R.string.detail_error_mark_watched)) { app.library.markMovieWatched(ids, title, poster, year) } },
+                        onWatchNext = { next ->
+                            run(context.getString(R.string.detail_error_mark_episode_watched, next.label)) {
+                                app.library.setEpisodesWatched(route.type, ids, title, poster, listOf(next), true, episodes)
+                            }
+                        },
+                        onCheckIn = { episode ->
+                            run(context.getString(R.string.detail_error_check_in)) {
+                                app.library.checkIn(route.type, ids.simkl, episode)
+                                snackbar.showSnackbar(context.getString(R.string.detail_checked_in))
+                            }
+                        },
+                    )
+                }
+                val d = details
+                if (d == null) {
+                    item(key = "loading") {
+                        Box(Modifier.animateItem().fillMaxWidth().padding(32.dp), contentAlignment = Alignment.Center) {
+                            Crossfade(targetState = error, animationSpec = Motion.fadeSpec(), label = "detailLoading") { failed ->
+                                if (failed != null) {
+                                    Column(horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                                        Text(failed, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                                        Button(onClick = { reload++ }) { Text(stringResource(R.string.detail_try_again)) }
+                                    }
+                                } else {
+                                    CircularProgressIndicator()
+                                }
+                            }
+                        }
+                    }
+                } else {
+                    item(key = "about") { Box(Modifier.animateItem()) { About(d) } }
+                    if (d.trailers.isNotEmpty()) {
+                        item(key = "trailers") { Box(Modifier.animateItem()) { Trailers(d) } }
+                    }
+                }
+                val shownEpisodes = if (settings.hideSpecials) episodes.filterNot { it.special } else episodes
+                // Only specials + "hide specials" leaves nothing; EpisodesBlock needs at least one season.
+                if (route.type.isEpisodic && shownEpisodes.isNotEmpty()) {
+                    episodesSection(
+                        playback = playback,
+                        onPlaybackWatched = { confirmPlayback = it },
+                        episodes = shownEpisodes,
+                        item = item,
+                        onToggle = { refs, watched ->
+                            // An empty change would still add the title to the library as Watching.
+                            if (refs.isNotEmpty()) run(context.getString(R.string.detail_error_update_episodes)) {
+                                app.library.setEpisodesWatched(route.type, ids, title, poster, refs, watched, episodes)
+                            }
+                        },
+                        onAllWatched = {
+                            val refs =
+                                episodes.filter { it.aired && !it.special && item?.isWatched(it.season, it.episode) != true }
+                                    .map { EpisodeRef(it.season, it.episode) }
+                            if (refs.isNotEmpty()) {
+                                run(context.getString(R.string.detail_error_mark_episodes_watched)) {
+                                    app.library.setEpisodesWatched(route.type, ids, title, poster, refs, true, episodes)
+                                }
+                            }
+                        },
+                    )
+                }
+                if (d != null && d.recommendations.isNotEmpty()) {
+                    item(key = "recs") {
+                        Column(Modifier.animateItem()) {
+                            SectionHeader(stringResource(R.string.detail_if_you_like), modifier = Modifier.padding(horizontal = 8.dp))
+                            PosterRow(
+                                d.recommendations,
+                                onClick = { navigator.openDetail(it.type, it.simklId, it.title, it.poster) },
+                                inLibrary = { library.item(it.type, it.simklId) != null },
+                            )
                         }
                     }
                 }
-            } else {
-                item(key = "about") { About(d) }
-                if (d.trailers.isNotEmpty()) {
-                    item(key = "trailers") { Trailers(d) }
-                }
+                item(key = "links") { Links(route.type, ids) }
             }
-            val shownEpisodes = if (settings.hideSpecials) episodes.filterNot { it.special } else episodes
-            // Only specials + "hide specials" leaves nothing; EpisodesBlock needs at least one season.
-            if (route.type.isEpisodic && shownEpisodes.isNotEmpty()) {
-                episodesSection(
-                    playback = playback,
-                    onPlaybackWatched = { confirmPlayback = it },
-                    episodes = shownEpisodes,
-                    item = item,
-                    onToggle = { refs, watched ->
-                        // An empty change would still add the title to the library as Watching.
-                        if (refs.isNotEmpty()) run(context.getString(R.string.detail_error_update_episodes)) {
-                            app.library.setEpisodesWatched(route.type, ids, title, poster, refs, watched, episodes)
-                        }
-                    },
-                    onAllWatched = {
-                        val refs =
-                            episodes.filter { it.aired && !it.special && item?.isWatched(it.season, it.episode) != true }
-                                .map { EpisodeRef(it.season, it.episode) }
-                        if (refs.isNotEmpty()) {
-                            run(context.getString(R.string.detail_error_mark_episodes_watched)) {
-                                app.library.setEpisodesWatched(route.type, ids, title, poster, refs, true, episodes)
-                            }
-                        }
-                    },
-                )
-            }
-            if (d != null && d.recommendations.isNotEmpty()) {
-                item(key = "recs") {
-                    Column {
-                        SectionHeader(stringResource(R.string.detail_if_you_like), modifier = Modifier.padding(horizontal = 8.dp))
-                        PosterRow(
-                            d.recommendations,
-                            onClick = { navigator.openDetail(it.type, it.simklId, it.title, it.poster) },
-                            inLibrary = { library.item(it.type, it.simklId) != null },
-                        )
-                    }
-                }
-            }
-            item(key = "links") { Links(route.type, ids) }
         }
     }
 }
@@ -478,8 +494,9 @@ private fun Actions(
                                 ?: stringResource(R.string.detail_in_progress, playback.progress.roundToInt()),
                             style = MaterialTheme.typography.labelLarge,
                         )
+                        val progress by animateFloatAsState((playback.progress / 100).toFloat(), Motion.progressSpec(), label = "playbackProgress")
                         LinearProgressIndicator(
-                            progress = { (playback.progress / 100).toFloat() },
+                            progress = { progress },
                             modifier = Modifier.fillMaxWidth().height(4.dp).clip(RoundedCornerShape(2.dp)),
                         )
                     }
@@ -819,8 +836,9 @@ private fun EpisodesBlock(
                             style = MaterialTheme.typography.labelSmall,
                             color = MaterialTheme.colorScheme.primary,
                         )
+                        val progress by animateFloatAsState((playback.progress / 100).toFloat(), Motion.progressSpec(), label = "episodeProgress")
                         LinearProgressIndicator(
-                            progress = { (playback.progress / 100).toFloat() },
+                            progress = { progress },
                             modifier = Modifier.fillMaxWidth().height(3.dp).clip(RoundedCornerShape(2.dp)),
                         )
                     }
