@@ -80,6 +80,9 @@ data class LibraryState(
 ) {
     private val byKey by lazy { items.associateBy { it.key } }
 
+    /** The library is empty because it has never been fetched, not because the lists are. */
+    val firstSync: Boolean get() = items.isEmpty() && (!loaded || syncing)
+
     /** Earliest upcoming release per "Type:simklId" key. */
     val nextAirDates: Map<String, Instant> by lazy {
         val now = Instant.now()

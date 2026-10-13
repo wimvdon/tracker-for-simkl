@@ -5,6 +5,7 @@
     <!-- Auth guide -->
 
     <!-- Shared labels -->
+    <string name="loading">Loading…</string>
     <string name="tab_tv">TV Shows</string>
     <string name="tab_anime">Anime</string>
     <string name="tab_movies">Movies</string>

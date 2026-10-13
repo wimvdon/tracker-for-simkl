@@ -68,6 +68,8 @@ import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.launch
 import java.time.Instant
 import kotlin.math.roundToInt
+import io.github.impca201.trackerforsimkl.ui.components.PosterGridSkeleton
+import io.github.impca201.trackerforsimkl.ui.components.PosterListSkeleton
 
 private fun Shelf.emptyIcon(): ImageVector =
     when (this) {
@@ -187,6 +189,13 @@ fun ShowsScreen(
                         EmptyState(Icons.Rounded.SearchOff, stringResource(R.string.lib_no_matches)) {
                             TextButton(onClick = { options.setFilter(page, LibraryFilter()) }) { Text(stringResource(R.string.lib_clear_filters)) }
                         }
+                    state.firstSync && shelf == Shelf.UpNext ->
+                        PosterListSkeleton(
+                            posterWidth = 68.dp,
+                            contentPadding = PaddingValues(start = 12.dp, end = 12.dp, top = 12.dp, bottom = bottomPadding()),
+                            spacing = 10.dp,
+                        )
+                    state.firstSync -> PosterGridSkeleton(bottomPadding())
                     items.isEmpty() && state.loaded && !state.syncing ->
                         EmptyState(shelf.emptyIcon(), stringResource(shelf.emptyTitle(type)), stringResource(shelf.emptyText()))
                     shelf == Shelf.UpNext ->

@@ -3,6 +3,7 @@
     <!-- Auth guide -->
 
     <!-- Shared labels -->
+    <string name="loading">Wird geladen…</string>
     <string name="tab_tv">Serien</string>
     <string name="tab_anime">Anime</string>
     <string name="tab_movies">Filme</string>

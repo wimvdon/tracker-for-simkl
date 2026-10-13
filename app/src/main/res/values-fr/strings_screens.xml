@@ -12,7 +12,6 @@
     <string name="screens_search_empty_body">Recherchez par titre dans tout le catalogue SIMKL.</string>
     <string name="screens_discover_no_suggestion">SIMKL n\'a pas de suggestion cette fois</string>
     <string name="screens_discover_surprise">Surprends-moi</string>
-    <string name="screens_calendar_loading">Chargement du calendrier…</string>
     <string name="screens_calendar_nothing">Rien de prévu</string>
     <string name="screens_calendar_mine_hint">Les prochains épisodes et sorties des titres de vos listes s\'affichent ici.</string>
     <string name="screens_calendar_release">Sortie</string>

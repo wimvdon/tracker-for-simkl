@@ -60,6 +60,7 @@ import io.github.impca201.trackerforsimkl.ui.components.label
 import kotlinx.coroutines.launch
 import java.time.LocalDate
 import java.time.ZoneId
+import io.github.impca201.trackerforsimkl.ui.components.PosterListSkeleton
 
 /** Upcoming episodes and releases from SIMKL's calendars, by day. */
 @OptIn(ExperimentalMaterial3Api::class)
@@ -122,17 +123,24 @@ fun CalendarScreen() {
             },
             modifier = Modifier.fillMaxSize().padding(top = padding.calculateTopPadding()),
         ) {
+            // Nothing from SIMKL yet: placeholder rows until the calendar arrives.
             AnimatedContent(
-                targetState = days,
-                contentKey = { it.isEmpty() },
+                targetState = days.takeIf { state.calendar.isNotEmpty() },
+                contentKey = { if (it == null) 0 else if (it.isEmpty()) 1 else 2 },
                 transitionSpec = { fadeIn(Motion.fadeSpec(210, delayMillis = 90)) togetherWith fadeOut(Motion.fadeSpec(90)) },
                 label = "calendarContent",
                 modifier = Modifier.fillMaxSize(),
             ) { shownDays ->
-                if (shownDays.isEmpty()) {
+                if (shownDays == null) {
+                    PosterListSkeleton(
+                        posterWidth = 48.dp,
+                        contentPadding = PaddingValues(start = 12.dp, end = 12.dp, bottom = bottomPadding()),
+                        lines = 2,
+                    )
+                } else if (shownDays.isEmpty()) {
                     EmptyState(
                         Icons.Rounded.EventBusy,
-                        stringResource(if (state.calendar.isEmpty()) R.string.screens_calendar_loading else R.string.screens_calendar_nothing),
+                        stringResource(R.string.screens_calendar_nothing),
                         stringResource(R.string.screens_calendar_mine_hint),
                     )
                 } else {
