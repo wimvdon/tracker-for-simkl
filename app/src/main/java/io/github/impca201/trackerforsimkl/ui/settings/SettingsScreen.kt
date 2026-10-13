@@ -1,45 +1,24 @@
 package io.github.impca201.trackerforsimkl.ui.settings
 
-import io.github.impca201.trackerforsimkl.ui.components.label
 import android.Manifest
 import android.content.pm.PackageManager
 import android.os.Build
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.WindowInsets
-import androidx.compose.foundation.layout.asPaddingValues
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.navigationBars
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.rounded.ArrowBack
+import androidx.compose.material.icons.rounded.Dashboard
 import androidx.compose.material.icons.rounded.KeyboardArrowDown
 import androidx.compose.material.icons.rounded.KeyboardArrowUp
-import androidx.compose.material.icons.rounded.Notifications
 import androidx.compose.material.icons.rounded.Palette
-import androidx.compose.material.icons.rounded.SkipNext
-import androidx.compose.material.icons.rounded.VisibilityOff
-import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material.icons.rounded.VideoLibrary
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.ListItem
-import androidx.compose.material3.ListItemDefaults
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.SegmentedButton
-import androidx.compose.material3.SegmentedButtonDefaults
-import androidx.compose.material3.SingleChoiceSegmentedButtonRow
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
-import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -48,6 +27,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.vector.rememberVectorPainter
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
@@ -58,15 +38,18 @@ import io.github.impca201.trackerforsimkl.data.AppSettings
 import io.github.impca201.trackerforsimkl.data.NavConfig
 import io.github.impca201.trackerforsimkl.data.ThemeMode
 import io.github.impca201.trackerforsimkl.ui.LocalNavigator
+import io.github.impca201.trackerforsimkl.ui.components.label
 import io.github.impca201.trackerforsimkl.ui.components.openUrl
 import io.github.impca201.trackerforsimkl.ui.components.rememberApp
-import io.github.impca201.trackerforsimkl.ui.library.SectionHeader
 import io.github.impca201.trackerforsimkl.ui.main.icon
-import io.github.impca201.trackerforsimkl.ui.theme.AppShapes
+import io.github.impca201.trackerforsimkl.ui.theme.AppearanceSettings
+import io.github.impca201.trackerforsimkl.ui.theme.CollapsibleSection
+import io.github.impca201.trackerforsimkl.ui.theme.SettingsFooter
+import io.github.impca201.trackerforsimkl.ui.theme.SettingsScaffold
+import io.github.impca201.trackerforsimkl.ui.theme.SwitchSetting
 import io.github.impca201.trackerforsimkl.work.NewEpisodesWorker
 import kotlinx.coroutines.launch
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SettingsScreen(settings: AppSettings) {
     val app = rememberApp()
@@ -92,124 +75,40 @@ fun SettingsScreen(settings: AppSettings) {
             if (granted) enableNotifications()
         }
 
-    Scaffold(
-        contentWindowInsets = WindowInsets(0),
-        topBar = {
-            TopAppBar(
-                title = { Text(stringResource(R.string.screens_settings)) },
-                navigationIcon = { IconButton(onClick = { navigator.pop() }) { Icon(Icons.AutoMirrored.Rounded.ArrowBack, stringResource(R.string.screens_back)) } },
-            )
-        },
-    ) { padding ->
-        LazyColumn(
-            contentPadding =
-                PaddingValues(
-                    start = 16.dp,
-                    end = 16.dp,
-                    top = padding.calculateTopPadding(),
-                    bottom = 24.dp + WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding(),
-                ),
-            verticalArrangement = Arrangement.spacedBy(8.dp),
-            modifier = Modifier.fillMaxSize(),
-        ) {
-            item { SectionHeader(stringResource(R.string.screens_settings_appearance)) }
-            item {
-                Group {
-                    Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(16.dp)) {
-                            Icon(Icons.Rounded.Palette, null)
-                            Text(stringResource(R.string.screens_settings_theme), style = MaterialTheme.typography.titleMedium)
-                        }
-                        SingleChoiceSegmentedButtonRow(Modifier.fillMaxWidth()) {
-                            ThemeMode.entries.forEachIndexed { index, mode ->
-                                SegmentedButton(
-                                    selected = settings.theme == mode,
-                                    onClick = { scope.launch { app.settings.setTheme(mode) } },
-                                    shape = SegmentedButtonDefaults.itemShape(index, ThemeMode.entries.size),
-                                ) { Text(mode.label()) }
-                            }
-                        }
-                    }
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-                        SwitchRow(stringResource(R.string.screens_settings_dynamic_color), stringResource(R.string.screens_settings_dynamic_color_sub), settings.dynamicColor) {
-                            scope.launch { app.settings.setDynamicColor(it) }
-                        }
-                    }
-                }
-            }
-
-            item { SectionHeader(stringResource(R.string.screens_settings_bottom_bar)) }
-            item {
-                Group {
-                    Text(
-                        stringResource(R.string.screens_settings_bottom_bar_hint),
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        modifier = Modifier.padding(start = 16.dp, end = 16.dp, top = 16.dp),
-                    )
-                    val order = settings.nav.order
-                    order.forEachIndexed { index, tab ->
-                        val enabled = tab in settings.nav.enabled
-                        ListItem(
-                            colors = ListItemDefaults.colors(containerColor = MaterialTheme.colorScheme.surfaceContainerLow),
-                            leadingContent = { Icon(tab.icon(enabled), null) },
-                            headlineContent = { Text(tab.label()) },
-                            trailingContent = {
-                                Row(verticalAlignment = Alignment.CenterVertically) {
-                                    IconButton(
-                                        enabled = index > 0,
-                                        onClick = {
-                                            val list = order.toMutableList().apply { add(index - 1, removeAt(index)) }
-                                            scope.launch { app.settings.setNav(NavConfig(list, settings.nav.enabled)) }
-                                        },
-                                    ) { Icon(Icons.Rounded.KeyboardArrowUp, stringResource(R.string.screens_settings_move_up)) }
-                                    IconButton(
-                                        enabled = index < order.lastIndex,
-                                        onClick = {
-                                            val list = order.toMutableList().apply { add(index + 1, removeAt(index)) }
-                                            scope.launch { app.settings.setNav(NavConfig(list, settings.nav.enabled)) }
-                                        },
-                                    ) { Icon(Icons.Rounded.KeyboardArrowDown, stringResource(R.string.screens_settings_move_down)) }
-                                    Switch(
-                                        checked = enabled,
-                                        // At least one destination stays on.
-                                        enabled = !enabled || settings.nav.enabled.size > 1,
-                                        onCheckedChange = { on ->
-                                            val set = if (on) settings.nav.enabled + tab else settings.nav.enabled - tab
-                                            scope.launch { app.settings.setNav(NavConfig(order, set)) }
-                                        },
-                                    )
-                                }
-                            },
-                        )
-                    }
-                }
-            }
-
-            item { SectionHeader(stringResource(R.string.screens_settings_library)) }
-            item {
-                Group {
-                    SwitchRow(stringResource(R.string.screens_settings_hide_specials), stringResource(R.string.screens_settings_hide_specials_sub), settings.hideSpecials, Icons.Rounded.VisibilityOff) {
-                        scope.launch { app.settings.setHideSpecials(it) }
-                    }
-                    SwitchRow(
-                        stringResource(R.string.screens_settings_continue_latest),
-                        stringResource(R.string.screens_settings_continue_latest_sub),
-                        settings.continueFromLatest,
-                        Icons.Rounded.SkipNext,
-                    ) { on ->
+    SettingsScaffold(
+        title = stringResource(R.string.screens_settings),
+        backLabel = stringResource(R.string.screens_back),
+        onBack = { navigator.pop() },
+    ) {
+        item(key = "library") {
+            CollapsibleSection(
+                key = "library",
+                title = stringResource(R.string.screens_settings_library),
+                icon = rememberVectorPainter(Icons.Rounded.VideoLibrary),
+            ) {
+                SwitchSetting(
+                    title = stringResource(R.string.screens_settings_hide_specials),
+                    summary = stringResource(R.string.screens_settings_hide_specials_sub),
+                    checked = settings.hideSpecials,
+                    onCheckedChange = { scope.launch { app.settings.setHideSpecials(it) } },
+                )
+                SwitchSetting(
+                    title = stringResource(R.string.screens_settings_continue_latest),
+                    summary = stringResource(R.string.screens_settings_continue_latest_sub),
+                    checked = settings.continueFromLatest,
+                    onCheckedChange = { on ->
                         scope.launch {
                             app.settings.setContinueFromLatest(on)
                             if (on) app.library.refreshLatestNext()
                         }
-                    }
-                    SwitchRow(
-                        stringResource(R.string.screens_settings_notifications),
-                        stringResource(R.string.screens_settings_notifications_sub),
-                        // Shown off when the permission was denied or revoked, so turning it on asks again.
-                        settings.notifications && notificationsAllowed,
-                        Icons.Rounded.Notifications,
-                    ) { on ->
+                    },
+                )
+                SwitchSetting(
+                    title = stringResource(R.string.screens_settings_notifications),
+                    summary = stringResource(R.string.screens_settings_notifications_sub),
+                    // Shown off when the permission was denied or revoked, so turning it on asks again.
+                    checked = settings.notifications && notificationsAllowed,
+                    onCheckedChange = { on ->
                         if (on) {
                             if (Build.VERSION.SDK_INT >= 33) permission.launch(Manifest.permission.POST_NOTIFICATIONS) else enableNotifications()
                         } else {
@@ -218,43 +117,82 @@ fun SettingsScreen(settings: AppSettings) {
                                 NewEpisodesWorker.cancel(context)
                             }
                         }
-                    }
-                }
-            }
-
-            item {
-                TextButton(onClick = { context.openUrl("https://simkl.com/") }) { Text(stringResource(R.string.screens_powered_by)) }
-                Text(
-                    stringResource(R.string.screens_settings_about, BuildConfig.VERSION_NAME),
-                    style = MaterialTheme.typography.labelSmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    modifier = Modifier.padding(16.dp),
+                    },
                 )
             }
         }
-    }
-}
 
-@Composable
-private fun Group(content: @Composable () -> Unit) {
-    Surface(shape = AppShapes.Group, color = MaterialTheme.colorScheme.surfaceContainerLow) {
-        Column { content() }
-    }
-}
+        item(key = "bottom-bar") {
+            val order = settings.nav.order
+            CollapsibleSection(
+                key = "bottom-bar",
+                title = stringResource(R.string.screens_settings_bottom_bar),
+                summary = order.filter { it in settings.nav.enabled }.map { it.label() }.joinToString(", "),
+                icon = rememberVectorPainter(Icons.Rounded.Dashboard),
+            ) {
+                Text(
+                    stringResource(R.string.screens_settings_bottom_bar_hint),
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+                order.forEachIndexed { index, tab ->
+                    val enabled = tab in settings.nav.enabled
+                    Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                        Icon(tab.icon(enabled), null)
+                        Text(tab.label(), style = MaterialTheme.typography.bodyLarge, modifier = Modifier.weight(1f))
+                        IconButton(
+                            enabled = index > 0,
+                            onClick = {
+                                val list = order.toMutableList().apply { add(index - 1, removeAt(index)) }
+                                scope.launch { app.settings.setNav(NavConfig(list, settings.nav.enabled)) }
+                            },
+                        ) { Icon(Icons.Rounded.KeyboardArrowUp, stringResource(R.string.screens_settings_move_up)) }
+                        IconButton(
+                            enabled = index < order.lastIndex,
+                            onClick = {
+                                val list = order.toMutableList().apply { add(index + 1, removeAt(index)) }
+                                scope.launch { app.settings.setNav(NavConfig(list, settings.nav.enabled)) }
+                            },
+                        ) { Icon(Icons.Rounded.KeyboardArrowDown, stringResource(R.string.screens_settings_move_down)) }
+                        Switch(
+                            checked = enabled,
+                            // At least one destination stays on.
+                            enabled = !enabled || settings.nav.enabled.size > 1,
+                            onCheckedChange = { on ->
+                                val set = if (on) settings.nav.enabled + tab else settings.nav.enabled - tab
+                                scope.launch { app.settings.setNav(NavConfig(order, set)) }
+                            },
+                        )
+                    }
+                }
+            }
+        }
 
-@Composable
-private fun SwitchRow(
-    title: String,
-    subtitle: String?,
-    checked: Boolean,
-    icon: androidx.compose.ui.graphics.vector.ImageVector? = null,
-    onChange: (Boolean) -> Unit,
-) {
-    ListItem(
-        colors = ListItemDefaults.colors(containerColor = MaterialTheme.colorScheme.surfaceContainerLow),
-        leadingContent = if (icon != null) ({ Icon(icon, null) }) else null,
-        headlineContent = { Text(title) },
-        supportingContent = if (subtitle != null) ({ Text(subtitle) }) else null,
-        trailingContent = { Switch(checked = checked, onCheckedChange = onChange) },
-    )
+        item(key = "appearance") {
+            CollapsibleSection(
+                key = "appearance",
+                title = stringResource(R.string.screens_settings_appearance),
+                summary = settings.theme.label(),
+                icon = rememberVectorPainter(Icons.Rounded.Palette),
+            ) {
+                AppearanceSettings(
+                    themeLabel = stringResource(R.string.screens_settings_theme),
+                    themeOptions = ThemeMode.entries.map { it.label() },
+                    selectedTheme = settings.theme.ordinal,
+                    onThemeSelect = { index -> scope.launch { app.settings.setTheme(ThemeMode.entries[index]) } },
+                    dynamicColorTitle = stringResource(R.string.screens_settings_dynamic_color),
+                    dynamicColorSummary = stringResource(R.string.screens_settings_dynamic_color_sub),
+                    dynamicColor = settings.dynamicColor,
+                    onDynamicColorChange = { scope.launch { app.settings.setDynamicColor(it) } },
+                    dynamicColorSupported = Build.VERSION.SDK_INT >= Build.VERSION_CODES.S,
+                )
+            }
+        }
+
+        item(key = "footer") {
+            SettingsFooter(stringResource(R.string.screens_settings_about, BuildConfig.VERSION_NAME)) {
+                TextButton(onClick = { context.openUrl("https://simkl.com/") }) { Text(stringResource(R.string.screens_powered_by)) }
+            }
+        }
+    }
 }

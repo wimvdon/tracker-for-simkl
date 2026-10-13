@@ -32,4 +32,6 @@
     <string name="discover_most_watched">I più visti</string>
     <string name="discover_best_all">I migliori di sempre</string>
     <string name="discover_most_voted">I più votati</string>
+    <string name="section_expanded">Espanso</string>
+    <string name="section_collapsed">Compresso</string>
 </resources>

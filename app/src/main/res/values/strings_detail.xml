@@ -4,7 +4,7 @@
     <string name="detail_share">Share</string>
     <string name="detail_load_failed_fallback">Could not load the details</string>
     <string name="detail_load_failed_title">Couldn\'t load this title</string>
-    <string name="detail_try_again">Try again</string>
+    <string name="detail_try_again">Retry</string>
     <string name="detail_failure_reason">%1$s: %2$s</string>
     <string name="detail_error_mark_watched">Couldn\'t mark watched</string>
     <string name="detail_error_update_list">Couldn\'t update the list</string>
