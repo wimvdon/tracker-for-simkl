@@ -66,6 +66,7 @@ import io.github.impca201.trackerforsimkl.data.model.NextEpisode
 import io.github.impca201.trackerforsimkl.data.model.Playback
 import io.github.impca201.trackerforsimkl.data.model.Shelves
 import io.github.impca201.trackerforsimkl.ui.components.ConfirmWatchedDialog
+import io.github.impca201.trackerforsimkl.ui.theme.AppShapes
 import kotlin.math.roundToInt
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -635,7 +636,7 @@ private fun About(d: MediaDetails) {
                 d.alternativeTitles.takeIf { it.isNotEmpty() }?.let { R.string.detail_fact_also_known_as to it.take(4).joinToString(", ") },
             )
         if (facts.isNotEmpty()) {
-            Surface(shape = RoundedCornerShape(20.dp), color = MaterialTheme.colorScheme.surfaceContainerLow) {
+            Surface(shape = AppShapes.Item, color = MaterialTheme.colorScheme.surfaceContainerLow) {
                 Column(Modifier.fillMaxWidth().padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
                     facts.forEach { (label, value) ->
                         Row {

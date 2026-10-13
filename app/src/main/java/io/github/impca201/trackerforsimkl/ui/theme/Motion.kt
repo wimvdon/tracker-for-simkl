@@ -1,9 +1,22 @@
 package io.github.impca201.trackerforsimkl.ui.theme
 
+import android.provider.Settings
+import androidx.compose.animation.ContentTransform
 import androidx.compose.animation.core.CubicBezierEasing
 import androidx.compose.animation.core.Easing
 import androidx.compose.animation.core.FiniteAnimationSpec
 import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInHorizontally
+import androidx.compose.animation.slideOutHorizontally
+import androidx.compose.animation.togetherWith
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.unit.IntOffset
+
+// Shared design kit: this file is identical in every app apart from the package (see DESIGN.md).
 
 /** Material 3 motion tokens (easing and duration), shared by the app's transitions. */
 object Motion {
@@ -25,4 +38,31 @@ object Motion {
 
     /** Progress bars and other values that move to a new state. */
     fun <T> progressSpec(): FiniteAnimationSpec<T> = tween(LONG_2, easing = Emphasized)
+
+    /**
+     * Material 3 shared-axis X between screens: both slide [offsetPx] (30dp) along the axis; the
+     * old screen fades out quickly, then the new one fades in, so they never overlap at full opacity.
+     */
+    fun sharedAxisX(
+        forward: Boolean,
+        offsetPx: Int,
+    ): ContentTransform {
+        val slide = tween<IntOffset>(MEDIUM_2, easing = Emphasized)
+        val enter =
+            slideInHorizontally(slide) { if (forward) offsetPx else -offsetPx } +
+                fadeIn(tween(210, delayMillis = 90, easing = EmphasizedDecelerate))
+        val exit =
+            slideOutHorizontally(slide) { if (forward) -offsetPx else offsetPx } +
+                fadeOut(tween(90, easing = EmphasizedAccelerate))
+        return enter togetherWith exit
+    }
+}
+
+/** True when the user switched off animations ("Remove animations" / animator scale 0). */
+@Composable
+fun rememberReducedMotion(): Boolean {
+    val context = LocalContext.current
+    return remember(context) {
+        Settings.Global.getFloat(context.contentResolver, Settings.Global.ANIMATOR_DURATION_SCALE, 1f) == 0f
+    }
 }
