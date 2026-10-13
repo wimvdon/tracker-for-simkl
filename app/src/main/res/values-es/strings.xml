@@ -4,11 +4,11 @@
     <string name="guide_title">Guía de inicio de sesión</string>
     <string name="guide_open">Guía paso a paso</string>
     <string name="guide_step_1">Abre la página de desarrolladores de SIMKL en tu navegador e inicia sesión en SIMKL si te lo pide.</string>
-    <string name="guide_step_2">Crea una nueva app. Ponle cualquier nombre (por ejemplo, «SIMKLr»), elige AUTH V2 y el tipo de app «TV, devices &amp; command line». Deja los demás campos como están y guarda.</string>
-    <string name="guide_step_3">Copia el Client ID de la app. SIMKLr no necesita el Client Secret.</string>
-    <string name="guide_step_4">Pega el Client ID en SIMKLr y toca Continuar.</string>
-    <string name="guide_step_5">Toca Iniciar sesión con SIMKL. SIMKLr muestra un código corto.</string>
-    <string name="guide_step_6">Toca Abrir SIMKL, comprueba que el código coincide (o escríbelo) y aprueba. Vuelve a SIMKLr: iniciará sesión automáticamente.</string>
+    <string name="guide_step_2">Crea una nueva app. Ponle cualquier nombre (por ejemplo, «Tracker for Simkl»), elige AUTH V2 y el tipo de app «TV, devices &amp; command line». Deja los demás campos como están y guarda.</string>
+    <string name="guide_step_3">Copia el Client ID de la app. Tracker for Simkl no necesita el Client Secret.</string>
+    <string name="guide_step_4">Pega el Client ID en Tracker for Simkl y toca Continuar.</string>
+    <string name="guide_step_5">Toca Iniciar sesión con SIMKL. Tracker for Simkl muestra un código corto.</string>
+    <string name="guide_step_6">Toca Abrir SIMKL, comprueba que el código coincide (o escríbelo) y aprueba. Vuelve a Tracker for Simkl: iniciará sesión automáticamente.</string>
     <string name="guide_trouble_title">¿Problemas para iniciar sesión?</string>
     <string name="guide_trouble">• «No se pudo iniciar sesión»: comprueba que copiaste el Client ID completo, sin espacios.\n• El código ha caducado: toca de nuevo Iniciar sesión con SIMKL para obtener uno nuevo.\n• La página de aprobación muestra un error: edita tu app en SIMKL y asegúrate de que su tipo es «TV, devices &amp; command line».\n• Las apps antiguas AUTH V1 siguen funcionando.</string>
     <string name="create_simkl_app">Crear una app de SIMKL</string>

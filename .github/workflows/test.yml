@@ -34,13 +34,13 @@ jobs:
           test -n "$seeds" || { echo "::error::R8 seeds file missing"; find . -name '*seeds*' | head; exit 1; }
           echo "Seeds: $seeds"
           for entry in "androidx.work.impl.WorkDatabase_Impl: WorkDatabase_Impl()" \
-                       "io.github.impca201.simklr.work.NewEpisodesWorker: NewEpisodesWorker(android.content.Context,androidx.work.WorkerParameters)"; do
+                       "io.github.impca201.trackerforsimkl.work.NewEpisodesWorker: NewEpisodesWorker(android.content.Context,androidx.work.WorkerParameters)"; do
             grep -qF "$entry" "$seeds" || { echo "::error::R8 did not keep $entry"; grep -F "WorkDatabase_Impl" "$seeds" | head; exit 1; }
           done
           echo "Release build keeps the WorkManager/Room constructors."
       - uses: actions/upload-artifact@v4
         with:
-          name: simklr-debug-apk
+          name: tracker-for-simkl-debug-apk
           path: app/build/outputs/apk/debug/app-debug.apk
       - uses: actions/upload-artifact@v4
         if: always()

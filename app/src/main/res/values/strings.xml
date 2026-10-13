@@ -1,16 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name" translatable="false">SIMKLr</string>
+    <string name="app_name" translatable="false">Tracker for Simkl</string>
 
     <!-- Auth guide -->
     <string name="guide_title">Sign-in guide</string>
     <string name="guide_open">Step-by-step guide</string>
     <string name="guide_step_1">Open the SIMKL developer page in your browser and sign in to SIMKL if asked.</string>
-    <string name="guide_step_2">Create a new app. Give it any name (for example “SIMKLr”), pick AUTH V2 and choose the app type “TV, devices &amp; command line”. Leave the other fields as they are and save.</string>
-    <string name="guide_step_3">Copy the app’s Client ID. SIMKLr does not need the Client Secret.</string>
-    <string name="guide_step_4">Paste the Client ID in SIMKLr and tap Continue.</string>
-    <string name="guide_step_5">Tap Sign in with SIMKL. SIMKLr shows a short code.</string>
-    <string name="guide_step_6">Tap Open SIMKL, check that the code matches (or type it in) and approve. Come back to SIMKLr: it signs you in by itself.</string>
+    <string name="guide_step_2">Create a new app. Give it any name (for example “Tracker for Simkl”), pick AUTH V2 and choose the app type “TV, devices &amp; command line”. Leave the other fields as they are and save.</string>
+    <string name="guide_step_3">Copy the app’s Client ID. Tracker for Simkl does not need the Client Secret.</string>
+    <string name="guide_step_4">Paste the Client ID in Tracker for Simkl and tap Continue.</string>
+    <string name="guide_step_5">Tap Sign in with SIMKL. Tracker for Simkl shows a short code.</string>
+    <string name="guide_step_6">Tap Open SIMKL, check that the code matches (or type it in) and approve. Come back to Tracker for Simkl: it signs you in by itself.</string>
     <string name="guide_trouble_title">Trouble signing in?</string>
     <string name="guide_trouble">• “Could not start the login”: check that you copied the whole Client ID, without spaces.\n• The code expired: tap Sign in with SIMKL again for a new one.\n• The approval page shows an error: edit your app on SIMKL and make sure its type is “TV, devices &amp; command line”.\n• Older AUTH V1 apps keep working.</string>
     <string name="create_simkl_app">Create a SIMKL app</string>

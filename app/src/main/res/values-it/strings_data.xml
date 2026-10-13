@@ -4,7 +4,7 @@
     <string name="data_notif_channel_name">Nuovi episodi</string>
     <string name="data_notif_channel_description">Quando è disponibile un nuovo episodio di una serie che stai guardando</string>
     <string name="data_notif_new_episode">Nuovo episodio disponibile</string>
-    <string name="data_crash_title">SIMKLr si è chiuso in modo anomalo l’ultima volta</string>
+    <string name="data_crash_title">Tracker for Simkl si è chiuso in modo anomalo l’ultima volta</string>
     <string name="data_crash_copy">Copia il report dell’arresto anomalo</string>
     <string name="data_crash_continue">Continua</string>
 </resources>

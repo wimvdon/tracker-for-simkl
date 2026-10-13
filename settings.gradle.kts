@@ -20,5 +20,5 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "SIMKLr"
+rootProject.name = "TrackerForSimkl"
 include(":app")

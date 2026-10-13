@@ -35,7 +35,7 @@
     <string name="screens_settings_appearance">Weergave</string>
     <string name="screens_settings_theme">Thema</string>
     <string name="screens_settings_dynamic_color">Dynamische kleuren</string>
-    <string name="screens_settings_dynamic_color_sub">Kleuren van je achtergrond gebruiken in plaats van SIMKLr-paars</string>
+    <string name="screens_settings_dynamic_color_sub">Kleuren van je achtergrond gebruiken in plaats van het paars van de app</string>
     <string name="screens_settings_bottom_bar">Onderbalk</string>
     <string name="screens_settings_bottom_bar_hint">Kies en orden de onderdelen van de onderbalk.</string>
     <string name="screens_settings_move_up">Omhoog</string>
@@ -52,14 +52,14 @@
     <string name="screens_settings_guide_sub">Zo maak je een SIMKL-app en log je in</string>
     <string name="screens_settings_manage_apps">Je SIMKL-apps beheren</string>
     <string name="screens_settings_open">Openen</string>
-    <string name="screens_settings_about">SIMKLr %1$s · Niet verbonden aan SIMKL. Gegevens en afbeeldingen © SIMKL en hun bronnen.</string>
+    <string name="screens_settings_about">Tracker for Simkl %1$s · Niet verbonden aan SIMKL. Gegevens en afbeeldingen © SIMKL en hun bronnen.</string>
     <string name="screens_settings_client_id_dialog_title">SIMKL-client-ID</string>
     <string name="screens_settings_client_id_dialog_body">Wijzigen logt je uit, omdat tokens bij één app horen.</string>
     <string name="screens_settings_save">Opslaan</string>
     <string name="screens_client_id">Client ID</string>
     <string name="screens_login_tagline">Houd je series, anime en films bij met SIMKL.</string>
     <string name="screens_login_api_key_title">Je SIMKL-API-sleutel</string>
-    <string name="screens_login_api_key_body">SIMKLr praat met SIMKL via je eigen gratis API-app. Maak er een aan op SIMKL (AUTH V2, type “TV, devices &amp; command line”; naam maakt niet uit) en plak de Client ID hier. Oudere AUTH V1-apps werken ook.</string>
+    <string name="screens_login_api_key_body">Tracker for Simkl praat met SIMKL via je eigen gratis API-app. Maak er een aan op SIMKL (AUTH V2, type “TV, devices &amp; command line”; naam maakt niet uit) en plak de Client ID hier. Oudere AUTH V1-apps werken ook.</string>
     <string name="screens_login_continue">Doorgaan</string>
     <string name="screens_login_sign_in">Inloggen met SIMKL</string>
     <string name="screens_login_open_simkl">SIMKL openen</string>

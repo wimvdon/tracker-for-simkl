@@ -35,7 +35,7 @@
     <string name="screens_settings_appearance">Appearance</string>
     <string name="screens_settings_theme">Theme</string>
     <string name="screens_settings_dynamic_color">Dynamic color</string>
-    <string name="screens_settings_dynamic_color_sub">Use colors from your wallpaper instead of SIMKLr violet</string>
+    <string name="screens_settings_dynamic_color_sub">Use colors from your wallpaper instead of the app’s violet</string>
     <string name="screens_settings_bottom_bar">Bottom bar</string>
     <string name="screens_settings_bottom_bar_hint">Choose and order the destinations of the bottom bar.</string>
     <string name="screens_settings_move_up">Move up</string>
@@ -52,14 +52,14 @@
     <string name="screens_settings_guide_sub">How to create a SIMKL app and sign in</string>
     <string name="screens_settings_manage_apps">Manage your SIMKL apps</string>
     <string name="screens_settings_open">Open</string>
-    <string name="screens_settings_about">SIMKLr %1$s · Not affiliated with SIMKL. Data and images © SIMKL and their sources.</string>
+    <string name="screens_settings_about">Tracker for Simkl %1$s · Not affiliated with SIMKL. Data and images © SIMKL and their sources.</string>
     <string name="screens_settings_client_id_dialog_title">SIMKL client ID</string>
     <string name="screens_settings_client_id_dialog_body">Changing it logs you out, because tokens belong to one app.</string>
     <string name="screens_settings_save">Save</string>
     <string name="screens_client_id">Client ID</string>
     <string name="screens_login_tagline">Track your TV shows, anime and movies with SIMKL.</string>
     <string name="screens_login_api_key_title">Your SIMKL API key</string>
-    <string name="screens_login_api_key_body">SIMKLr talks to SIMKL with your own free API app. Create one on SIMKL (AUTH V2, type “TV, devices &amp; command line”; any name), then paste its Client ID here. Older AUTH V1 apps work too.</string>
+    <string name="screens_login_api_key_body">Tracker for Simkl talks to SIMKL with your own free API app. Create one on SIMKL (AUTH V2, type “TV, devices &amp; command line”; any name), then paste its Client ID here. Older AUTH V1 apps work too.</string>
     <string name="screens_login_continue">Continue</string>
     <string name="screens_login_sign_in">Sign in with SIMKL</string>
     <string name="screens_login_open_simkl">Open SIMKL</string>

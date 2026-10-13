@@ -4,7 +4,7 @@
     <string name="data_notif_channel_name">New episodes</string>
     <string name="data_notif_channel_description">When a new episode of a show you are watching is available</string>
     <string name="data_notif_new_episode">New episode available</string>
-    <string name="data_crash_title">SIMKLr crashed last time</string>
+    <string name="data_crash_title">Tracker for Simkl crashed last time</string>
     <string name="data_crash_copy">Copy crash report</string>
     <string name="data_crash_continue">Continue</string>
 </resources>

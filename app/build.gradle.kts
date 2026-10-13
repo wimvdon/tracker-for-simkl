@@ -19,11 +19,11 @@ val keystoreProperties =
     }
 
 android {
-    namespace = "io.github.impca201.simklr"
+    namespace = "io.github.impca201.trackerforsimkl"
     compileSdk = 37
 
     defaultConfig {
-        applicationId = "io.github.impca201.simklr"
+        applicationId = "io.github.impca201.trackerforsimkl"
         minSdk = 26
         targetSdk = 37
         // The release workflow passes -PversionName (from the tag) and -PversionCode (major * 10000 + minor * 100 + patch).
