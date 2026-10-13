@@ -49,8 +49,8 @@ fun AppRoot(
 
     TrackerTheme(mode = current.theme, dynamicColor = current.dynamicColor) {
         Surface(Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background) {
-            if (current.clientId.isBlank() || current.accessToken == null) {
-                LoginScreen(current)
+            if (current.accessToken == null) {
+                LoginScreen()
             } else {
                 LoggedIn(current, requested, onRequestHandled)
             }

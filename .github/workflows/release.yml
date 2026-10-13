@@ -121,7 +121,8 @@ jobs:
           task="assemble${BUILD_TYPE^}"
           ./gradlew "$task" \
             -PversionName=${{ needs.version.outputs.name }} \
-            -PversionCode=${{ needs.version.outputs.code }}
+            -PversionCode=${{ needs.version.outputs.code }} \
+            -PsimklClientId="${{ vars.SIMKL_CLIENT_ID }}"
           cp "app/build/outputs/apk/$BUILD_TYPE/app-$BUILD_TYPE.apk" \
             "$RUNNER_TEMP/tracker-for-simkl-${{ needs.version.outputs.name }}.apk"
       - name: Remove the signing key

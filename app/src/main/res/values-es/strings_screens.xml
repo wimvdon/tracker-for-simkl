@@ -10,9 +10,6 @@
     <string name="screens_search_no_results">No hay resultados para «%1$s»</string>
     <string name="screens_search_empty_title">Encuentra series, anime y películas</string>
     <string name="screens_search_empty_body">Busca por título en todo el catálogo de SIMKL.</string>
-    <string name="screens_discover_search_tv">Buscar series</string>
-    <string name="screens_discover_search_anime">Buscar anime</string>
-    <string name="screens_discover_search_movies">Buscar películas</string>
     <string name="screens_discover_no_suggestion">SIMKL no tiene sugerencias esta vez</string>
     <string name="screens_discover_surprise">Sorpréndeme</string>
     <string name="screens_calendar_loading">Cargando el calendario…</string>
@@ -47,34 +44,16 @@
     <string name="screens_settings_continue_latest_sub">«A continuación» empieza tras el último episodio visto. Se omiten los episodios o temporadas anteriores sin ver.</string>
     <string name="screens_settings_notifications">Avisos de nuevos episodios</string>
     <string name="screens_settings_notifications_sub">Consulta el calendario de episodios de SIMKL varias veces al día para las series que ves</string>
-    <string name="screens_settings_client_id">ID de cliente de la API</string>
-    <string name="screens_settings_change">Cambiar</string>
-    <string name="screens_settings_guide_sub">Cómo crear una app de SIMKL e iniciar sesión</string>
-    <string name="screens_settings_manage_apps">Gestionar tus apps de SIMKL</string>
-    <string name="screens_settings_open">Abrir</string>
     <string name="screens_settings_about">Tracker for Simkl %1$s · Sin relación con SIMKL. Datos e imágenes © SIMKL y sus fuentes.</string>
-    <string name="screens_settings_client_id_dialog_title">ID de cliente de SIMKL</string>
-    <string name="screens_settings_client_id_dialog_body">Cambiarlo cierra tu sesión, porque los tokens pertenecen a una sola app.</string>
-    <string name="screens_settings_save">Guardar</string>
-    <string name="screens_client_id">Client ID</string>
     <string name="screens_login_tagline">Sigue tus series, anime y películas con SIMKL.</string>
-    <string name="screens_login_api_key_title">Tu clave API de SIMKL</string>
-    <string name="screens_login_api_key_body">Tracker for Simkl se conecta a SIMKL con tu propia app de API gratuita. Crea una en SIMKL (AUTH V2, cualquier nombre) con la URI de redirección trackerforsimkl://oauth y pega aquí su Client ID.</string>
-    <string name="screens_login_continue">Continuar</string>
     <string name="screens_login_sign_in">Iniciar sesión con SIMKL</string>
-    <string name="screens_login_open_simkl">Abrir SIMKL</string>
-    <string name="screens_login_change_api_key">Cambiar clave API</string>
-    <string name="screens_login_code_expired">El código ha caducado. Inténtalo de nuevo.</string>
-    <string name="screens_login_start_failed">No se pudo iniciar sesión: %1$s. Revisa el Client ID.</string>
-    <string name="screens_login_enter_code">Introduce este código en SIMKL</string>
-    <string name="screens_login_copy">Copiar</string>
-    <string name="screens_login_waiting">Esperando aprobación…</string>
     <plurals name="screens_profile_episodes">
         <item quantity="one">%1$d episodio</item>
         <item quantity="other">%1$d episodios</item>
     </plurals>
     <string name="screens_login_waiting_browser">Aprueba el inicio de sesión en simkl.com. Volverás aquí automáticamente.</string>
-    <string name="screens_login_with_code">Iniciar sesión con un código</string>
     <string name="screens_login_denied">Se canceló el inicio de sesión en SIMKL (%1$s).</string>
     <string name="screens_login_redirect_invalid">Ese enlace de inicio de sesión no coincide con el que inició la app. Toca de nuevo Iniciar sesión con SIMKL.</string>
+    <string name="screens_login_failed">Error al iniciar sesión: %1$s</string>
+    <string name="screens_login_note">Inicias sesión en simkl.com; esta app nunca ve tu contraseña. Tracker for Simkl no está afiliado a Simkl.</string>
 </resources>

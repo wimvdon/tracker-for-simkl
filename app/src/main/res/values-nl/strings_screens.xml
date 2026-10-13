@@ -10,9 +10,6 @@
     <string name="screens_search_no_results">Geen resultaten voor “%1$s”</string>
     <string name="screens_search_empty_title">Zoek series, anime en films</string>
     <string name="screens_search_empty_body">Zoek op titel in de hele SIMKL-catalogus.</string>
-    <string name="screens_discover_search_tv">Series zoeken</string>
-    <string name="screens_discover_search_anime">Anime zoeken</string>
-    <string name="screens_discover_search_movies">Films zoeken</string>
     <string name="screens_discover_no_suggestion">SIMKL had deze keer geen suggestie</string>
     <string name="screens_discover_surprise">Verras me</string>
     <string name="screens_calendar_loading">Agenda laden…</string>
@@ -47,34 +44,16 @@
     <string name="screens_settings_continue_latest_sub">“Volgende” begint na de laatst geziene aflevering. Ongeziene afleveringen of seizoenen daarvoor worden overgeslagen.</string>
     <string name="screens_settings_notifications">Meldingen voor nieuwe afleveringen</string>
     <string name="screens_settings_notifications_sub">Kijkt een paar keer per dag in de afleveringskalender van SIMKL voor series die je volgt</string>
-    <string name="screens_settings_client_id">API-client-ID</string>
-    <string name="screens_settings_change">Wijzigen</string>
-    <string name="screens_settings_guide_sub">Zo maak je een SIMKL-app en log je in</string>
-    <string name="screens_settings_manage_apps">Je SIMKL-apps beheren</string>
-    <string name="screens_settings_open">Openen</string>
     <string name="screens_settings_about">Tracker for Simkl %1$s · Niet verbonden aan SIMKL. Gegevens en afbeeldingen © SIMKL en hun bronnen.</string>
-    <string name="screens_settings_client_id_dialog_title">SIMKL-client-ID</string>
-    <string name="screens_settings_client_id_dialog_body">Wijzigen logt je uit, omdat tokens bij één app horen.</string>
-    <string name="screens_settings_save">Opslaan</string>
-    <string name="screens_client_id">Client ID</string>
     <string name="screens_login_tagline">Houd je series, anime en films bij met SIMKL.</string>
-    <string name="screens_login_api_key_title">Je SIMKL-API-sleutel</string>
-    <string name="screens_login_api_key_body">Tracker for Simkl praat met SIMKL via je eigen gratis API-app. Maak er een aan op SIMKL (AUTH V2, naam naar keuze) met als redirect-URI trackerforsimkl://oauth en plak hier de Client ID.</string>
-    <string name="screens_login_continue">Doorgaan</string>
     <string name="screens_login_sign_in">Inloggen met SIMKL</string>
-    <string name="screens_login_open_simkl">SIMKL openen</string>
-    <string name="screens_login_change_api_key">API-sleutel wijzigen</string>
-    <string name="screens_login_code_expired">De code is verlopen. Probeer het opnieuw.</string>
-    <string name="screens_login_start_failed">Kan het inloggen niet starten: %1$s. Controleer de Client ID.</string>
-    <string name="screens_login_enter_code">Voer deze code in op SIMKL</string>
-    <string name="screens_login_copy">Kopiëren</string>
-    <string name="screens_login_waiting">Wachten op goedkeuring…</string>
     <plurals name="screens_profile_episodes">
         <item quantity="one">%1$d aflevering</item>
         <item quantity="other">%1$d afleveringen</item>
     </plurals>
     <string name="screens_login_waiting_browser">Keur het inloggen goed op simkl.com. Je komt daarna vanzelf hier terug.</string>
-    <string name="screens_login_with_code">Liever inloggen met een code</string>
     <string name="screens_login_denied">Het inloggen is op SIMKL geannuleerd (%1$s).</string>
     <string name="screens_login_redirect_invalid">Die inloglink hoort niet bij de inlogpoging van deze app. Tik opnieuw op Inloggen met SIMKL.</string>
+    <string name="screens_login_failed">Inloggen mislukt: %1$s</string>
+    <string name="screens_login_note">Je logt in op simkl.com; deze app ziet je wachtwoord nooit. Tracker for Simkl is niet verbonden aan Simkl.</string>
 </resources>

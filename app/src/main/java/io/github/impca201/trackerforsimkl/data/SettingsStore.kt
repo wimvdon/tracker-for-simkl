@@ -11,7 +11,6 @@ import androidx.datastore.preferences.core.longPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.core.stringSetPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
-import io.github.impca201.trackerforsimkl.BuildConfig
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.first
@@ -50,7 +49,6 @@ data class NavConfig(
 }
 
 data class AppSettings(
-    val clientId: String = "",
     val accessToken: String? = null,
     val theme: ThemeMode = ThemeMode.System,
     val dynamicColor: Boolean = false,
@@ -65,7 +63,6 @@ class SettingsStore(
     private val context: Context,
 ) {
     private object Keys {
-        val clientId = stringPreferencesKey("client_id")
         val token = stringPreferencesKey("access_token")
         val refreshToken = stringPreferencesKey("refresh_token")
         val tokenExpiresAt = longPreferencesKey("token_expires_at")
@@ -88,7 +85,6 @@ class SettingsStore(
             val order =
                 p[Keys.navOrder]?.split(",")?.mapNotNull { n -> NavTab.entries.firstOrNull { it.name == n } }.orEmpty()
             AppSettings(
-                clientId = p[Keys.clientId] ?: BuildConfig.DEFAULT_CLIENT_ID,
                 accessToken = p[Keys.token],
                 theme = ThemeMode.entries.firstOrNull { it.name == p[Keys.theme] } ?: ThemeMode.System,
                 dynamicColor = p[Keys.dynamicColor] ?: false,
@@ -107,8 +103,6 @@ class SettingsStore(
         }
 
     suspend fun current(): AppSettings = settings.first()
-
-    suspend fun clientId(): String? = current().clientId.takeIf { it.isNotBlank() }
 
     suspend fun token(): String? = current().accessToken
 
@@ -149,8 +143,6 @@ class SettingsStore(
             it -= Keys.authState
             it -= Keys.authVerifier
         }
-
-    suspend fun setClientId(value: String) = context.dataStore.edit { it[Keys.clientId] = value.trim() }
 
     suspend fun setToken(value: String?) =
         context.dataStore.edit { prefs ->

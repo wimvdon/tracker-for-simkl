@@ -34,7 +34,6 @@ class LaunchTest {
     fun loggedInShowsMainScreen() {
         val app = ApplicationProvider.getApplicationContext<TrackerApp>()
         runBlocking {
-            app.settings.setClientId("0123456789abcdef0123456789abcdef")
             app.settings.setToken("test-token")
         }
         launchAndSettle()

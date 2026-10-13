@@ -10,9 +10,6 @@
     <string name="screens_search_no_results">Nessun risultato per “%1$s”</string>
     <string name="screens_search_empty_title">Trova serie TV, anime e film</string>
     <string name="screens_search_empty_body">Cerca per titolo in tutto il catalogo SIMKL.</string>
-    <string name="screens_discover_search_tv">Cerca serie TV</string>
-    <string name="screens_discover_search_anime">Cerca anime</string>
-    <string name="screens_discover_search_movies">Cerca film</string>
     <string name="screens_discover_no_suggestion">SIMKL non ha suggerimenti questa volta</string>
     <string name="screens_discover_surprise">Sorprendimi</string>
     <string name="screens_calendar_loading">Caricamento del calendario…</string>
@@ -47,34 +44,16 @@
     <string name="screens_settings_continue_latest_sub">“Prossimi” inizia dopo l\'ultimo episodio visto. Gli episodi o le stagioni precedenti non visti vengono saltati.</string>
     <string name="screens_settings_notifications">Notifiche nuovi episodi</string>
     <string name="screens_settings_notifications_sub">Controlla più volte al giorno il calendario degli episodi di SIMKL per le serie che stai guardando</string>
-    <string name="screens_settings_client_id">ID client API</string>
-    <string name="screens_settings_change">Modifica</string>
-    <string name="screens_settings_guide_sub">Come creare un\'app SIMKL e accedere</string>
-    <string name="screens_settings_manage_apps">Gestisci le tue app SIMKL</string>
-    <string name="screens_settings_open">Apri</string>
     <string name="screens_settings_about">Tracker for Simkl %1$s · Non affiliato a SIMKL. Dati e immagini © SIMKL e relative fonti.</string>
-    <string name="screens_settings_client_id_dialog_title">ID client SIMKL</string>
-    <string name="screens_settings_client_id_dialog_body">Cambiarlo ti disconnette, perché i token appartengono a una sola app.</string>
-    <string name="screens_settings_save">Salva</string>
-    <string name="screens_client_id">Client ID</string>
     <string name="screens_login_tagline">Tieni traccia di serie TV, anime e film con SIMKL.</string>
-    <string name="screens_login_api_key_title">La tua chiave API SIMKL</string>
-    <string name="screens_login_api_key_body">Tracker for Simkl comunica con SIMKL tramite la tua app API gratuita. Creane una su SIMKL (AUTH V2, nome a piacere) con l\'URI di reindirizzamento trackerforsimkl://oauth, poi incolla qui il suo Client ID.</string>
-    <string name="screens_login_continue">Continua</string>
     <string name="screens_login_sign_in">Accedi con SIMKL</string>
-    <string name="screens_login_open_simkl">Apri SIMKL</string>
-    <string name="screens_login_change_api_key">Cambia chiave API</string>
-    <string name="screens_login_code_expired">Il codice è scaduto. Riprova.</string>
-    <string name="screens_login_start_failed">Impossibile avviare l\'accesso: %1$s. Controlla il Client ID.</string>
-    <string name="screens_login_enter_code">Inserisci questo codice su SIMKL</string>
-    <string name="screens_login_copy">Copia</string>
-    <string name="screens_login_waiting">In attesa di approvazione…</string>
     <plurals name="screens_profile_episodes">
         <item quantity="one">%1$d episodio</item>
         <item quantity="other">%1$d episodi</item>
     </plurals>
     <string name="screens_login_waiting_browser">Approva l\'accesso su simkl.com. Tornerai qui automaticamente.</string>
-    <string name="screens_login_with_code">Accedi invece con un codice</string>
     <string name="screens_login_denied">L\'accesso è stato annullato su SIMKL (%1$s).</string>
     <string name="screens_login_redirect_invalid">Questo link di accesso non corrisponde a quello avviato dall\'app. Tocca di nuovo Accedi con SIMKL.</string>
+    <string name="screens_login_failed">Accesso non riuscito: %1$s</string>
+    <string name="screens_login_note">Accedi su simkl.com; questa app non vede mai la tua password. Tracker for Simkl non è affiliato a Simkl.</string>
 </resources>

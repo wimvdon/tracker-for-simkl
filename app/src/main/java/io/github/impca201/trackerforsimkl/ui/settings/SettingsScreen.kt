@@ -6,7 +6,6 @@ import android.content.pm.PackageManager
 import android.os.Build
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -21,23 +20,18 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.ArrowBack
-import androidx.compose.material.icons.automirrored.rounded.HelpOutline
-import androidx.compose.material.icons.automirrored.rounded.OpenInNew
-import androidx.compose.material.icons.rounded.Key
 import androidx.compose.material.icons.rounded.KeyboardArrowDown
 import androidx.compose.material.icons.rounded.KeyboardArrowUp
 import androidx.compose.material.icons.rounded.Notifications
 import androidx.compose.material.icons.rounded.Palette
 import androidx.compose.material.icons.rounded.SkipNext
 import androidx.compose.material.icons.rounded.VisibilityOff
-import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.ListItem
 import androidx.compose.material3.ListItemDefaults
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SegmentedButton
 import androidx.compose.material3.SegmentedButtonDefaults
@@ -64,12 +58,10 @@ import io.github.impca201.trackerforsimkl.R
 import io.github.impca201.trackerforsimkl.data.AppSettings
 import io.github.impca201.trackerforsimkl.data.NavConfig
 import io.github.impca201.trackerforsimkl.data.ThemeMode
-import io.github.impca201.trackerforsimkl.data.api.SimklApi
 import io.github.impca201.trackerforsimkl.ui.LocalNavigator
 import io.github.impca201.trackerforsimkl.ui.components.openUrl
 import io.github.impca201.trackerforsimkl.ui.components.rememberApp
 import io.github.impca201.trackerforsimkl.ui.library.SectionHeader
-import io.github.impca201.trackerforsimkl.ui.login.AuthGuideDialog
 import io.github.impca201.trackerforsimkl.ui.main.icon
 import io.github.impca201.trackerforsimkl.work.NewEpisodesWorker
 import kotlinx.coroutines.launch
@@ -81,8 +73,6 @@ fun SettingsScreen(settings: AppSettings) {
     val navigator = LocalNavigator.current
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
-    var editClientId by remember { mutableStateOf(false) }
-    var showGuide by remember { mutableStateOf(false) }
 
     fun enableNotifications() {
         scope.launch {
@@ -232,32 +222,6 @@ fun SettingsScreen(settings: AppSettings) {
                 }
             }
 
-            item { SectionHeader("SIMKL") }
-            item {
-                Group {
-                    ListItem(
-                        colors = ListItemDefaults.colors(containerColor = MaterialTheme.colorScheme.surfaceContainerLow),
-                        leadingContent = { Icon(Icons.Rounded.Key, null) },
-                        headlineContent = { Text(stringResource(R.string.screens_settings_client_id)) },
-                        supportingContent = { Text(settings.clientId.take(6) + "••••••" + settings.clientId.takeLast(4)) },
-                        trailingContent = { TextButton(onClick = { editClientId = true }) { Text(stringResource(R.string.screens_settings_change)) } },
-                    )
-                    ListItem(
-                        colors = ListItemDefaults.colors(containerColor = MaterialTheme.colorScheme.surfaceContainerLow),
-                        leadingContent = { Icon(Icons.AutoMirrored.Rounded.HelpOutline, null) },
-                        headlineContent = { Text(stringResource(R.string.guide_title)) },
-                        supportingContent = { Text(stringResource(R.string.screens_settings_guide_sub)) },
-                        modifier = Modifier.clickable { showGuide = true },
-                    )
-                    ListItem(
-                        colors = ListItemDefaults.colors(containerColor = MaterialTheme.colorScheme.surfaceContainerLow),
-                        leadingContent = { Icon(Icons.AutoMirrored.Rounded.OpenInNew, null) },
-                        headlineContent = { Text(stringResource(R.string.screens_settings_manage_apps)) },
-                        trailingContent = { TextButton(onClick = { context.openUrl("https://simkl.com/settings/developer/") }) { Text(stringResource(R.string.screens_settings_open)) } },
-                    )
-                }
-            }
-
             item {
                 TextButton(onClick = { context.openUrl("https://simkl.com/") }) { Text(stringResource(R.string.screens_powered_by)) }
                 Text(
@@ -268,38 +232,6 @@ fun SettingsScreen(settings: AppSettings) {
                 )
             }
         }
-    }
-
-    if (showGuide) AuthGuideDialog { showGuide = false }
-
-    if (editClientId) {
-        var value by remember { mutableStateOf(settings.clientId) }
-        AlertDialog(
-            onDismissRequest = { editClientId = false },
-            title = { Text(stringResource(R.string.screens_settings_client_id_dialog_title)) },
-            text = {
-                Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                    Text(stringResource(R.string.screens_settings_client_id_dialog_body), style = MaterialTheme.typography.bodySmall)
-                    OutlinedTextField(value, { value = it.trim() }, singleLine = true, label = { Text(stringResource(R.string.screens_client_id)) })
-                    TextButton(onClick = { context.openUrl(SimklApi.DEVELOPER_URL) }) { Text(stringResource(R.string.create_simkl_app)) }
-                }
-            },
-            confirmButton = {
-                TextButton(
-                    enabled = value.length >= 16,
-                    onClick = {
-                        editClientId = false
-                        scope.launch {
-                            if (value != settings.clientId) {
-                                app.settings.setClientId(value)
-                                app.logout()
-                            }
-                        }
-                    },
-                ) { Text(stringResource(R.string.screens_settings_save)) }
-            },
-            dismissButton = { TextButton(onClick = { editClientId = false }) { Text(stringResource(R.string.screens_cancel)) } },
-        )
     }
 }
 

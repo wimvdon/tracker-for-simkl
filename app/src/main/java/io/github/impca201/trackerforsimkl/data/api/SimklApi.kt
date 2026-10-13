@@ -38,35 +38,18 @@ class ApiException(
     val unauthorized get() = code == 401 || code == 403
 }
 
-/**
- * A pending sign-in: the user enters [userCode] on simkl.com ([openUrl] has it filled in).
- * AUTH V2 apps use the OAuth 2.0 device flow ([deviceCode] set), AUTH V1 apps the older PIN flow.
- */
-data class LoginCode(
-    val userCode: String,
-    val openUrl: String,
-    val expiresInSeconds: Int,
-    val intervalSeconds: Int,
-    val deviceCode: String? = null,
-)
-
-sealed interface LoginPoll {
-    data object Pending : LoginPoll
-
-    data object SlowDown : LoginPoll
-
-    data object Expired : LoginPoll
-
+/** The outcome of exchanging a sign-in code for tokens. */
+sealed interface SignIn {
     data class Approved(
         val accessToken: String,
         val refreshToken: String?,
-        /** Epoch ms, or null when the token does not expire (AUTH V1). */
+        /** Epoch ms, or null when SIMKL gives no expiry. */
         val expiresAt: Long?,
-    ) : LoginPoll
+    ) : SignIn
 
     data class Failed(
         val message: String,
-    ) : LoginPoll
+    ) : SignIn
 }
 
 /**
@@ -80,7 +63,8 @@ class SimklApi(
 ) {
     private val refreshLock = Mutex()
 
-    private suspend fun clientId(): String? = settings.clientId()
+    /** The app's own SIMKL client ID, baked in at build time (not a secret, per SIMKL's API rules). */
+    private fun clientId(): String? = BuildConfig.SIMKL_CLIENT_ID.ifBlank { null }
 
     private val json = Json { ignoreUnknownKeys = true; isLenient = true }
     private val jsonType = "application/json; charset=utf-8".toMediaType()
@@ -136,7 +120,7 @@ class SimklApi(
         auth: Boolean = true,
         retried: Boolean = false,
     ): JsonElement {
-        val id = clientId()?.takeIf { it.isNotBlank() } ?: throw ApiException(0, "No SIMKL client ID set")
+        val id = clientId()?.takeIf { it.isNotBlank() } ?: throw ApiException(0, "This build has no SIMKL client ID")
         val bearer = if (auth) accessToken() else null
         val request =
             Request.Builder()
@@ -208,33 +192,7 @@ class SimklApi(
         body: JsonElement? = null,
     ) = call("POST", path, body = body)
 
-    // ---- Login (needs only the client ID) ----------------------------------------------------
-
-    /**
-     * Starts a sign-in. AUTH V2 apps use the OAuth 2.0 device flow (POST /oauth2/device); SIMKL
-     * answers an AUTH V1 client ID there with invalid_client, and the older PIN flow is used.
-     */
-    suspend fun startLogin(): LoginCode {
-        val id = clientId() ?: throw ApiException(0, "No SIMKL client ID set")
-        val (status, element) = postForm("/oauth2/device", mapOf("client_id" to id, "scope" to SCOPE))
-        val obj = element.asObject()
-        if (status in 200..299) {
-            val deviceCode = obj?.str("device_code")
-            val userCode = obj?.str("user_code")
-            if (deviceCode != null && userCode != null) {
-                return LoginCode(
-                    userCode = userCode,
-                    openUrl = obj?.str("verification_uri_complete") ?: obj?.str("verification_uri") ?: "https://simkl.com/pin/",
-                    expiresInSeconds = obj?.int("expires_in") ?: 900,
-                    intervalSeconds = obj?.int("interval") ?: 5,
-                    deviceCode = deviceCode,
-                )
-            }
-            throw ApiException(status, "SIMKL returned an incomplete sign-in code")
-        }
-        if (status == 401 || obj?.str("error") == "invalid_client") return startPinLogin()
-        throw ApiException(status, obj?.str("error_description") ?: obj?.str("error") ?: "HTTP $status")
-    }
+    // ---- Sign-in -----------------------------------------------------------------------------
 
     /**
      * The simkl.com page of the mobile sign-in (OAuth 2.0 authorization code with PKCE): the user
@@ -244,7 +202,7 @@ class SimklApi(
         state: String,
         codeChallenge: String,
     ): String {
-        val id = clientId()?.takeIf { it.isNotBlank() } ?: throw ApiException(0, "No SIMKL client ID set")
+        val id = clientId()?.takeIf { it.isNotBlank() } ?: throw ApiException(0, "This build has no SIMKL client ID")
         return AUTHORIZE_URL.toHttpUrl().newBuilder()
             .addQueryParameter("response_type", "code")
             .addQueryParameter("client_id", id)
@@ -261,7 +219,7 @@ class SimklApi(
     suspend fun exchangeCode(
         code: String,
         codeVerifier: String,
-    ): LoginPoll {
+    ): SignIn {
         val (status, element) =
             postForm(
                 "/oauth2/token",
@@ -275,68 +233,21 @@ class SimklApi(
             )
         val obj = element.asObject()
         return tokenResult(status, obj)
-            ?: LoginPoll.Failed(obj?.str("error_description") ?: obj?.str("error") ?: "SIMKL sign-in failed (HTTP $status)")
+            ?: SignIn.Failed(obj?.str("error_description") ?: obj?.str("error") ?: "SIMKL sign-in failed (HTTP $status)")
     }
 
     /** Approved for a token response with write access, Failed for a read-only one, null otherwise. */
     private fun tokenResult(
         status: Int,
         obj: JsonObject?,
-    ): LoginPoll? {
+    ): SignIn? {
         if (obj == null || status !in 200..299) return null
         val token = obj.str("access_token") ?: return null
         val scope = obj.str("scope")
         if (scope != null && "media:write" !in scope.split(" ")) {
-            return LoginPoll.Failed("SIMKL granted read-only access. Sign in again and allow Tracker for Simkl to update your lists.")
+            return SignIn.Failed("SIMKL granted read-only access. Sign in again and allow Tracker for Simkl to update your lists.")
         }
-        return LoginPoll.Approved(token, obj.str("refresh_token"), obj.long("expires_in")?.let { System.currentTimeMillis() + it * 1000 })
-    }
-
-    private suspend fun startPinLogin(): LoginCode {
-        val obj = get("/oauth/pin", auth = false).asObject()
-        val code = obj?.str("user_code") ?: throw ApiException(0, obj?.str("message") ?: "SIMKL did not return a code")
-        val url = obj.str("verification_url") ?: "https://simkl.com/pin/"
-        return LoginCode(
-            userCode = code,
-            openUrl = url.trimEnd('/') + "/" + code,
-            expiresInSeconds = obj.int("expires_in") ?: 900,
-            intervalSeconds = obj.int("interval") ?: 5,
-        )
-    }
-
-    /** One poll of a pending sign-in. Poll no faster than [LoginCode.intervalSeconds]. */
-    suspend fun pollLogin(code: LoginCode): LoginPoll {
-        val deviceCode = code.deviceCode
-        if (deviceCode == null) {
-            // AUTH V1: "KO" with "Authorization pending" or "Slow down", then "OK" with a token that never expires.
-            val obj = get("/oauth/pin/${code.userCode}", auth = false).asObject() ?: return LoginPoll.Pending
-            val token = obj.str("access_token")
-            if (obj.str("result") == "OK" && token != null) return LoginPoll.Approved(token, null, null)
-            return if (obj.str("message")?.contains("slow", ignoreCase = true) == true) LoginPoll.SlowDown else LoginPoll.Pending
-        }
-        val (status, element) =
-            postForm(
-                "/oauth2/token",
-                mapOf(
-                    "grant_type" to "urn:ietf:params:oauth:grant-type:device_code",
-                    "client_id" to clientId(),
-                    "device_code" to deviceCode,
-                ),
-            )
-        val obj = element.asObject()
-        tokenResult(status, obj)?.let { return it }
-        if (status == 429) return LoginPoll.SlowDown
-        return when (obj?.str("error")) {
-            "authorization_pending" -> LoginPoll.Pending
-            "slow_down" -> LoginPoll.SlowDown
-            "expired_token", "invalid_grant" -> LoginPoll.Expired
-            "invalid_client" ->
-                LoginPoll.Failed(
-                    "This SIMKL app needs a client secret. Register a SIMKL app of the " +
-                        "\"TV, devices & command line\" type and use its Client ID.",
-                )
-            else -> LoginPoll.Failed(obj?.str("error_description") ?: "SIMKL sign-in failed (HTTP $status)")
-        }
+        return SignIn.Approved(token, obj.str("refresh_token"), obj.long("expires_in")?.let { System.currentTimeMillis() + it * 1000 })
     }
 
     // ---- Sync ---------------------------------------------------------------------------------
@@ -541,10 +452,9 @@ class SimklApi(
         const val BASE = "https://api.simkl.com"
         private const val DATA_HOST = "data.simkl.in"
         const val APP_NAME = "tracker-for-simkl"
-        const val DEVELOPER_URL = "https://simkl.com/settings/developer/new/"
         const val AUTHORIZE_URL = "https://simkl.com/oauth2/authorize"
 
-        /** Must be registered as the redirect URI of the user's SIMKL app; AuthRedirectActivity receives it. */
+        /** Registered as the redirect URI of the app's SIMKL API app; AuthRedirectActivity receives it. */
         const val REDIRECT_URI = "trackerforsimkl://oauth"
         private const val SCOPE = "media:read media:write"
     }

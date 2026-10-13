@@ -48,21 +48,19 @@ Search and your profile are in every destination's top bar.
 
 ## Signing in
 
-The app has a step-by-step sign-in guide on the setup screen and under Settings → SIMKL.
+Tap **Sign in with SIMKL**: simkl.com opens in the browser, and after you approve, SIMKL sends you
+back to the app. That's all; nobody needs a SIMKL developer account.
 
-SIMKL's API needs a client ID. Create a free app at <https://simkl.com/settings/developer/new/>
-(**AUTH V2**, any name) with the redirect URI **`trackerforsimkl://oauth`**, and paste its
-**Client ID** into the app on first launch (the Client Secret is not needed). **Sign in with
-SIMKL** opens simkl.com in the browser; after you approve, SIMKL sends you back to the app.
+The app uses SIMKL's recommended sign-in for mobile apps, the OAuth 2.0 authorization code flow
+with PKCE: `/oauth2/authorize` with an S256 `code_challenge` and the redirect URI
+`trackerforsimkl://oauth`, then `POST /oauth2/token` with the `code_verifier`, scope
+`media:read media:write`, no client secret. The week-long access token is renewed with the
+refresh token.
 
-This is SIMKL's recommended sign-in for mobile apps: the OAuth 2.0 authorization code flow with
-PKCE (`/oauth2/authorize` with an S256 `code_challenge`, then `POST /oauth2/token` with the
-`code_verifier`), `media:read media:write` scope, no client secret. The week-long access token is
-renewed with the refresh token. **Sign in with a code instead** keeps the device flow
-(`/oauth2/device`) for SIMKL apps of the "TV, devices & command line" type, and older AUTH V1 apps
-through the PIN flow (`/oauth/pin`, retired by SIMKL around April 2027).
-
-To bake a client ID into a build, pass `-PsimklClientId=...` to Gradle.
+The app's own SIMKL client ID is baked in at build time with `-PsimklClientId=...`; the GitHub
+workflows take it from the `SIMKL_CLIENT_ID` Actions variable. (A client ID isn't a secret, per
+SIMKL's API rules.) Its SIMKL API app must be AUTH V2 with `trackerforsimkl://oauth` as redirect
+URI. Builds without a client ID start, but can't sign in.
 
 The API usage follows SIMKL's official documentation ([api.simkl.org](https://api.simkl.org),
 formerly [github.com/SIMKL/api](https://github.com/SIMKL/api)): the activities-first sync with

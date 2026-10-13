@@ -3,18 +3,6 @@
     <string name="app_name" translatable="false">Tracker for Simkl</string>
 
     <!-- Auth guide -->
-    <string name="guide_title">Sign-in guide</string>
-    <string name="guide_open">Step-by-step guide</string>
-    <string name="guide_step_1">Open the SIMKL developer page in your browser and sign in to SIMKL if asked.</string>
-    <string name="guide_step_2">Create a new app. Give it any name (for example “Tracker for Simkl”) and pick AUTH V2. As redirect URI enter exactly trackerforsimkl://oauth. Leave the other fields as they are and save.</string>
-    <string name="guide_step_3">Copy the app’s Client ID. Tracker for Simkl does not need the Client Secret.</string>
-    <string name="guide_step_4">Paste the Client ID in Tracker for Simkl and tap Continue.</string>
-    <string name="guide_step_5">Tap Sign in with SIMKL. Your browser opens SIMKL’s sign-in page.</string>
-    <string name="guide_step_6">Approve the access. SIMKL sends you back to Tracker for Simkl, which signs you in by itself.</string>
-    <string name="guide_trouble_title">Trouble signing in?</string>
-    <string name="guide_trouble">• “Could not start the login”: check that you copied the whole Client ID, without spaces.\n• SIMKL shows a redirect URI error: in your SIMKL app, set the redirect URI to exactly trackerforsimkl://oauth.\n• Your SIMKL app is of the “TV, devices &amp; command line” type, or an older AUTH V1 app: tap Sign in with a code instead.</string>
-    <string name="create_simkl_app">Create a SIMKL app</string>
-    <string name="done">Done</string>
 
     <!-- Shared labels -->
     <string name="tab_tv">TV Shows</string>

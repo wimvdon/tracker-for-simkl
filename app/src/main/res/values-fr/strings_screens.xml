@@ -10,9 +10,6 @@
     <string name="screens_search_no_results">Aucun résultat pour « %1$s »</string>
     <string name="screens_search_empty_title">Trouvez séries, animés et films</string>
     <string name="screens_search_empty_body">Recherchez par titre dans tout le catalogue SIMKL.</string>
-    <string name="screens_discover_search_tv">Rechercher des séries</string>
-    <string name="screens_discover_search_anime">Rechercher des animés</string>
-    <string name="screens_discover_search_movies">Rechercher des films</string>
     <string name="screens_discover_no_suggestion">SIMKL n\'a pas de suggestion cette fois</string>
     <string name="screens_discover_surprise">Surprends-moi</string>
     <string name="screens_calendar_loading">Chargement du calendrier…</string>
@@ -47,35 +44,17 @@
     <string name="screens_settings_continue_latest_sub">« À suivre » commence après le dernier épisode vu. Les épisodes ou saisons non vus avant celui-ci sont ignorés.</string>
     <string name="screens_settings_notifications">Notifications de nouveaux épisodes</string>
     <string name="screens_settings_notifications_sub">Consulte le calendrier des épisodes de SIMKL plusieurs fois par jour pour les séries que vous regardez</string>
-    <string name="screens_settings_client_id">ID client de l\'API</string>
-    <string name="screens_settings_change">Modifier</string>
-    <string name="screens_settings_guide_sub">Créer une app SIMKL et se connecter</string>
-    <string name="screens_settings_manage_apps">Gérer vos apps SIMKL</string>
-    <string name="screens_settings_open">Ouvrir</string>
     <string name="screens_settings_about">Tracker for Simkl %1$s · Non affilié à SIMKL. Données et images © SIMKL et leurs sources.</string>
-    <string name="screens_settings_client_id_dialog_title">ID client SIMKL</string>
-    <string name="screens_settings_client_id_dialog_body">Le modifier vous déconnecte, car les jetons appartiennent à une seule app.</string>
-    <string name="screens_settings_save">Enregistrer</string>
-    <string name="screens_client_id">Client ID</string>
     <string name="screens_login_tagline">Suivez vos séries, animés et films avec SIMKL.</string>
-    <string name="screens_login_api_key_title">Votre clé API SIMKL</string>
-    <string name="screens_login_api_key_body">Tracker for Simkl communique avec SIMKL via votre propre app API gratuite. Créez-en une sur SIMKL (AUTH V2, nom au choix) avec l\'URI de redirection trackerforsimkl://oauth, puis collez ici son Client ID.</string>
-    <string name="screens_login_continue">Continuer</string>
     <string name="screens_login_sign_in">Se connecter avec SIMKL</string>
-    <string name="screens_login_open_simkl">Ouvrir SIMKL</string>
-    <string name="screens_login_change_api_key">Changer de clé API</string>
-    <string name="screens_login_code_expired">Le code a expiré. Réessayez.</string>
-    <string name="screens_login_start_failed">Impossible de lancer la connexion : %1$s. Vérifiez le Client ID.</string>
-    <string name="screens_login_enter_code">Saisissez ce code sur SIMKL</string>
-    <string name="screens_login_copy">Copier</string>
-    <string name="screens_login_waiting">En attente d\'approbation…</string>
     <plurals name="screens_profile_episodes">
         <item quantity="one">%1$d épisode</item>
         <item quantity="many">%1$d épisodes</item>
         <item quantity="other">%1$d épisodes</item>
     </plurals>
     <string name="screens_login_waiting_browser">Approuvez la connexion sur simkl.com. Vous reviendrez ici automatiquement.</string>
-    <string name="screens_login_with_code">Se connecter plutôt avec un code</string>
     <string name="screens_login_denied">La connexion a été annulée sur SIMKL (%1$s).</string>
     <string name="screens_login_redirect_invalid">Ce lien de connexion ne correspond pas à celui lancé par l\'app. Appuyez à nouveau sur Se connecter avec SIMKL.</string>
+    <string name="screens_login_failed">Échec de la connexion : %1$s</string>
+    <string name="screens_login_note">Vous vous connectez sur simkl.com ; cette app ne voit jamais votre mot de passe. Tracker for Simkl n\'est pas affilié à Simkl.</string>
 </resources>

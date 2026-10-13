@@ -29,9 +29,9 @@ android {
         // The release workflow passes -PversionName (from the tag) and -PversionCode (major * 10000 + minor * 100 + patch).
         versionCode = providers.gradleProperty("versionCode").map(String::toInt).getOrElse(1)
         versionName = providers.gradleProperty("versionName").getOrElse("1.0.0")
-        // Optional default SIMKL client ID baked in at build time (-PsimklClientId=...).
-        // Without it the app asks for one on first launch.
-        buildConfigField("String", "DEFAULT_CLIENT_ID", "\"${providers.gradleProperty("simklClientId").getOrElse("")}\"")
+        // The app's SIMKL client ID (-PsimklClientId=..., from the SIMKL_CLIENT_ID Actions variable
+        // in CI). It is not a secret; sign-in fails with a clear message in builds without it.
+        buildConfigField("String", "SIMKL_CLIENT_ID", "\"${providers.gradleProperty("simklClientId").getOrElse("")}\"")
     }
 
     signingConfigs {
