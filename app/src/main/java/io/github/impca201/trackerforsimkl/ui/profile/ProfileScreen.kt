@@ -16,7 +16,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.ArrowBack
 import androidx.compose.material.icons.automirrored.rounded.Logout
@@ -66,6 +65,7 @@ import io.github.impca201.trackerforsimkl.ui.components.Format
 import io.github.impca201.trackerforsimkl.ui.components.openUrl
 import io.github.impca201.trackerforsimkl.ui.components.rememberApp
 import io.github.impca201.trackerforsimkl.ui.components.label
+import io.github.impca201.trackerforsimkl.ui.theme.AppShapes
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -113,7 +113,7 @@ fun ProfileScreen() {
                 s.types.forEachIndexed { i, t -> item(key = "type-$i") { Box(Modifier.animateItem()) { TypeCard(t) } } }
             }
             item(key = "actions") {
-                Surface(shape = RoundedCornerShape(24.dp), color = MaterialTheme.colorScheme.surfaceContainerLow, modifier = Modifier.animateItem()) {
+                Surface(shape = AppShapes.Group, color = MaterialTheme.colorScheme.surfaceContainerLow, modifier = Modifier.animateItem()) {
                     Column {
                         val colors = ListItemDefaults.colors(containerColor = MaterialTheme.colorScheme.surfaceContainerLow)
                         ListItem(
@@ -205,7 +205,7 @@ private fun ProfileHeader(profile: UserProfile?) {
 
 @Composable
 private fun Totals(stats: UserStats) {
-    Surface(shape = RoundedCornerShape(24.dp), color = MaterialTheme.colorScheme.primaryContainer) {
+    Surface(shape = AppShapes.Group, color = MaterialTheme.colorScheme.primaryContainer) {
         Row(Modifier.fillMaxWidth().padding(20.dp), horizontalArrangement = Arrangement.SpaceAround) {
             Stat(stringResource(R.string.screens_profile_time_watched), Format.duration(stats.totalMinutes))
             stats.lastWeekMinutes?.let { Stat(stringResource(R.string.screens_profile_last_7_days), Format.duration(it)) }
@@ -226,7 +226,7 @@ private fun Stat(
 
 @Composable
 private fun TypeCard(t: TypeStats) {
-    Surface(shape = RoundedCornerShape(24.dp), color = MaterialTheme.colorScheme.surfaceContainerLow) {
+    Surface(shape = AppShapes.Group, color = MaterialTheme.colorScheme.surfaceContainerLow) {
         Column(Modifier.fillMaxWidth().padding(20.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Text(t.type.label(), style = MaterialTheme.typography.titleMedium, modifier = Modifier.weight(1f))

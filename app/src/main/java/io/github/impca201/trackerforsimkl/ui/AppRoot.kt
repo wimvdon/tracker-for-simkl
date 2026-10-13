@@ -2,12 +2,6 @@ package io.github.impca201.trackerforsimkl.ui
 
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedContent
-import androidx.compose.animation.core.tween
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
-import androidx.compose.animation.slideInHorizontally
-import androidx.compose.animation.slideOutHorizontally
-import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
@@ -22,7 +16,6 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.saveable.rememberSaveableStateHolder
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.LocalLifecycleOwner
@@ -82,22 +75,13 @@ private fun LoggedIn(
     }
     BackHandler(enabled = navigator.stack.size > 1) { navigator.pop() }
 
-    // Material 3 shared-axis X: both screens slide 30dp along the axis; the old one fades out
-    // quickly, then the new one fades in, so they never overlap at full opacity.
+    // Material 3 shared-axis X (see Motion.sharedAxisX).
     val axisOffset = with(LocalDensity.current) { 30.dp.roundToPx() }
     CompositionLocalProvider(LocalNavigator provides navigator) {
         AnimatedContent(
             targetState = navigator.current,
             transitionSpec = {
-                val forward = navigator.stack.contains(initialState)
-                val slide = tween<IntOffset>(Motion.MEDIUM_2, easing = Motion.Emphasized)
-                val enter =
-                    slideInHorizontally(slide) { if (forward) axisOffset else -axisOffset } +
-                        fadeIn(tween(210, delayMillis = 90, easing = Motion.EmphasizedDecelerate))
-                val exit =
-                    slideOutHorizontally(slide) { if (forward) -axisOffset else axisOffset } +
-                        fadeOut(tween(90, easing = Motion.EmphasizedAccelerate))
-                enter togetherWith exit
+                Motion.sharedAxisX(forward = navigator.stack.contains(initialState), offsetPx = axisOffset)
             },
             contentKey = { it.key },
             label = "navigation",
