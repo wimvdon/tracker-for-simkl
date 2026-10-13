@@ -207,14 +207,15 @@ class LibraryRepository(
         val since = snapshot.activitiesAll
         if (force || since == null) {
             val items = Parsers.library(api.allItems())
-            save(snapshot.copy(items = items, activitiesAll = all, removedStamp = removed, ratedStamp = rated, syncedAt = System.currentTimeMillis()))
-            syncPlayback(playbackStamp)
+            saveWithPlayback(
+                snapshot.copy(items = items, activitiesAll = all, removedStamp = removed, ratedStamp = rated, syncedAt = System.currentTimeMillis()),
+                playbackStamp,
+            )
             return
         }
         if (all != null && all == since) {
-            save(snapshot.copy(syncedAt = System.currentTimeMillis()))
             // Always refreshed: SIMKL's playback timestamp doesn't change for every scrobbler.
-            syncPlayback(playbackStamp)
+            saveWithPlayback(snapshot.copy(syncedAt = System.currentTimeMillis()), playbackStamp)
             return
         }
         var items = snapshot.items
@@ -230,14 +231,22 @@ class LibraryRepository(
             val ratings = Parsers.library(api.ratings(dateFrom = since)).associateBy { it.key }
             items = items.map { item -> ratings[item.key]?.let { item.copy(userRating = it.userRating) } ?: item }
         }
-        save(snapshot.copy(items = items, activitiesAll = all, removedStamp = removed, ratedStamp = rated, syncedAt = System.currentTimeMillis()))
         // Watching an episode also hides its paused session, so refresh both together.
-        syncPlayback(playbackStamp)
+        saveWithPlayback(
+            snapshot.copy(items = items, activitiesAll = all, removedStamp = removed, ratedStamp = rated, syncedAt = System.currentTimeMillis()),
+            playbackStamp,
+        )
     }
 
-    /** GET /sync/playback; failures keep the previous list (it is only a convenience). */
-    private suspend fun syncPlayback(stamp: String) {
-        val items = snapshot.items
+    /**
+     * Saves [value] with a fresh GET /sync/playback in one update, so lists ordered by playback don't
+     * reshuffle twice. A failed playback request keeps the previous list (it is only a convenience).
+     */
+    private suspend fun saveWithPlayback(
+        value: LibrarySnapshot,
+        stamp: String,
+    ) {
+        val items = value.items
         val list =
             runCatching {
                 Parsers.playback(api.playback()) { id ->
@@ -247,8 +256,8 @@ class LibraryRepository(
                         else -> null
                     }
                 }
-            }.getOrNull() ?: return
-        save(snapshot.copy(playback = list, playbackStamp = stamp))
+            }.getOrNull()
+        save(if (list != null) value.copy(playback = list, playbackStamp = stamp) else value)
     }
 
     private suspend fun save(value: LibrarySnapshot) {
