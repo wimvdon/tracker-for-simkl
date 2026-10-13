@@ -69,10 +69,10 @@ private fun LoggedIn(
     val stateHolder = rememberSaveableStateHolder()
 
     // Sync whenever the app comes to the foreground, so changes made elsewhere (paused episodes,
-    // other apps and devices) show up without pulling to refresh.
+    // other apps and devices) show up without pulling to refresh; at most every 15 minutes.
     val lifecycle = LocalLifecycleOwner.current.lifecycle
     LaunchedEffect(lifecycle) {
-        lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) { app.library.sync() }
+        lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) { app.library.syncIfStale() }
     }
     LaunchedEffect(requested) {
         if (requested != null) {

@@ -101,16 +101,19 @@ fun ProfileScreen() {
             verticalArrangement = Arrangement.spacedBy(12.dp),
             modifier = Modifier.fillMaxSize(),
         ) {
-            item { ProfileHeader(profile) }
+            item(key = "header") { ProfileHeader(profile) }
             val s = stats
+            // Keyed items so the stats fade in and the actions card glides down when they load.
             if (s == null) {
-                item { Box(Modifier.fillMaxWidth().padding(24.dp), contentAlignment = Alignment.Center) { CircularProgressIndicator() } }
+                item(key = "loading") {
+                    Box(Modifier.animateItem().fillMaxWidth().padding(24.dp), contentAlignment = Alignment.Center) { CircularProgressIndicator() }
+                }
             } else {
-                item { Totals(s) }
-                s.types.forEach { t -> item { TypeCard(t) } }
+                item(key = "totals") { Box(Modifier.animateItem()) { Totals(s) } }
+                s.types.forEachIndexed { i, t -> item(key = "type-$i") { Box(Modifier.animateItem()) { TypeCard(t) } } }
             }
-            item {
-                Surface(shape = RoundedCornerShape(24.dp), color = MaterialTheme.colorScheme.surfaceContainerLow) {
+            item(key = "actions") {
+                Surface(shape = RoundedCornerShape(24.dp), color = MaterialTheme.colorScheme.surfaceContainerLow, modifier = Modifier.animateItem()) {
                     Column {
                         val colors = ListItemDefaults.colors(containerColor = MaterialTheme.colorScheme.surfaceContainerLow)
                         ListItem(
