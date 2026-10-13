@@ -4,18 +4,15 @@ import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.togetherWith
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Casino
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -37,7 +34,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.input.nestedscroll.nestedScroll
@@ -58,6 +54,7 @@ import io.github.impca201.trackerforsimkl.ui.main.MainTopBar
 import io.github.impca201.trackerforsimkl.ui.theme.Motion
 import io.github.impca201.trackerforsimkl.ui.components.label
 import kotlinx.coroutines.launch
+import io.github.impca201.trackerforsimkl.ui.components.PosterRowSkeleton
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -133,7 +130,7 @@ private fun SectionRow(
     val library by app.library.state.collectAsState()
     var items by remember { mutableStateOf<List<MediaSummary>?>(null) }
     LaunchedEffect(section.id, refresh) { items = app.catalog.section(section, refresh = refresh > 0) }
-    // Fade through from the spinner to the posters; the row's height change animates with it.
+    // Fade through from the placeholders to the posters; the row's height change animates with it.
     AnimatedContent(
         targetState = items,
         contentKey = { list -> if (list == null) 0 else if (list.isEmpty()) 1 else 2 },
@@ -144,7 +141,7 @@ private fun SectionRow(
             list == null ->
                 Column {
                     SectionHeader(stringResource(section.title), modifier = Modifier.padding(horizontal = 8.dp))
-                    Box(Modifier.fillMaxWidth().height(200.dp), contentAlignment = Alignment.Center) { CircularProgressIndicator() }
+                    PosterRowSkeleton()
                 }
             list.isNotEmpty() ->
                 Column {

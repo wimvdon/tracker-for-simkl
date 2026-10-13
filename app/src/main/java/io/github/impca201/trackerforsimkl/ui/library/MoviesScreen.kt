@@ -40,6 +40,7 @@ import io.github.impca201.trackerforsimkl.ui.components.EmptyState
 import io.github.impca201.trackerforsimkl.ui.components.rememberApp
 import io.github.impca201.trackerforsimkl.ui.main.MainTopBar
 import kotlinx.coroutines.launch
+import io.github.impca201.trackerforsimkl.ui.components.PosterGridSkeleton
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -105,6 +106,8 @@ fun MoviesScreen() {
                     EmptyState(Icons.Rounded.SearchOff, stringResource(R.string.lib_no_matches)) {
                         TextButton(onClick = { options.setFilter(page, LibraryFilter()) }) { Text(stringResource(R.string.lib_clear_filters)) }
                     }
+                } else if (state.firstSync) {
+                    PosterGridSkeleton(bottomPadding())
                 } else if (items.isEmpty() && state.loaded && !state.syncing) {
                     val (icon, title) =
                         when (shelf) {

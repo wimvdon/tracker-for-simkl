@@ -44,6 +44,8 @@ import io.github.impca201.trackerforsimkl.ui.theme.Motion
 import io.github.impca201.trackerforsimkl.data.model.AiringState
 import io.github.impca201.trackerforsimkl.data.model.Images
 import io.github.impca201.trackerforsimkl.data.model.MediaSummary
+import io.github.impca201.trackerforsimkl.ui.theme.skeleton
+import androidx.compose.ui.graphics.RectangleShape
 
 val PosterShape: Shape = RoundedCornerShape(12.dp)
 
@@ -68,6 +70,7 @@ fun Poster(
                 contentDescription = contentDescription,
                 contentScale = ContentScale.Crop,
                 modifier = Modifier.matchParentSize(),
+                loading = { Box(Modifier.matchParentSize().skeleton(RectangleShape)) },
                 error = { Icon(Icons.Rounded.Image, null, tint = MaterialTheme.colorScheme.onSurfaceVariant) },
             )
         }

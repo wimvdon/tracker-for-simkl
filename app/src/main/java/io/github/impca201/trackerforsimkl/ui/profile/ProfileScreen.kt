@@ -67,6 +67,9 @@ import io.github.impca201.trackerforsimkl.ui.components.rememberApp
 import io.github.impca201.trackerforsimkl.ui.components.label
 import io.github.impca201.trackerforsimkl.ui.theme.AppShapes
 import kotlinx.coroutines.launch
+import io.github.impca201.trackerforsimkl.ui.components.CardSkeleton
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -106,7 +109,15 @@ fun ProfileScreen() {
             // Keyed items so the stats fade in and the actions card glides down when they load.
             if (s == null) {
                 item(key = "loading") {
-                    Box(Modifier.animateItem().fillMaxWidth().padding(24.dp), contentAlignment = Alignment.Center) { CircularProgressIndicator() }
+                    val loading = stringResource(R.string.loading)
+                    Column(
+                        Modifier.animateItem().semantics(mergeDescendants = true) { contentDescription = loading },
+                        verticalArrangement = Arrangement.spacedBy(12.dp),
+                    ) {
+                        CardSkeleton(96.dp)
+                        CardSkeleton(120.dp)
+                        CardSkeleton(120.dp)
+                    }
                 }
             } else {
                 item(key = "totals") { Box(Modifier.animateItem()) { Totals(s) } }

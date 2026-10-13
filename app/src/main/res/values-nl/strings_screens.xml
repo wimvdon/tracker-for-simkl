@@ -12,7 +12,6 @@
     <string name="screens_search_empty_body">Zoek op titel in de hele SIMKL-catalogus.</string>
     <string name="screens_discover_no_suggestion">SIMKL had deze keer geen suggestie</string>
     <string name="screens_discover_surprise">Verras me</string>
-    <string name="screens_calendar_loading">Agenda laden…</string>
     <string name="screens_calendar_nothing">Niets gepland</string>
     <string name="screens_calendar_mine_hint">Komende afleveringen en releases van titels uit je lijsten verschijnen hier.</string>
     <string name="screens_calendar_release">Release</string>

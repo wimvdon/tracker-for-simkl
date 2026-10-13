@@ -53,7 +53,6 @@ import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.AssistChip
 import androidx.compose.material3.Button
 import androidx.compose.material3.Checkbox
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -134,6 +133,7 @@ import io.github.impca201.trackerforsimkl.ui.theme.Motion
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.launch
 import java.util.Locale
+import io.github.impca201.trackerforsimkl.ui.components.TextSkeleton
 
 fun webUrl(
     type: MediaType,
@@ -286,15 +286,20 @@ fun DetailScreen(
                 val d = details
                 if (d == null) {
                     item(key = "loading") {
-                        Box(Modifier.animateItem().fillMaxWidth().padding(32.dp), contentAlignment = Alignment.Center) {
+                        Box(Modifier.animateItem().fillMaxWidth()) {
                             Crossfade(targetState = error, animationSpec = Motion.fadeSpec(), label = "detailLoading") { failed ->
                                 if (failed != null) {
-                                    Column(horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                                    Column(
+                                        Modifier.fillMaxWidth().padding(32.dp),
+                                        horizontalAlignment = Alignment.CenterHorizontally,
+                                        verticalArrangement = Arrangement.spacedBy(8.dp),
+                                    ) {
                                         Text(failed, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
                                         Button(onClick = { reload++ }) { Text(stringResource(R.string.detail_try_again)) }
                                     }
                                 } else {
-                                    CircularProgressIndicator()
+                                    // Where the overview will be.
+                                    TextSkeleton(Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 8.dp))
                                 }
                             }
                         }
