@@ -15,6 +15,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.material.icons.Icons
@@ -46,6 +47,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshots.Snapshot
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.input.nestedscroll.nestedScroll
@@ -228,6 +230,13 @@ private fun UpNextList(
     val scope = rememberCoroutineScope()
     var busy by remember { mutableStateOf(setOf<String>()) }
     var confirm by remember { mutableStateOf<Pair<Playback, LibraryItem>?>(null) }
+    val listState = rememberLazyListState()
+
+    // A list keeps its first visible item in view when items move. When the top show is watched
+    // elsewhere and reorders after a sync, that would scroll it under the top bar; stay at the top.
+    Snapshot.withoutReadObservation {
+        if (listState.firstVisibleItemIndex == 0 && listState.firstVisibleItemScrollOffset == 0) listState.requestScrollToItem(0)
+    }
 
     fun run(
         item: LibraryItem,
@@ -248,6 +257,7 @@ private fun UpNextList(
     }
 
     LazyColumn(
+        state = listState,
         contentPadding = PaddingValues(start = 12.dp, end = 12.dp, top = 12.dp, bottom = bottomPadding()),
         verticalArrangement = Arrangement.spacedBy(10.dp),
         modifier = Modifier.fillMaxSize(),

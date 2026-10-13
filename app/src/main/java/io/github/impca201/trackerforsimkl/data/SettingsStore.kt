@@ -34,7 +34,7 @@ enum class NavTab {
 
     companion object {
         val defaultOrder = listOf(Tv, Movies, Anime, Discover, Calendar)
-        val defaultEnabled = setOf(Tv, Movies, Anime, Discover)
+        val defaultEnabled = setOf(Tv, Movies, Anime, Discover, Calendar)
     }
 }
 
