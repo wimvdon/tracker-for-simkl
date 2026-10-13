@@ -121,16 +121,17 @@ jobs:
           task="assemble${BUILD_TYPE^}"
           ./gradlew "$task" \
             -PversionName=${{ needs.version.outputs.name }} \
-            -PversionCode=${{ needs.version.outputs.code }}
+            -PversionCode=${{ needs.version.outputs.code }} \
+            -PsimklClientId="${{ vars.SIMKL_CLIENT_ID }}"
           cp "app/build/outputs/apk/$BUILD_TYPE/app-$BUILD_TYPE.apk" \
-            "$RUNNER_TEMP/simklr-${{ needs.version.outputs.name }}.apk"
+            "$RUNNER_TEMP/tracker-for-simkl-${{ needs.version.outputs.name }}.apk"
       - name: Remove the signing key
         if: always()
         run: rm -f "$RUNNER_TEMP/release.jks" "$RUNNER_TEMP/keystore.b64" keystore.properties
       - uses: actions/upload-artifact@v4
         with:
           name: android
-          path: ${{ runner.temp }}/simklr-*.apk
+          path: ${{ runner.temp }}/tracker-for-simkl-*.apk
           if-no-files-found: error
 
   release:
@@ -148,6 +149,6 @@ jobs:
         with:
           tag_name: v${{ needs.version.outputs.name }}
           target_commitish: ${{ github.sha }}
-          name: SIMKLr ${{ needs.version.outputs.name }}
+          name: Tracker for Simkl ${{ needs.version.outputs.name }}
           files: dist/*
           generate_release_notes: true

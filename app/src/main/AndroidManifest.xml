@@ -8,7 +8,7 @@
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
 
     <application
-        android:name=".SimklrApp"
+        android:name=".TrackerApp"
         android:allowBackup="false"
         android:dataExtractionRules="@xml/data_extraction_rules"
         android:fullBackupContent="false"
@@ -16,7 +16,7 @@
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher"
         android:supportsRtl="true"
-        android:theme="@style/Theme.Simklr"
+        android:theme="@style/Theme.Tracker"
         tools:targetApi="37">
 
         <activity
@@ -41,7 +41,24 @@
             </intent-filter>
         </activity>
 
-        <!-- WorkManager is initialised on demand (SimklrApp is a Configuration.Provider). -->
+        <!-- Sign-in redirect from simkl.com (OAuth 2.0 authorization code with PKCE). -->
+        <activity
+            android:name=".auth.AuthRedirectActivity"
+            android:exported="true"
+            android:launchMode="singleTask"
+            android:noHistory="true"
+            android:theme="@android:style/Theme.Translucent.NoTitleBar">
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data
+                    android:host="oauth"
+                    android:scheme="trackerforsimkl" />
+            </intent-filter>
+        </activity>
+
+        <!-- WorkManager is initialised on demand (TrackerApp is a Configuration.Provider). -->
         <provider
             android:name="androidx.startup.InitializationProvider"
             android:authorities="${applicationId}.androidx-startup"

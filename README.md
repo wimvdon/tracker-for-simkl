@@ -1,7 +1,8 @@
-# SIMKLr
+# Tracker for Simkl
 
-An Android client for [SIMKL](https://simkl.com), built with Jetpack Compose and Material 3
-(dynamic color, light/dark theme).
+An unofficial Android app for tracking TV shows, anime and movies with [Simkl](https://simkl.com),
+built with Jetpack Compose and Material 3 (dynamic color, light/dark theme). Not affiliated with
+or endorsed by Simkl; "Simkl" is Simkl's trademark and only describes the service the app works with.
 
 ## Features
 
@@ -29,7 +30,11 @@ An Android client for [SIMKL](https://simkl.com), built with Jetpack Compose and
 - **Search** across TV shows, anime and movies.
 - **Calendar** of upcoming episodes and releases of titles in your lists, with type chips.
 - **Profile** with watch-time statistics per type and status.
-- **Notifications** (optional) when a new episode of a show you're watching becomes available.
+- **Notifications** (optional) when a new episode of a show you're watching airs. They come from
+  SIMKL's calendar data files (data.simkl.in, a CDN outside the API quota) checked against the
+  library as last synced; nothing syncs with the API in the background.
+- **Syncing** happens when the app is opened or comes back to the foreground (at most every 15
+  minutes) and on pull-to-refresh, as SIMKL's API rules ask.
 - **Languages**: English, Dutch, French, German, Spanish and Italian (follows the system or
   Android 13+'s per-app language setting).
 - Offline cache and efficient sync (`/sync/activities` first, then incremental `/sync/all-items`).
@@ -43,19 +48,19 @@ Search and your profile are in every destination's top bar.
 
 ## Signing in
 
-The app has a step-by-step sign-in guide on the setup screen and under Settings → SIMKL.
+Tap **Sign in with SIMKL**: simkl.com opens in the browser, and after you approve, SIMKL sends you
+back to the app. That's all; nobody needs a SIMKL developer account.
 
-SIMKL's API needs a client ID. Create a free app at <https://simkl.com/settings/developer/new/>:
-choose **AUTH V2** and the **TV, devices & command line** type (any name). Paste its **Client ID**
-into SIMKLr on first launch (the Client Secret is not needed), tap **Sign in with SIMKL** and
-approve the shown code on simkl.com.
+The app uses SIMKL's recommended sign-in for mobile apps, the OAuth 2.0 authorization code flow
+with PKCE: `/oauth2/authorize` with an S256 `code_challenge` and the redirect URI
+`trackerforsimkl://oauth`, then `POST /oauth2/token` with the `code_verifier`, scope
+`media:read media:write`, no client secret. The week-long access token is renewed with the
+refresh token.
 
-SIMKLr uses SIMKL's OAuth 2.0 device flow (`POST /oauth2/device`, then `POST /oauth2/token`)
-with the `media:read media:write` scope, and renews the week-long access token with the refresh
-token. Older AUTH V1 apps still work through the PIN flow (`/oauth/pin`), which SIMKL plans to
-retire around April 2027.
-
-To bake a client ID into a build, pass `-PsimklClientId=...` to Gradle.
+The app's own SIMKL client ID is baked in at build time with `-PsimklClientId=...`; the GitHub
+workflows take it from the `SIMKL_CLIENT_ID` Actions variable. (A client ID isn't a secret, per
+SIMKL's API rules.) Its SIMKL API app must be AUTH V2 with `trackerforsimkl://oauth` as redirect
+URI. Builds without a client ID start, but can't sign in.
 
 The API usage follows SIMKL's official documentation ([api.simkl.org](https://api.simkl.org),
 formerly [github.com/SIMKL/api](https://github.com/SIMKL/api)): the activities-first sync with

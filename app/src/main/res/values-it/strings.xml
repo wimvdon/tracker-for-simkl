@@ -1,18 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <!-- Auth guide -->
-    <string name="guide_title">Guida all’accesso</string>
-    <string name="guide_open">Guida passo passo</string>
-    <string name="guide_step_1">Apri la pagina sviluppatori di SIMKL nel browser e accedi a SIMKL se richiesto.</string>
-    <string name="guide_step_2">Crea una nuova app. Dalle un nome qualsiasi (ad esempio «SIMKLr»), scegli AUTH V2 e il tipo di app «TV, devices &amp; command line». Lascia invariati gli altri campi e salva.</string>
-    <string name="guide_step_3">Copia il Client ID dell’app. SIMKLr non ha bisogno del Client Secret.</string>
-    <string name="guide_step_4">Incolla il Client ID in SIMKLr e tocca Continua.</string>
-    <string name="guide_step_5">Tocca Accedi con SIMKL. SIMKLr mostra un breve codice.</string>
-    <string name="guide_step_6">Tocca Apri SIMKL, controlla che il codice corrisponda (o digitalo) e approva. Torna su SIMKLr: l’accesso avviene in automatico.</string>
-    <string name="guide_trouble_title">Problemi di accesso?</string>
-    <string name="guide_trouble">• «Impossibile avviare l\'accesso»: controlla di aver copiato l’intero Client ID, senza spazi.\n• Il codice è scaduto: tocca di nuovo Accedi con SIMKL per riceverne uno nuovo.\n• La pagina di approvazione mostra un errore: modifica la tua app su SIMKL e assicurati che il tipo sia «TV, devices &amp; command line».\n• Le vecchie app AUTH V1 continuano a funzionare.</string>
-    <string name="create_simkl_app">Crea un’app SIMKL</string>
-    <string name="done">Fine</string>
 
     <!-- Shared labels -->
     <string name="tab_tv">Serie TV</string>

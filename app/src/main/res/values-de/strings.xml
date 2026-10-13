@@ -1,18 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <!-- Auth guide -->
-    <string name="guide_title">Anmeldehilfe</string>
-    <string name="guide_open">Schritt-für-Schritt-Anleitung</string>
-    <string name="guide_step_1">Öffne die SIMKL-Entwicklerseite im Browser und melde dich bei SIMKL an, falls nötig.</string>
-    <string name="guide_step_2">Erstelle eine neue App. Gib ihr einen beliebigen Namen (zum Beispiel „SIMKLr“), wähle AUTH V2 und den App-Typ „TV, devices &amp; command line“. Lass die anderen Felder unverändert und speichere.</string>
-    <string name="guide_step_3">Kopiere die Client ID der App. SIMKLr braucht das Client Secret nicht.</string>
-    <string name="guide_step_4">Füge die Client ID in SIMKLr ein und tippe auf Weiter.</string>
-    <string name="guide_step_5">Tippe auf Mit SIMKL anmelden. SIMKLr zeigt einen kurzen Code an.</string>
-    <string name="guide_step_6">Tippe auf SIMKL öffnen, prüfe, ob der Code übereinstimmt (oder gib ihn ein), und bestätige. Kehre zu SIMKLr zurück: Die Anmeldung erfolgt automatisch.</string>
-    <string name="guide_trouble_title">Probleme bei der Anmeldung?</string>
-    <string name="guide_trouble">• „Anmeldung konnte nicht gestartet werden“: Prüfe, ob du die ganze Client ID ohne Leerzeichen kopiert hast.\n• Der Code ist abgelaufen: Tippe erneut auf Mit SIMKL anmelden, um einen neuen zu erhalten.\n• Die Bestätigungsseite zeigt einen Fehler: Bearbeite deine App auf SIMKL und stelle sicher, dass ihr Typ „TV, devices &amp; command line“ ist.\n• Ältere AUTH-V1-Apps funktionieren weiterhin.</string>
-    <string name="create_simkl_app">SIMKL-App erstellen</string>
-    <string name="done">Fertig</string>
 
     <!-- Shared labels -->
     <string name="tab_tv">Serien</string>

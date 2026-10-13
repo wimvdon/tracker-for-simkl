@@ -26,21 +26,21 @@ jobs:
       - name: Unit and launch tests
         run: ./gradlew testDebugUnitTest
       - name: Build debug APK
-        run: ./gradlew assembleDebug
+        run: ./gradlew assembleDebug -PsimklClientId="${{ vars.SIMKL_CLIENT_ID }}"
       - name: Check R8 keeps reflection entry points in the release build
         run: |
-          ./gradlew assembleRelease
+          ./gradlew assembleRelease -PsimklClientId="${{ vars.SIMKL_CLIENT_ID }}"
           seeds=$(find app/build build -name '*seeds*.txt' -size +0 2>/dev/null | head -n1)
           test -n "$seeds" || { echo "::error::R8 seeds file missing"; find . -name '*seeds*' | head; exit 1; }
           echo "Seeds: $seeds"
           for entry in "androidx.work.impl.WorkDatabase_Impl: WorkDatabase_Impl()" \
-                       "io.github.impca201.simklr.work.NewEpisodesWorker: NewEpisodesWorker(android.content.Context,androidx.work.WorkerParameters)"; do
+                       "io.github.impca201.trackerforsimkl.work.NewEpisodesWorker: NewEpisodesWorker(android.content.Context,androidx.work.WorkerParameters)"; do
             grep -qF "$entry" "$seeds" || { echo "::error::R8 did not keep $entry"; grep -F "WorkDatabase_Impl" "$seeds" | head; exit 1; }
           done
           echo "Release build keeps the WorkManager/Room constructors."
       - uses: actions/upload-artifact@v4
         with:
-          name: simklr-debug-apk
+          name: tracker-for-simkl-debug-apk
           path: app/build/outputs/apk/debug/app-debug.apk
       - uses: actions/upload-artifact@v4
         if: always()

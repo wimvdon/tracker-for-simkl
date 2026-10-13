@@ -1,18 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <!-- Auth guide -->
-    <string name="guide_title">Inloghulp</string>
-    <string name="guide_open">Stapsgewijze uitleg</string>
-    <string name="guide_step_1">Open de SIMKL-ontwikkelaarspagina in je browser en log in bij SIMKL als daarom wordt gevraagd.</string>
-    <string name="guide_step_2">Maak een nieuwe app. Geef hem een naam naar keuze (bijvoorbeeld „SIMKLr”), kies AUTH V2 en kies het app-type „TV, devices &amp; command line”. Laat de andere velden zoals ze zijn en sla op.</string>
-    <string name="guide_step_3">Kopieer de Client ID van de app. SIMKLr heeft het Client Secret niet nodig.</string>
-    <string name="guide_step_4">Plak de Client ID in SIMKLr en tik op Doorgaan.</string>
-    <string name="guide_step_5">Tik op Inloggen met SIMKL. SIMKLr toont een korte code.</string>
-    <string name="guide_step_6">Tik op SIMKL openen, controleer of de code klopt (of typ hem in) en keur goed. Ga terug naar SIMKLr: je wordt vanzelf ingelogd.</string>
-    <string name="guide_trouble_title">Problemen met inloggen?</string>
-    <string name="guide_trouble">• „Kan het inloggen niet starten”: controleer of je de hele Client ID hebt gekopieerd, zonder spaties.\n• De code is verlopen: tik opnieuw op Inloggen met SIMKL voor een nieuwe code.\n• De goedkeuringspagina toont een fout: bewerk je app op SIMKL en zorg dat het type „TV, devices &amp; command line” is.\n• Oudere AUTH V1-apps blijven werken.</string>
-    <string name="create_simkl_app">SIMKL-app maken</string>
-    <string name="done">Klaar</string>
 
     <!-- Shared labels -->
     <string name="tab_tv">Series</string>

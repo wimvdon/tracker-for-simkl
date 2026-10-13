@@ -4,7 +4,8 @@
     <string name="data_notif_channel_name">Nouveaux épisodes</string>
     <string name="data_notif_channel_description">Quand un nouvel épisode d’une série que vous regardez est disponible</string>
     <string name="data_notif_new_episode">Nouvel épisode disponible</string>
-    <string name="data_crash_title">SIMKLr a planté la dernière fois</string>
+    <string name="data_crash_title">Tracker for Simkl a planté la dernière fois</string>
     <string name="data_crash_copy">Copier le rapport de plantage</string>
     <string name="data_crash_continue">Continuer</string>
+    <string name="data_notif_episode_aired">%1$s est disponible</string>
 </resources>

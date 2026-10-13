@@ -4,7 +4,8 @@
     <string name="data_notif_channel_name">Nieuwe afleveringen</string>
     <string name="data_notif_channel_description">Wanneer er een nieuwe aflevering is van een serie die je kijkt</string>
     <string name="data_notif_new_episode">Nieuwe aflevering beschikbaar</string>
-    <string name="data_crash_title">SIMKLr is de vorige keer gecrasht</string>
+    <string name="data_crash_title">Tracker for Simkl is de vorige keer gecrasht</string>
     <string name="data_crash_copy">Crashrapport kopiëren</string>
     <string name="data_crash_continue">Doorgaan</string>
+    <string name="data_notif_episode_aired">%1$s is uit</string>
 </resources>

@@ -10,9 +10,6 @@
     <string name="screens_search_no_results">No results for “%1$s”</string>
     <string name="screens_search_empty_title">Find TV shows, anime and movies</string>
     <string name="screens_search_empty_body">Search by title in the whole SIMKL catalogue.</string>
-    <string name="screens_discover_search_tv">Search TV shows</string>
-    <string name="screens_discover_search_anime">Search anime</string>
-    <string name="screens_discover_search_movies">Search movies</string>
     <string name="screens_discover_no_suggestion">SIMKL had no suggestion this time</string>
     <string name="screens_discover_surprise">Surprise me</string>
     <string name="screens_calendar_loading">Loading the calendar…</string>
@@ -35,7 +32,7 @@
     <string name="screens_settings_appearance">Appearance</string>
     <string name="screens_settings_theme">Theme</string>
     <string name="screens_settings_dynamic_color">Dynamic color</string>
-    <string name="screens_settings_dynamic_color_sub">Use colors from your wallpaper instead of SIMKLr violet</string>
+    <string name="screens_settings_dynamic_color_sub">Use colors from your wallpaper instead of the app’s violet</string>
     <string name="screens_settings_bottom_bar">Bottom bar</string>
     <string name="screens_settings_bottom_bar_hint">Choose and order the destinations of the bottom bar.</string>
     <string name="screens_settings_move_up">Move up</string>
@@ -46,31 +43,17 @@
     <string name="screens_settings_continue_latest">Continue from the latest episode</string>
     <string name="screens_settings_continue_latest_sub">Up next starts after the most recently watched episode. Unwatched episodes or seasons before it are skipped.</string>
     <string name="screens_settings_notifications">New episode notifications</string>
-    <string name="screens_settings_notifications_sub">Checks SIMKL a few times a day for new episodes of shows you\'re watching</string>
-    <string name="screens_settings_client_id">API client ID</string>
-    <string name="screens_settings_change">Change</string>
-    <string name="screens_settings_guide_sub">How to create a SIMKL app and sign in</string>
-    <string name="screens_settings_manage_apps">Manage your SIMKL apps</string>
-    <string name="screens_settings_open">Open</string>
-    <string name="screens_settings_about">SIMKLr %1$s · Not affiliated with SIMKL. Data and images © SIMKL and their sources.</string>
-    <string name="screens_settings_client_id_dialog_title">SIMKL client ID</string>
-    <string name="screens_settings_client_id_dialog_body">Changing it logs you out, because tokens belong to one app.</string>
-    <string name="screens_settings_save">Save</string>
-    <string name="screens_client_id">Client ID</string>
+    <string name="screens_settings_notifications_sub">Checks SIMKL’s episode calendar a few times a day for shows you\'re watching</string>
+    <string name="screens_settings_about">Tracker for Simkl %1$s · Not affiliated with SIMKL. Data and images © SIMKL and their sources.</string>
     <string name="screens_login_tagline">Track your TV shows, anime and movies with SIMKL.</string>
-    <string name="screens_login_api_key_title">Your SIMKL API key</string>
-    <string name="screens_login_api_key_body">SIMKLr talks to SIMKL with your own free API app. Create one on SIMKL (AUTH V2, type “TV, devices &amp; command line”; any name), then paste its Client ID here. Older AUTH V1 apps work too.</string>
-    <string name="screens_login_continue">Continue</string>
     <string name="screens_login_sign_in">Sign in with SIMKL</string>
-    <string name="screens_login_open_simkl">Open SIMKL</string>
-    <string name="screens_login_change_api_key">Change API key</string>
-    <string name="screens_login_code_expired">The code expired. Try again.</string>
-    <string name="screens_login_start_failed">Could not start the login: %1$s. Check the Client ID.</string>
-    <string name="screens_login_enter_code">Enter this code on SIMKL</string>
-    <string name="screens_login_copy">Copy</string>
-    <string name="screens_login_waiting">Waiting for approval…</string>
     <plurals name="screens_profile_episodes">
         <item quantity="one">%1$d episode</item>
         <item quantity="other">%1$d episodes</item>
     </plurals>
+    <string name="screens_login_waiting_browser">Approve the sign-in on simkl.com. You’ll come back here automatically.</string>
+    <string name="screens_login_denied">The sign-in was cancelled on SIMKL (%1$s).</string>
+    <string name="screens_login_redirect_invalid">That sign-in link doesn\'t match the one this app started. Tap Sign in with SIMKL again.</string>
+    <string name="screens_login_failed">Sign-in failed: %1$s</string>
+    <string name="screens_login_note">You sign in on simkl.com; this app never sees your password. Tracker for Simkl is not affiliated with Simkl.</string>
 </resources>

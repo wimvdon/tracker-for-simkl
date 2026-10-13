@@ -10,9 +10,6 @@
     <string name="screens_search_no_results">Keine Ergebnisse für „%1$s“</string>
     <string name="screens_search_empty_title">Serien, Anime und Filme finden</string>
     <string name="screens_search_empty_body">Suche nach Titel im gesamten SIMKL-Katalog.</string>
-    <string name="screens_discover_search_tv">Serien suchen</string>
-    <string name="screens_discover_search_anime">Anime suchen</string>
-    <string name="screens_discover_search_movies">Filme suchen</string>
     <string name="screens_discover_no_suggestion">SIMKL hatte diesmal keinen Vorschlag</string>
     <string name="screens_discover_surprise">Überrasch mich</string>
     <string name="screens_calendar_loading">Kalender wird geladen…</string>
@@ -35,7 +32,7 @@
     <string name="screens_settings_appearance">Darstellung</string>
     <string name="screens_settings_theme">Design</string>
     <string name="screens_settings_dynamic_color">Dynamische Farben</string>
-    <string name="screens_settings_dynamic_color_sub">Farben deines Hintergrundbilds statt SIMKLr-Violett verwenden</string>
+    <string name="screens_settings_dynamic_color_sub">Farben deines Hintergrundbilds statt des App-Violetts verwenden</string>
     <string name="screens_settings_bottom_bar">Untere Leiste</string>
     <string name="screens_settings_bottom_bar_hint">Wähle und sortiere die Ziele der unteren Leiste.</string>
     <string name="screens_settings_move_up">Nach oben</string>
@@ -46,31 +43,17 @@
     <string name="screens_settings_continue_latest">Ab der neuesten Folge fortsetzen</string>
     <string name="screens_settings_continue_latest_sub">„Als Nächstes“ beginnt nach der zuletzt gesehenen Folge. Ungesehene Folgen oder Staffeln davor werden übersprungen.</string>
     <string name="screens_settings_notifications">Benachrichtigungen zu neuen Folgen</string>
-    <string name="screens_settings_notifications_sub">Prüft SIMKL mehrmals täglich auf neue Folgen von Serien, die du schaust</string>
-    <string name="screens_settings_client_id">API-Client-ID</string>
-    <string name="screens_settings_change">Ändern</string>
-    <string name="screens_settings_guide_sub">SIMKL-App erstellen und anmelden</string>
-    <string name="screens_settings_manage_apps">Deine SIMKL-Apps verwalten</string>
-    <string name="screens_settings_open">Öffnen</string>
-    <string name="screens_settings_about">SIMKLr %1$s · Nicht mit SIMKL verbunden. Daten und Bilder © SIMKL und deren Quellen.</string>
-    <string name="screens_settings_client_id_dialog_title">SIMKL-Client-ID</string>
-    <string name="screens_settings_client_id_dialog_body">Eine Änderung meldet dich ab, da Tokens zu einer App gehören.</string>
-    <string name="screens_settings_save">Speichern</string>
-    <string name="screens_client_id">Client ID</string>
+    <string name="screens_settings_notifications_sub">Prüft mehrmals täglich den Folgenkalender von SIMKL für Serien, die du schaust</string>
+    <string name="screens_settings_about">Tracker for Simkl %1$s · Nicht mit SIMKL verbunden. Daten und Bilder © SIMKL und deren Quellen.</string>
     <string name="screens_login_tagline">Verfolge deine Serien, Anime und Filme mit SIMKL.</string>
-    <string name="screens_login_api_key_title">Dein SIMKL-API-Schlüssel</string>
-    <string name="screens_login_api_key_body">SIMKLr spricht mit SIMKL über deine eigene kostenlose API-App. Erstelle eine auf SIMKL (AUTH V2, Typ „TV, devices &amp; command line“, beliebiger Name) und füge hier ihre Client ID ein. Ältere AUTH-V1-Apps funktionieren auch.</string>
-    <string name="screens_login_continue">Weiter</string>
     <string name="screens_login_sign_in">Mit SIMKL anmelden</string>
-    <string name="screens_login_open_simkl">SIMKL öffnen</string>
-    <string name="screens_login_change_api_key">API-Schlüssel ändern</string>
-    <string name="screens_login_code_expired">Der Code ist abgelaufen. Versuch es noch mal.</string>
-    <string name="screens_login_start_failed">Anmeldung konnte nicht gestartet werden: %1$s. Prüfe die Client ID.</string>
-    <string name="screens_login_enter_code">Gib diesen Code auf SIMKL ein</string>
-    <string name="screens_login_copy">Kopieren</string>
-    <string name="screens_login_waiting">Warte auf Bestätigung…</string>
     <plurals name="screens_profile_episodes">
         <item quantity="one">%1$d Folge</item>
         <item quantity="other">%1$d Folgen</item>
     </plurals>
+    <string name="screens_login_waiting_browser">Bestätige die Anmeldung auf simkl.com. Danach kommst du automatisch hierher zurück.</string>
+    <string name="screens_login_denied">Die Anmeldung wurde auf SIMKL abgebrochen (%1$s).</string>
+    <string name="screens_login_redirect_invalid">Dieser Anmeldelink gehört nicht zur Anmeldung dieser App. Tippe erneut auf Mit SIMKL anmelden.</string>
+    <string name="screens_login_failed">Anmeldung fehlgeschlagen: %1$s</string>
+    <string name="screens_login_note">Du meldest dich auf simkl.com an; diese App sieht dein Passwort nie. Tracker for Simkl ist nicht mit Simkl verbunden.</string>
 </resources>
