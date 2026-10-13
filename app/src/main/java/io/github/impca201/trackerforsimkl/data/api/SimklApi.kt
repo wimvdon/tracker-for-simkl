@@ -104,7 +104,7 @@ class SimklApi(
             val obj = result.second.asObject()
             val newToken = obj?.str("access_token")
             if (result.first in 200..299 && newToken != null) {
-                settings.setTokens(newToken, obj?.str("refresh_token") ?: refresh, obj?.long("expires_in")?.let { System.currentTimeMillis() + it * 1000 })
+                settings.setTokens(newToken, obj.str("refresh_token") ?: refresh, obj.long("expires_in")?.let { System.currentTimeMillis() + it * 1000 })
                 newToken
             } else {
                 token

@@ -75,3 +75,7 @@ calendar files, and images through wsrv.nl.
 `v1.2.3` tag is pushed or when it is run from the Actions tab with *Release* = patch/minor/major.
 Signing uses the `ANDROID_KEYSTORE_BASE64`, `ANDROID_KEYSTORE_PASSWORD`, `ANDROID_KEY_ALIAS` and
 `ANDROID_KEY_PASSWORD` secrets; without them a build-only run makes a debug APK.
+
+The version comes from the release tag: a release built for `v1.2.3` shows 1.2.3 in the app
+(Settings) and gets version code 10203. Builds that aren't releases show where they come from, like
+`1.2.3-dev+abc1234` in the workflow or `1.2.3-4-gabc1234` locally (`git describe`).
