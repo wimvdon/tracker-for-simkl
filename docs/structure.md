@@ -12,6 +12,7 @@ tracker-for-simkl/
 │       └── release.yml               Release rules → verify signing key → build APK → publish GitHub Release
 ├── CLAUDE.md                         Rules for Claude Code sessions
 ├── DESIGN.md                         Design language shared with the sibling apps
+├── LICENSE                           Copyright notice: all rights reserved, no open-source licence
 ├── PRIVACY.md                        Privacy policy
 ├── README.md
 ├── docs/                             This documentation

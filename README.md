@@ -23,6 +23,8 @@ An unofficial Android app for tracking TV shows, anime and movies with [Simkl](h
 
 English, Dutch, French, German, Spanish and Italian. Android 8.0+. See the [privacy policy](PRIVACY.md).
 
+Source available for reference; all rights reserved. See [LICENSE](LICENSE).
+
 ## Quick start
 
 Install the latest `tracker-for-simkl-x.y.z.apk` from [Releases](https://github.com/impca201/tracker-for-simkl/releases), open it and tap **Sign in with SIMKL**.
