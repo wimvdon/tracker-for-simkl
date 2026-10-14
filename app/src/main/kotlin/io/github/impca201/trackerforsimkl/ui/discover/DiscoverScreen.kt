@@ -62,6 +62,7 @@ fun DiscoverScreen() {
     val app = rememberApp()
     val navigator = LocalNavigator.current
     val context = androidx.compose.ui.platform.LocalContext.current
+    val resources = androidx.compose.ui.platform.LocalResources.current
     val scope = rememberCoroutineScope()
     val snackbar = remember { SnackbarHostState() }
     var typeName by rememberSaveable { mutableStateOf(MediaType.Tv.name) }
@@ -81,7 +82,7 @@ fun DiscoverScreen() {
                     IconButton(onClick = {
                         scope.launch {
                             val id = runCatching { app.catalog.random(type) }.getOrNull()
-                            if (id != null) navigator.openDetail(type, id) else snackbar.showSnackbar(context.getString(R.string.screens_discover_no_suggestion))
+                            if (id != null) navigator.openDetail(type, id) else snackbar.showSnackbar(resources.getString(R.string.screens_discover_no_suggestion))
                         }
                     }) { Icon(Icons.Rounded.Casino, contentDescription = stringResource(R.string.screens_discover_surprise)) }
                 }

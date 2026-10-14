@@ -1,83 +1,79 @@
 # Tracker for Simkl
 
-An unofficial Android app for tracking TV shows, anime and movies with [Simkl](https://simkl.com),
-built with Jetpack Compose and Material 3 (dynamic color, light/dark theme). Not affiliated with
-or endorsed by Simkl; "Simkl" is Simkl's trademark and only describes the service the app works with.
+## 📚 Documentation
+| | |
+|---|---|
+| [⚙️ Architecture](docs/architecture.md) | System design, components and flow |
+| [📁 Structure](docs/structure.md) | Project organization and responsibilities |
+| [🚀 Installation](docs/installation.md) | Requirements and steps to run the project |
+| [🧠 Technical decisions](docs/decisions.md) | Trade-offs and design justifications |
+| [📖 Usage guide](docs/usage.md) | Signing in, shelves, Discover, Calendar, settings |
+| [🔌 API](docs/api.md) | SIMKL endpoints used, sign-in flow, deep links |
+| [🧪 Testing](docs/testing.md) | How to run tests and what they cover |
 
-## Features
+---
 
-- **Floating bottom bar** with **TV Shows**, **Movies**, **Anime**, **Discover** and **Calendar**.
-  Re-order and enable/disable destinations in *Settings › Bottom bar*.
-- **TV Shows / Anime** shelves: **Up next** (shows with an aired, unwatched episode; one tap on ✓
-  marks the next episode watched; episodes in progress come first), **Watched** (caught up or
-  completed, with the next air date when known), **Plan to watch**, **On hold** and **Dropped**.
-  Airing/Ended badges on every poster.
-- **Sort & filter**: one row of dropdown chips above each tab (kept per tab): sort (recently
-  watched, recently added, title, my rating, release date), status (still airing / ended, or
-  released / upcoming for movies), my rating and, for anime, the type.
-- **In progress**: paused episodes and movies (SIMKL playback) show their progress; marking one
-  watched asks first, because it removes the saved progress.
-- **Continue from the latest episode** (setting): Up next starts after the most recently watched
-  episode, so skipped earlier episodes or seasons don't keep a show in Up next. (SIMKL's API has
-  no "skip" option.)
-- **Movies**: Plan to watch, Watched, Dropped.
-- **Details**: fanart, ratings (SIMKL, IMDb, MAL…), genres, overview, airing info, trailers,
-  recommendations, links (SIMKL, IMDb, TMDB, MAL, AniList…), list status, your 1–10 rating,
-  "mark as watched", and the full episode list per season (tap to toggle, long-press to mark
-  everything up to that episode, mark a whole season).
-- **Discover** with TV Shows / Anime / Movies tabs: trending today/this week/this month, airing
-  today, premieres, best of all time, most voted, and a "Surprise me" (random title) button.
-- **Search** across TV shows, anime and movies.
-- **Calendar** of upcoming episodes and releases of titles in your lists, with type chips.
-- **Profile** with watch-time statistics per type and status.
-- **Notifications** (optional) when a new episode of a show you're watching airs. They come from
-  SIMKL's calendar data files (data.simkl.in, a CDN outside the API quota) checked against the
-  library as last synced; nothing syncs with the API in the background.
-- **Syncing** happens when the app is opened or comes back to the foreground (at most every 15
-  minutes) and on pull-to-refresh, as SIMKL's API rules ask.
-- **Languages**: English, Dutch, French, German, Spanish and Italian (follows the system or
-  Android 13+'s per-app language setting).
-- Offline cache and efficient sync (`/sync/activities` first, then incremental `/sync/all-items`).
+## Description
 
-## Navigation
+An unofficial Android app for tracking TV shows, anime and movies with [Simkl](https://simkl.com). Not affiliated with or endorsed by Simkl; "Simkl" is Simkl's trademark and only describes the service the app works with.
 
-Following Material 3: the floating bottom bar holds the top-level destinations; **tabs** switch
-between parallel sections of a destination (library shelves, Discover's media types); **chips**
-sort and filter the content you are looking at (library sort/filters, Calendar and Search types).
-Search and your profile are in every destination's top bar.
+- **What it does:** shows your SIMKL lists as shelves (Up next, Watched, Plan to watch, On hold, Dropped), lets you mark episodes and movies watched, rate titles, check in, browse Discover and a Calendar of upcoming episodes, and optionally notifies you when a new episode of a show you watch airs.
+- **What problem it solves:** a fast, offline-first Material 3 client for SIMKL's tracking that follows SIMKL's API rules (sync on open and pull-to-refresh, incremental `/sync/activities` first, no background API traffic).
+- **Real use case:** after watching an episode, open the app, tap ✓ on the show in **Up next**, and the next unwatched episode moves up; the Calendar tab shows what airs this week.
 
-## Signing in
+English, Dutch, French, German, Spanish and Italian. Android 8.0+. See the [privacy policy](PRIVACY.md).
 
-Tap **Sign in with SIMKL**: simkl.com opens in the browser, and after you approve, SIMKL sends you
-back to the app. That's all; nobody needs a SIMKL developer account.
+## Quick start
 
-The app uses SIMKL's recommended sign-in for mobile apps, the OAuth 2.0 authorization code flow
-with PKCE: `/oauth2/authorize` with an S256 `code_challenge` and the redirect URI
-`trackerforsimkl://oauth`, then `POST /oauth2/token` with the `code_verifier`, scope
-`media:read media:write`, no client secret. The week-long access token is renewed with the
-refresh token.
+Install the latest `tracker-for-simkl-x.y.z.apk` from [Releases](https://github.com/impca201/tracker-for-simkl/releases), open it and tap **Sign in with SIMKL**.
 
-The app's own SIMKL client ID is baked in at build time with `-PsimklClientId=...`; the GitHub
-workflows take it from the `SIMKL_CLIENT_ID` Actions variable. (A client ID isn't a secret, per
-SIMKL's API rules.) Its SIMKL API app must be AUTH V2 with `trackerforsimkl://oauth` as redirect
-URI. Builds without a client ID start, but can't sign in.
+To build and install a debug build from source on a connected phone:
 
-The API usage follows SIMKL's official documentation ([api.simkl.org](https://api.simkl.org),
-formerly [github.com/SIMKL/api](https://github.com/SIMKL/api)): the activities-first sync with
-`date_from`, `simkl_ids_only` for removals, `/sync/ratings` for rating changes,
-`/ratings/{type}?user_watchlist=all` for ended/airing status, the data.simkl.in trending and
-calendar files, and images through wsrv.nl.
+```bash
+git clone https://github.com/impca201/tracker-for-simkl.git
+cd tracker-for-simkl
+./gradlew installDebug -PsimklClientId=<your SIMKL client ID>
+```
 
-## Building and releases
+## Technologies used
 
-`./gradlew assembleRelease` (JDK 21, Android SDK). The **Release** workflow (the same as
-[snoozer](https://github.com/impca201/snoozer)'s) publishes a GitHub release with the APK when a
-`v1.2.3` tag is pushed or when it is run from the Actions tab with *Release* = patch/minor/major.
-Signing uses the `ANDROID_KEYSTORE_BASE64`, `ANDROID_KEYSTORE_PASSWORD`, `ANDROID_KEY_ALIAS` and
-`ANDROID_KEY_PASSWORD` secrets; without them a build-only run makes a debug APK.
-The **CI** workflow runs the unit and launch tests and builds the debug and release APKs on every
-pull request and push to `main`.
+| Area | Technology |
+|---|---|
+| Language | Kotlin 2.4, coroutines, `StateFlow` |
+| UI | Jetpack Compose, Material 3 (dynamic colour optional), Material icons |
+| Networking | OkHttp 5 (50 MB HTTP cache), kotlinx.serialization JSON, Coil 3 for images |
+| Storage | Jetpack DataStore (settings, tokens), JSON snapshot files (library cache) |
+| Background | WorkManager (optional new-episode notifications, every 4 hours) |
+| Build | Gradle 9.8 (Kotlin DSL, version catalog), AGP 9.4, R8 |
+| CI/CD | GitHub Actions: tests, lint, R8 keep check and a debug APK on every pull request; signed releases; Dependabot |
+| Tests | JUnit 4, Robolectric (launch test) |
 
-The version comes from the release tag: a release built for `v1.2.3` shows 1.2.3 in the app
-(Settings) and gets version code 10203. Builds that aren't releases show where they come from, like
-`1.2.3-dev+abc1234` in the workflow or `1.2.3-4-gabc1234` locally (`git describe`).
+## Quick installation
+
+1. Install [Android Studio](https://developer.android.com/studio) (brings the JDK and Android SDK).
+2. Clone the repo and run `./gradlew assembleDebug -PsimklClientId=<id>`.
+3. Install `app/build/outputs/apk/debug/app-debug.apk` and sign in.
+
+Full steps: [docs/installation.md](docs/installation.md).
+
+## Architecture (summary)
+
+A single-activity Compose app. `TrackerApp` owns one OkHttp client, the `SimklApi` client and three repositories. `LibraryRepository` keeps the whole library in memory as a `StateFlow`, persisted as JSON files, and syncs incrementally from `/sync/activities`; screens render that state and send changes back through it. A small stack-based `Navigator` replaces a navigation library. Details: [docs/architecture.md](docs/architecture.md).
+
+## Project structure
+
+```
+tracker-for-simkl/
+├── .github/            CI and release workflows, PR template, Dependabot
+├── CLAUDE.md           Rules for Claude Code sessions
+├── scripts/            Release helpers (versioning, keystore secret) with tests
+├── app/src/main/kotlin/io/github/impca201/trackerforsimkl/
+│   ├── TrackerApp.kt   Application: HTTP client, API, repositories, image loader
+│   ├── auth/           Sign-in redirect activity
+│   ├── data/           Repositories, settings, API client, parsers, models
+│   ├── work/           New-episode notification worker
+│   └── ui/             Compose screens, navigation, theme
+└── app/src/test/       JVM unit tests and the Robolectric launch test
+```
+
+Full tree: [docs/structure.md](docs/structure.md).

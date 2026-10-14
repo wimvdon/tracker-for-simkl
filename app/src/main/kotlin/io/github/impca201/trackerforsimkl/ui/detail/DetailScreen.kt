@@ -101,6 +101,7 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalResources
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -150,6 +151,7 @@ fun DetailScreen(
     val app = rememberApp()
     val navigator = LocalNavigator.current
     val context = LocalContext.current
+    val resources = LocalResources.current
     val scope = rememberCoroutineScope()
     val snackbar = remember { SnackbarHostState() }
     val library by app.library.state.collectAsState()
@@ -169,7 +171,7 @@ fun DetailScreen(
         } catch (e: CancellationException) {
             throw e
         } catch (e: Exception) {
-            error = e.message ?: context.getString(R.string.detail_load_failed_fallback)
+            error = e.message ?: resources.getString(R.string.detail_load_failed_fallback)
         }
     }
     LaunchedEffect(route.simklId, reload) {
@@ -191,7 +193,7 @@ fun DetailScreen(
             } catch (e: CancellationException) {
                 throw e
             } catch (e: Exception) {
-                snackbar.showSnackbar(e.message?.let { context.getString(R.string.detail_failure_reason, failure, it) } ?: failure)
+                snackbar.showSnackbar(e.message?.let { resources.getString(R.string.detail_failure_reason, failure, it) } ?: failure)
             }
         }
     }
@@ -201,7 +203,7 @@ fun DetailScreen(
     confirmPlayback?.let { pb ->
         ConfirmWatchedDialog(
             playback = pb,
-            onConfirm = { run(context.getString(R.string.detail_error_mark_watched)) { app.library.markPlaybackWatched(pb, item) } },
+            onConfirm = { run(resources.getString(R.string.detail_error_mark_watched)) { app.library.markPlaybackWatched(pb, item) } },
             onDismiss = { confirmPlayback = null },
         )
     }
@@ -232,8 +234,9 @@ fun DetailScreen(
                     ),
             )
         },
-    ) { _ ->
-        // Fade through between the full-screen error and the content.
+    ) { innerPadding ->
+        // Fade through between the full-screen error and the content. The content draws behind the
+        // transparent top bar (the fanart header); only the error keeps clear of it.
         AnimatedContent(
             targetState = details == null && error != null && item == null,
             transitionSpec = { fadeIn(Motion.fadeSpec(210, delayMillis = 90)) togetherWith fadeOut(Motion.fadeSpec(90)) },
@@ -241,7 +244,12 @@ fun DetailScreen(
             modifier = Modifier.fillMaxSize(),
         ) { showError ->
             if (showError) {
-                EmptyState(Icons.Rounded.ErrorOutline, stringResource(R.string.detail_load_failed_title), error) {
+                EmptyState(
+                    Icons.Rounded.ErrorOutline,
+                    stringResource(R.string.detail_load_failed_title),
+                    error,
+                    modifier = Modifier.padding(innerPadding),
+                ) {
                     Button(onClick = { reload++ }) { Text(stringResource(R.string.detail_try_again)) }
                 }
                 return@AnimatedContent
@@ -260,7 +268,7 @@ fun DetailScreen(
                         playback = playback,
                         onPlaybackWatched = { confirmPlayback = it },
                         onStatus = { status ->
-                            run(context.getString(R.string.detail_error_update_list)) {
+                            run(resources.getString(R.string.detail_error_update_list)) {
                                 if (status == null) {
                                     app.library.remove(route.type, ids.simkl)
                                 } else {
@@ -268,17 +276,17 @@ fun DetailScreen(
                                 }
                             }
                         },
-                        onRate = { rating -> run(context.getString(R.string.detail_error_save_rating)) { app.library.rate(route.type, ids.simkl, rating) } },
-                        onMovieWatched = { run(context.getString(R.string.detail_error_mark_watched)) { app.library.markMovieWatched(ids, title, poster, year) } },
+                        onRate = { rating -> run(resources.getString(R.string.detail_error_save_rating)) { app.library.rate(route.type, ids.simkl, rating) } },
+                        onMovieWatched = { run(resources.getString(R.string.detail_error_mark_watched)) { app.library.markMovieWatched(ids, title, poster, year) } },
                         onWatchNext = { next ->
-                            run(context.getString(R.string.detail_error_mark_episode_watched, next.label)) {
+                            run(resources.getString(R.string.detail_error_mark_episode_watched, next.label)) {
                                 app.library.setEpisodesWatched(route.type, ids, title, poster, listOf(next), true, episodes)
                             }
                         },
                         onCheckIn = { episode ->
-                            run(context.getString(R.string.detail_error_check_in)) {
+                            run(resources.getString(R.string.detail_error_check_in)) {
                                 app.library.checkIn(route.type, ids.simkl, episode)
-                                snackbar.showSnackbar(context.getString(R.string.detail_checked_in))
+                                snackbar.showSnackbar(resources.getString(R.string.detail_checked_in))
                             }
                         },
                     )
@@ -320,7 +328,7 @@ fun DetailScreen(
                         item = item,
                         onToggle = { refs, watched ->
                             // An empty change would still add the title to the library as Watching.
-                            if (refs.isNotEmpty()) run(context.getString(R.string.detail_error_update_episodes)) {
+                            if (refs.isNotEmpty()) run(resources.getString(R.string.detail_error_update_episodes)) {
                                 app.library.setEpisodesWatched(route.type, ids, title, poster, refs, watched, episodes)
                             }
                         },
@@ -329,7 +337,7 @@ fun DetailScreen(
                                 episodes.filter { it.aired && !it.special && item?.isWatched(it.season, it.episode) != true }
                                     .map { EpisodeRef(it.season, it.episode) }
                             if (refs.isNotEmpty()) {
-                                run(context.getString(R.string.detail_error_mark_episodes_watched)) {
+                                run(resources.getString(R.string.detail_error_mark_episodes_watched)) {
                                     app.library.setEpisodesWatched(route.type, ids, title, poster, refs, true, episodes)
                                 }
                             }

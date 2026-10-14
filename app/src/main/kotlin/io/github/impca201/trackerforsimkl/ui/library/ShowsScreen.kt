@@ -2,7 +2,7 @@ package io.github.impca201.trackerforsimkl.ui.library
 
 import io.github.impca201.trackerforsimkl.ui.components.label
 import androidx.annotation.StringRes
-import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalResources
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import io.github.impca201.trackerforsimkl.R
@@ -226,7 +226,7 @@ private fun UpNextList(
     onError: (String) -> Unit,
 ) {
     val app = rememberApp()
-    val context = LocalContext.current
+    val resources = LocalResources.current
     val scope = rememberCoroutineScope()
     var busy by remember { mutableStateOf(setOf<String>()) }
     var confirm by remember { mutableStateOf<Pair<Playback, LibraryItem>?>(null) }
@@ -250,7 +250,7 @@ private fun UpNextList(
             } catch (e: CancellationException) {
                 throw e
             } catch (e: Exception) {
-                onError(context.getString(R.string.lib_mark_failed, label, e.message.orEmpty()))
+                onError(resources.getString(R.string.lib_mark_failed, label, e.message.orEmpty()))
             }
             busy = busy - item.key
         }

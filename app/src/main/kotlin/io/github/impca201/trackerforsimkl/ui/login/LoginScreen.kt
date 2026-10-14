@@ -31,6 +31,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalResources
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -51,6 +52,7 @@ import kotlinx.coroutines.launch
 fun LoginScreen() {
     val app = rememberApp()
     val context = LocalContext.current
+    val resources = LocalResources.current
     val scope = rememberCoroutineScope()
     var busy by remember { mutableStateOf(false) }
     var error by remember { mutableStateOf<String?>(null) }
@@ -68,9 +70,9 @@ fun LoginScreen() {
             error = null
             when {
                 denied != null ->
-                    error = context.getString(R.string.screens_login_denied, uri.getQueryParameter("error_description") ?: denied)
+                    error = resources.getString(R.string.screens_login_denied, uri.getQueryParameter("error_description") ?: denied)
                 pending == null || code == null || uri.getQueryParameter("state") != pending.first ->
-                    error = context.getString(R.string.screens_login_redirect_invalid)
+                    error = resources.getString(R.string.screens_login_redirect_invalid)
                 else -> {
                     busy = true
                     val result =
@@ -83,7 +85,7 @@ fun LoginScreen() {
                         }
                     when (result) {
                         is SignIn.Approved -> app.settings.setTokens(result.accessToken, result.refreshToken, result.expiresAt)
-                        is SignIn.Failed -> error = context.getString(R.string.screens_login_failed, result.message)
+                        is SignIn.Failed -> error = resources.getString(R.string.screens_login_failed, result.message)
                     }
                     busy = false
                 }
@@ -122,7 +124,7 @@ fun LoginScreen() {
                     } catch (e: CancellationException) {
                         throw e
                     } catch (e: Exception) {
-                        error = context.getString(R.string.screens_login_failed, e.message.orEmpty())
+                        error = resources.getString(R.string.screens_login_failed, e.message.orEmpty())
                     }
                 }
             },
