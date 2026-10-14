@@ -4,7 +4,7 @@ Newest first. Add an entry for every notable choice: what was decided, why, and 
 
 ## 2026-10-14: Launcher icon shows a checkmark instead of a play button
 
-The icon's TV stand (a short bar under the screen) did not read as a stand, and a play button says "video player" more than "tracker". The screen is now a little taller, has no stand, and carries a white checkmark ("watched"). Gradient, white background and the one-shape, one-detail rule from `DESIGN.md` are unchanged. Rejected: keeping the play button with a small checkmark badge (too small at launcher sizes), stacked screens and a progress bar (busier).
+The icon's TV stand (a short bar under the screen) did not read as a stand, and a play button says "video player" more than "tracker". The screen is now a little taller, has no stand, and carries a white checkmark ("watched"). Gradient, white background and the one-shape, one-detail rule from `DESIGN.md` are unchanged. The notification icon (previously a stock Material TV) is now the themed layer scaled to 24dp, so it matches. Rejected: keeping the play button with a small checkmark badge (too small at launcher sizes), stacked screens and a progress bar (busier).
 
 ## 2026-10-14: Publish through Google Play instead of GitHub Releases
 
