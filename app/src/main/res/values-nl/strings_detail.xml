@@ -46,6 +46,17 @@
     <string name="detail_rank">Rang #%1$d</string>
     <string name="detail_fact_status">Status</string>
     <string name="detail_fact_airs">Uitzending</string>
+    <string name="detail_status_airing">Loopt</string>
+    <string name="detail_status_ended">Afgelopen</string>
+    <string name="detail_status_cancelled">Geannuleerd</string>
+    <string name="detail_status_returning">Komt terug</string>
+    <string name="detail_status_tba">Nog niet aangekondigd</string>
+    <string name="detail_status_upcoming">Binnenkort</string>
+    <string name="detail_status_in_production">In productie</string>
+    <string name="detail_status_planned">Gepland</string>
+    <string name="detail_status_released">Uitgebracht</string>
+    <!-- Weekday and time of the broadcast in the phone's time zone, e.g. "Tuesday 21:30". -->
+    <string name="detail_airs_day_time">%1$s %2$s</string>
     <string name="detail_fact_released">Uitgebracht</string>
     <string name="detail_fact_first_aired">Eerste uitzending</string>
     <string name="detail_fact_episodes">Afleveringen</string>

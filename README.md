@@ -23,6 +23,8 @@ An unofficial Android app for tracking TV shows, anime and movies with [Simkl](h
 
 English, Dutch, French, German, Spanish and Italian. Android 8.0+. See the [privacy policy](PRIVACY.md).
 
+Source available for reference; all rights reserved. See [LICENSE](LICENSE).
+
 ## Quick start
 
 The app is distributed through Google Play's internal testing track (invite only; see [Publishing through Google Play](docs/installation.md#publishing-through-google-play)). Install it from the Play Store, open it and tap **Sign in with SIMKL**.
