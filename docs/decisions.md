@@ -2,6 +2,10 @@
 
 Newest first. Add an entry for every notable choice: what was decided, why, and what was rejected.
 
+## 2026-10-14: Back to GitHub Releases instead of Google Play
+
+The owner chose to publish through GitHub Releases again, as before the Google Play entry below. The Release workflow once more builds a signed APK and attaches it (with the R8 mapping file) to a GitHub Release with the `vX.Y.Z` tag; the Play upload job, the AAB and the `PLAY_SERVICE_ACCOUNT_JSON` secret are no longer used. The signing key stays the one already in the GitHub secrets, so phones that installed a GitHub APK keep updating. Trade-off: the repository is public, so anyone can download the APK. Rejected: keeping Play internal testing (the developer account and its setup are not wanted for now).
+
 ## 2026-10-14: Shared design rules have their master copy in the template
 
 `DESIGN.md` was kept identical in the three sibling apps by hand, with no single place to start a change, and the copies had drifted (Snoozer was missing the Loading section; the Tracker for Simkl icon row was out of date in two apps). The android-app template (`wimvdon/android-app`) now holds the master copy; each app keeps a full copy so Claude sessions can read the rules without opening another repository, and only its "This app" section is its own. Rejected: keeping the file only in the template (sessions in an app would have to fetch it every time) and a shared library for the design kit (a new dependency and more setup than three small apps need). The design kit files (`ui/theme/`) stay in the apps.
