@@ -32,4 +32,4 @@ Only when you turn on new-episode notifications: about every 4 hours, with a net
 
 If this changes, this file will be updated **before** the change is released.
 
-Questions: open an issue at https://github.com/impca201/tracker-for-simkl/issues.
+Questions: open an issue at https://github.com/wimvdon/tracker-for-simkl/issues.

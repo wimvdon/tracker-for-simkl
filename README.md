@@ -32,7 +32,7 @@ The app is distributed through Google Play's internal testing track (invite only
 To build and install a debug build from source on a connected phone:
 
 ```bash
-git clone https://github.com/impca201/tracker-for-simkl.git
+git clone https://github.com/wimvdon/tracker-for-simkl.git
 cd tracker-for-simkl
 ./gradlew installDebug -PsimklClientId=<your SIMKL client ID>
 ```
