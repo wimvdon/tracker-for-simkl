@@ -64,7 +64,7 @@ The app syncs when it opens or comes back to the foreground (at most every 15 mi
 
 ## New-episode notifications
 
-Turn on *Settings › Library › New episode notifications* (Android 13+ asks for permission). A few times a day the app checks SIMKL's public episode calendar against your library as last synced and notifies you about newly aired episodes of shows you're watching. Tap a notification to open the show.
+Turn on *Settings › Library › New episode notifications* (Android 13+ asks for permission). A few times a day the app checks SIMKL's public episode calendar against your library as last synced and notifies you about newly aired episodes of shows you're watching. Each notification shows the show's poster; expand it to see the show's backdrop picture. Tap a notification to open the show.
 
 ## Appearance and language
 

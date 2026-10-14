@@ -23,7 +23,7 @@ None of this is included in cloud backups or device-to-device transfers. Signing
 
 ## Background activity
 
-Only when you turn on new-episode notifications: about every 4 hours, with a network connection, the app downloads SIMKL's public calendar files and compares them with your library as last synced. It does not call SIMKL's API in the background.
+Only when you turn on new-episode notifications: about every 4 hours, with a network connection, the app downloads SIMKL's public calendar files and compares them with your library as last synced. For each new episode it announces, it downloads that show's poster and backdrop picture (through wsrv.nl, as everywhere in the app) to show in the notification. It does not call SIMKL's API in the background.
 
 ## Permissions
 
