@@ -1,7 +1,7 @@
 # Rules for Claude Code sessions in this repository
 
 Tracker for Simkl, an Android app built from the same rules as the
-[android-app template](https://github.com/wimvdon/android-app). The owner is **not a developer
+`android-app` template (a private repository). The owner is **not a developer
 and does not review code**. CI, tests, lint and these rules are the safety net. Follow them every
 time.
 
