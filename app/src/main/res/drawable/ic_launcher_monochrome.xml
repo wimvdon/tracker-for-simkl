@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Themed-icon layer: the screen with the play mark cut out, and the stand. -->
+<!-- Themed-icon layer: the screen with the checkmark cut out. The second subpath is the outline
+     of the foreground's 6-wide round-capped checkmark stroke. -->
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
     android:width="108dp"
     android:height="108dp"
@@ -13,9 +14,6 @@
         <path
             android:fillColor="#FFFFFFFF"
             android:fillType="evenOdd"
-            android:pathData="M40,30h28a12,12 0,0 1,12 12v16a12,12 0,0 1,-12 12h-28a12,12 0,0 1,-12 -12v-16a12,12 0,0 1,12 -12z M48,42L48,58L62,50Z" />
-        <path
-            android:fillColor="#FFFFFFFF"
-            android:pathData="M45,75h18a2,2 0,0 1,0 4h-18a2,2 0,0 1,0 -4z" />
+            android:pathData="M40,32h28a12,12 0,0 1,12 12v20a12,12 0,0 1,-12 12h-28a12,12 0,0 1,-12 -12v-20a12,12 0,0 1,12 -12z M44.6213,52.3787L50.5,58.2574L63.8787,44.8787A3,3 0,0 1,68.1213 49.1213L52.6213,64.6213A3,3 0,0 1,48.3787 64.6213L40.3787,56.6213A3,3 0,0 1,44.6213 52.3787Z" />
     </group>
 </vector>

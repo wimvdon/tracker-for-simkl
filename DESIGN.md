@@ -14,7 +14,7 @@ the "This app" section; change the rules in all three together.
 
 | App | Shape | Gradient |
 | --- | --- | --- |
-| Tracker for Simkl | TV with a play button | `#3D7BFF` → `#7A5CFF` → `#D15CE6` |
+| Tracker for Simkl | TV screen with a checkmark | `#3D7BFF` → `#7A5CFF` → `#D15CE6` |
 | Time Tracker for Notion | Stopwatch dial with a hand | `#FF8A3D` → `#F04438` → `#C81E5A` |
 | Snoozer | Nine-lobed "cookie" (the home screen toggle) with a bell | `#22C3B4` → `#3E7BDA` → `#4E5BB0` |
 
