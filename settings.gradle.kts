@@ -20,5 +20,6 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "TrackerForSimkl"
+// Also used as the APK file name prefix: <rootProject.name>-<version>.apk
+rootProject.name = "tracker-for-simkl"
 include(":app")
