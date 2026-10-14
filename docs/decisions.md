@@ -17,7 +17,7 @@ The repository becomes public so GitHub Actions minutes are free, but the code i
 
 ## 2026-10-14: Aligned with the android-app template
 
-The app now follows the rules, layout and workflows of [impca201/android-app](https://github.com/impca201/android-app), like its sibling apps Snoozer and Time Tracker for Notion.
+The app now follows the rules, layout and workflows of [wimvdon/android-app](https://github.com/wimvdon/android-app), like its sibling apps Snoozer and Time Tracker for Notion.
 
 - **`CLAUDE.md`**, a plain-language pull request template and weekly **Dependabot** updates for Gradle and GitHub Actions.
 - **CI** now also runs **lint** (errors fail the build, no baseline) and the release-script tests, cancels outdated runs and uploads `tracker-for-simkl-<version>-debug.apk` unzipped. The existing launch test and R8 keep check stay. Enabling lint surfaced 18 errors, all fixed in code: string lookups in Compose now use `LocalResources` instead of `LocalContext` (configuration-aware), and the detail screen's error state uses the scaffold padding.

@@ -1,6 +1,6 @@
 # Installation
 
-For developers who build the app. New versions are published through Google Play (internal testing, invite only); see [Publishing through Google Play](#publishing-through-google-play). Older APKs remain on the [Releases](https://github.com/impca201/tracker-for-simkl/releases) page, but no new ones are added.
+For developers who build the app. New versions are published through Google Play (internal testing, invite only); see [Publishing through Google Play](#publishing-through-google-play). Older APKs remain on the [Releases](https://github.com/wimvdon/tracker-for-simkl/releases) page, but no new ones are added.
 
 ## Prerequisites
 
@@ -17,7 +17,7 @@ Gradle is downloaded by the wrapper. There is no database or server to set up.
 ## 1. Clone the repo
 
 ```bash
-git clone https://github.com/impca201/tracker-for-simkl.git
+git clone https://github.com/wimvdon/tracker-for-simkl.git
 cd tracker-for-simkl
 ```
 
@@ -161,7 +161,7 @@ From now on, **Actions › Release › Run workflow** with `patch`, `minor` or `
 Not needed for your own use. Before the app can go to **Production** (anyone can find and install it), Google requires:
 
 - **A closed test first** for personal developer accounts created after November 2023: as of 2026, at least **12 testers** who stay opted in for **14 days in a row**, after which you apply for production access. Google has changed these numbers before; check the current rule in the Play Console (**Dashboard**) or [Play Console Help](https://support.google.com/googleplay/android-developer/answer/14151465).
-- **A privacy policy URL.** Once the repository is public, [PRIVACY.md](../PRIVACY.md) is reachable at `https://github.com/impca201/tracker-for-simkl/blob/main/PRIVACY.md`.
+- **A privacy policy URL.** Once the repository is public, [PRIVACY.md](../PRIVACY.md) is reachable at `https://github.com/wimvdon/tracker-for-simkl/blob/main/PRIVACY.md`.
 - **The Data safety form** (**Policy and programs › App content**): fill it in from PRIVACY.md (the app sends your SIMKL token and library changes to SIMKL only; no ads, analytics or tracking).
 - **The content rating questionnaire** and the other items under **App content** (target audience, ads: none).
 - A store listing: short and full description, icon, feature graphic and screenshots.
