@@ -1,13 +1,19 @@
 package io.github.impca201.trackerforsimkl.data.model
 
 import kotlinx.serialization.Serializable
+import java.time.DayOfWeek
 import java.time.Instant
 import java.time.LocalDate
 import java.time.LocalDateTime
+import java.time.LocalTime
 import java.time.OffsetDateTime
 import java.time.ZoneId
 import java.time.ZoneOffset
+import java.time.ZonedDateTime
+import java.time.format.DateTimeFormatterBuilder
 import java.time.format.DateTimeParseException
+import java.time.temporal.TemporalAdjusters
+import java.util.Locale
 
 /** The three SIMKL catalogues, with the names the API uses for each of them. */
 @Serializable
@@ -102,6 +108,91 @@ enum class AiringState {
         }
     }
 }
+
+/** A show's status as SIMKL names it, for showing it in the user's language. */
+enum class ShowStatus {
+    Airing,
+    Ended,
+    Cancelled,
+    Returning,
+    Tba,
+    Upcoming,
+    InProduction,
+    Planned,
+    Released,
+    ;
+
+    companion object {
+        /** Null for a status this app does not know; the screen then shows SIMKL's own text. */
+        fun fromApi(status: String?): ShowStatus? {
+            val s = status?.trim()?.lowercase() ?: return null
+            return when {
+                s.startsWith("end") -> Ended
+                "cancel" in s -> Cancelled
+                "return" in s -> Returning
+                "air" in s || "ongoing" in s -> Airing
+                s == "tba" -> Tba
+                "upcoming" in s -> Upcoming
+                "production" in s -> InProduction
+                "planned" in s || "rumored" in s -> Planned
+                "released" in s -> Released
+                else -> null
+            }
+        }
+    }
+}
+
+/** When a show airs, as SIMKL gives it ("airs": day, time and the broadcaster's time zone). */
+data class AirTime(
+    val day: String?,
+    val time: String?,
+    val timezone: String?,
+) {
+    /** SIMKL's text as is ("Tuesday 03:30 PM (America/New_York)"), when it can't be converted. */
+    val raw: String?
+        get() = listOfNotNull(day, time, timezone?.let { "($it)" }).joinToString(" ").ifEmpty { null }
+
+    /**
+     * The next broadcast in [zone] (the phone's time zone): the day shifts too when the
+     * conversion crosses midnight. Null when the time or time zone can't be read; day is null
+     * when SIMKL gives no (readable) day.
+     */
+    fun inZone(
+        zone: ZoneId,
+        now: Instant = Instant.now(),
+    ): LocalAir? {
+        val localTime = parseTime(time) ?: return null
+        val source = timezone?.trim()?.takeIf { it.isNotEmpty() }?.let { runCatching { ZoneId.of(it) }.getOrNull() } ?: return null
+        val weekday = parseDay(day)
+        val today = now.atZone(source).toLocalDate()
+        val date = weekday?.let { today.with(TemporalAdjusters.nextOrSame(it)) } ?: today
+        val there = ZonedDateTime.of(date, localTime, source).withZoneSameInstant(zone)
+        return LocalAir(if (weekday != null) there.dayOfWeek else null, there.toLocalTime())
+    }
+
+    companion object {
+        private val timeFormats =
+            listOf("H:mm", "h:mm a", "hh:mm a", "h:mma", "H:mm:ss", "h a")
+                .map { DateTimeFormatterBuilder().parseCaseInsensitive().appendPattern(it).toFormatter(Locale.ENGLISH) }
+
+        fun parseTime(value: String?): LocalTime? {
+            val v = value?.trim()?.takeIf { it.isNotEmpty() } ?: return null
+            return timeFormats.firstNotNullOfOrNull { f -> runCatching { LocalTime.parse(v, f) }.getOrNull() }
+        }
+
+        /** "Tuesday", "tue" or "Tues"; null for anything else ("Monday-Friday", "Weekdays"). */
+        fun parseDay(value: String?): DayOfWeek? {
+            val v = value?.trim()?.lowercase()?.takeIf { it.length >= 3 && it.all { c -> c.isLetter() } } ?: return null
+            return DayOfWeek.entries.firstOrNull { it.name.lowercase().startsWith(v) }
+        }
+    }
+}
+
+/** A broadcast day and time in the phone's time zone. */
+data class LocalAir(
+    val day: DayOfWeek?,
+    val time: LocalTime,
+)
 
 @Serializable
 data class EpisodeRef(
@@ -241,7 +332,7 @@ data class MediaDetails(
     val certification: String?,
     val runtime: Int?,
     val firstAired: String?,
-    val airs: String?,
+    val airs: AirTime?,
     val totalEpisodes: Int?,
     val animeType: String?,
     val director: String?,

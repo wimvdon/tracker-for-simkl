@@ -1,5 +1,6 @@
 package io.github.impca201.trackerforsimkl.data.api
 
+import io.github.impca201.trackerforsimkl.data.model.AirTime
 import io.github.impca201.trackerforsimkl.data.model.AiringState
 import io.github.impca201.trackerforsimkl.data.model.CalendarEntry
 import io.github.impca201.trackerforsimkl.data.model.Dates
@@ -216,7 +217,7 @@ object Parsers {
             }.orEmpty()
         val airs =
             obj.obj("airs")?.let { a ->
-                listOfNotNull(a.str("day"), a.str("time"), a.str("timezone")?.let { "($it)" }).joinToString(" ").ifEmpty { null }
+                AirTime(a.str("day"), a.str("time"), a.str("timezone")).takeIf { it.raw != null }
             }
         val recommendations =
             obj["users_recommendations"].objects().mapNotNull { rec ->

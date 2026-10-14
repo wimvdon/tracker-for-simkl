@@ -36,6 +36,7 @@ The debug APK (`tracker-for-simkl-<version>-debug.apk`) and the test and lint re
 | Test | Subject |
 |---|---|
 | `data/ParsersTest` | `Parsers` against hand-written and documented SIMKL responses: library items, next episode, watched state and ratings; details and summaries; episode refs; airing states; anime details, watchlist ratings, playback and small responses from SIMKL's docs; `Shelves` assignment; marking episodes moving "next"; continue-from-latest (only aired episodes count) |
+| `data/DetailLogicTest` | Details screen logic: broadcast time converted to the phone's time zone (summer time, day changes, unreadable day or zone), show status names, the season the episode list opens on |
 | `ui/LaunchTest` | Starts `MainActivity` under Robolectric (API 35) signed out (login screen) and with a token (main screen); any exception during start-up or composition fails |
 
 ## Strategy

@@ -48,6 +48,25 @@ object Shelves {
             .maxByOrNull { order(it) }
 
     /**
+     * The season the episode list opens on (keys of [seasons]: season numbers, 0 for specials):
+     * the paused episode's season, else the season of the latest watched episode, else SIMKL's
+     * next episode's, else the first one.
+     */
+    fun startSeason(
+        item: LibraryItem?,
+        playback: EpisodeRef?,
+        seasons: Collection<Int>,
+    ): Int? {
+        val candidates =
+            listOfNotNull(
+                playback?.let { it.season ?: 1 },
+                item?.let { latestWatched(it) }?.let { it.season ?: 1 },
+                item?.nextToWatch?.ref?.let { it.season ?: 1 },
+            )
+        return candidates.firstOrNull { it in seasons } ?: seasons.firstOrNull()
+    }
+
+    /**
      * True when SIMKL's next episode lies before the latest watched one (the user skipped
      * episodes or seasons).
      */

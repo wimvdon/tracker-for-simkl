@@ -33,14 +33,17 @@ import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImage
 import io.github.impca201.trackerforsimkl.R
 import io.github.impca201.trackerforsimkl.TrackerApp
+import io.github.impca201.trackerforsimkl.data.model.AirTime
 import io.github.impca201.trackerforsimkl.data.model.Dates
 import io.github.impca201.trackerforsimkl.data.model.Images
+import io.github.impca201.trackerforsimkl.data.model.LocalAir
 import java.time.Duration
 import java.time.Instant
 import java.time.LocalDate
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 import java.time.format.FormatStyle
+import java.time.format.TextStyle
 import java.util.Locale
 
 @Composable
@@ -184,6 +187,16 @@ object Format {
             else -> res.getString(R.string.lib_duration_minutes, minutes)
         }
     }
+
+    /** A broadcast in the phone's time zone: "Tuesday 21:30", or just the time without a day. */
+    fun airs(air: LocalAir): String {
+        val time = timeFormat.format(air.time)
+        val day = air.day?.getDisplayName(TextStyle.FULL, Locale.getDefault())?.replaceFirstChar { it.titlecase(Locale.getDefault()) }
+        return if (day == null) time else res.getString(R.string.detail_airs_day_time, day, time)
+    }
+
+    /** SIMKL's air time converted to the phone's time zone, or SIMKL's text when that fails. */
+    fun airs(air: AirTime): String? = air.inZone(zone)?.let { airs(it) } ?: air.raw
 
     fun rating(value: Double): String = if (value >= 10) "10" else "%.1f".format(value)
 }

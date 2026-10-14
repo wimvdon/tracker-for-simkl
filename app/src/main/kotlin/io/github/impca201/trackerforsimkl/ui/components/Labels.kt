@@ -10,6 +10,7 @@ import io.github.impca201.trackerforsimkl.data.model.ListStatus
 import io.github.impca201.trackerforsimkl.data.model.MediaType
 import io.github.impca201.trackerforsimkl.data.model.MovieShelf
 import io.github.impca201.trackerforsimkl.data.model.Shelf
+import io.github.impca201.trackerforsimkl.data.model.ShowStatus
 
 /** Localised names of the data layer's enums (the data layer itself has no Android resources). */
 val NavTab.labelRes: Int
@@ -78,3 +79,17 @@ fun ThemeMode.label(): String =
             ThemeMode.Dark -> R.string.theme_dark
         },
     )
+
+val ShowStatus.label: Int
+    @StringRes get() =
+        when (this) {
+            ShowStatus.Airing -> R.string.detail_status_airing
+            ShowStatus.Ended -> R.string.detail_status_ended
+            ShowStatus.Cancelled -> R.string.detail_status_cancelled
+            ShowStatus.Returning -> R.string.detail_status_returning
+            ShowStatus.Tba -> R.string.detail_status_tba
+            ShowStatus.Upcoming -> R.string.detail_status_upcoming
+            ShowStatus.InProduction -> R.string.detail_status_in_production
+            ShowStatus.Planned -> R.string.detail_status_planned
+            ShowStatus.Released -> R.string.detail_status_released
+        }

@@ -63,6 +63,7 @@ import androidx.compose.material3.LinearProgressIndicator
 import io.github.impca201.trackerforsimkl.data.model.NextEpisode
 import io.github.impca201.trackerforsimkl.data.model.Playback
 import io.github.impca201.trackerforsimkl.data.model.Shelves
+import io.github.impca201.trackerforsimkl.data.model.ShowStatus
 import io.github.impca201.trackerforsimkl.ui.components.ConfirmWatchedDialog
 import io.github.impca201.trackerforsimkl.ui.theme.AppShapes
 import kotlin.math.roundToInt
@@ -635,8 +636,8 @@ private fun About(d: MediaDetails) {
         }
         val facts =
             listOfNotNull(
-                d.status?.let { R.string.detail_fact_status to it.replaceFirstChar { c -> c.uppercase() } },
-                d.airs?.let { R.string.detail_fact_airs to it },
+                d.status?.let { R.string.detail_fact_status to (ShowStatus.fromApi(it)?.let { s -> stringResource(s.label) } ?: it.replaceFirstChar { c -> c.uppercase() }) },
+                d.airs?.let { Format.airs(it) }?.let { R.string.detail_fact_airs to it },
                 d.firstAired?.let { (if (d.type == MediaType.Movie) R.string.detail_fact_released else R.string.detail_fact_first_aired) to (Format.date(it) ?: it) },
                 d.totalEpisodes?.takeIf { it > 0 }?.let { R.string.detail_fact_episodes to it.toString() },
                 d.network?.let { R.string.detail_fact_network to it },
@@ -726,10 +727,23 @@ private fun EpisodesBlock(
     onToggle: (List<EpisodeRef>, Boolean) -> Unit,
     onAllWatched: () -> Unit,
 ) {
-    val defaultSeason =
-        (playback?.episode?.season ?: item?.nextToWatch?.ref?.season)?.takeIf { it in seasons } ?: seasons.keys.first()
-    var selected by rememberSaveable { mutableIntStateOf(defaultSeason) }
-    val current = if (selected in seasons) selected else seasons.keys.first()
+    // Opens on the season being watched; fixed once the library entry is known, so marking
+    // episodes doesn't make it jump. A season the user picked is kept.
+    val defaultSeason = Shelves.startSeason(item, playback?.episode, seasons.keys) ?: seasons.keys.first()
+    var selected by rememberSaveable { mutableStateOf<Int?>(null) }
+    val hasItem = item != null
+    LaunchedEffect(hasItem) { if (hasItem && selected == null) selected = defaultSeason }
+    val current = selected?.takeIf { it in seasons } ?: defaultSeason
+    val chips = rememberLazyListState()
+    LaunchedEffect(current, seasons.size) {
+        // Bring the chosen season's chip into view (it can be far right, e.g. season 6).
+        val index = seasons.keys.indexOf(current)
+        val info = chips.layoutInfo
+        val visible = info.visibleItemsInfo.firstOrNull { it.index == index }
+        if (index >= 0 && (visible == null || visible.offset < info.viewportStartOffset || visible.offset + visible.size > info.viewportEndOffset)) {
+            chips.animateScrollToItem(index)
+        }
+    }
     val list = seasons[current].orEmpty()
     fun Episode.ref() = EpisodeRef(this.season, this.episode)
     fun Episode.watched() = item?.isWatched(this.season, this.episode) == true
@@ -779,7 +793,7 @@ private fun EpisodesBlock(
             }
         }
         if (seasons.size > 1) {
-            LazyRow(contentPadding = PaddingValues(horizontal = 16.dp), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            LazyRow(state = chips, contentPadding = PaddingValues(horizontal = 16.dp), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 items(seasons.keys.toList()) { n ->
                     val eps = seasons[n].orEmpty()
                     val done = eps.isNotEmpty() && eps.all { e -> item?.isWatched(e.season, e.episode) == true }
