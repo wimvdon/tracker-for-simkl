@@ -87,6 +87,25 @@ object Shelves {
         return hasGap(item) || hasAvailableEpisode(item)
     }
 
+    /**
+     * Shows whose "next after latest" must be worked out before a sync's result is shown: their
+     * watched count changed since [before] (watched in another app) and they need a lookup.
+     * Without it they would fall back to SIMKL's counts and briefly jump into Up next.
+     */
+    fun changedLatestLookups(
+        before: List<LibraryItem>,
+        after: List<LibraryItem>,
+        known: Map<String, LatestNext>,
+    ): List<LibraryItem> {
+        val old = before.associateBy { it.key }
+        return after.filter { item ->
+            val previous = old[item.key] ?: return@filter false
+            previous.watchedEpisodes != item.watchedEpisodes &&
+                needsLatestLookup(item) &&
+                validLatest(item, known[item.key]) == null
+        }
+    }
+
     /** A lookup result that still matches the item (computed for its current watched count). */
     fun validLatest(
         item: LibraryItem,

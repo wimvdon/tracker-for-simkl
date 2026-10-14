@@ -326,4 +326,35 @@ class ParsersTest {
         assertEquals(Shelf.UpNext, Shelves.shelfOf(item, fromLatest = true, latest = aired))
         assertEquals(EpisodeRef(6, 1), Shelves.nextEpisode(item, true, aired)?.ref)
     }
+
+    @Test
+    fun showsWatchedElsewhereAreLookedUpBeforeTheSyncIsShown() {
+        fun show(
+            id: Long,
+            watched: List<Int>,
+            total: Int = 10,
+        ) = io.github.impca201.trackerforsimkl.data.model.LibraryItem(
+            type = MediaType.Tv,
+            ids = io.github.impca201.trackerforsimkl.data.model.MediaIds(id),
+            title = "Show $id",
+            status = ListStatus.Watching,
+            nextToWatch = io.github.impca201.trackerforsimkl.data.model.NextEpisode(EpisodeRef(1, 1)),
+            watchedEpisodes = watched.size,
+            totalEpisodes = total,
+            watched = listOf(io.github.impca201.trackerforsimkl.data.model.WatchedSeason(2, watched)),
+        )
+        val before = listOf(show(1, listOf(1, 2)), show(2, listOf(1)), show(3, listOf(1)))
+        // Show 1: an episode was watched in another app. Shows 2 and 3: unchanged.
+        val after = listOf(show(1, listOf(1, 2, 3)), show(2, listOf(1)), show(3, listOf(1)), show(4, listOf(1)))
+        val known =
+            mapOf(
+                "Tv:1" to io.github.impca201.trackerforsimkl.data.model.LatestNext(2, null),
+                "Tv:2" to io.github.impca201.trackerforsimkl.data.model.LatestNext(1, null),
+            )
+        // Only show 1 changed; show 4 is new (looked up in the background as before).
+        assertEquals(listOf("Tv:1"), Shelves.changedLatestLookups(before, after, known).map { it.key })
+        // Already looked up for the new count: nothing to do.
+        val updated = known + ("Tv:1" to io.github.impca201.trackerforsimkl.data.model.LatestNext(3, null))
+        assertTrue(Shelves.changedLatestLookups(before, after, updated).isEmpty())
+    }
 }
