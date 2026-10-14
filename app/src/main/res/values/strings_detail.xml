@@ -46,6 +46,17 @@
     <string name="detail_rank">Rank #%1$d</string>
     <string name="detail_fact_status">Status</string>
     <string name="detail_fact_airs">Airs</string>
+    <string name="detail_status_airing">Airing</string>
+    <string name="detail_status_ended">Ended</string>
+    <string name="detail_status_cancelled">Cancelled</string>
+    <string name="detail_status_returning">Returning series</string>
+    <string name="detail_status_tba">To be announced</string>
+    <string name="detail_status_upcoming">Upcoming</string>
+    <string name="detail_status_in_production">In production</string>
+    <string name="detail_status_planned">Planned</string>
+    <string name="detail_status_released">Released</string>
+    <!-- Weekday and time of the broadcast in the phone's time zone, e.g. "Tuesday 21:30". -->
+    <string name="detail_airs_day_time">%1$s %2$s</string>
     <string name="detail_fact_released">Released</string>
     <string name="detail_fact_first_aired">First aired</string>
     <string name="detail_fact_episodes">Episodes</string>
