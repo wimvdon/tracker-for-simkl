@@ -25,7 +25,7 @@ English, Dutch, French, German, Spanish and Italian. Android 8.0+. See the [priv
 
 ## Quick start
 
-Install the latest `tracker-for-simkl-x.y.z.apk` from [Releases](https://github.com/impca201/tracker-for-simkl/releases), open it and tap **Sign in with SIMKL**.
+The app is distributed through Google Play's internal testing track (invite only; see [Publishing through Google Play](docs/installation.md#publishing-through-google-play)). Install it from the Play Store, open it and tap **Sign in with SIMKL**.
 
 To build and install a debug build from source on a connected phone:
 
@@ -45,7 +45,7 @@ cd tracker-for-simkl
 | Storage | Jetpack DataStore (settings, tokens), JSON snapshot files (library cache) |
 | Background | WorkManager (optional new-episode notifications, every 4 hours) |
 | Build | Gradle 9.8 (Kotlin DSL, version catalog), AGP 9.4, R8 |
-| CI/CD | GitHub Actions: tests, lint, R8 keep check and a debug APK on every pull request; signed releases; Dependabot |
+| CI/CD | GitHub Actions: tests, lint, R8 keep check and a debug APK on every pull request; signed releases to Google Play (internal testing); Dependabot |
 | Tests | JUnit 4, Robolectric (launch test) |
 
 ## Quick installation

@@ -29,7 +29,7 @@ Reports: `app/build/reports/tests/testDebugUnitTest/index.html` and `app/build/r
 | Debug and release builds (with the `SIMKL_CLIENT_ID` variable) | Compile errors, R8 shrinking problems |
 | R8 keep check | That R8 kept WorkManager's database and worker constructors (`build/outputs/r8-seeds.txt`); without them turning on notifications crashes |
 
-The debug APK (`tracker-for-simkl-<version>-debug.apk`) and the test and lint reports are attached to every run. The release workflow runs the unit tests and lint again before building a signed APK.
+The debug APK (`tracker-for-simkl-<version>-debug.apk`) and the test and lint reports are attached to every run. The release workflow runs the unit tests and lint again before building the signed bundle for Google Play.
 
 ## What is covered
 
@@ -57,11 +57,11 @@ For each pull request, install the debug APK from the CI run ("Tracker for Simkl
 - [ ] Dark mode on and off: text stays readable.
 - [ ] Language: Settings › System › Languages › App languages › Tracker for Simkl › Nederlands. All text is translated.
 - [ ] Largest font size: nothing is cut off.
-- [ ] After a release: install the release APK over the previous one. It updates without signing out.
+- [ ] After a release: update the app from the Play Store (internal testing). It updates without signing out.
 
 ## Reading a crash from a release build
 
-Release builds are minified. Download `tracker-for-simkl-<version>-mapping.txt` from the matching GitHub Release and decode the trace with R8's `retrace` (Android SDK `cmdline-tools/latest/bin/retrace`):
+Release builds are minified. Crashes reported through Google Play are decoded by Play (the workflow uploads the mapping file). For a trace from the in-app crash report, download `tracker-for-simkl-<version>-mapping.txt` from the matching run of the Release workflow (**Actions › Release › Artifacts**, kept 90 days; older versions: the GitHub Release) and decode the trace with R8's `retrace` (Android SDK `cmdline-tools/latest/bin/retrace`):
 
 ```bash
 retrace tracker-for-simkl-<version>-mapping.txt stacktrace.txt

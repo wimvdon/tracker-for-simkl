@@ -9,7 +9,7 @@ tracker-for-simkl/
 │   ├── pull_request_template.md      Plain-language PR description + checklist
 │   └── workflows/
 │       ├── ci.yml                    Script tests, unit + launch tests, lint, builds, R8 keep check, debug APK
-│       └── release.yml               Release rules → verify signing key → build APK → publish GitHub Release
+│       └── release.yml               Release rules → verify signing key → build AAB → Google Play internal testing → tag
 ├── CLAUDE.md                         Rules for Claude Code sessions
 ├── DESIGN.md                         Design language shared with the sibling apps
 ├── PRIVACY.md                        Privacy policy

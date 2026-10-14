@@ -1,19 +1,22 @@
-# Builds a signed release APK and publishes it as a GitHub Release.
+# Builds a signed release bundle (AAB) and uploads it to Google Play's internal testing track.
+# No GitHub Release and no public APK: the repository is public (see docs/decisions.md).
 #
 # How to start it:
 #   - Actions tab -> Release -> Run workflow -> choose "patch", "minor" or "major".
-#     The next version is computed from the latest vX.Y.Z tag, the tag is created and
-#     the release is published.
-#   - Choose "none" to only build a downloadable APK (no tag, no release).
+#     The next version is computed from the latest vX.Y.Z tag, the bundle is uploaded to
+#     Play, and only then is the tag created.
+#   - Choose "none" for a dry run: it builds an APK and an AAB as downloadable artifacts
+#     (no upload, no tag). Their versionCode is 1, so they cannot update an installed app.
 #   - Or push a tag yourself: git tag v1.2.3 && git push origin v1.2.3
 #
-# It refuses to publish when: not on main, the tag/release already exists, the new
-# version is not higher than the previous one, or nothing changed since the previous release.
+# It refuses to publish when: not on main, the tag already exists, the new version is not
+# higher than the previous one, or nothing changed since the previous release.
 #
-# Signing uses four repository secrets (see README): ANDROID_KEYSTORE_BASE64,
+# Signing uses four repository secrets (see docs/installation.md): ANDROID_KEYSTORE_BASE64,
 # ANDROID_KEYSTORE_PASSWORD, ANDROID_KEY_ALIAS, ANDROID_KEY_PASSWORD (the same names without
-# ANDROID_ also work, as earlier releases used them). Without them a publish fails; a "none"
-# build falls back to a debug APK with a warning.
+# ANDROID_ also work, as earlier releases used them). This key is the Play upload key. Without
+# them a publish fails; a "none" build falls back to a debug APK with a warning.
+# The Play upload needs the secret PLAY_SERVICE_ACCOUNT_JSON.
 name: Release
 
 on:
@@ -36,12 +39,9 @@ concurrency:
 
 jobs:
   release:
-    name: Build and publish
+    name: Check and build
     runs-on: ubuntu-latest
     timeout-minutes: 30
-    permissions:
-      # Needed only to create the tag and the GitHub Release.
-      contents: write
     outputs:
       publish: ${{ steps.plan.outputs.publish }}
       version: ${{ steps.plan.outputs.version }}
@@ -138,7 +138,7 @@ jobs:
           done
           if [ -n "$missing" ]; then
             if [ "$PUBLISH" = "true" ]; then
-              echo "::error title=Signing secrets missing::Add these repository secrets before releasing:$missing (see README, 'Using this template')."
+              echo "::error title=Signing secrets missing::Add these repository secrets before releasing:$missing (see docs/installation.md)."
               exit 1
             fi
             echo "::warning title=Signing secrets missing::$missing not set. Building a DEBUG APK instead of a signed release."
@@ -175,25 +175,25 @@ jobs:
       - name: Test and lint
         run: ./gradlew testDebugUnitTest lintDebug
 
-      - name: Build APK
+      # Dry run ("none") only. A real release builds its bundle in the play-internal job, so
+      # no installable release file is left behind in this public repository.
+      - name: Build APK and AAB (dry run)
         id: build
+        if: steps.plan.outputs.publish != 'true'
         env:
-          PUBLISH: ${{ steps.plan.outputs.publish }}
           SIGNED: ${{ steps.signing.outputs.signed }}
-          VERSION: ${{ steps.plan.outputs.version }}
-          CODE: ${{ steps.plan.outputs.code }}
           SIMKL_CLIENT_ID: ${{ vars.SIMKL_CLIENT_ID }}
         run: |
           set -euo pipefail
           # The app's SIMKL client ID comes from the SIMKL_CLIENT_ID Actions variable (not a secret).
           args=(-PsimklClientId="$SIMKL_CLIENT_ID")
-          if [ "$PUBLISH" = "true" ]; then args+=(-PappVersionName="$VERSION" -PappVersionCode="$CODE"); fi
           base="$(./gradlew -q :app:printApkBaseName "${args[@]}")"
           mkdir -p dist
           if [ "$SIGNED" = "true" ]; then
-            ./gradlew assembleRelease "${args[@]}"
+            ./gradlew assembleRelease bundleRelease "${args[@]}"
             apk="dist/$base.apk"
             cp app/build/outputs/apk/release/app-release.apk "$apk"
+            cp app/build/outputs/bundle/release/app-release.aab "dist/$base.aab"
             cp app/build/outputs/mapping/release/mapping.txt "dist/$base-mapping.txt"
             apksigner="$(find "$ANDROID_HOME/build-tools" -name apksigner -type f | sort -V | tail -n 1)"
             "$apksigner" verify "$apk"
@@ -212,6 +212,7 @@ jobs:
         run: rm -f keystore.properties "$RUNNER_TEMP/release.keystore"
 
       - name: Upload APK
+        if: steps.plan.outputs.publish != 'true'
         uses: actions/upload-artifact@v7
         with:
           path: ${{ steps.build.outputs.apk }}
@@ -219,8 +220,17 @@ jobs:
           retention-days: 30
           if-no-files-found: error
 
+      - name: Upload AAB (for the first upload by hand in the Play Console)
+        if: steps.plan.outputs.publish != 'true' && steps.signing.outputs.signed == 'true'
+        uses: actions/upload-artifact@v7
+        with:
+          path: dist/*.aab
+          archive: false
+          retention-days: 7
+          if-no-files-found: error
+
       - name: Upload R8 mapping file
-        if: steps.signing.outputs.signed == 'true'
+        if: steps.plan.outputs.publish != 'true' && steps.signing.outputs.signed == 'true'
         uses: actions/upload-artifact@v7
         with:
           path: dist/*-mapping.txt
@@ -228,80 +238,120 @@ jobs:
           retention-days: 90
           if-no-files-found: error
 
-      - name: Publish GitHub Release
-        if: steps.plan.outputs.publish == 'true'
+  # Builds the signed AAB and uploads it to Google Play's internal testing track. Runs only for a
+  # real release, after the checks above passed. It has read-only GitHub access: the third-party
+  # upload action never gets a token that can write to the repository.
+  # Before the first run (docs/installation.md, "Publishing through Google Play"): the app exists
+  # in the Play Console, a first AAB was uploaded there by hand, and the service account's JSON
+  # key is the repository secret PLAY_SERVICE_ACCOUNT_JSON.
+  play-internal:
+    name: Upload to Google Play (internal testing)
+    needs: release
+    if: needs.release.outputs.publish == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    permissions:
+      contents: read
+    env:
+      PACKAGE_NAME: io.github.impca201.trackerforsimkl
+    steps:
+      - name: Check the Play secret
         env:
-          GH_TOKEN: ${{ github.token }}
-          TAG: ${{ steps.plan.outputs.tag }}
-          PREVIOUS: ${{ steps.plan.outputs.previous }}
+          PLAY_SERVICE_ACCOUNT_JSON: ${{ secrets.PLAY_SERVICE_ACCOUNT_JSON }}
+        run: |
+          if [ -z "$PLAY_SERVICE_ACCOUNT_JSON" ]; then
+            echo "::error title=Play secret missing::Add the repository secret PLAY_SERVICE_ACCOUNT_JSON (see docs/installation.md, 'Publishing through Google Play')."
+            exit 1
+          fi
+
+      - name: Check out the released commit
+        uses: actions/checkout@v7
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: false
+
+      - name: Set up JDK
+        uses: actions/setup-java@v6
+        with:
+          distribution: temurin
+          java-version: "21"
+
+      - name: Set up Gradle (with caching)
+        uses: gradle/actions/setup-gradle@v6
+        with:
+          cache-provider: basic
+
+      - name: Build signed AAB
+        id: build
+        env:
+          # Already verified by the release job.
+          ANDROID_KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 || secrets.KEYSTORE_BASE64 }}
+          ANDROID_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD || secrets.KEYSTORE_PASSWORD }}
+          ANDROID_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS || secrets.KEY_ALIAS }}
+          ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD || secrets.KEY_PASSWORD }}
+          VERSION: ${{ needs.release.outputs.version }}
+          CODE: ${{ needs.release.outputs.code }}
+          SIMKL_CLIENT_ID: ${{ vars.SIMKL_CLIENT_ID }}
         run: |
           set -euo pipefail
-          notes_from=()
-          if [ -n "$PREVIOUS" ]; then notes_from=(--notes-start-tag "$PREVIOUS"); fi
-          # Creates the tag on this exact commit if it does not exist yet (manual runs).
-          gh release create "$TAG" dist/*.apk dist/*-mapping.txt \
-            --repo "$GITHUB_REPOSITORY" \
-            --target "$GITHUB_SHA" \
-            --title "$TAG" \
-            --generate-notes "${notes_from[@]}" \
-            --latest
-          echo "### Published release [$TAG]($GITHUB_SERVER_URL/$GITHUB_REPOSITORY/releases/tag/$TAG)" >> "$GITHUB_STEP_SUMMARY"
+          keystore="$RUNNER_TEMP/release.keystore"
+          python3 scripts/decode_keystore.py "$keystore"
+          umask 077
+          {
+            echo "storeFile=$keystore"
+            echo "storePassword=$ANDROID_KEYSTORE_PASSWORD"
+            echo "keyAlias=$ANDROID_KEY_ALIAS"
+            echo "keyPassword=$ANDROID_KEY_PASSWORD"
+          } > keystore.properties
+          args=(-PsimklClientId="$SIMKL_CLIENT_ID" -PappVersionName="$VERSION" -PappVersionCode="$CODE")
+          base="$(./gradlew -q :app:printApkBaseName "${args[@]}")"
+          ./gradlew bundleRelease "${args[@]}"
+          mkdir -p dist
+          cp app/build/outputs/mapping/release/mapping.txt "dist/$base-mapping.txt"
+          echo "### Built \`$base.aab\` (versionCode $CODE)" >> "$GITHUB_STEP_SUMMARY"
 
-  # ---------------------------------------------------------------------------
-  # OPTIONAL: upload to Google Play internal testing. Disabled until a Play
-  # Console app and a service account exist. To enable (see README, "Google Play"):
-  #   1. Create the app in the Play Console with the same applicationId and upload
-  #      the first AAB by hand (Play requires that).
-  #   2. Create a service account with "Release to testing tracks" permission and
-  #      add its JSON key as the repository secret PLAY_SERVICE_ACCOUNT_JSON.
-  #   3. Set PACKAGE_NAME below and uncomment this job.
-  # ---------------------------------------------------------------------------
-  # play-internal:
-  #   name: Upload to Google Play (internal testing)
-  #   needs: release
-  #   if: needs.release.outputs.publish == 'true'
-  #   runs-on: ubuntu-latest
-  #   timeout-minutes: 30
-  #   permissions:
-  #     contents: read
-  #   env:
-  #     PACKAGE_NAME: io.github.impca201.trackerforsimkl
-  #   steps:
-  #     - uses: actions/checkout@v7
-  #       with:
-  #         ref: ${{ needs.release.outputs.tag }}
-  #         persist-credentials: false
-  #     - uses: actions/setup-java@v6
-  #       with:
-  #         distribution: temurin
-  #         java-version: "21"
-  #     - uses: gradle/actions/setup-gradle@v6
-  #       with:
-  #         cache-provider: basic
-  #     - name: Build signed AAB
-  #       env:
-  #         ANDROID_KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
-  #         ANDROID_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
-  #         ANDROID_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
-  #         ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
-  #         VERSION: ${{ needs.release.outputs.version }}
-  #         CODE: ${{ needs.release.outputs.code }}
-  #       run: |
-  #         set -euo pipefail
-  #         python3 scripts/decode_keystore.py "$RUNNER_TEMP/release.keystore"
-  #         umask 077
-  #         printf 'storeFile=%s\nstorePassword=%s\nkeyAlias=%s\nkeyPassword=%s\n' \
-  #           "$RUNNER_TEMP/release.keystore" "$ANDROID_KEYSTORE_PASSWORD" "$ANDROID_KEY_ALIAS" "$ANDROID_KEY_PASSWORD" > keystore.properties
-  #         ./gradlew bundleRelease -PappVersionName="$VERSION" -PappVersionCode="$CODE" -PsimklClientId="${{ vars.SIMKL_CLIENT_ID }}"
-  #     - name: Remove signing key
-  #       if: always()
-  #       run: rm -f keystore.properties "$RUNNER_TEMP/release.keystore"
-  #     - name: Upload to internal testing
-  #       uses: r0adkll/upload-google-play@v1
-  #       with:
-  #         serviceAccountJsonPlainText: ${{ secrets.PLAY_SERVICE_ACCOUNT_JSON }}
-  #         packageName: ${{ env.PACKAGE_NAME }}
-  #         releaseFiles: app/build/outputs/bundle/release/app-release.aab
-  #         mappingFile: app/build/outputs/mapping/release/mapping.txt
-  #         track: internal
-  #         status: completed
+      - name: Remove signing key
+        if: always()
+        run: rm -f keystore.properties "$RUNNER_TEMP/release.keystore"
+
+      - name: Upload to internal testing
+        # r0adkll/upload-google-play v1.1.5, pinned to its commit so a moved tag cannot change it.
+        uses: r0adkll/upload-google-play@e738b9dd8f2476ea806d921b64aacd24f34515a5 # v1.1.5
+        with:
+          serviceAccountJsonPlainText: ${{ secrets.PLAY_SERVICE_ACCOUNT_JSON }}
+          packageName: ${{ env.PACKAGE_NAME }}
+          releaseFiles: app/build/outputs/bundle/release/app-release.aab
+          releaseName: ${{ needs.release.outputs.tag }}
+          mappingFile: app/build/outputs/mapping/release/mapping.txt
+          track: internal
+          status: completed
+
+      # Kept for decoding crash reports with retrace (docs/testing.md). Not an installable file.
+      - name: Upload R8 mapping file
+        uses: actions/upload-artifact@v7
+        with:
+          path: dist/*-mapping.txt
+          archive: false
+          retention-days: 90
+          if-no-files-found: error
+
+  # Creates the version tag only after Play accepted the bundle, so a failed upload can simply be
+  # run again. A pushed tag already exists, so this is skipped then.
+  tag:
+    name: Create the version tag
+    needs: [release, play-internal]
+    if: needs.release.outputs.publish == 'true' && github.event_name != 'push'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      # Needed only to create the tag.
+      contents: write
+    steps:
+      - name: Create tag
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ needs.release.outputs.tag }}
+        run: |
+          set -euo pipefail
+          gh api "repos/$GITHUB_REPOSITORY/git/refs" -f ref="refs/tags/$TAG" -f sha="$GITHUB_SHA" >/dev/null
+          echo "### Released $TAG to Google Play (internal testing) and tagged [$TAG]($GITHUB_SERVER_URL/$GITHUB_REPOSITORY/tree/$TAG)" >> "$GITHUB_STEP_SUMMARY"
