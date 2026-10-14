@@ -435,7 +435,27 @@ object Images {
     }
 
     fun avatar(path: String?): String? = path?.let { absolute(it) ?: "$CDN/avatars/${it}_100.jpg" }
+
+    /**
+     * Pictures for a new-episode notification: the show's poster as the thumbnail (the library's
+     * copy first, else the calendar's) and its backdrop, from the cached show info, as the large
+     * picture when the notification is expanded. Null when unknown.
+     */
+    fun notification(
+        libraryPoster: String?,
+        calendarPoster: String?,
+        fanart: String?,
+    ): NotificationArt =
+        NotificationArt(
+            poster = poster(libraryPoster?.takeIf { it.isNotBlank() } ?: calendarPoster, large = true),
+            backdrop = fanart(fanart),
+        )
 }
+
+data class NotificationArt(
+    val poster: String?,
+    val backdrop: String?,
+)
 
 object Dates {
     /** Parses SIMKL dates ("2024-05-01T20:00:00Z", "2024-05-01T20:00:00-04:00" or "2024-05-01"). */

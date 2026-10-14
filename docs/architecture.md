@@ -31,7 +31,7 @@ Tracker for Simkl is a single-module, single-activity Android app. Compose rende
 | `CatalogRepository` | Stateless reads for screens: details, episodes, search, Discover sections (API lists and data.simkl.in trending files), random title. |
 | `SettingsStore` | DataStore Preferences wrapper. A corrupt file is replaced with empty preferences instead of crashing. |
 | `Navigator` | A `mutableStateListOf<Route>` back stack. Pushing a route already on the stack pops back to it. |
-| `NewEpisodesWorker` | Every 4 hours (network required), only while signed in with notifications on: downloads the calendar files, matches them against the cached library and posts one notification per newly aired, unwatched episode. |
+| `NewEpisodesWorker` | Every 4 hours (network required), only while signed in with notifications on: downloads the calendar files, matches them against the cached library and posts one notification per newly aired, unwatched episode, with the show's poster (thumbnail) and backdrop (expanded) from wsrv.nl. |
 | `CrashReporter` | Saves an uncaught exception's stack trace to `files/last_crash.txt` and shows it once on the next start, with a Copy button. Nothing is sent. |
 
 ## Data flow

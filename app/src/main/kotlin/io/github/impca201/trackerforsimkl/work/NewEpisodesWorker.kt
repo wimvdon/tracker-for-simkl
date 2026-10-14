@@ -7,6 +7,7 @@ import android.app.NotificationManager
 import android.app.PendingIntent
 import android.content.Context
 import android.content.pm.PackageManager
+import android.graphics.Bitmap
 import android.os.Build
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
@@ -18,10 +19,16 @@ import androidx.work.NetworkType
 import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkManager
 import androidx.work.WorkerParameters
+import coil3.SingletonImageLoader
+import coil3.request.ImageRequest
+import coil3.request.SuccessResult
+import coil3.request.allowHardware
+import coil3.toBitmap
 import io.github.impca201.trackerforsimkl.R
 import io.github.impca201.trackerforsimkl.TrackerApp
 import io.github.impca201.trackerforsimkl.data.api.Parsers
 import io.github.impca201.trackerforsimkl.data.model.CalendarEntry
+import io.github.impca201.trackerforsimkl.data.model.Images
 import io.github.impca201.trackerforsimkl.data.model.LibraryItem
 import io.github.impca201.trackerforsimkl.data.model.ListStatus
 import io.github.impca201.trackerforsimkl.data.model.MediaType
@@ -59,7 +66,10 @@ class NewEpisodesWorker(
                 if (item.isWatched(if (entry.type == MediaType.Anime) null else ref.season, ref.episode)) return@mapNotNull null
                 Triple(keyOf(entry), item, entry).takeIf { it.first !in notified }
             }
-        fresh.take(MAX_NOTIFICATIONS).forEach { (_, item, entry) -> notify(applicationContext, item, entry) }
+        val showInfo = app.library.state.value.showInfo
+        fresh.take(MAX_NOTIFICATIONS).forEach { (_, item, entry) ->
+            notify(applicationContext, item, entry, showInfo[item.key]?.fanart)
+        }
         // Remember what aired in the window, so each episode is announced once.
         app.settings.setNotifiedEpisodes(calendar.map(::keyOf).toSet())
         return Result.success()
@@ -112,11 +122,23 @@ class NewEpisodesWorker(
             WorkManager.getInstance(context).cancelUniqueWork(WORK)
         }
 
+        /** Downloads a picture for a notification (they need software bitmaps); null when it fails. */
+        private suspend fun bitmap(
+            context: Context,
+            url: String?,
+        ): Bitmap? {
+            url ?: return null
+            val request = ImageRequest.Builder(context).data(url).allowHardware(false).build()
+            val result = runCatching { SingletonImageLoader.get(context).execute(request) }.getOrNull()
+            return (result as? SuccessResult)?.image?.toBitmap()
+        }
+
         @SuppressLint("MissingPermission")
-        private fun notify(
+        private suspend fun notify(
             context: Context,
             item: LibraryItem,
             entry: CalendarEntry,
+            fanart: String?,
         ) {
             if (Build.VERSION.SDK_INT >= 33 &&
                 ContextCompat.checkSelfPermission(context, Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED
@@ -133,16 +155,29 @@ class NewEpisodesWorker(
             val text =
                 entry.episode?.let { context.getString(R.string.data_notif_episode_aired, it.label) }
                     ?: context.getString(R.string.data_notif_new_episode)
-            val notification =
+            val art = Images.notification(item.poster, entry.poster, fanart)
+            val poster = bitmap(context, art.poster)
+            val backdrop = bitmap(context, art.backdrop)
+            val builder =
                 NotificationCompat.Builder(context, CHANNEL)
                     .setSmallIcon(R.drawable.ic_notification)
                     .setContentTitle(item.title)
                     .setContentText(text)
+                    .setLargeIcon(poster)
                     .setContentIntent(intent)
                     .setAutoCancel(true)
                     .setCategory(NotificationCompat.CATEGORY_RECOMMENDATION)
-                    .build()
-            NotificationManagerCompat.from(context).notify(item.key.hashCode(), notification)
+            // Expanded: the show's backdrop as a large picture (the poster stays as the thumbnail
+            // while collapsed). Without a backdrop the poster alone is used.
+            if (backdrop != null) {
+                builder.setStyle(
+                    NotificationCompat.BigPictureStyle()
+                        .bigPicture(backdrop)
+                        .setSummaryText(text)
+                        .showBigPictureWhenCollapsed(false),
+                )
+            }
+            NotificationManagerCompat.from(context).notify(item.key.hashCode(), builder.build())
         }
     }
 }
