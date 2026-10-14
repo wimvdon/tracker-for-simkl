@@ -191,7 +191,7 @@ fun ShowsScreen(
                         EmptyState(Icons.Rounded.SearchOff, stringResource(R.string.lib_no_matches)) {
                             TextButton(onClick = { options.setFilter(page, LibraryFilter()) }) { Text(stringResource(R.string.lib_clear_filters)) }
                         }
-                    state.firstSync && shelf == Shelf.UpNext ->
+                    (state.firstSync || state.refreshingStale) && shelf == Shelf.UpNext ->
                         PosterListSkeleton(
                             posterWidth = 68.dp,
                             contentPadding = PaddingValues(start = 12.dp, end = 12.dp, top = 12.dp, bottom = bottomPadding()),

@@ -75,6 +75,11 @@ data class LibraryState(
     val latestNext: Map<String, LatestNext> = emptyMap(),
     val loaded: Boolean = false,
     val syncing: Boolean = false,
+    /**
+     * The cached lists are being refreshed after the app opened with an outdated cache: Up next
+     * waits for it, so episodes watched elsewhere don't show for a moment and then disappear.
+     */
+    val refreshingStale: Boolean = false,
     val error: String? = null,
     val syncedAt: Long = 0,
 ) {
@@ -168,7 +173,12 @@ class LibraryRepository(
     suspend fun syncIfStale(): String? {
         load()
         if (System.currentTimeMillis() - snapshot.syncedAt < AUTO_SYNC_INTERVAL) return null
-        return sync()
+        _state.update { it.copy(refreshingStale = true) }
+        try {
+            return sync()
+        } finally {
+            _state.update { it.copy(refreshingStale = false) }
+        }
     }
 
     /** Syncs with SIMKL; returns an error message or null. */
@@ -231,9 +241,18 @@ class LibraryRepository(
             val ratings = Parsers.library(api.ratings(dateFrom = since)).associateBy { it.key }
             items = items.map { item -> ratings[item.key]?.let { item.copy(userRating = it.userRating) } ?: item }
         }
+        // Shows watched elsewhere get their "next after latest" first, so they don't flash into Up next.
+        val latestNext = snapshot.latestNext + lookupLatestNext(Shelves.changedLatestLookups(snapshot.items, items, snapshot.latestNext))
         // Watching an episode also hides its paused session, so refresh both together.
         saveWithPlayback(
-            snapshot.copy(items = items, activitiesAll = all, removedStamp = removed, ratedStamp = rated, syncedAt = System.currentTimeMillis()),
+            snapshot.copy(
+                items = items,
+                activitiesAll = all,
+                removedStamp = removed,
+                ratedStamp = rated,
+                syncedAt = System.currentTimeMillis(),
+                latestNext = latestNext,
+            ),
             playbackStamp,
         )
     }
@@ -364,20 +383,25 @@ class LibraryRepository(
                     (known?.watchedCount != item.watchedEpisodes || now - known.computedAt > TimeUnit.HOURS.toMillis(6))
             }
         if (wanted.isEmpty()) return
+        val found = lookupLatestNext(wanted)
+        mutex.withLock { save(snapshot.copy(latestNext = snapshot.latestNext + found)) }
+    }
+
+    /** Episode lists of [items], a few at a time (only with the continue-from-latest setting). */
+    private suspend fun lookupLatestNext(items: List<LibraryItem>): Map<String, LatestNext> {
+        if (items.isEmpty() || !settings.current().continueFromLatest) return emptyMap()
         val semaphore = Semaphore(3)
-        val found =
-            coroutineScope {
-                wanted.map { item ->
-                    async {
-                        semaphore.withPermit {
-                            runCatching { Parsers.episodes(api.episodes(item.type, item.ids.simkl)) }.getOrNull()?.let {
-                                item.key to Shelves.latestNextFrom(item, it)
-                            }
+        return coroutineScope {
+            items.map { item ->
+                async {
+                    semaphore.withPermit {
+                        runCatching { Parsers.episodes(api.episodes(item.type, item.ids.simkl)) }.getOrNull()?.let {
+                            item.key to Shelves.latestNextFrom(item, it)
                         }
                     }
-                }.awaitAll().filterNotNull()
-            }
-        mutex.withLock { save(snapshot.copy(latestNext = snapshot.latestNext + found)) }
+                }
+            }.awaitAll().filterNotNull().toMap()
+        }
     }
 
     private suspend fun saveShowInfo() {

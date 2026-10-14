@@ -42,7 +42,10 @@ Tracker for Simkl is a single-module, single-activity Android app. Compose rende
 2. No previous sync (or a forced one): `GET /sync/all-items/` loads everything.
 3. Unchanged `all` timestamp: only playback is refreshed.
 4. Otherwise: `GET /sync/all-items/?date_from=<last all>` for changed items; `?extended=simkl_ids_only` only when `removed_from_list` changed; `/sync/ratings/?date_from=` only when `rated_at` changed.
-5. The snapshot is saved together with a fresh `GET /sync/playback`, then calendars, show info and "next after latest" refresh in the background.
+5. With "Continue from the latest episode" on, shows whose watched count changed (watched in another app) get their episode list first (`Shelves.changedLatestLookups`), so they don't jump into Up next for a moment.
+6. The snapshot is saved together with a fresh `GET /sync/playback`, then calendars, show info and "next after latest" refresh in the background.
+
+While `syncIfStale()` refreshes an outdated cache (`LibraryState.refreshingStale`), the Up next tab shows its loading placeholder instead of the cached list, so episodes watched elsewhere don't show briefly and then disappear. Other tabs show the cache at once. If the sync fails (offline), the cached list comes back.
 
 **Changes** (mark watched, rate, list status, check-in) patch the in-memory state first, so the screen updates at once, then call the API inside `LibraryRepository.change`. Success schedules a quick incremental sync; a failure rethrows (the screen shows it) and starts a forced full sync, which replaces the optimistic change with SIMKL's real state.
 
