@@ -37,7 +37,7 @@ fun MainTopBar(
         actions = {
             actions()
             IconButton(onClick = { navigator.push(Route.Search(searchType)) }) {
-                Icon(Icons.Rounded.Search, contentDescription = stringResource(R.string.lib_search))
+                Icon(Icons.Rounded.Search, contentDescription = stringResource(R.string.screens_search_placeholder))
             }
             AvatarButton(avatar) { navigator.push(Route.Profile) }
         },
