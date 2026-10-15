@@ -52,7 +52,7 @@ The debug APK (`tracker-for-simkl-<version>-debug.apk`) and the test and lint re
 
 ## Manual checks on the phone
 
-For each pull request, install the debug APK from the CI run ("Tracker for Simkl Dev", next to the released app) and follow the steps in the pull request. Before a release, also check:
+For each pull request (before or after it is merged: merging only waits for green CI), install the debug APK from the CI run ("Tracker for Simkl Dev", next to the released app) and follow the steps in the pull request. Before a release, also check:
 
 - [ ] Sign in, pull to refresh, mark an episode watched in Up next, rate a title.
 - [ ] Dark mode on and off: text stays readable.
