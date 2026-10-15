@@ -24,14 +24,13 @@
     <string name="lib_sort_title">Titre</string>
     <string name="lib_sort_rating">Note</string>
     <string name="lib_sort_release">Date de sortie</string>
+    <string name="lib_filter_type">Filtrer par type</string>
     <string name="lib_filter_all">Tous</string>
     <string name="lib_anime_type_tv">TV</string>
     <string name="lib_anime_type_movie">Film</string>
     <string name="lib_anime_type_ova">OVA</string>
     <string name="lib_anime_type_ona">ONA</string>
     <string name="lib_anime_type_special">Spécial</string>
-    <string name="lib_chip_type">Type</string>
-    <string name="lib_clear_filter">Effacer %1$s</string>
     <string name="lib_next_air">Prochain : %1$s</string>
     <string name="lib_empty_up_next_text">Rien à regarder pour l\'instant. Les nouveaux épisodes des séries que vous suivez apparaissent ici.</string>
     <string name="lib_empty_watched_text">Les séries à jour ou terminées apparaissent ici.</string>
