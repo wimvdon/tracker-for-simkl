@@ -2,6 +2,10 @@
 
 Newest first. Add an entry for every notable choice: what was decided, why, and what was rejected.
 
+## 2026-10-15: Settings screens make room for the keyboard
+
+The app targets Android 15+ and draws edge to edge, so the system no longer shrinks the screen when the keyboard opens. `SettingsScaffold` (shared design kit, same change in every app) now adds the keyboard to its content insets, so a focused text field scrolls into view instead of hiding behind the keyboard. Rejected: opting out of edge-to-edge (not possible for apps targeting Android 15+).
+
 ## 2026-10-15: Settings are backed up, the sign-in is not
 
 Backups were switched off completely to keep the SIMKL token on the phone, so a new or reset phone started with default settings. Now Android's own backup (Google account) and phone-to-phone transfer copy the settings: theme, wallpaper colours, bottom bar, hide specials and "continue from latest". They moved to their own DataStore file, `backed_up_settings`, and the backup rules list only that file, so the token and anything added later stay on the phone. Existing settings are moved over once by a DataStore migration; the tokens never move, so there is no moment when they sit in a backed-up file. The notification switch stays on the phone: it needs the permission and a scheduled check that a restore doesn't bring. Rejected: backing up the old `settings` file (it holds the token), excluding single keys (Android's rules work per file) and backing up the library copy (SIMKL is the source and it is downloaded again after signing in).
