@@ -5,14 +5,9 @@ import androidx.compose.ui.res.stringResource
 import io.github.impca201.trackerforsimkl.R
 import io.github.impca201.trackerforsimkl.ui.theme.AppShapes
 import io.github.impca201.trackerforsimkl.ui.theme.Motion
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.automirrored.rounded.Sort
-import androidx.compose.material.icons.rounded.ArrowDropDown
-import androidx.compose.material.icons.rounded.Close
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
-import androidx.compose.material3.FilterChip
 import androidx.compose.runtime.saveable.rememberSaveable
 import io.github.impca201.trackerforsimkl.ui.components.Format
 import androidx.compose.foundation.layout.Arrangement
@@ -34,7 +29,9 @@ import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Check
+import androidx.compose.material.icons.rounded.FilterList
 import androidx.compose.material3.Badge
+import androidx.compose.material3.BadgedBox
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.LinearProgressIndicator
@@ -174,68 +171,32 @@ fun SortButton(
     }
 }
 
-/** Anime only: the type filter as a dropdown chip above the tab. A set type shows an ✕ that clears it. */
+/**
+ * Anime only: the type filter button of the title bar, a menu of anime types (the current one
+ * ticked). A dot on the button shows that a type is chosen.
+ */
 @Composable
-fun AnimeTypeFilter(
+fun AnimeTypeButton(
     filter: LibraryFilter,
     onFilter: (LibraryFilter) -> Unit,
 ) {
-    val animeTypeLabels = LibraryFilter.animeTypes.associate { (key, label) -> key to stringResource(label) }
-    val allLabel = stringResource(R.string.lib_filter_all)
-    val typeChip = stringResource(R.string.lib_chip_type)
-    val types = listOf<String?>(null) + LibraryFilter.animeTypes.map { it.first }
-    fun typeLabel(key: String?) = key?.let { animeTypeLabels[it] } ?: allLabel
-    Row(Modifier.padding(horizontal = 12.dp, vertical = 4.dp)) {
-        DropdownChip(
-            label = if (filter.animeType == null) typeChip else typeLabel(filter.animeType),
-            selected = filter.animeType != null,
-            options = types,
-            current = filter.animeType,
-            optionLabel = { typeLabel(it) },
-            onSelect = { onFilter(filter.copy(animeType = it)) },
-            onClear = { onFilter(filter.copy(animeType = null)) },
-        )
-    }
-}
-
-/** A filter chip that opens a menu of [options]; when [selected], its ✕ calls [onClear]. */
-@Composable
-private fun <T> DropdownChip(
-    label: String,
-    selected: Boolean,
-    options: List<T>,
-    current: T,
-    optionLabel: (T) -> String,
-    onSelect: (T) -> Unit,
-    onClear: () -> Unit,
-) {
     var open by remember { mutableStateOf(false) }
+    val types = listOf<Pair<String?, Int>>(null to R.string.lib_filter_all) + LibraryFilter.animeTypes
     Box {
-        FilterChip(
-            selected = selected,
-            onClick = { open = true },
-            label = { Text(label) },
-            trailingIcon = {
-                if (selected) {
-                    Icon(
-                        Icons.Rounded.Close,
-                        contentDescription = stringResource(R.string.lib_clear_filter, label),
-                        modifier = Modifier.size(18.dp).clip(CircleShape).clickable(onClick = onClear),
-                    )
-                } else {
-                    Icon(Icons.Rounded.ArrowDropDown, null, Modifier.size(18.dp))
-                }
-            },
-        )
+        IconButton(onClick = { open = true }) {
+            BadgedBox(badge = { if (filter.active) Badge() }) {
+                Icon(Icons.Rounded.FilterList, contentDescription = stringResource(R.string.lib_filter_type))
+            }
+        }
         DropdownMenu(expanded = open, onDismissRequest = { open = false }) {
-            options.forEach { option ->
+            types.forEach { (key, label) ->
                 DropdownMenuItem(
-                    text = { Text(optionLabel(option)) },
+                    text = { Text(stringResource(label)) },
                     onClick = {
                         open = false
-                        onSelect(option)
+                        onFilter(filter.copy(animeType = key))
                     },
-                    trailingIcon = { if (option == current) Icon(Icons.Rounded.Check, null) },
+                    trailingIcon = { if (key == filter.animeType) Icon(Icons.Rounded.Check, null) },
                 )
             }
         }

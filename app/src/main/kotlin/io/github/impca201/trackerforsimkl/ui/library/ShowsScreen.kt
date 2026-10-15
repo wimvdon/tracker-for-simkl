@@ -152,6 +152,7 @@ fun ShowsScreen(
                     searchType = type,
                 ) {
                     val page = pagerState.currentPage
+                    if (type == MediaType.Anime) AnimeTypeButton(options.filter(page)) { options.setFilter(page, it) }
                     SortButton(options.sort(page)) { options.setSort(page, it) }
                 }
                 PrimaryScrollableTabRow(selectedTabIndex = pagerState.currentPage, edgePadding = 16.dp) {
@@ -171,7 +172,6 @@ fun ShowsScreen(
             val items = byShelf[shelf].orEmpty()
             val filter = options.filter(page)
             Column(Modifier.fillMaxSize()) {
-            if (type == MediaType.Anime) AnimeTypeFilter(filter) { options.setFilter(page, it) }
             PullToRefreshBox(
                 isRefreshing = state.syncing,
                 onRefresh = { scope.launch { app.library.sync() } },

@@ -16,7 +16,7 @@ Nobody needs a SIMKL developer account. If the browser shows the app chooser (wh
 
 - The floating **bottom bar** holds the destinations: **TV Shows**, **Movies**, **Anime**, **Discover** and **Calendar**. Change their order and turn them on or off in *Settings › Bottom bar*.
 - **Tabs** switch between parallel sections of a destination (library shelves, Discover's media types).
-- The **sort** button in the top bar of TV Shows, Movies and Anime sorts the open tab; **chips** filter what you are looking at.
+- The **sort** button in the top bar of TV Shows, Movies and Anime sorts the open tab; on Anime, the **filter** button next to it filters by type. **Chips** filter what you are looking at elsewhere (Calendar and Search).
 - **Search** (the whole SIMKL catalogue, not just your lists) and your **profile** are in every destination's top bar. There is no separate search inside a tab: sort by title to find something in a list.
 
 ## TV Shows and Anime
@@ -24,7 +24,7 @@ Nobody needs a SIMKL developer account. If the browser shows the app chooser (wh
 Shelves: **Up next** (shows with an aired, unwatched episode), **Watched** (caught up or completed, with the next air date when known), **Plan to watch**, **On hold**, **Dropped**. Every poster shows an *Airing* or *Ended* badge.
 
 - **Mark the next episode watched:** tap ✓ on a show in Up next. Episodes in progress (paused on another device) come first and show their progress; marking one watched asks first, because it removes the saved progress.
-- **Sort** with the sort button in the top bar (kept per tab): recently watched, recently added, title, my rating or release date. On Anime, the **Type** chip above each tab filters by type (TV, movie, OVA, ONA, special).
+- **Sort** with the sort button in the top bar (kept per tab): recently watched, recently added, title, my rating or release date. On Anime, the **filter** button in the top bar filters the open tab by type (TV, movie, OVA, ONA, special); a dot on it shows a type is chosen.
 - **Continue from the latest episode** (*Settings › Library*): Up next starts after the most recently watched episode, so skipped earlier episodes or seasons don't keep a show in Up next. SIMKL's API has no "skip", so this is decided in the app.
 - **Hide specials** (*Settings › Library*): leaves season 0 episodes out of episode lists.
 
