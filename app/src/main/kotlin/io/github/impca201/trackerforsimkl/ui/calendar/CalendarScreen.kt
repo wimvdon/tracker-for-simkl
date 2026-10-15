@@ -5,6 +5,7 @@ import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -14,13 +15,19 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.Check
 import androidx.compose.material.icons.rounded.EventBusy
+import androidx.compose.material.icons.rounded.FilterList
+import androidx.compose.material3.Badge
+import androidx.compose.material3.BadgedBox
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.FilterChip
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
@@ -96,18 +103,8 @@ fun CalendarScreen() {
         contentWindowInsets = WindowInsets(0),
         topBar = {
             Column {
-                MainTopBar(NavTab.Calendar.label(), scrollBehavior)
-                LazyRow(
-                    contentPadding = PaddingValues(horizontal = 16.dp, vertical = 4.dp),
-                    horizontalArrangement = Arrangement.spacedBy(8.dp),
-                ) {
-                    items(MediaType.entries) { t ->
-                        FilterChip(
-                            selected = t.name !in hidden,
-                            onClick = { hidden = if (t.name in hidden) hidden - t.name else hidden + t.name },
-                            label = { Text(t.label()) },
-                        )
-                    }
+                MainTopBar(NavTab.Calendar.label(), scrollBehavior) {
+                    TypeFilterButton(hidden) { t -> hidden = if (t.name in hidden) hidden - t.name else hidden + t.name }
                 }
             }
         },
@@ -159,6 +156,35 @@ fun CalendarScreen() {
                         }
                     }
                 }
+            }
+        }
+    }
+}
+
+/**
+ * The type filter of the title bar: a menu of TV shows, anime and movies, each ticked while it is
+ * shown. Several can be switched, so the menu stays open; a dot on the button shows that a type is
+ * hidden.
+ */
+@Composable
+private fun TypeFilterButton(
+    hidden: Set<String>,
+    onToggle: (MediaType) -> Unit,
+) {
+    var open by remember { mutableStateOf(false) }
+    Box {
+        IconButton(onClick = { open = true }) {
+            BadgedBox(badge = { if (hidden.isNotEmpty()) Badge() }) {
+                Icon(Icons.Rounded.FilterList, contentDescription = stringResource(R.string.lib_filter_type))
+            }
+        }
+        DropdownMenu(expanded = open, onDismissRequest = { open = false }) {
+            MediaType.entries.forEach { t ->
+                DropdownMenuItem(
+                    text = { Text(t.label()) },
+                    onClick = { onToggle(t) },
+                    trailingIcon = { if (t.name !in hidden) Icon(Icons.Rounded.Check, null) },
+                )
             }
         }
     }

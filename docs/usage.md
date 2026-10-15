@@ -16,7 +16,7 @@ Nobody needs a SIMKL developer account. If the browser shows the app chooser (wh
 
 - The floating **bottom bar** holds the destinations: **TV Shows**, **Movies**, **Anime**, **Discover** and **Calendar**. Change their order and turn them on or off in *Settings › Bottom bar*.
 - **Tabs** switch between parallel sections of a destination (library shelves, Discover's media types).
-- The **sort** button in the top bar of TV Shows, Movies and Anime sorts the open tab; on Anime, the **filter** button next to it filters by type. **Chips** filter what you are looking at elsewhere (Calendar and Search).
+- The **sort** button in the top bar of TV Shows, Movies and Anime sorts the open tab; on Anime, the **filter** button next to it filters by type. The Calendar has a filter button too; **chips** filter search results.
 - **Search** (the whole SIMKL catalogue, not just your lists) and your **profile** are in every destination's top bar. There is no separate search inside a tab: sort by title to find something in a list.
 
 ## TV Shows and Anime
@@ -53,7 +53,7 @@ TV Shows / Anime / Movies tabs with trending today, this week and this month, ai
 
 ## Calendar
 
-Upcoming episodes and releases of titles in your lists, filtered by type with the chips.
+Upcoming episodes and releases of titles in your lists. The **filter** button in the top bar shows or hides TV shows, anime and movies (ticked = shown; a dot on it means something is hidden).
 
 ## Profile
 
