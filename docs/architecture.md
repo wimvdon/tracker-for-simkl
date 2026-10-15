@@ -11,7 +11,7 @@ Tracker for Simkl is a single-module, single-activity Android app. Compose rende
                    ▼
  TrackerApp (Application, one instance)
    ├─ OkHttpClient (50 MB HTTP cache) ─── also used by Coil for images (wsrv.nl)
-   ├─ SettingsStore   DataStore: tokens, sign-in state, settings, notified episodes
+   ├─ SettingsStore   DataStore: tokens, sign-in state, settings, notified and remembered episodes
    ├─ SimklApi        api.simkl.com + data.simkl.in, headers, token refresh
    ├─ LibraryRepository   library StateFlow, incremental sync, JSON snapshot files
    ├─ CatalogRepository   details, episodes, search, Discover sections, random title
@@ -31,7 +31,7 @@ Tracker for Simkl is a single-module, single-activity Android app. Compose rende
 | `CatalogRepository` | Stateless reads for screens: details, episodes, search, Discover sections (API lists and data.simkl.in trending files), random title. |
 | `SettingsStore` | DataStore Preferences wrapper over two files (see "Backup"). A corrupt file is replaced with empty preferences instead of crashing. |
 | `Navigator` | A `mutableStateListOf<Route>` back stack. Pushing a route already on the stack pops back to it. |
-| `NewEpisodesWorker` | Every 4 hours (network required), only while signed in with notifications on: downloads the calendar files, matches them against the cached library and posts one notification per newly aired, unwatched episode, with the show's poster (thumbnail) and backdrop (expanded) from wsrv.nl. |
+| `NewEpisodesWorker` | Every 4 hours (network required), only while signed in with notifications on: downloads the calendar files and lets `NewEpisodes` match them against the cached library. It posts one notification per show with newly aired, unwatched episodes ("S01E05 is out", or "3 new episodes, up to S01E07"), with the show's poster (thumbnail) and backdrop (expanded) from wsrv.nl. Upcoming episodes of watched shows are remembered, so a check that runs days late (phone off, battery saver) still announces episodes from the last 7 days; at most five shows per check, the others follow at the next. Every app start re-registers the check (`restore`), because Android drops scheduled work when an app is force-stopped. |
 | `CrashReporter` | Saves an uncaught exception's stack trace to `files/last_crash.txt` and shows it once on the next start, with a Copy button. Nothing is sent. |
 
 ## Data flow
@@ -73,7 +73,7 @@ guarded by `BackupRulesTest`).
 
 | Stays on this phone | Why |
 |---|---|
-| `settings` DataStore: tokens, pending sign-in, notifications on/off, notified episodes | The sign-in must not leave the phone. Notifications need the permission and a scheduled check on the new phone, which a restore doesn't bring. |
+| `settings` DataStore: tokens, pending sign-in, notifications on/off, notified and remembered episodes | The sign-in must not leave the phone. Notifications need the permission and a scheduled check on the new phone, which a restore doesn't bring. |
 | `library.json`, `show_info.json` | Downloaded again after signing in. |
 | `last_crash.txt`, HTTP and image caches | Only about this phone. |
 

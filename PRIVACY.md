@@ -15,7 +15,7 @@ Tracker for Simkl is an unofficial client for [SIMKL](https://simkl.com). It has
 
 - Your SIMKL access and refresh tokens, and your settings (theme, bottom bar, library options, notifications).
 - A copy of your library and of show details, so the app opens fast and works offline.
-- Which episodes it already notified you about.
+- Which episodes it already notified you about, and the upcoming episodes of shows you're watching (so it can still notify you if a check runs late).
 - An HTTP and image cache.
 - If the app crashes: the error's stack trace with the app version and phone model, shown to you the next time the app opens so you can copy it. It is deleted after it is shown and never sent anywhere.
 

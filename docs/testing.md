@@ -37,13 +37,14 @@ The debug APK (`tracker-for-simkl-<version>-debug.apk`) and the test and lint re
 |---|---|
 | `data/ParsersTest` | `Parsers` against hand-written and documented SIMKL responses: library items, next episode, watched state and ratings; details and summaries; episode refs; airing states; anime details, watchlist ratings, playback and small responses from SIMKL's docs; `Shelves` assignment; marking episodes moving "next"; continue-from-latest (only aired episodes count; shows watched elsewhere are looked up before a sync is shown) |
 | `data/DetailLogicTest` | Details screen logic: broadcast time converted to the phone's time zone (summer time, day changes, unreadable day or zone), show status names, the season the episode list opens on |
+| `data/NewEpisodesTest` | `NewEpisodes`: only aired, unwatched episodes of shows being watched, each announced once; upcoming episodes remembered so a late check still announces them; one notification per show counting its new episodes; at most five shows per check, the rest wait; anime ignores seasons |
 | `ui/LaunchTest` | Starts `MainActivity` under Robolectric (API 35) signed out (login screen) and with a token (main screen); any exception during start-up or composition fails |
 
 ## Strategy
 
 - Logic that decides what the user sees (parsing, shelves, "what's next") is plain Kotlin and unit tested with JSON taken from SIMKL's documentation, so API changes show up as test failures rather than as wrong shelves.
 - The launch test replaces an emulator: it catches start-up crashes, which a release build once had, without instrumented tests.
-- Not covered automatically: `SimklApi` requests and token refresh, `LibraryRepository` sync and optimistic changes, `NewEpisodesWorker`, and most screens. These need a fake HTTP server or device tests; neither is set up. There is no coverage tool.
+- Not covered automatically: `SimklApi` requests and token refresh, `LibraryRepository` sync and optimistic changes, `NewEpisodesWorker` itself (downloading and posting; the decisions are in `NewEpisodes`), and most screens. These need a fake HTTP server or device tests; neither is set up. There is no coverage tool.
 
 ### Writing tests
 

@@ -19,6 +19,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.launch
 import okhttp3.Cache
 import okhttp3.OkHttpClient
 import java.io.File
@@ -47,7 +48,7 @@ class TrackerApp :
     /** The latest sign-in redirect from simkl.com, until the login screen has handled it. */
     val authRedirect = MutableStateFlow<Uri?>(null)
 
-    // WorkManager starts on first use (only when notifications are on), not at app start.
+    // WorkManager starts on first use: at app start only while notifications are on.
     override val workManagerConfiguration: Configuration get() = Configuration.Builder().build()
 
     override fun attachBaseContext(base: Context) {
@@ -60,6 +61,7 @@ class TrackerApp :
         super.onCreate()
         io.github.impca201.trackerforsimkl.ui.components.Format.context = this
         runCatching { NewEpisodesWorker.createChannel(this) }
+        scope.launch { runCatching { NewEpisodesWorker.restore(this@TrackerApp) } }
     }
 
     override fun newImageLoader(context: PlatformContext): ImageLoader =

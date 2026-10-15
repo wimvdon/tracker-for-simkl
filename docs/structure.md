@@ -40,7 +40,7 @@ tracker-for-simkl/
         │   │   ├── data/
         │   │   │   ├── LibraryRepository.kt   Library state, sync, cache files, changes
         │   │   │   ├── CatalogRepository.kt   Details, search, Discover; AccountRepository (profile, stats)
-        │   │   │   ├── SettingsStore.kt       DataStore: tokens, settings, notified episodes (two files)
+        │   │   │   ├── SettingsStore.kt       DataStore: tokens, settings, notified and remembered episodes (two files)
         │   │   │   ├── api/
         │   │   │   │   ├── SimklApi.kt        HTTP client for api.simkl.com and data.simkl.in
         │   │   │   │   ├── Parsers.kt         JSON → models
@@ -48,7 +48,8 @@ tracker-for-simkl/
         │   │   │   │   └── Pkce.kt            PKCE verifier/challenge
         │   │   │   └── model/
         │   │   │       ├── Models.kt          Items, details, episodes, images (wsrv.nl URLs)
-        │   │   │       └── Shelves.kt         Shelves, episode order, continue-from-latest
+        │   │   │       ├── Shelves.kt         Shelves, episode order, continue-from-latest
+        │   │   │       └── NewEpisodes.kt     Which aired episodes a notification announces
         │   │   ├── work/NewEpisodesWorker.kt  Periodic new-episode notifications
         │   │   └── ui/
         │   │       ├── MainActivity.kt, AppRoot.kt, Navigation.kt   Entry, root, back stack
