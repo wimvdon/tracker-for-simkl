@@ -6,7 +6,7 @@ Newest first. Add an entry for every notable choice: what was decided, why, and 
 
 The chip row above each library tab (sort, status, my rating, anime type and a title search) took a row of space for filters the owner didn't use. Sorting is back in the title bar as a sort button with a menu, per tab as before. The status and rating filters and the per-tab title search are gone: sorting by title finds a title quickly, and the search in the title bar still searches everything. Only Anime keeps a chip row, for its Type filter. Rejected: keeping the row with only the sort chip (a whole row for one control).
 
-Update the same day: the anime Type filter also moved to the title bar, as a filter button with a menu and a dot when a type is chosen, so no library screen has a chip row. Other filters were considered (available now, airing/ended, my rating, in progress, year, has a note) and left out: the tabs, badges and sort orders already cover them, or they are rarely needed.
+Update the same day: the anime Type filter also moved to the title bar, as a filter button with a menu and a dot when a type is chosen, so no library screen has a chip row. The Calendar's type chips became the same kind of filter button (with several types to switch, its menu stays open). Other filters were considered (available now, airing/ended, my rating, in progress, year, has a note) and left out: the tabs, badges and sort orders already cover them, or they are rarely needed.
 
 ## 2026-10-15: More reliable new-episode notifications
 
