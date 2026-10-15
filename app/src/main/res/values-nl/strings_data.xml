@@ -8,4 +8,8 @@
     <string name="data_crash_copy">Crashrapport kopiëren</string>
     <string name="data_crash_continue">Doorgaan</string>
     <string name="data_notif_episode_aired">%1$s is uit</string>
+    <plurals name="data_notif_episodes_aired">
+        <item quantity="one">%1$d nieuwe aflevering, t/m %2$s</item>
+        <item quantity="other">%1$d nieuwe afleveringen, t/m %2$s</item>
+    </plurals>
 </resources>

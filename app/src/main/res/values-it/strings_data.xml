@@ -8,4 +8,8 @@
     <string name="data_crash_copy">Copia il report dell’arresto anomalo</string>
     <string name="data_crash_continue">Continua</string>
     <string name="data_notif_episode_aired">%1$s è uscito</string>
+    <plurals name="data_notif_episodes_aired">
+        <item quantity="one">%1$d nuovo episodio, fino a %2$s</item>
+        <item quantity="other">%1$d nuovi episodi, fino a %2$s</item>
+    </plurals>
 </resources>

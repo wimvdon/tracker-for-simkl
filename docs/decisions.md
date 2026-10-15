@@ -2,6 +2,10 @@
 
 Newest first. Add an entry for every notable choice: what was decided, why, and what was rejected.
 
+## 2026-10-15: More reliable new-episode notifications
+
+Notifications could silently stop or miss episodes: Android drops scheduled work when an app is force-stopped (some phones do this to save battery), and WorkManager only puts it back once it starts, which the app did only when the switch was turned on. An episode was also lost when the check ran more than two days late, when more than five arrived at once, or when a second episode of the same show replaced the first one's notification. Now every app start re-registers the check (WorkManager `KEEP`, so a running schedule is untouched); upcoming episodes of watched shows are remembered between checks and the window is 7 days; there is one notification per show counting its new episodes, and shows over the limit wait for the next check. The decisions moved to `NewEpisodes`, a plain Kotlin object with unit tests. Rejected: asking to be excluded from battery optimisation (a new permission; the usage guide explains how to set it by hand) and exact alarms (also a permission, and the calendar is only updated a few times a day).
+
 ## 2026-10-15: Settings screens make room for the keyboard
 
 The app targets Android 15+ and draws edge to edge, so the system no longer shrinks the screen when the keyboard opens. `SettingsScaffold` (shared design kit, same change in every app) now adds the keyboard to its content insets, so a focused text field scrolls into view instead of hiding behind the keyboard. Rejected: opting out of edge-to-edge (not possible for apps targeting Android 15+).

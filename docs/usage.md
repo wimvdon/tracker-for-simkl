@@ -40,7 +40,8 @@ The show's status is shown in the app's language, and the weekly broadcast day a
 
 In the episode list:
 
-- tap an episode to toggle it watched;
+- tap an episode to read its description;
+- tick its checkbox to mark it watched;
 - long-press an episode to mark everything up to it;
 - mark a whole season at once.
 
@@ -64,7 +65,7 @@ The app syncs when it opens or comes back to the foreground (at most every 15 mi
 
 ## New-episode notifications
 
-Turn on *Settings › Library › New episode notifications* (Android 13+ asks for permission). A few times a day the app checks SIMKL's public episode calendar against your library as last synced and notifies you about newly aired episodes of shows you're watching. Each notification shows the show's poster; expand it to see the show's backdrop picture. Tap a notification to open the show.
+Turn on *Settings › Library › New episode notifications* (Android 13+ asks for permission). A few times a day the app checks SIMKL's public episode calendar against your library as last synced and notifies you about newly aired episodes of shows you're watching: one notification per show, also when several episodes came out at once. If your phone was off or saving battery, episodes from the past week are still announced at the next check. Each notification shows the show's poster; expand it to see the show's backdrop picture. Tap a notification to open the show.
 
 ## Appearance and language
 
@@ -79,4 +80,4 @@ Turn on *Settings › Library › New episode notifications* (Android 13+ asks f
 | "Sign-in failed: …" right after approving | Start the sign-in again from the app (an old browser tab can't finish a new sign-in). |
 | "This build has no SIMKL client ID" | The APK was built without `-PsimklClientId`. Install a release APK. |
 | A crash report on start | The app crashed last time. Tap **Copy crash report**, paste it in a GitHub issue, then tap **Continue**. |
-| No notifications | Check that notifications are on in Settings and allowed for the app in Android's settings. They only cover shows in your lists, as of the last sync. |
+| No notifications | Check that notifications are on in Settings and allowed for the app in Android's settings. They only cover shows you're watching, as of the last sync. Some phones stop background work for apps that are "optimized" or closed from the recent apps list: open the app once (that restarts the checks) and set its battery use to *Unrestricted* in Android's settings. |

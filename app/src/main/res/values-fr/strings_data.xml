@@ -8,4 +8,9 @@
     <string name="data_crash_copy">Copier le rapport de plantage</string>
     <string name="data_crash_continue">Continuer</string>
     <string name="data_notif_episode_aired">%1$s est disponible</string>
+    <plurals name="data_notif_episodes_aired">
+        <item quantity="one">%1$d nouvel épisode, jusqu’à %2$s</item>
+        <item quantity="many">%1$d nouveaux épisodes, jusqu’à %2$s</item>
+        <item quantity="other">%1$d nouveaux épisodes, jusqu’à %2$s</item>
+    </plurals>
 </resources>

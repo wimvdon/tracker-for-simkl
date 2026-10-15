@@ -29,18 +29,17 @@ import io.github.impca201.trackerforsimkl.TrackerApp
 import io.github.impca201.trackerforsimkl.data.api.Parsers
 import io.github.impca201.trackerforsimkl.data.model.CalendarEntry
 import io.github.impca201.trackerforsimkl.data.model.Images
-import io.github.impca201.trackerforsimkl.data.model.LibraryItem
-import io.github.impca201.trackerforsimkl.data.model.ListStatus
 import io.github.impca201.trackerforsimkl.data.model.MediaType
+import io.github.impca201.trackerforsimkl.data.model.NewEpisodes
 import io.github.impca201.trackerforsimkl.ui.MainActivity
-import java.time.Duration
 import java.time.Instant
 import java.util.concurrent.TimeUnit
 
 /**
  * Notifies about newly aired episodes of shows the user is watching. It reads SIMKL's calendar
  * data files (static files on data.simkl.in's CDN, which don't count against the API) and the
- * library as it was last synced; it never syncs or calls the API in the background.
+ * library as it was last synced; it never syncs or calls the API in the background. Which
+ * episodes to announce is decided by [NewEpisodes].
  */
 class NewEpisodesWorker(
     context: Context,
@@ -51,53 +50,33 @@ class NewEpisodesWorker(
         val settings = app.settings.current()
         if (settings.accessToken == null || !settings.notifications) return Result.success()
         app.library.load()
+        val library = app.library.state.value.items
+        // No library copy yet (never synced): nothing to compare with, and nothing to mark as seen.
+        if (library.isEmpty()) return Result.success()
         val calendar =
             try {
-                airedEpisodes(app)
+                airedAndUpcoming(app)
             } catch (e: Exception) {
                 return Result.retry()
             }
-        val watching = watchingShows(app)
-        val notified = app.settings.notifiedEpisodes()
-        val fresh =
-            calendar.mapNotNull { entry ->
-                val item = watching["${entry.type.name}:${entry.simklId}"] ?: return@mapNotNull null
-                val ref = entry.episode ?: return@mapNotNull null
-                if (item.isWatched(if (entry.type == MediaType.Anime) null else ref.season, ref.episode)) return@mapNotNull null
-                Triple(keyOf(entry), item, entry).takeIf { it.first !in notified }
-            }
+        val now = Instant.now()
+        val plan = NewEpisodes.plan(calendar, app.settings.rememberedEpisodes(), library, app.settings.notifiedEpisodes(), now)
         val showInfo = app.library.state.value.showInfo
-        fresh.take(MAX_NOTIFICATIONS).forEach { (_, item, entry) ->
-            notify(applicationContext, item, entry, showInfo[item.key]?.fanart)
-        }
-        // Remember what aired in the window, so each episode is announced once.
-        app.settings.setNotifiedEpisodes(calendar.map(::keyOf).toSet())
+        plan.alerts.forEach { notify(applicationContext, it, showInfo[it.item.key]?.fanart) }
+        app.settings.setNotifiedEpisodes(plan.notified)
+        app.settings.setRememberedEpisodes(plan.remembered)
         return Result.success()
     }
 
     companion object {
         private const val CHANNEL = "new_episodes"
         private const val WORK = "new_episodes"
-        private const val MAX_NOTIFICATIONS = 5
 
-        /** How far back an air date may be and still be announced (covers phones that were off for a while). */
-        private val WINDOW: Duration = Duration.ofDays(2)
-
-        private fun keyOf(entry: CalendarEntry) = "${entry.type.name}:${entry.simklId}:${entry.episode?.label}"
-
-        /** Episodes of TV shows and anime from the calendar files that aired within [WINDOW]. */
-        private suspend fun airedEpisodes(app: TrackerApp): List<CalendarEntry> {
-            val now = Instant.now()
-            val from = now.minus(WINDOW)
-            return listOf(MediaType.Tv, MediaType.Anime).flatMap { type ->
-                Parsers.calendar(app.api.calendar(type), type).filter { it.episode != null && it.date.isAfter(from) && !it.date.isAfter(now) }
+        /** TV and anime episodes from SIMKL's calendar files. */
+        private suspend fun airedAndUpcoming(app: TrackerApp): List<CalendarEntry> =
+            listOf(MediaType.Tv, MediaType.Anime).flatMap { type ->
+                Parsers.calendar(app.api.calendar(type), type).filter { it.episode != null }
             }
-        }
-
-        private fun watchingShows(app: TrackerApp): Map<String, LibraryItem> =
-            app.library.state.value.items
-                .filter { it.type.isEpisodic && it.status == ListStatus.Watching }
-                .associateBy { it.key }
 
         fun createChannel(context: Context) {
             if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) return
@@ -109,13 +88,30 @@ class NewEpisodesWorker(
         /** Starts the periodic check; episodes that already aired are not announced. */
         suspend fun enable(context: Context) {
             val app = context.applicationContext as TrackerApp
-            runCatching { app.settings.setNotifiedEpisodes(airedEpisodes(app).map(::keyOf).toSet()) }
+            runCatching { app.settings.setNotifiedEpisodes(NewEpisodes.aired(airedAndUpcoming(app), Instant.now())) }
+            // UPDATE replaces the old library-syncing schedule of earlier versions.
+            schedule(context, ExistingPeriodicWorkPolicy.UPDATE)
+        }
+
+        /**
+         * Called at every app start while notifications are on. Android drops scheduled work when
+         * an app is force-stopped (some phones do that to save battery); starting WorkManager
+         * brings it back, and KEEP leaves an existing schedule as it is.
+         */
+        suspend fun restore(context: Context) {
+            val settings = (context.applicationContext as TrackerApp).settings.current()
+            if (settings.accessToken != null && settings.notifications) schedule(context, ExistingPeriodicWorkPolicy.KEEP)
+        }
+
+        private fun schedule(
+            context: Context,
+            policy: ExistingPeriodicWorkPolicy,
+        ) {
             val request =
                 PeriodicWorkRequestBuilder<NewEpisodesWorker>(4, TimeUnit.HOURS)
                     .setConstraints(Constraints.Builder().setRequiredNetworkType(NetworkType.CONNECTED).build())
                     .build()
-            // UPDATE replaces the old library-syncing schedule of earlier versions.
-            WorkManager.getInstance(context).enqueueUniquePeriodicWork(WORK, ExistingPeriodicWorkPolicy.UPDATE, request)
+            WorkManager.getInstance(context).enqueueUniquePeriodicWork(WORK, policy, request)
         }
 
         fun cancel(context: Context) {
@@ -136,8 +132,7 @@ class NewEpisodesWorker(
         @SuppressLint("MissingPermission")
         private suspend fun notify(
             context: Context,
-            item: LibraryItem,
-            entry: CalendarEntry,
+            alert: NewEpisodes.Alert,
             fanart: String?,
         ) {
             if (Build.VERSION.SDK_INT >= 33 &&
@@ -145,6 +140,7 @@ class NewEpisodesWorker(
             ) {
                 return
             }
+            val item = alert.item
             val intent =
                 PendingIntent.getActivity(
                     context,
@@ -152,10 +148,15 @@ class NewEpisodesWorker(
                     MainActivity.detailIntent(context, item.type, item.ids.simkl),
                     PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE,
                 )
+            val latest = alert.latest.episode?.label
+            val count = alert.episodes.size
             val text =
-                entry.episode?.let { context.getString(R.string.data_notif_episode_aired, it.label) }
-                    ?: context.getString(R.string.data_notif_new_episode)
-            val art = Images.notification(item.poster, entry.poster, fanart)
+                when {
+                    latest == null -> context.getString(R.string.data_notif_new_episode)
+                    count == 1 -> context.getString(R.string.data_notif_episode_aired, latest)
+                    else -> context.resources.getQuantityString(R.plurals.data_notif_episodes_aired, count, count, latest)
+                }
+            val art = Images.notification(item.poster, alert.episodes.firstNotNullOfOrNull { it.poster }, fanart)
             val poster = bitmap(context, art.poster)
             val backdrop = bitmap(context, art.backdrop)
             val builder =
@@ -167,6 +168,8 @@ class NewEpisodesWorker(
                     .setContentIntent(intent)
                     .setAutoCancel(true)
                     .setCategory(NotificationCompat.CATEGORY_RECOMMENDATION)
+                    .setWhen(alert.latest.date.toEpochMilli())
+                    .setShowWhen(true)
             // Expanded: the show's backdrop as a large picture (the poster stays as the thumbnail
             // while collapsed). Without a backdrop the poster alone is used.
             if (backdrop != null) {
@@ -177,6 +180,7 @@ class NewEpisodesWorker(
                         .showBigPictureWhenCollapsed(false),
                 )
             }
+            // One notification per show: a newer episode replaces it, and its text counts all of them.
             NotificationManagerCompat.from(context).notify(item.key.hashCode(), builder.build())
         }
     }

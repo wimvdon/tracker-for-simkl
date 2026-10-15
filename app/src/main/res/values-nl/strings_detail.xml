@@ -77,7 +77,6 @@
     <string name="detail_season_n">Seizoen %1$d</string>
     <string name="detail_episode_n">Aflevering %1$d</string>
     <string name="detail_airs_when">Verschijnt %1$s</string>
-    <string name="detail_tap_hint">Tik op een aflevering om meer te lezen, gebruik het vakje om die te markeren, houd ingedrukt om alles tot daar te markeren.</string>
     <string name="detail_links">Links</string>
     <plurals name="detail_episodes_watched">
         <item quantity="one">%1$d van %2$d aflevering gezien</item>

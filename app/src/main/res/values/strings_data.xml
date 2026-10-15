@@ -8,4 +8,8 @@
     <string name="data_crash_copy">Copy crash report</string>
     <string name="data_crash_continue">Continue</string>
     <string name="data_notif_episode_aired">%1$s is out</string>
+    <plurals name="data_notif_episodes_aired">
+        <item quantity="one">%1$d new episode, up to %2$s</item>
+        <item quantity="other">%1$d new episodes, up to %2$s</item>
+    </plurals>
 </resources>

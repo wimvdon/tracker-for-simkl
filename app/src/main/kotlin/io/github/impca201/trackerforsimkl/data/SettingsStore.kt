@@ -102,6 +102,7 @@ class SettingsStore(
         val hideSpecials = booleanPreferencesKey("hide_specials")
         val continueFromLatest = booleanPreferencesKey("continue_from_latest")
         val notified = stringSetPreferencesKey("notified_episodes")
+        val remembered = stringSetPreferencesKey("remembered_episodes")
         val authState = stringPreferencesKey("auth_state")
         val authVerifier = stringPreferencesKey("auth_verifier")
     }
@@ -206,6 +207,11 @@ class SettingsStore(
     suspend fun notifiedEpisodes(): Set<String> = context.dataStore.data.first()[Keys.notified].orEmpty()
 
     suspend fun setNotifiedEpisodes(value: Set<String>) = context.dataStore.edit { it[Keys.notified] = value }
+
+    /** Upcoming episodes of watched shows, see `NewEpisodes`. */
+    suspend fun rememberedEpisodes(): Set<String> = context.dataStore.data.first()[Keys.remembered].orEmpty()
+
+    suspend fun setRememberedEpisodes(value: Set<String>) = context.dataStore.edit { it[Keys.remembered] = value }
 
     companion object {
         /**
