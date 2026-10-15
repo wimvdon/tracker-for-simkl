@@ -881,12 +881,6 @@ private fun EpisodesBlock(
                 Checkbox(checked = watched, onCheckedChange = if (e.aired) ({ toggle(e, it) }) else null, enabled = e.aired)
             }
         }
-        Text(
-            stringResource(R.string.detail_tap_hint),
-            style = MaterialTheme.typography.labelSmall,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
-            modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
-        )
     }
 }
 

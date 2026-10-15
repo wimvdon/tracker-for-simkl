@@ -77,7 +77,6 @@
     <string name="detail_season_n">Staffel %1$d</string>
     <string name="detail_episode_n">Folge %1$d</string>
     <string name="detail_airs_when">Läuft %1$s</string>
-    <string name="detail_tap_hint">Tippe auf eine Folge, um mehr zu lesen, markiere sie mit dem Kästchen, lange drücken markiert alles bis dorthin.</string>
     <string name="detail_links">Links</string>
     <plurals name="detail_episodes_watched">
         <item quantity="one">%1$d von %2$d Folge gesehen</item>

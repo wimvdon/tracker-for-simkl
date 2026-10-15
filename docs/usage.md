@@ -40,7 +40,8 @@ The show's status is shown in the app's language, and the weekly broadcast day a
 
 In the episode list:
 
-- tap an episode to toggle it watched;
+- tap an episode to read its description;
+- tick its checkbox to mark it watched;
 - long-press an episode to mark everything up to it;
 - mark a whole season at once.
 
