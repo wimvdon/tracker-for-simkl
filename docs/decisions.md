@@ -2,6 +2,10 @@
 
 Newest first. Add an entry for every notable choice: what was decided, why, and what was rejected.
 
+## 2026-10-15: Settings are backed up, the sign-in is not
+
+Backups were switched off completely to keep the SIMKL token on the phone, so a new or reset phone started with default settings. Now Android's own backup (Google account) and phone-to-phone transfer copy the settings: theme, wallpaper colours, bottom bar, hide specials and "continue from latest". They moved to their own DataStore file, `backed_up_settings`, and the backup rules list only that file, so the token and anything added later stay on the phone. Existing settings are moved over once by a DataStore migration; the tokens never move, so there is no moment when they sit in a backed-up file. The notification switch stays on the phone: it needs the permission and a scheduled check that a restore doesn't bring. Rejected: backing up the old `settings` file (it holds the token), excluding single keys (Android's rules work per file) and backing up the library copy (SIMKL is the source and it is downloaded again after signing in).
+
 ## 2026-10-15: Phone testing doesn't block merging
 
 The owner can't review code and can't always test a pull request on the device right away, so pull requests waited for a manual test that adds little over CI. Green CI (unit tests, lint, builds) is now enough to merge; the owner tests afterwards with the steps from the pull request and always before a release, and problems are fixed in a new pull request. Merging to `main` does not reach users: releases stay manual. Rejected: keeping the phone test as a merge gate (pull requests pile up and go stale).

@@ -1,6 +1,6 @@
 # Privacy policy
 
-_Last updated: 2026-10-14_
+_Last updated: 2026-10-15_
 
 Tracker for Simkl is an unofficial client for [SIMKL](https://simkl.com). It has no analytics, advertising or third-party crash reporting.
 
@@ -19,7 +19,7 @@ Tracker for Simkl is an unofficial client for [SIMKL](https://simkl.com). It has
 - An HTTP and image cache.
 - If the app crashes: the error's stack trace with the app version and phone model, shown to you the next time the app opens so you can copy it. It is deleted after it is shown and never sent anywhere.
 
-None of this is included in cloud backups or device-to-device transfers. Signing out deletes the tokens and the library copy; uninstalling the app deletes everything.
+Only your settings (theme, bottom bar and library options) are included in Android's own backup to your Google account, if you turned that on, and in a transfer to a new phone, so they come back after a reset or on a new phone. Nothing else above is: not your tokens (you sign in again on a new phone), not the library copy (downloaded again after signing in), not the notification setting (it needs the permission again on a new phone). Signing out deletes the tokens and the library copy; uninstalling the app deletes everything.
 
 ## Background activity
 

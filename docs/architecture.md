@@ -29,7 +29,7 @@ Tracker for Simkl is a single-module, single-activity Android app. Compose rende
 | `Parsers` | Maps `JsonElement` responses to the app's models by hand. Pure Kotlin, unit tested against SIMKL's documented examples. |
 | `LibraryRepository` | Holds `LibraryState` (items, show info, calendar, playback, "continue from latest" positions). Loads the cache from `library.json` / `show_info.json`, syncs, applies changes optimistically and writes files atomically (temp file + rename). |
 | `CatalogRepository` | Stateless reads for screens: details, episodes, search, Discover sections (API lists and data.simkl.in trending files), random title. |
-| `SettingsStore` | DataStore Preferences wrapper. A corrupt file is replaced with empty preferences instead of crashing. |
+| `SettingsStore` | DataStore Preferences wrapper over two files (see "Backup"). A corrupt file is replaced with empty preferences instead of crashing. |
 | `Navigator` | A `mutableStateListOf<Route>` back stack. Pushing a route already on the stack pops back to it. |
 | `NewEpisodesWorker` | Every 4 hours (network required), only while signed in with notifications on: downloads the calendar files, matches them against the cached library and posts one notification per newly aired, unwatched episode, with the show's poster (thumbnail) and backdrop (expanded) from wsrv.nl. |
 | `CrashReporter` | Saves an uncaught exception's stack trace to `files/last_crash.txt` and shows it once on the next start, with a Copy button. Nothing is sent. |
@@ -62,3 +62,21 @@ While `syncIfStale()` refreshes an outdated cache (`LibraryState.refreshingStale
 - SIMKL's API rules ask clients to check `/sync/activities` first and to sync on open/refresh rather than in the background; the sync and worker designs follow those rules directly.
 - One shared OkHttp client gives a single connection pool and HTTP cache for API calls and images.
 - No dependency-injection framework or navigation library: the object graph is five objects and the navigation is a stack of five route types, so the frameworks would add more code than they remove (see [decisions.md](decisions.md)).
+
+## Backup
+
+Android's own backup (to the Google account) and phone-to-phone transfer copy only the
+`backed_up_settings` DataStore file: theme, wallpaper colours, bottom bar order and tabs, hide
+specials and "continue from latest". The rules are an allow list, so nothing else is ever copied
+(`res/xml/data_extraction_rules.xml` for Android 12+, `res/xml/backup_rules.xml` for Android 8-11,
+guarded by `BackupRulesTest`).
+
+| Stays on this phone | Why |
+|---|---|
+| `settings` DataStore: tokens, pending sign-in, notifications on/off, notified episodes | The sign-in must not leave the phone. Notifications need the permission and a scheduled check on the new phone, which a restore doesn't bring. |
+| `library.json`, `show_info.json` | Downloaded again after signing in. |
+| `last_crash.txt`, HTTP and image caches | Only about this phone. |
+
+The file names are in `DataFiles` (`SettingsStore.kt`). Up to version 1.3.1 all settings lived
+in the `settings` file; `MoveKeysMigration` moves the backed-up ones over the first time the
+settings are read after the update.
