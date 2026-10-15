@@ -48,7 +48,7 @@ Images are loaded from `https://wsrv.nl/?url=https://simkl.in/...` (the image pr
 
 ### Authentication
 
-OAuth 2.0 authorization code with PKCE (AUTH V2): no client secret. The access token lasts about a week and is refreshed with the refresh token 12 hours before it expires. Tokens are stored in DataStore and excluded from backups.
+OAuth 2.0 authorization code with PKCE (AUTH V2): no client secret. The access token lasts about a week and is refreshed with the refresh token 12 hours before it expires. Tokens are stored in DataStore, in a file that is excluded from backups (see `docs/architecture.md`, "Backup").
 
 ## Entry points for other apps
 

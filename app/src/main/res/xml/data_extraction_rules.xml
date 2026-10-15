@@ -1,18 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Nothing is backed up: the SIMKL access token must stay on this device. -->
+<!-- Android 12+: what Android's backup (to the Google account) and phone-to-phone transfer copy.
+     Only the files listed here; everything else stays on this phone. That is just the settings
+     file (theme, bottom bar, list options). The SIMKL sign-in must stay on this phone, and the
+     library copy is downloaded again after signing in. Android 8-11 use backup_rules.xml: keep
+     both the same (BackupRulesTest checks this). -->
 <data-extraction-rules>
     <cloud-backup>
-        <exclude domain="root" />
-        <exclude domain="file" />
-        <exclude domain="database" />
-        <exclude domain="sharedpref" />
-        <exclude domain="external" />
+        <include domain="file" path="datastore/backed_up_settings.preferences_pb" />
     </cloud-backup>
     <device-transfer>
-        <exclude domain="root" />
-        <exclude domain="file" />
-        <exclude domain="database" />
-        <exclude domain="sharedpref" />
-        <exclude domain="external" />
+        <include domain="file" path="datastore/backed_up_settings.preferences_pb" />
     </device-transfer>
 </data-extraction-rules>

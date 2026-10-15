@@ -40,7 +40,7 @@ tracker-for-simkl/
         │   │   ├── data/
         │   │   │   ├── LibraryRepository.kt   Library state, sync, cache files, changes
         │   │   │   ├── CatalogRepository.kt   Details, search, Discover; AccountRepository (profile, stats)
-        │   │   │   ├── SettingsStore.kt       DataStore: tokens, settings, notified episodes
+        │   │   │   ├── SettingsStore.kt       DataStore: tokens, settings, notified episodes (two files)
         │   │   │   ├── api/
         │   │   │   │   ├── SimklApi.kt        HTTP client for api.simkl.com and data.simkl.in
         │   │   │   │   ├── Parsers.kt         JSON → models
@@ -63,7 +63,7 @@ tracker-for-simkl/
         │   └── res/
         │       ├── values/          English strings (split by area), colours, themes
         │       ├── values-{nl,fr,de,es,it}/   Translations
-        │       └── xml/data_extraction_rules.xml   Excludes everything from backups
+        │       └── xml/                        Backup rules: only the settings file
         └── test/kotlin/io/github/impca201/trackerforsimkl/
             ├── data/ParsersTest.kt   Parsers, shelves, continue-from-latest
             └── ui/LaunchTest.kt      Starts MainActivity under Robolectric
