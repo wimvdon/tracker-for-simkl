@@ -103,16 +103,6 @@ private fun Shelf.emptyTitle(type: MediaType): Int {
     }
 }
 
-@StringRes
-private fun Shelf.searchHint(): Int =
-    when (this) {
-        Shelf.UpNext -> R.string.lib_search_up_next
-        Shelf.Watched -> R.string.lib_search_watched
-        Shelf.PlanToWatch -> R.string.lib_search_plan_to_watch
-        Shelf.OnHold -> R.string.lib_search_on_hold
-        Shelf.Dropped -> R.string.lib_search_dropped
-    }
-
 /** TV Shows and Anime: the user's shows split into shelves, "Up next" first. */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -139,7 +129,7 @@ fun ShowsScreen(
                 .groupBy { Shelves.shelfOf(it, now, fromLatest, state.latestNext[it.key]) }
                 .mapValues { (shelf, v) ->
                     val tab = shelves.indexOf(shelf)
-                    val sorted = options.sort(tab).sort(options.filter(tab).apply(v, state))
+                    val sorted = options.sort(tab).sort(options.filter(tab).apply(v))
                     // Episodes in progress come first in Up next.
                     if (shelf == Shelf.UpNext) sorted.sortedByDescending { state.playbackFor(it.type, it.ids.simkl) != null } else sorted
                 }
@@ -160,7 +150,10 @@ fun ShowsScreen(
                     title = if (type == MediaType.Tv) NavTab.Tv.label() else NavTab.Anime.label(),
                     scrollBehavior = scrollBehavior,
                     searchType = type,
-                )
+                ) {
+                    val page = pagerState.currentPage
+                    SortButton(options.sort(page)) { options.setSort(page, it) }
+                }
                 PrimaryScrollableTabRow(selectedTabIndex = pagerState.currentPage, edgePadding = 16.dp) {
                     shelves.forEachIndexed { index, shelf ->
                         Tab(
@@ -178,9 +171,7 @@ fun ShowsScreen(
             val items = byShelf[shelf].orEmpty()
             val filter = options.filter(page)
             Column(Modifier.fillMaxSize()) {
-            LibraryControls(type, stringResource(shelf.searchHint()), options.sort(page), { options.setSort(page, it) }, filter) {
-                options.setFilter(page, it)
-            }
+            if (type == MediaType.Anime) AnimeTypeFilter(filter) { options.setFilter(page, it) }
             PullToRefreshBox(
                 isRefreshing = state.syncing,
                 onRefresh = { scope.launch { app.library.sync() } },

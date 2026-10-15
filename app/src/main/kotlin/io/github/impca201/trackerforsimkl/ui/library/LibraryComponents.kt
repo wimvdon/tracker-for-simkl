@@ -6,29 +6,14 @@ import io.github.impca201.trackerforsimkl.R
 import io.github.impca201.trackerforsimkl.ui.theme.AppShapes
 import io.github.impca201.trackerforsimkl.ui.theme.Motion
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.text.KeyboardActions
-import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.material.icons.rounded.Search
-import androidx.compose.material3.TextField
-import androidx.compose.material3.TextFieldDefaults
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.ui.focus.FocusRequester
-import androidx.compose.ui.focus.focusRequester
-import androidx.compose.ui.platform.LocalSoftwareKeyboardController
-import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.automirrored.rounded.Sort
 import androidx.compose.material.icons.rounded.ArrowDropDown
 import androidx.compose.material.icons.rounded.Close
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.foundation.lazy.LazyRow
-import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.FilterChip
 import androidx.compose.runtime.saveable.rememberSaveable
-import io.github.impca201.trackerforsimkl.data.model.MediaType
 import io.github.impca201.trackerforsimkl.ui.components.Format
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -98,68 +83,17 @@ enum class SortOrder(
         }
 }
 
-/** Ended or still running (TV, anime); released or upcoming (movies). */
-enum class ReleaseFilter(
-    @StringRes val showLabel: Int,
-    @StringRes val movieLabel: Int,
-) {
-    All(R.string.lib_filter_all, R.string.lib_filter_all),
-    Running(R.string.lib_filter_still_airing, R.string.lib_filter_upcoming),
-    Finished(R.string.lib_filter_ended, R.string.lib_filter_released),
-}
-
-enum class RatingFilter(
-    @StringRes val label: Int,
-) {
-    Any(R.string.lib_filter_any),
-    Rated(R.string.lib_filter_rated),
-    Unrated(R.string.lib_filter_unrated),
-}
-
+/** The anime type filter of a tab: SIMKL anime_type ("tv", "movie", "ova", ...), null for all. */
 data class LibraryFilter(
-    val release: ReleaseFilter = ReleaseFilter.All,
-    val rating: RatingFilter = RatingFilter.Any,
-    /** SIMKL anime_type ("tv", "movie", "ova", ...), anime only. */
     val animeType: String? = null,
-    /** Title search within the tab. */
-    val query: String = "",
 ) {
-    val active: Boolean get() = this != LibraryFilter()
+    val active: Boolean get() = animeType != null
 
-    fun apply(
-        items: List<LibraryItem>,
-        state: LibraryState,
-    ): List<LibraryItem> =
-        items.filter { item ->
-            val info = state.showInfo[item.key]
-            val releaseOk =
-                when (release) {
-                    ReleaseFilter.All -> true
-                    ReleaseFilter.Running ->
-                        if (item.type == MediaType.Movie) {
-                            info?.releaseStatus != null && info.releaseStatus != "released"
-                        } else {
-                            Shelves.airingOf(item, info, state.nextAirDate(item)) == AiringState.Airing
-                        }
-                    ReleaseFilter.Finished ->
-                        if (item.type == MediaType.Movie) {
-                            info?.releaseStatus == "released"
-                        } else {
-                            Shelves.airingOf(item, info, state.nextAirDate(item)) == AiringState.Ended
-                        }
-                }
-            val ratingOk =
-                when (rating) {
-                    RatingFilter.Any -> true
-                    RatingFilter.Rated -> item.userRating != null
-                    RatingFilter.Unrated -> item.userRating == null
-                }
-            releaseOk && ratingOk && (animeType == null || item.animeType.equals(animeType, ignoreCase = true)) &&
-                (query.isBlank() || item.title.contains(query.trim(), ignoreCase = true))
-        }
+    fun apply(items: List<LibraryItem>): List<LibraryItem> =
+        if (animeType == null) items else items.filter { it.animeType.equals(animeType, ignoreCase = true) }
 
-    /** Compact form for rememberSaveable: "release|rating|animeType". */
-    fun encode(): String = "${release.name}|${rating.name}|${animeType.orEmpty()}|$query"
+    /** Compact form for rememberSaveable. */
+    fun encode(): String = animeType.orEmpty()
 
     companion object {
         /** SIMKL anime_type and its label. */
@@ -172,16 +106,7 @@ data class LibraryFilter(
                 "special" to R.string.lib_anime_type_special,
             )
 
-        fun decode(value: String): LibraryFilter {
-            // The query is last and may itself contain "|".
-            val parts = value.split("|", limit = 4)
-            return LibraryFilter(
-                release = ReleaseFilter.entries.firstOrNull { it.name == parts.getOrNull(0) } ?: ReleaseFilter.All,
-                rating = RatingFilter.entries.firstOrNull { it.name == parts.getOrNull(1) } ?: RatingFilter.Any,
-                animeType = parts.getOrNull(2)?.ifEmpty { null },
-                query = parts.getOrNull(3).orEmpty(),
-            )
-        }
+        fun decode(value: String): LibraryFilter = LibraryFilter(animeType = value.ifEmpty { null })
     }
 }
 
@@ -225,137 +150,53 @@ fun rememberTabOptions(defaultSorts: List<SortOrder>): TabOptions {
 @Composable
 fun bottomPadding(): Dp = FloatingBarSpace + WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding()
 
-/**
- * Sort and filters of a library tab as one row of dropdown chips: sort, status (still airing /
- * ended, or released / upcoming for movies), my rating and, for anime, the type. A chip with a
- * filter set shows its value and an ✕ that clears it.
- */
+/** The sort button of a library tab's title bar: a menu of sort orders, the current one ticked. */
 @Composable
-fun LibraryControls(
-    type: MediaType,
-    searchHint: String,
+fun SortButton(
     sort: SortOrder,
     onSort: (SortOrder) -> Unit,
-    filter: LibraryFilter,
-    onFilter: (LibraryFilter) -> Unit,
 ) {
-    // The search icon at the end of the row swaps the chips for a title search field.
-    var searching by remember { mutableStateOf(filter.query.isNotEmpty()) }
-    if (searching) {
-        TitleSearchField(
-            query = filter.query,
-            hint = searchHint,
-            onQuery = { onFilter(filter.copy(query = it)) },
-            onClose = {
-                onFilter(filter.copy(query = ""))
-                searching = false
-            },
-        )
-        return
-    }
-    val movie = type == MediaType.Movie
-    fun releaseLabel(value: ReleaseFilter) = if (movie) value.movieLabel else value.showLabel
-    // Labels resolved here, since the chip's option labels are plain lambdas.
-    val sortLabels = SortOrder.entries.associateWith { stringResource(it.label) }
-    val releaseLabels = ReleaseFilter.entries.associateWith { stringResource(releaseLabel(it)) }
-    val ratingLabels = RatingFilter.entries.associateWith { stringResource(it.label) }
-    val animeTypeLabels = LibraryFilter.animeTypes.associate { (key, label) -> key to stringResource(label) }
-    val allLabel = stringResource(R.string.lib_filter_all)
-    val statusChip = stringResource(if (movie) R.string.lib_chip_release else R.string.lib_chip_status)
-    val ratingChip = stringResource(R.string.lib_chip_rating)
-    val typeChip = stringResource(R.string.lib_chip_type)
-    LazyRow(
-        contentPadding = PaddingValues(horizontal = 12.dp, vertical = 4.dp),
-        horizontalArrangement = Arrangement.spacedBy(8.dp),
-        verticalAlignment = Alignment.CenterVertically,
-    ) {
-        item(key = "sort") {
-            DropdownChip(
-                label = sortLabels.getValue(sort),
-                selected = false,
-                leading = Icons.AutoMirrored.Rounded.Sort,
-                options = SortOrder.entries,
-                current = sort,
-                optionLabel = { sortLabels.getValue(it) },
-                onSelect = onSort,
-                onClear = null,
-            )
-        }
-        item(key = "status") {
-            DropdownChip(
-                label = if (filter.release == ReleaseFilter.All) statusChip else releaseLabels.getValue(filter.release),
-                selected = filter.release != ReleaseFilter.All,
-                options = ReleaseFilter.entries,
-                current = filter.release,
-                optionLabel = { releaseLabels.getValue(it) },
-                onSelect = { onFilter(filter.copy(release = it)) },
-                onClear = { onFilter(filter.copy(release = ReleaseFilter.All)) },
-            )
-        }
-        item(key = "rating") {
-            DropdownChip(
-                label = if (filter.rating == RatingFilter.Any) ratingChip else ratingLabels.getValue(filter.rating),
-                selected = filter.rating != RatingFilter.Any,
-                options = RatingFilter.entries,
-                current = filter.rating,
-                optionLabel = { ratingLabels.getValue(it) },
-                onSelect = { onFilter(filter.copy(rating = it)) },
-                onClear = { onFilter(filter.copy(rating = RatingFilter.Any)) },
-            )
-        }
-        if (type == MediaType.Anime) {
-            item(key = "type") {
-                val types = listOf<String?>(null) + LibraryFilter.animeTypes.map { it.first }
-                fun typeLabel(key: String?) = key?.let { animeTypeLabels[it] } ?: allLabel
-                DropdownChip(
-                    label = if (filter.animeType == null) typeChip else typeLabel(filter.animeType),
-                    selected = filter.animeType != null,
-                    options = types,
-                    current = filter.animeType,
-                    optionLabel = { typeLabel(it) },
-                    onSelect = { onFilter(filter.copy(animeType = it)) },
-                    onClear = { onFilter(filter.copy(animeType = null)) },
+    var open by remember { mutableStateOf(false) }
+    Box {
+        IconButton(onClick = { open = true }) { Icon(Icons.AutoMirrored.Rounded.Sort, contentDescription = stringResource(R.string.lib_sort)) }
+        DropdownMenu(expanded = open, onDismissRequest = { open = false }) {
+            SortOrder.entries.forEach { option ->
+                DropdownMenuItem(
+                    text = { Text(stringResource(option.label)) },
+                    onClick = {
+                        open = false
+                        onSort(option)
+                    },
+                    trailingIcon = { if (option == sort) Icon(Icons.Rounded.Check, null) },
                 )
             }
         }
-        item(key = "search") {
-            IconButton(onClick = { searching = true }) { Icon(Icons.Rounded.Search, contentDescription = searchHint) }
-        }
     }
 }
 
-/** Title search for one tab: filters as you type; the close button clears it and shows the chips again. */
+/** Anime only: the type filter as a dropdown chip above the tab. A set type shows an ✕ that clears it. */
 @Composable
-private fun TitleSearchField(
-    query: String,
-    hint: String,
-    onQuery: (String) -> Unit,
-    onClose: () -> Unit,
+fun AnimeTypeFilter(
+    filter: LibraryFilter,
+    onFilter: (LibraryFilter) -> Unit,
 ) {
-    val focus = remember { FocusRequester() }
-    val keyboard = LocalSoftwareKeyboardController.current
-    LaunchedEffect(Unit) { if (query.isEmpty()) focus.requestFocus() }
-    TextField(
-        value = query,
-        onValueChange = onQuery,
-        placeholder = { Text(hint) },
-        singleLine = true,
-        leadingIcon = { Icon(Icons.Rounded.Search, null) },
-        trailingIcon = { IconButton(onClick = onClose) { Icon(Icons.Rounded.Close, contentDescription = stringResource(R.string.lib_close_search)) } },
-        keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search),
-        keyboardActions = KeyboardActions(onSearch = { keyboard?.hide() }),
-        shape = RoundedCornerShape(28.dp),
-        colors =
-            TextFieldDefaults.colors(
-                focusedIndicatorColor = Color.Transparent,
-                unfocusedIndicatorColor = Color.Transparent,
-                focusedContainerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
-                unfocusedContainerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
-            ),
-        modifier = Modifier.fillMaxWidth().padding(horizontal = 12.dp, vertical = 4.dp).focusRequester(focus),
-    )
+    val animeTypeLabels = LibraryFilter.animeTypes.associate { (key, label) -> key to stringResource(label) }
+    val allLabel = stringResource(R.string.lib_filter_all)
+    val typeChip = stringResource(R.string.lib_chip_type)
+    val types = listOf<String?>(null) + LibraryFilter.animeTypes.map { it.first }
+    fun typeLabel(key: String?) = key?.let { animeTypeLabels[it] } ?: allLabel
+    Row(Modifier.padding(horizontal = 12.dp, vertical = 4.dp)) {
+        DropdownChip(
+            label = if (filter.animeType == null) typeChip else typeLabel(filter.animeType),
+            selected = filter.animeType != null,
+            options = types,
+            current = filter.animeType,
+            optionLabel = { typeLabel(it) },
+            onSelect = { onFilter(filter.copy(animeType = it)) },
+            onClear = { onFilter(filter.copy(animeType = null)) },
+        )
+    }
 }
-
 
 /** A filter chip that opens a menu of [options]; when [selected], its ✕ calls [onClear]. */
 @Composable
@@ -366,8 +207,7 @@ private fun <T> DropdownChip(
     current: T,
     optionLabel: (T) -> String,
     onSelect: (T) -> Unit,
-    onClear: (() -> Unit)?,
-    leading: ImageVector? = null,
+    onClear: () -> Unit,
 ) {
     var open by remember { mutableStateOf(false) }
     Box {
@@ -375,9 +215,8 @@ private fun <T> DropdownChip(
             selected = selected,
             onClick = { open = true },
             label = { Text(label) },
-            leadingIcon = if (leading != null) ({ Icon(leading, null, Modifier.size(18.dp)) }) else null,
             trailingIcon = {
-                if (selected && onClear != null) {
+                if (selected) {
                     Icon(
                         Icons.Rounded.Close,
                         contentDescription = stringResource(R.string.lib_clear_filter, label),

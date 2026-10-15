@@ -16,7 +16,7 @@ Nobody needs a SIMKL developer account. If the browser shows the app chooser (wh
 
 - The floating **bottom bar** holds the destinations: **TV Shows**, **Movies**, **Anime**, **Discover** and **Calendar**. Change their order and turn them on or off in *Settings › Bottom bar*.
 - **Tabs** switch between parallel sections of a destination (library shelves, Discover's media types).
-- **Chips** sort and filter what you are looking at.
+- The **sort** button in the top bar of TV Shows, Movies and Anime sorts the open tab; **chips** filter what you are looking at.
 - **Search** and your **profile** are in every destination's top bar.
 
 ## TV Shows and Anime
@@ -24,13 +24,13 @@ Nobody needs a SIMKL developer account. If the browser shows the app chooser (wh
 Shelves: **Up next** (shows with an aired, unwatched episode), **Watched** (caught up or completed, with the next air date when known), **Plan to watch**, **On hold**, **Dropped**. Every poster shows an *Airing* or *Ended* badge.
 
 - **Mark the next episode watched:** tap ✓ on a show in Up next. Episodes in progress (paused on another device) come first and show their progress; marking one watched asks first, because it removes the saved progress.
-- **Sort and filter** with the chip row above each tab (kept per tab): sort by recently watched, recently added, title, my rating or release date; filter by airing/ended, my rating and, for anime, the type.
+- **Sort** with the sort button in the top bar (kept per tab): recently watched, recently added, title, my rating or release date. On Anime, the **Type** chip above each tab filters by type (TV, movie, OVA, ONA, special).
 - **Continue from the latest episode** (*Settings › Library*): Up next starts after the most recently watched episode, so skipped earlier episodes or seasons don't keep a show in Up next. SIMKL's API has no "skip", so this is decided in the app.
 - **Hide specials** (*Settings › Library*): leaves season 0 episodes out of episode lists.
 
 ## Movies
 
-Shelves: **Plan to watch**, **Watched**, **Dropped**, with the same sort and filter chips (released/upcoming instead of airing/ended).
+Shelves: **Plan to watch**, **Watched**, **Dropped**, with the same sort button.
 
 ## Details
 

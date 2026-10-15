@@ -13,15 +13,12 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Block
 import androidx.compose.material.icons.rounded.Bookmark
 import androidx.compose.material.icons.rounded.CheckCircle
-import androidx.compose.material.icons.rounded.SearchOff
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.PrimaryTabRow
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Tab
-import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.runtime.Composable
@@ -58,7 +55,7 @@ fun MoviesScreen() {
         remember(state, options.version) {
             state.items.filter { it.type == MediaType.Movie }.groupBy { it.status }.mapValues { (status, v) ->
                 val tab = shelves.indexOfFirst { it.status == status }
-                if (tab < 0) v else options.sort(tab).sort(options.filter(tab).apply(v, state))
+                if (tab < 0) v else options.sort(tab).sort(v)
             }
         }
 
@@ -70,7 +67,10 @@ fun MoviesScreen() {
         snackbarHost = { SnackbarHost(snackbar, Modifier.padding(bottom = bottomPadding())) },
         topBar = {
             Column {
-                MainTopBar(NavTab.Movies.label(), scrollBehavior, MediaType.Movie)
+                MainTopBar(NavTab.Movies.label(), scrollBehavior, MediaType.Movie) {
+                    val page = pagerState.currentPage
+                    SortButton(options.sort(page)) { options.setSort(page, it) }
+                }
                 PrimaryTabRow(selectedTabIndex = pagerState.currentPage) {
                     shelves.forEachIndexed { index, shelf ->
                         Tab(
@@ -86,27 +86,12 @@ fun MoviesScreen() {
         HorizontalPager(state = pagerState, modifier = Modifier.fillMaxSize().padding(top = padding.calculateTopPadding())) { page ->
             val shelf = shelves[page]
             val items = byStatus[shelf.status].orEmpty()
-            val filter = options.filter(page)
-            Column(Modifier.fillMaxSize()) {
-            val searchHint =
-                when (shelf) {
-                    MovieShelf.PlanToWatch -> R.string.lib_search_plan_to_watch
-                    MovieShelf.Completed -> R.string.lib_search_watched
-                    MovieShelf.Dropped -> R.string.lib_search_dropped
-                }
-            LibraryControls(MediaType.Movie, stringResource(searchHint), options.sort(page), { options.setSort(page, it) }, filter) {
-                options.setFilter(page, it)
-            }
             PullToRefreshBox(
                 isRefreshing = state.syncing,
                 onRefresh = { scope.launch { app.library.sync() } },
                 modifier = Modifier.fillMaxSize(),
             ) {
-                if (items.isEmpty() && filter.active) {
-                    EmptyState(Icons.Rounded.SearchOff, stringResource(R.string.lib_no_matches)) {
-                        TextButton(onClick = { options.setFilter(page, LibraryFilter()) }) { Text(stringResource(R.string.lib_clear_filters)) }
-                    }
-                } else if (state.firstSync) {
+                if (state.firstSync) {
                     PosterGridSkeleton(bottomPadding())
                 } else if (items.isEmpty() && state.loaded && !state.syncing) {
                     val (icon, title) =
@@ -129,7 +114,6 @@ fun MoviesScreen() {
                         showAiring = false,
                     )
                 }
-            }
             }
         }
     }
