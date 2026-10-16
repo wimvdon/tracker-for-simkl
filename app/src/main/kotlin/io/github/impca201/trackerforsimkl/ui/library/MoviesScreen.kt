@@ -69,7 +69,7 @@ fun MoviesScreen() {
             Column {
                 MainTopBar(NavTab.Movies.label(), scrollBehavior, MediaType.Movie) {
                     val page = pagerState.currentPage
-                    SortButton(options.sort(page)) { options.setSort(page, it) }
+                    SortButton(options.sort(page), SortOrder.choices(planToWatch = shelves[page] == MovieShelf.PlanToWatch)) { options.setSort(page, it) }
                 }
                 PrimaryTabRow(selectedTabIndex = pagerState.currentPage) {
                     shelves.forEachIndexed { index, shelf ->

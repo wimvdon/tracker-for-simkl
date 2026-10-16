@@ -53,7 +53,7 @@ tracker-for-simkl/
         │   │   ├── work/NewEpisodesWorker.kt  Periodic new-episode notifications
         │   │   └── ui/
         │   │       ├── MainActivity.kt, AppRoot.kt, Navigation.kt   Entry, root, back stack
-        │   │       ├── main/        Bottom bar scaffold and top bar
+        │   │       ├── main/        Navigation bar and top bar
         │   │       ├── library/     TV Shows / Anime and Movies shelves
         │   │       ├── detail/      Title details, episodes, rating, links
         │   │       ├── discover/    Trending, airing, premieres, best, "Surprise me"

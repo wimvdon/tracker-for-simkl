@@ -57,7 +57,7 @@ import io.github.impca201.trackerforsimkl.data.model.Shelves
 import io.github.impca201.trackerforsimkl.ui.components.AiringBadge
 import io.github.impca201.trackerforsimkl.ui.components.Poster
 import io.github.impca201.trackerforsimkl.ui.components.PosterTile
-import io.github.impca201.trackerforsimkl.ui.main.FloatingBarSpace
+import io.github.impca201.trackerforsimkl.ui.main.LocalNavigationBarShown
 
 enum class SortOrder(
     @StringRes val label: Int,
@@ -78,6 +78,11 @@ enum class SortOrder(
             // The library only carries the release year; titles keep a stable order within a year.
             Release -> items.sortedWith(compareByDescending<LibraryItem> { it.year ?: 0 }.thenBy { it.title.lowercase() })
         }
+
+    companion object {
+        /** The sort orders a shelf offers: nothing on Want to watch has been watched yet. */
+        fun choices(planToWatch: Boolean): List<SortOrder> = if (planToWatch) entries - Recent else entries.toList()
+    }
 }
 
 /** The anime type filter of a tab: SIMKL anime_type ("tv", "movie", "ova", ...), null for all. */
@@ -144,20 +149,23 @@ fun rememberTabOptions(defaultSorts: List<SortOrder>): TabOptions {
     return remember(sorts, filters) { TabOptions(sorts, filters) }
 }
 
+/** Room below a destination's content: the docked navigation bar, if shown, covers the system bar. */
 @Composable
-fun bottomPadding(): Dp = FloatingBarSpace + WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding()
+fun bottomPadding(): Dp =
+    8.dp + if (LocalNavigationBarShown.current) 0.dp else WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding()
 
 /** The sort button of a library tab's title bar: a menu of sort orders, the current one ticked. */
 @Composable
 fun SortButton(
     sort: SortOrder,
+    choices: List<SortOrder>,
     onSort: (SortOrder) -> Unit,
 ) {
     var open by remember { mutableStateOf(false) }
     Box {
         IconButton(onClick = { open = true }) { Icon(Icons.AutoMirrored.Rounded.Sort, contentDescription = stringResource(R.string.lib_sort)) }
         DropdownMenu(expanded = open, onDismissRequest = { open = false }) {
-            SortOrder.entries.forEach { option ->
+            choices.forEach { option ->
                 DropdownMenuItem(
                     text = { Text(stringResource(option.label)) },
                     onClick = {

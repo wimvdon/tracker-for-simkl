@@ -9,10 +9,12 @@ import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.togetherWith
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.combinedClickable
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -76,7 +78,6 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Slider
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
-import androidx.compose.material3.SuggestionChip
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -604,6 +605,32 @@ private fun ratingWord(value: Int): Int =
         else -> R.string.detail_rating_10
     }
 
+/**
+ * A rating, rank or genre: information, not a control, so not a chip (a chip that does nothing
+ * when tapped misleads). Same size and outline as a chip, without the touch feedback.
+ */
+@Composable
+private fun InfoTag(
+    text: String,
+    icon: (@Composable () -> Unit)? = null,
+) {
+    Surface(
+        shape = MaterialTheme.shapes.small,
+        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant),
+        color = Color.Transparent,
+        contentColor = MaterialTheme.colorScheme.onSurfaceVariant,
+    ) {
+        Row(
+            Modifier.heightIn(min = 32.dp).padding(horizontal = 12.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
+        ) {
+            icon?.invoke()
+            Text(text, style = MaterialTheme.typography.labelLarge)
+        }
+    }
+}
+
 @Composable
 private fun About(d: MediaDetails) {
     var expanded by rememberSaveable { mutableStateOf(false) }
@@ -611,18 +638,17 @@ private fun About(d: MediaDetails) {
         if (d.ratings.isNotEmpty() || d.rank != null) {
             LazyRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 items(d.ratings) { r ->
-                    SuggestionChip(
-                        onClick = {},
-                        label = { Text("${r.source} ${Format.rating(r.value)}" + (r.votes?.let { " (${compact(it)})" } ?: "")) },
+                    InfoTag(
+                        text = "${r.source} ${Format.rating(r.value)}" + (r.votes?.let { " (${compact(it)})" } ?: ""),
                         icon = { Icon(Icons.Rounded.Star, null, Modifier.size(16.dp), tint = Color(0xFFFFB300)) },
                     )
                 }
-                d.rank?.let { rank -> item { SuggestionChip(onClick = {}, label = { Text(stringResource(R.string.detail_rank, rank)) }) } }
+                d.rank?.let { rank -> item { InfoTag(stringResource(R.string.detail_rank, rank)) } }
             }
         }
         if (d.genres.isNotEmpty()) {
             LazyRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                items(d.genres) { g -> AssistChip(onClick = {}, label = { Text(g.replaceFirstChar { it.uppercase() }) }) }
+                items(d.genres) { g -> InfoTag(g.replaceFirstChar { it.uppercase() }) }
             }
         }
         d.overview?.let { overview ->
