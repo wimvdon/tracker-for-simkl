@@ -96,5 +96,15 @@ object NewEpisodes {
         )
     }
 
+    /**
+     * The air time of the next remembered episode (from [Plan.remembered]), so the check can run
+     * right after it instead of waiting for the regular one. Air dates are moments in time
+     * (SIMKL's offset is kept when parsing), so the phone's time zone doesn't shift them.
+     */
+    fun nextAirDate(
+        remembered: Set<String>,
+        now: Instant,
+    ): Instant? = remembered.mapNotNull(::decode).map { it.date }.filter { it.isAfter(now) }.minOrNull()
+
     private fun CalendarEntry.aired(now: Instant) = date.isAfter(now.minus(WINDOW)) && !date.isAfter(now)
 }

@@ -2,6 +2,17 @@
 
 Newest first. Add an entry for every notable choice: what was decided, why, and what was rejected.
 
+## 2026-10-16: Extra check at air time instead of exact alarms or a foreground service
+
+The owner asked for notifications at the right time, and whether a background service should fetch
+the calendar when the app hasn't been opened for a day. The 4-hourly WorkManager check already runs
+without the app being opened, so no service was added; a foreground service would show a permanent
+notification and Google Play limits them to user-visible work. To announce episodes on time, each
+check schedules one extra WorkManager check 15 minutes after the next known air time of a watched
+show. Rejected: exact alarms (`SCHEDULE_EXACT_ALARM`, a new permission that Play reserves for
+alarm and calendar apps) and syncing the library in the background (SIMKL's API rules forbid it).
+Air dates keep SIMKL's offset when parsed, so time zones don't shift them.
+
 ## 2026-10-16: Content types switch in Settings
 
 The owner asked for global switches to turn TV shows, movies and anime on or off throughout the
