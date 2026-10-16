@@ -26,6 +26,11 @@
     <string name="lib_sort_release">Date de sortie</string>
     <string name="lib_filter_type">Filtrer par type</string>
     <string name="lib_filter_all">Tous</string>
+    <string name="lib_filter">Filtrer</string>
+    <string name="lib_filter_my_rating">Ma note</string>
+    <string name="lib_filter_type_header">Type</string>
+    <string name="lib_filter_rated">Notés par moi</string>
+    <string name="lib_filter_unrated">Non notés</string>
     <string name="lib_anime_type_tv">TV</string>
     <string name="lib_anime_type_movie">Film</string>
     <string name="lib_anime_type_ova">OVA</string>

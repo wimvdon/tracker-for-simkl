@@ -151,7 +151,7 @@ fun ShowsScreen(
                     scrollBehavior = scrollBehavior,
                 ) {
                     val page = pagerState.currentPage
-                    if (type == MediaType.Anime) AnimeTypeButton(options.filter(page)) { options.setFilter(page, it) }
+                    FilterButton(options.filter(page), animeTypes = type == MediaType.Anime) { options.setFilter(page, it) }
                     SortButton(options.sort(page), SortOrder.choices(planToWatch = shelves[page] == Shelf.PlanToWatch)) { options.setSort(page, it) }
                 }
                 PrimaryScrollableTabRow(selectedTabIndex = pagerState.currentPage, edgePadding = 16.dp) {

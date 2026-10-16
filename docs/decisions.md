@@ -6,6 +6,13 @@ Newest first. Add an entry for every notable choice: what was decided, why, and 
 
 A Material 3 audit of the sibling apps added shared rules to `DESIGN.md` ("Empty and setup states"). This app's empty, no-result and failed screens now use the shared `ui/theme/EmptyState.kt` instead of its own copy in `Common.kt` (same look, plus a heading for screen readers and a readable width). Poster tiles always take two title lines and one caption line, and trailers always one name line, because a row of tiles only measures the tiles on screen: a longer title scrolling into view made the whole row taller and pushed everything below it down. "Mark as watched" buttons now say "Watched" ("Gezien"); the screen already says what is being marked. Rejected: measuring every tile in a row to find the tallest (costs a full layout pass of items that aren't visible) and keeping long button labels (they wrap or get cut off in Dutch and German).
 
+## 2026-10-16: My-rating filter back, in the title bar
+
+The rating filter went away with the chip row (15 October). The owner wants to see what they have
+and haven't rated, so it is back as part of the title bar's filter button, on TV Shows, Anime and
+Movies, kept per tab. On Anime the same menu also holds the type filter, so there is still one
+filter button per screen.
+
 ## 2026-10-16: Extra check at air time instead of exact alarms or a foreground service
 
 The owner asked for notifications at the right time, and whether a background service should fetch

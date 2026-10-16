@@ -5,6 +5,7 @@ import io.github.impca201.trackerforsimkl.data.model.ListStatus
 import io.github.impca201.trackerforsimkl.data.model.MediaIds
 import io.github.impca201.trackerforsimkl.data.model.MediaType
 import io.github.impca201.trackerforsimkl.ui.library.LibraryFilter
+import io.github.impca201.trackerforsimkl.ui.library.RatingFilter
 import io.github.impca201.trackerforsimkl.ui.library.SortOrder
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
@@ -33,9 +34,24 @@ class LibraryFilterTest {
     }
 
     @Test
+    fun ratingFilter() {
+        val rated = LibraryFilter(rating = RatingFilter.Rated)
+        assertTrue(rated.active)
+        assertEquals(listOf(1L, 3L), rated.apply(items).map { it.ids.simkl })
+        assertEquals(listOf(2L), LibraryFilter(rating = RatingFilter.Unrated).apply(items).map { it.ids.simkl })
+        // Combined with the anime type.
+        assertEquals(listOf(3L), LibraryFilter(animeType = "tv", rating = RatingFilter.Rated).apply(items.drop(1)).map { it.ids.simkl })
+        assertTrue(LibraryFilter(animeType = "movie", rating = RatingFilter.Rated).apply(items).isEmpty())
+    }
+
+    @Test
     fun filterSurvivesSaving() {
         assertEquals(LibraryFilter(animeType = "ova"), LibraryFilter.decode(LibraryFilter(animeType = "ova").encode()))
         assertEquals(LibraryFilter(), LibraryFilter.decode(LibraryFilter().encode()))
+        val both = LibraryFilter(animeType = "tv", rating = RatingFilter.Unrated)
+        assertEquals(both, LibraryFilter.decode(both.encode()))
+        // A value saved by the previous version (anime type only) still reads.
+        assertEquals(LibraryFilter(animeType = "ova"), LibraryFilter.decode("ova"))
     }
 
     @Test
