@@ -11,6 +11,7 @@ import androidx.datastore.preferences.core.longPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.core.stringSetPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
+import io.github.impca201.trackerforsimkl.data.model.MediaType
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.combine
@@ -62,6 +63,19 @@ enum class NavTab {
     }
 }
 
+/** The media type a library tab shows; null for Discover and Calendar, which show every type. */
+val NavTab.mediaType: MediaType?
+    get() =
+        when (this) {
+            NavTab.Tv -> MediaType.Tv
+            NavTab.Anime -> MediaType.Anime
+            NavTab.Movies -> MediaType.Movie
+            NavTab.Discover, NavTab.Calendar -> null
+        }
+
+/** False for the library tab of a media type that is turned off in Settings. */
+fun NavTab.allowedFor(types: Set<MediaType>): Boolean = mediaType?.let { it in types } ?: true
+
 enum class ThemeMode { System, Light, Dark }
 
 data class NavConfig(
@@ -70,6 +84,36 @@ data class NavConfig(
     val enabled: Set<NavTab>,
 ) {
     val visible: List<NavTab> get() = order.filter { it in enabled }
+
+    /** Every tab the bottom bar settings list, leaving out those of media types turned off. */
+    fun available(types: Set<MediaType>): List<NavTab> = order.filter { it.allowedFor(types) }
+
+    /**
+     * The destinations of the bottom bar. When every turned-on destination belongs to a media type
+     * that is off, the first available one is shown, so the app never ends up empty.
+     */
+    fun visible(types: Set<MediaType>): List<NavTab> =
+        visible.filter { it.allowedFor(types) }.ifEmpty { available(types).take(1) }
+
+    /**
+     * Moves [tab] one place up or down among the tabs of [shown] (what the settings list shows),
+     * skipping hidden tabs in between.
+     */
+    fun moved(
+        tab: NavTab,
+        up: Boolean,
+        shown: List<NavTab>,
+    ): NavConfig {
+        val index = shown.indexOf(tab)
+        val other = shown.getOrNull(if (up) index - 1 else index + 1) ?: return this
+        if (index < 0) return this
+        val list = order.toMutableList()
+        val a = list.indexOf(tab)
+        val b = list.indexOf(other)
+        list[a] = other
+        list[b] = tab
+        return copy(order = list)
+    }
 }
 
 data class AppSettings(
@@ -81,7 +125,20 @@ data class AppSettings(
     val hideSpecials: Boolean = true,
     /** Up next starts after the most recently watched episode, ignoring skipped ones before it. */
     val continueFromLatest: Boolean = false,
-)
+    /** Media types shown throughout the app; at least one stays on. */
+    val types: Set<MediaType> = MediaType.entries.toSet(),
+) {
+    /** [types] in the app's usual order: TV shows, anime, movies. */
+    val typeList: List<MediaType> get() = MediaType.entries.filter { it in types }
+
+    val tabs: List<NavTab> get() = nav.visible(types)
+}
+
+/** Turns [type] on or off; the last type that is on stays on. */
+fun Set<MediaType>.toggled(
+    type: MediaType,
+    on: Boolean,
+): Set<MediaType> = if (on) this + type else (this - type).ifEmpty { this }
 
 /**
  * App settings and the SIMKL sign-in. Settings the user chose are in a backed-up file; tokens and
@@ -101,6 +158,7 @@ class SettingsStore(
         val notifications = booleanPreferencesKey("notifications")
         val hideSpecials = booleanPreferencesKey("hide_specials")
         val continueFromLatest = booleanPreferencesKey("continue_from_latest")
+        val mediaTypes = stringSetPreferencesKey("media_types")
         val notified = stringSetPreferencesKey("notified_episodes")
         val remembered = stringSetPreferencesKey("remembered_episodes")
         val authState = stringPreferencesKey("auth_state")
@@ -126,6 +184,12 @@ class SettingsStore(
                 notifications = d[Keys.notifications] ?: false,
                 hideSpecials = p[Keys.hideSpecials] ?: true,
                 continueFromLatest = p[Keys.continueFromLatest] ?: false,
+                types =
+                    p[Keys.mediaTypes]
+                        ?.mapNotNull { n -> MediaType.entries.firstOrNull { it.name == n } }
+                        ?.toSet()
+                        ?.ifEmpty { null }
+                        ?: MediaType.entries.toSet(),
             )
         }
 
@@ -203,6 +267,8 @@ class SettingsStore(
     suspend fun setHideSpecials(value: Boolean) = context.backedUpStore.edit { it[Keys.hideSpecials] = value }
 
     suspend fun setContinueFromLatest(value: Boolean) = context.backedUpStore.edit { it[Keys.continueFromLatest] = value }
+
+    suspend fun setTypes(value: Set<MediaType>) = context.backedUpStore.edit { it[Keys.mediaTypes] = value.map { t -> t.name }.toSet() }
 
     suspend fun notifiedEpisodes(): Set<String> = context.dataStore.data.first()[Keys.notified].orEmpty()
 

@@ -90,8 +90,8 @@ private fun LoggedIn(
                 when (route) {
                     Route.Main -> MainScreen(settings)
                     is Route.Detail -> DetailScreen(route, settings)
-                    is Route.Search -> SearchScreen(route.type)
-                    Route.Profile -> ProfileScreen()
+                    is Route.Search -> SearchScreen(route.type, settings.typeList)
+                    Route.Profile -> ProfileScreen(settings.types)
                     Route.Settings -> SettingsScreen(settings)
                 }
             }

@@ -66,8 +66,8 @@ While `syncIfStale()` refreshes an outdated cache (`LibraryState.refreshingStale
 ## Backup
 
 Android's own backup (to the Google account) and phone-to-phone transfer copy only the
-`backed_up_settings` DataStore file: theme, wallpaper colours, bottom bar order and tabs, hide
-specials and "continue from latest". The rules are an allow list, so nothing else is ever copied
+`backed_up_settings` DataStore file: theme, wallpaper colours, bottom bar order and tabs, the
+media types shown (*Settings › Content*), hide specials and "continue from latest". The rules are an allow list, so nothing else is ever copied
 (`res/xml/data_extraction_rules.xml` for Android 12+, `res/xml/backup_rules.xml` for Android 8-11,
 guarded by `BackupRulesTest`).
 

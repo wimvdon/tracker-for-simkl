@@ -73,20 +73,24 @@ import kotlinx.coroutines.delay
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun SearchScreen(initialType: MediaType?) {
+fun SearchScreen(
+    initialType: MediaType?,
+    types: List<MediaType>,
+) {
     val app = rememberApp()
     val navigator = LocalNavigator.current
     val library by app.library.state.collectAsState()
     var query by rememberSaveable { mutableStateOf("") }
     var typeName by rememberSaveable { mutableStateOf(initialType?.name) }
-    val type = MediaType.entries.firstOrNull { it.name == typeName }
+    // Only the types turned on in Settings; "All" when the chosen one was turned off.
+    val type = types.firstOrNull { it.name == typeName }
     var results by remember { mutableStateOf<Map<MediaType, List<MediaSummary>>>(emptyMap()) }
     var loading by remember { mutableStateOf(false) }
     val focus = remember { FocusRequester() }
     val keyboard = LocalSoftwareKeyboardController.current
 
     LaunchedEffect(Unit) { if (query.isEmpty()) focus.requestFocus() }
-    LaunchedEffect(query, type) {
+    LaunchedEffect(query, type, types) {
         val q = query.trim()
         if (q.length < 2) {
             results = emptyMap()
@@ -96,7 +100,7 @@ fun SearchScreen(initialType: MediaType?) {
         // Loading covers the debounce too, so "No results" doesn't flash before the search runs.
         loading = true
         delay(350) // Debounce typing.
-        results = app.catalog.search(q, type?.let { listOf(it) } ?: MediaType.entries)
+        results = app.catalog.search(q, type?.let { listOf(it) } ?: types)
         loading = false
     }
 
@@ -132,10 +136,12 @@ fun SearchScreen(initialType: MediaType?) {
                         )
                     },
                 )
-                LazyRow(contentPadding = PaddingValues(horizontal = 16.dp), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    item { FilterChip(selected = type == null, onClick = { typeName = null }, label = { Text(stringResource(R.string.screens_search_all)) }) }
-                    items(MediaType.entries) { t ->
-                        FilterChip(selected = type == t, onClick = { typeName = t.name }, label = { Text(t.label()) })
+                if (types.size > 1) {
+                    LazyRow(contentPadding = PaddingValues(horizontal = 16.dp), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                        item { FilterChip(selected = type == null, onClick = { typeName = null }, label = { Text(stringResource(R.string.screens_search_all)) }) }
+                        items(types) { t ->
+                            FilterChip(selected = type == t, onClick = { typeName = t.name }, label = { Text(t.label()) })
+                        }
                     }
                 }
                 if (loading) LinearProgressIndicator(Modifier.fillMaxWidth().padding(top = 8.dp)) else Box(Modifier.padding(top = 12.dp))

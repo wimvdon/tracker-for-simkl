@@ -57,6 +57,7 @@ import coil3.compose.AsyncImage
 import io.github.impca201.trackerforsimkl.R
 import io.github.impca201.trackerforsimkl.data.model.Images
 import io.github.impca201.trackerforsimkl.data.model.TypeStats
+import io.github.impca201.trackerforsimkl.data.model.MediaType
 import io.github.impca201.trackerforsimkl.data.model.UserProfile
 import io.github.impca201.trackerforsimkl.data.model.UserStats
 import io.github.impca201.trackerforsimkl.ui.LocalNavigator
@@ -73,7 +74,7 @@ import androidx.compose.ui.semantics.semantics
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ProfileScreen() {
+fun ProfileScreen(types: Set<MediaType>) {
     val app = rememberApp()
     val navigator = LocalNavigator.current
     val context = LocalContext.current
@@ -121,7 +122,8 @@ fun ProfileScreen() {
                 }
             } else {
                 item(key = "totals") { Box(Modifier.animateItem()) { Totals(s) } }
-                s.types.forEachIndexed { i, t -> item(key = "type-$i") { Box(Modifier.animateItem()) { TypeCard(t) } } }
+                // Only the media types turned on in Settings.
+                s.types.filter { it.type in types }.forEachIndexed { i, t -> item(key = "type-$i") { Box(Modifier.animateItem()) { TypeCard(t) } } }
             }
             item(key = "actions") {
                 Surface(shape = AppShapes.Group, color = MaterialTheme.colorScheme.surfaceContainerLow, modifier = Modifier.animateItem()) {

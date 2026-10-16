@@ -52,6 +52,18 @@ class NewEpisodesTest {
     }
 
     @Test
+    fun passesOverEpisodesOfTypesTurnedOffWithoutAnnouncingThemLater() {
+        val calendar = listOf(episode(1, 5, hoursAgo = 3))
+        val library = listOf(show(1))
+        val off = NewEpisodes.plan(calendar, emptySet(), library, emptySet(), now, types = setOf(MediaType.Anime, MediaType.Movie))
+        assertTrue(off.alerts.isEmpty())
+        // Marked as notified, so turning TV shows back on doesn't bring a backlog of notifications.
+        assertEquals(setOf("Tv:1:S01E05"), off.notified)
+        val backOn = NewEpisodes.plan(calendar, off.remembered, library, off.notified, now.plusSeconds(3600))
+        assertTrue(backOn.alerts.isEmpty())
+    }
+
+    @Test
     fun remembersUpcomingEpisodesWhenTheCalendarFileNoLongerListsThem() {
         val library = listOf(show(1), show(3, ListStatus.PlanToWatch))
         val first = NewEpisodes.plan(listOf(episode(1, 6, hoursAgo = -24), episode(3, 2, hoursAgo = -24)), emptySet(), library, emptySet(), now)

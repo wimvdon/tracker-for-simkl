@@ -32,6 +32,8 @@
     <string name="screens_settings_theme">Thema</string>
     <string name="screens_settings_dynamic_color">Dynamische kleuren</string>
     <string name="screens_settings_dynamic_color_sub">Kleuren van je achtergrond gebruiken in plaats van het paars van de app</string>
+    <string name="screens_settings_types">Inhoud</string>
+    <string name="screens_settings_types_hint">Kies wat de app toont. Uitgeschakelde soorten verdwijnen uit de onderbalk, Ontdekken, Kalender, Zoeken, je statistieken en meldingen. Je SIMKL-lijsten blijven zoals ze zijn.</string>
     <string name="screens_settings_bottom_bar">Onderbalk</string>
     <string name="screens_settings_bottom_bar_hint">Kies en orden de onderdelen van de onderbalk.</string>
     <string name="screens_settings_move_up">Omhoog</string>

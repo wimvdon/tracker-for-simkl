@@ -32,6 +32,8 @@
     <string name="screens_settings_theme">Tema</string>
     <string name="screens_settings_dynamic_color">Color dinámico</string>
     <string name="screens_settings_dynamic_color_sub">Usar los colores del fondo de pantalla en lugar del violeta de la app</string>
+    <string name="screens_settings_types">Contenido</string>
+    <string name="screens_settings_types_hint">Elige qué muestra la app. Los tipos desactivados desaparecen de la barra inferior, Descubrir, Calendario, Búsqueda, tus estadísticas y las notificaciones. Tus listas de SIMKL no cambian.</string>
     <string name="screens_settings_bottom_bar">Barra inferior</string>
     <string name="screens_settings_bottom_bar_hint">Elige y ordena las secciones de la barra inferior.</string>
     <string name="screens_settings_move_up">Subir</string>

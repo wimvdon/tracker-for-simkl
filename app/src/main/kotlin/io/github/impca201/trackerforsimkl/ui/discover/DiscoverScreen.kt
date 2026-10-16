@@ -58,15 +58,16 @@ import io.github.impca201.trackerforsimkl.ui.components.PosterRowSkeleton
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun DiscoverScreen() {
+fun DiscoverScreen(types: List<MediaType>) {
     val app = rememberApp()
     val navigator = LocalNavigator.current
     val context = androidx.compose.ui.platform.LocalContext.current
     val resources = androidx.compose.ui.platform.LocalResources.current
     val scope = rememberCoroutineScope()
     val snackbar = remember { SnackbarHostState() }
-    var typeName by rememberSaveable { mutableStateOf(MediaType.Tv.name) }
-    val type = MediaType.valueOf(typeName)
+    var typeName by rememberSaveable { mutableStateOf(types.first().name) }
+    // A type turned off in Settings while it was selected falls back to the first one that is on.
+    val type = types.firstOrNull { it.name == typeName } ?: types.first()
     val sections = remember(type) { CatalogRepository.sections(type) }
     var refresh by remember { mutableIntStateOf(0) }
     var refreshing by remember { mutableStateOf(false) }
@@ -87,10 +88,13 @@ fun DiscoverScreen() {
                     }) { Icon(Icons.Rounded.Casino, contentDescription = stringResource(R.string.screens_discover_surprise)) }
                 }
                 // TV shows, anime and movies are parallel sections of Discover, so they are tabs,
-                // like the shelves of the library tabs.
-                PrimaryTabRow(selectedTabIndex = MediaType.entries.indexOf(type)) {
-                    MediaType.entries.forEach { t ->
-                        Tab(selected = t == type, onClick = { typeName = t.name }, text = { Text(t.label()) })
+                // like the shelves of the library tabs. Only the types turned on in Settings; with
+                // just one there is nothing to switch to.
+                if (types.size > 1) {
+                    PrimaryTabRow(selectedTabIndex = types.indexOf(type)) {
+                        types.forEach { t ->
+                            Tab(selected = t == type, onClick = { typeName = t.name }, text = { Text(t.label()) })
+                        }
                     }
                 }
             }
