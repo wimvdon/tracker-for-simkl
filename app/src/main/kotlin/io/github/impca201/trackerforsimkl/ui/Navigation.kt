@@ -24,10 +24,9 @@ sealed interface Route {
         override val key = "detail/$type/$simklId"
     }
 
-    data class Search(
-        val type: MediaType? = null,
-    ) : Route {
-        override val key = "search/${type?.name}"
+    /** Always opens on "All", whichever tab it was opened from. */
+    data object Search : Route {
+        override val key = "search"
     }
 
     data object Profile : Route {
@@ -89,7 +88,7 @@ private fun Route.encode(): List<String> =
     when (this) {
         Route.Main -> listOf("main", "", "", "", "")
         is Route.Detail -> listOf("detail", type.name, simklId.toString(), title.orEmpty(), poster.orEmpty())
-        is Route.Search -> listOf("search", type?.name.orEmpty(), "", "", "")
+        Route.Search -> listOf("search", "", "", "", "")
         Route.Profile -> listOf("profile", "", "", "", "")
         Route.Settings -> listOf("settings", "", "", "", "")
     }
@@ -106,7 +105,7 @@ private fun decodeRoute(parts: List<String>): Route? {
                 title = parts[3].ifEmpty { null },
                 poster = parts[4].ifEmpty { null },
             )
-        "search" -> Route.Search(type)
+        "search" -> Route.Search
         "profile" -> Route.Profile
         "settings" -> Route.Settings
         else -> null

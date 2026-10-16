@@ -67,7 +67,7 @@ fun MoviesScreen() {
         snackbarHost = { SnackbarHost(snackbar, Modifier.padding(bottom = bottomPadding())) },
         topBar = {
             Column {
-                MainTopBar(NavTab.Movies.label(), scrollBehavior, MediaType.Movie) {
+                MainTopBar(NavTab.Movies.label(), scrollBehavior) {
                     val page = pagerState.currentPage
                     SortButton(options.sort(page), SortOrder.choices(planToWatch = shelves[page] == MovieShelf.PlanToWatch)) { options.setSort(page, it) }
                 }

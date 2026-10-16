@@ -64,6 +64,7 @@ import io.github.impca201.trackerforsimkl.ui.LocalNavigator
 import io.github.impca201.trackerforsimkl.ui.components.EmptyState
 import io.github.impca201.trackerforsimkl.ui.components.Format
 import io.github.impca201.trackerforsimkl.ui.components.PosterBadge
+import io.github.impca201.trackerforsimkl.ui.components.PosterRow
 import io.github.impca201.trackerforsimkl.ui.components.Poster
 import io.github.impca201.trackerforsimkl.ui.components.rememberApp
 import io.github.impca201.trackerforsimkl.ui.components.label
@@ -73,15 +74,12 @@ import kotlinx.coroutines.delay
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun SearchScreen(
-    initialType: MediaType?,
-    types: List<MediaType>,
-) {
+fun SearchScreen(types: List<MediaType>) {
     val app = rememberApp()
     val navigator = LocalNavigator.current
     val library by app.library.state.collectAsState()
     var query by rememberSaveable { mutableStateOf("") }
-    var typeName by rememberSaveable { mutableStateOf(initialType?.name) }
+    var typeName by rememberSaveable { mutableStateOf<String?>(null) }
     // Only the types turned on in Settings; "All" when the chosen one was turned off.
     val type = types.firstOrNull { it.name == typeName }
     var results by remember { mutableStateOf<Map<MediaType, List<MediaSummary>>>(emptyMap()) }
@@ -171,14 +169,28 @@ fun SearchScreen(
                         ),
                     modifier = Modifier.fillMaxSize(),
                 ) {
-                    shown.forEach { (t, list) ->
-                        if (shown.size > 1) {
-                            item(key = "h-$t") { SectionHeader(t.label(), list.size, Modifier.padding(horizontal = 8.dp).animateItem()) }
+                    // "All" with several types: a row of posters per type, like Discover. A chosen
+                    // type gets the full list with overviews.
+                    if (type == null && types.size > 1) {
+                        shown.forEach { (t, list) ->
+                            item(key = "row-$t") {
+                                Column(Modifier.animateItem()) {
+                                    SectionHeader(t.label(), list.size, Modifier.padding(horizontal = 8.dp))
+                                    PosterRow(
+                                        list,
+                                        onClick = { navigator.openDetail(it.type, it.simklId, it.title, it.poster) },
+                                        inLibrary = { library.item(it.type, it.simklId) != null },
+                                    )
+                                }
+                            }
                         }
-                        items(list, key = { "$t:${it.simklId}" }) { result ->
-                            val inLibrary = library.item(result.type, result.simklId)
-                            ResultRow(result, inLibrary?.status?.label(result.type), Modifier.animateItem()) {
-                                navigator.openDetail(result.type, result.simklId, result.title, result.poster)
+                    } else {
+                        shown.forEach { (t, list) ->
+                            items(list, key = { "$t:${it.simklId}" }) { result ->
+                                val inLibrary = library.item(result.type, result.simklId)
+                                ResultRow(result, inLibrary?.status?.label(result.type), Modifier.animateItem()) {
+                                    navigator.openDetail(result.type, result.simklId, result.title, result.poster)
+                                }
                             }
                         }
                     }
