@@ -72,7 +72,7 @@ import io.github.impca201.trackerforsimkl.ui.components.PosterListSkeleton
 /** Upcoming episodes and releases from SIMKL's calendars, by day. */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun CalendarScreen() {
+fun CalendarScreen(types: List<MediaType>) {
     val app = rememberApp()
     val navigator = LocalNavigator.current
     val scope = rememberCoroutineScope()
@@ -85,11 +85,11 @@ fun CalendarScreen() {
 
     val zone = ZoneId.systemDefault()
     val days =
-        remember(state.calendar, state.items, hidden) {
+        remember(state.calendar, state.items, hidden, types) {
             // Start of yesterday in the user's time zone (not UTC), so day groups below are never partial.
             val from = LocalDate.now(zone).minusDays(1).atStartOfDay(zone).toInstant()
             state.calendar
-                .filterKeys { it.name !in hidden }
+                .filterKeys { it in types && it.name !in hidden }
                 .values.flatten()
                 .filter { !it.date.isBefore(from) }
                 // Only titles in the user's lists; SIMKL's full calendar is too long to be useful.
@@ -104,7 +104,10 @@ fun CalendarScreen() {
         topBar = {
             Column {
                 MainTopBar(NavTab.Calendar.label(), scrollBehavior) {
-                    TypeFilterButton(hidden) { t -> hidden = if (t.name in hidden) hidden - t.name else hidden + t.name }
+                    // With one type turned on in Settings there is nothing to filter.
+                    if (types.size > 1) {
+                        TypeFilterButton(types, hidden) { t -> hidden = if (t.name in hidden) hidden - t.name else hidden + t.name }
+                    }
                 }
             }
         },
@@ -168,18 +171,19 @@ fun CalendarScreen() {
  */
 @Composable
 private fun TypeFilterButton(
+    types: List<MediaType>,
     hidden: Set<String>,
     onToggle: (MediaType) -> Unit,
 ) {
     var open by remember { mutableStateOf(false) }
     Box {
         IconButton(onClick = { open = true }) {
-            BadgedBox(badge = { if (hidden.isNotEmpty()) Badge() }) {
+            BadgedBox(badge = { if (types.any { it.name in hidden }) Badge() }) {
                 Icon(Icons.Rounded.FilterList, contentDescription = stringResource(R.string.lib_filter_type))
             }
         }
         DropdownMenu(expanded = open, onDismissRequest = { open = false }) {
-            MediaType.entries.forEach { t ->
+            types.forEach { t ->
                 DropdownMenuItem(
                     text = { Text(t.label()) },
                     onClick = { onToggle(t) },

@@ -32,6 +32,8 @@
     <string name="screens_settings_theme">Theme</string>
     <string name="screens_settings_dynamic_color">Dynamic color</string>
     <string name="screens_settings_dynamic_color_sub">Use colors from your wallpaper instead of the app’s violet</string>
+    <string name="screens_settings_types">Content</string>
+    <string name="screens_settings_types_hint">Choose what the app shows. Turned-off types disappear from the bottom bar, Discover, Calendar, Search, your stats and notifications. Your SIMKL lists stay as they are.</string>
     <string name="screens_settings_bottom_bar">Bottom bar</string>
     <string name="screens_settings_bottom_bar_hint">Choose and order the destinations of the bottom bar.</string>
     <string name="screens_settings_move_up">Move up</string>

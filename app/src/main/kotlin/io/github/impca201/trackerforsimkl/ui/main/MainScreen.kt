@@ -58,11 +58,12 @@ fun NavTab.icon(selected: Boolean): ImageVector =
 
 /**
  * The destinations of the app with Material 3's navigation bar docked at the bottom edge. With
- * only one destination turned on in Settings there is nothing to switch to, so no bar.
+ * only one destination turned on in Settings there is nothing to switch to, so no bar. Library
+ * tabs of media types turned off in Settings are left out.
  */
 @Composable
 fun MainScreen(settings: AppSettings) {
-    val tabs = settings.nav.visible.ifEmpty { listOf(NavTab.Tv) }
+    val tabs = settings.tabs.ifEmpty { listOf(NavTab.Discover) }
     var selectedName by rememberSaveable { mutableStateOf(tabs.first().name) }
     val selected = tabs.firstOrNull { it.name == selectedName } ?: tabs.first()
     val showBar = tabs.size > 1
@@ -83,8 +84,8 @@ fun MainScreen(settings: AppSettings) {
                         NavTab.Tv -> ShowsScreen(MediaType.Tv, settings)
                         NavTab.Anime -> ShowsScreen(MediaType.Anime, settings)
                         NavTab.Movies -> MoviesScreen()
-                        NavTab.Discover -> DiscoverScreen()
-                        NavTab.Calendar -> CalendarScreen()
+                        NavTab.Discover -> DiscoverScreen(settings.typeList)
+                        NavTab.Calendar -> CalendarScreen(settings.typeList)
                     }
                 }
             }

@@ -2,6 +2,18 @@
 
 Newest first. Add an entry for every notable choice: what was decided, why, and what was rejected.
 
+## 2026-10-16: Content types switch in Settings
+
+The owner asked for global switches to turn TV shows, movies and anime on or off throughout the
+app. They are stored as one backed-up set (`media_types`) in `AppSettings.types`; at least one
+stays on. The setting only hides things: the library still syncs every type, so SIMKL's lists and
+the sync stay complete and a type comes back at once when it is turned on again. Screens get the
+list of types that are on; the bottom bar logic (`NavConfig.visible(types)`, `moved`) and the
+notifications filter (`NewEpisodes.plan(types)`) are plain Kotlin and unit tested. Episodes of a
+type that is off are marked as notified, so turning it back on doesn't bring a burst of old
+notifications. Rejected: skipping disabled types in the sync (fewer downloads, but a partial
+library copy would need a full sync on every switch).
+
 ## 2026-10-16: Docked navigation bar, settings list, no "recently watched" on Plan to watch
 
 The owner asked whether the floating navigation pill was correct Material 3. It isn't: Material 3

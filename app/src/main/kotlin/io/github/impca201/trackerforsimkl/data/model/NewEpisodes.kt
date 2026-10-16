@@ -64,6 +64,8 @@ object NewEpisodes {
         library: List<LibraryItem>,
         notified: Set<String>,
         now: Instant,
+        /** Media types turned on in Settings; episodes of the others are passed over silently. */
+        types: Set<MediaType> = MediaType.entries.toSet(),
     ): Plan {
         val watching = library.filter { it.type.isEpisodic && it.status == ListStatus.Watching }.associateBy { it.key }
         // The calendar file wins over a remembered copy (its air date may have moved).
@@ -81,6 +83,7 @@ object NewEpisodes {
         val alerts =
             unwatched.groupBy { it.first.key }
                 .values
+                .filter { pairs -> pairs.first().first.type in types }
                 .filter { pairs -> pairs.any { keyOf(it.second) !in notified } }
                 .map { pairs -> Alert(pairs.first().first, pairs.map { it.second }.sortedWith(compareBy({ it.date }, { it.episode?.season }, { it.episode?.episode }))) }
                 .sortedByDescending { it.latest.date }

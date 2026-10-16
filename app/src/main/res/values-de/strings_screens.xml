@@ -32,6 +32,8 @@
     <string name="screens_settings_theme">Design</string>
     <string name="screens_settings_dynamic_color">Dynamische Farben</string>
     <string name="screens_settings_dynamic_color_sub">Farben deines Hintergrundbilds statt des App-Violetts verwenden</string>
+    <string name="screens_settings_types">Inhalte</string>
+    <string name="screens_settings_types_hint">Wähle, was die App zeigt. Ausgeschaltete Arten verschwinden aus der unteren Leiste, Entdecken, Kalender, Suche, deinen Statistiken und Benachrichtigungen. Deine SIMKL-Listen bleiben unverändert.</string>
     <string name="screens_settings_bottom_bar">Untere Leiste</string>
     <string name="screens_settings_bottom_bar_hint">Wähle und sortiere die Ziele der unteren Leiste.</string>
     <string name="screens_settings_move_up">Nach oben</string>

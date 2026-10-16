@@ -60,7 +60,7 @@ class NewEpisodesWorker(
                 return Result.retry()
             }
         val now = Instant.now()
-        val plan = NewEpisodes.plan(calendar, app.settings.rememberedEpisodes(), library, app.settings.notifiedEpisodes(), now)
+        val plan = NewEpisodes.plan(calendar, app.settings.rememberedEpisodes(), library, app.settings.notifiedEpisodes(), now, settings.types)
         val showInfo = app.library.state.value.showInfo
         plan.alerts.forEach { notify(applicationContext, it, showInfo[it.item.key]?.fanart) }
         app.settings.setNotifiedEpisodes(plan.notified)

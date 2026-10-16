@@ -13,13 +13,13 @@ Tracker for Simkl is an unofficial client for [SIMKL](https://simkl.com). It has
 
 ## What the app stores on your device
 
-- Your SIMKL access and refresh tokens, and your settings (theme, bottom bar, library options, notifications).
+- Your SIMKL access and refresh tokens, and your settings (theme, bottom bar, content types, library options, notifications).
 - A copy of your library and of show details, so the app opens fast and works offline.
 - Which episodes it already notified you about, and the upcoming episodes of shows you're watching (so it can still notify you if a check runs late).
 - An HTTP and image cache.
 - If the app crashes: the error's stack trace with the app version and phone model, shown to you the next time the app opens so you can copy it. It is deleted after it is shown and never sent anywhere.
 
-Only your settings (theme, bottom bar and library options) are included in Android's own backup to your Google account, if you turned that on, and in a transfer to a new phone, so they come back after a reset or on a new phone. Nothing else above is: not your tokens (you sign in again on a new phone), not the library copy (downloaded again after signing in), not the notification setting (it needs the permission again on a new phone). Signing out deletes the tokens and the library copy; uninstalling the app deletes everything.
+Only your settings (theme, bottom bar, content types and library options) are included in Android's own backup to your Google account, if you turned that on, and in a transfer to a new phone, so they come back after a reset or on a new phone. Nothing else above is: not your tokens (you sign in again on a new phone), not the library copy (downloaded again after signing in), not the notification setting (it needs the permission again on a new phone). Signing out deletes the tokens and the library copy; uninstalling the app deletes everything.
 
 ## Background activity
 

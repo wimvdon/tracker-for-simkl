@@ -32,6 +32,8 @@ import io.github.impca201.trackerforsimkl.R
 import io.github.impca201.trackerforsimkl.data.AppSettings
 import io.github.impca201.trackerforsimkl.data.NavConfig
 import io.github.impca201.trackerforsimkl.data.ThemeMode
+import io.github.impca201.trackerforsimkl.data.model.MediaType
+import io.github.impca201.trackerforsimkl.data.toggled
 import io.github.impca201.trackerforsimkl.ui.LocalNavigator
 import io.github.impca201.trackerforsimkl.ui.components.label
 import io.github.impca201.trackerforsimkl.ui.components.openUrl
@@ -76,6 +78,29 @@ fun SettingsScreen(settings: AppSettings) {
         backLabel = stringResource(R.string.screens_back),
         onBack = { navigator.pop() },
     ) {
+        item(key = "types") {
+            SettingsSection(title = stringResource(R.string.screens_settings_types)) {
+                SettingsBlock {
+                    Text(
+                        stringResource(R.string.screens_settings_types_hint),
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
+                }
+                MediaType.entries.forEach { type ->
+                    val on = type in settings.types
+                    SwitchSetting(
+                        title = type.label(),
+                        summary = null,
+                        checked = on,
+                        // At least one type stays on.
+                        enabled = !on || settings.types.size > 1,
+                        onCheckedChange = { scope.launch { app.settings.setTypes(settings.types.toggled(type, it)) } },
+                    )
+                }
+            }
+        }
+
         item(key = "library") {
             SettingsSection(title = stringResource(R.string.screens_settings_library)) {
                 SwitchSetting(
@@ -115,7 +140,9 @@ fun SettingsScreen(settings: AppSettings) {
         }
 
         item(key = "bottom-bar") {
-            val order = settings.nav.order
+            // Tabs of media types that are off aren't listed; they come back when the type does.
+            val shown = settings.nav.available(settings.types)
+            val shownOn = shown.count { it in settings.nav.enabled }
             SettingsSection(title = stringResource(R.string.screens_settings_bottom_bar)) {
                 SettingsBlock {
                     Text(
@@ -124,7 +151,7 @@ fun SettingsScreen(settings: AppSettings) {
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
                 }
-                order.forEachIndexed { index, tab ->
+                shown.forEachIndexed { index, tab ->
                     val enabled = tab in settings.nav.enabled
                     ListItem(
                         headlineContent = { Text(tab.label()) },
@@ -133,25 +160,19 @@ fun SettingsScreen(settings: AppSettings) {
                             Row(verticalAlignment = Alignment.CenterVertically) {
                                 IconButton(
                                     enabled = index > 0,
-                                    onClick = {
-                                        val list = order.toMutableList().apply { add(index - 1, removeAt(index)) }
-                                        scope.launch { app.settings.setNav(NavConfig(list, settings.nav.enabled)) }
-                                    },
+                                    onClick = { scope.launch { app.settings.setNav(settings.nav.moved(tab, up = true, shown)) } },
                                 ) { Icon(Icons.Rounded.KeyboardArrowUp, stringResource(R.string.screens_settings_move_up)) }
                                 IconButton(
-                                    enabled = index < order.lastIndex,
-                                    onClick = {
-                                        val list = order.toMutableList().apply { add(index + 1, removeAt(index)) }
-                                        scope.launch { app.settings.setNav(NavConfig(list, settings.nav.enabled)) }
-                                    },
+                                    enabled = index < shown.lastIndex,
+                                    onClick = { scope.launch { app.settings.setNav(settings.nav.moved(tab, up = false, shown)) } },
                                 ) { Icon(Icons.Rounded.KeyboardArrowDown, stringResource(R.string.screens_settings_move_down)) }
                                 Switch(
                                     checked = enabled,
                                     // At least one destination stays on.
-                                    enabled = !enabled || settings.nav.enabled.size > 1,
+                                    enabled = !enabled || shownOn > 1,
                                     onCheckedChange = { on ->
                                         val set = if (on) settings.nav.enabled + tab else settings.nav.enabled - tab
-                                        scope.launch { app.settings.setNav(NavConfig(order, set)) }
+                                        scope.launch { app.settings.setNav(NavConfig(settings.nav.order, set)) }
                                     },
                                 )
                             }
