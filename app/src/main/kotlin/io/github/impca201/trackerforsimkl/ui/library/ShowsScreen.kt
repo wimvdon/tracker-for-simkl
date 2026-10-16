@@ -149,7 +149,6 @@ fun ShowsScreen(
                 MainTopBar(
                     title = if (type == MediaType.Tv) NavTab.Tv.label() else NavTab.Anime.label(),
                     scrollBehavior = scrollBehavior,
-                    searchType = type,
                 ) {
                     val page = pagerState.currentPage
                     if (type == MediaType.Anime) AnimeTypeButton(options.filter(page)) { options.setFilter(page, it) }

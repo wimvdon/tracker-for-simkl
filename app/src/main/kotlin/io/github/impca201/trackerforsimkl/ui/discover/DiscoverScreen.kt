@@ -79,7 +79,7 @@ fun DiscoverScreen(types: List<MediaType>) {
         snackbarHost = { SnackbarHost(snackbar, Modifier.padding(bottom = bottomPadding())) },
         topBar = {
             Column {
-                MainTopBar(NavTab.Discover.label(), scrollBehavior, type) {
+                MainTopBar(NavTab.Discover.label(), scrollBehavior) {
                     IconButton(onClick = {
                         scope.launch {
                             val id = runCatching { app.catalog.random(type) }.getOrNull()

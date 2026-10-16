@@ -18,7 +18,7 @@ Nobody needs a SIMKL developer account. If the browser shows the app chooser (wh
 - **Content** (*Settings › Content*): turn **TV Shows**, **Anime** and **Movies** on or off for the whole app. A type that is off disappears from the bottom bar (and its row in *Settings › Bottom bar*), Discover's tabs, the Calendar, Search, the profile's stats and new-episode notifications. At least one stays on. Your SIMKL lists don't change, and turning a type back on brings everything back (episodes that aired while it was off are not notified afterwards).
 - **Tabs** switch between parallel sections of a destination (library shelves, Discover's media types).
 - The **sort** button in the top bar of TV Shows, Movies and Anime sorts the open tab; on Anime, the **filter** button next to it filters by type. The Calendar has a filter button too; **chips** filter search results.
-- **Search** (the whole SIMKL catalogue, not just your lists) and your **profile** are in every destination's top bar. There is no separate search inside a tab: sort by title to find something in a list.
+- **Search** (the whole SIMKL catalogue, not just your lists) and your **profile** are in every destination's top bar. There is no separate search inside a tab: sort by title to find something in a list. Search always opens on **All**, with a row of posters per type (swipe sideways for more); tap a type chip for a full list of that type with descriptions.
 
 ## TV Shows and Anime
 

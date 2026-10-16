@@ -14,7 +14,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.produceState
 import androidx.compose.ui.res.stringResource
 import io.github.impca201.trackerforsimkl.R
-import io.github.impca201.trackerforsimkl.data.model.MediaType
 import io.github.impca201.trackerforsimkl.ui.LocalNavigator
 import io.github.impca201.trackerforsimkl.ui.Route
 import io.github.impca201.trackerforsimkl.ui.components.AvatarButton
@@ -26,7 +25,6 @@ import io.github.impca201.trackerforsimkl.ui.components.rememberApp
 fun MainTopBar(
     title: String,
     scrollBehavior: TopAppBarScrollBehavior? = null,
-    searchType: MediaType? = null,
     actions: @Composable RowScope.() -> Unit = {},
 ) {
     val app = rememberApp()
@@ -36,7 +34,7 @@ fun MainTopBar(
         title = { Text(title) },
         actions = {
             actions()
-            IconButton(onClick = { navigator.push(Route.Search(searchType)) }) {
+            IconButton(onClick = { navigator.push(Route.Search) }) {
                 Icon(Icons.Rounded.Search, contentDescription = stringResource(R.string.screens_search_placeholder))
             }
             AvatarButton(avatar) { navigator.push(Route.Profile) }
