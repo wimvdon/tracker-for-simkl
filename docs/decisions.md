@@ -2,6 +2,17 @@
 
 Newest first. Add an entry for every notable choice: what was decided, why, and what was rejected.
 
+## 2026-10-16: Docked navigation bar, settings list, no "recently watched" on Plan to watch
+
+The owner asked whether the floating navigation pill was correct Material 3. It isn't: Material 3
+Expressive uses floating toolbars for actions on the current screen and keeps the navigation bar
+docked to the bottom edge for switching between an app's sections. The destinations now sit in
+Material's `NavigationBar`, which also stays put while scrolling (the pill hid itself). Settings
+are one list with section headers (shared `SettingsKit.kt`), and ratings and genres on a detail
+page are outlined tags instead of chips that did nothing when tapped. Plan to watch no longer
+offers "Recently watched" as a sort: nothing on it has been watched. Rejected: keeping the pill as
+the app's signature (it broke the shared navigation rule) and a navigation rail on phones.
+
 ## 2026-10-15: Sort in the title bar, fewer filter chips
 
 The chip row above each library tab (sort, status, my rating, anime type and a title search) took a row of space for filters the owner didn't use. Sorting is back in the title bar as a sort button with a menu, per tab as before. The status and rating filters and the per-tab title search are gone: sorting by title finds a title quickly, and the search in the title bar still searches everything. Only Anime keeps a chip row, for its Type filter. Rejected: keeping the row with only the sort chip (a whole row for one control).

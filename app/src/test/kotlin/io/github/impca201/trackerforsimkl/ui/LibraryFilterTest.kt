@@ -44,4 +44,11 @@ class LibraryFilterTest {
         assertEquals(listOf(3L, 1L, 2L), SortOrder.Rating.sort(items).map { it.ids.simkl })
         assertEquals(listOf(1L, 3L, 2L), SortOrder.Release.sort(items).map { it.ids.simkl })
     }
+
+    @Test
+    fun wantToWatchOffersNoRecentlyWatchedSort() {
+        assertFalse(SortOrder.Recent in SortOrder.choices(planToWatch = true))
+        assertEquals(SortOrder.entries.size - 1, SortOrder.choices(planToWatch = true).size)
+        assertEquals(SortOrder.entries.toList(), SortOrder.choices(planToWatch = false))
+    }
 }
