@@ -31,6 +31,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Check
 import androidx.compose.material.icons.rounded.FilterList
 import androidx.compose.material3.Badge
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.BadgedBox
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -85,17 +86,38 @@ enum class SortOrder(
     }
 }
 
-/** The anime type filter of a tab: SIMKL anime_type ("tv", "movie", "ova", ...), null for all. */
+/** The my-rating filter of a library tab. */
+enum class RatingFilter(
+    @androidx.annotation.StringRes val label: Int,
+) {
+    Any(R.string.lib_filter_all),
+    Rated(R.string.lib_filter_rated),
+    Unrated(R.string.lib_filter_unrated),
+}
+
+/**
+ * The filter of a library tab: my rating, and for anime SIMKL's anime_type ("tv", "movie",
+ * "ova", ...), null for all.
+ */
 data class LibraryFilter(
     val animeType: String? = null,
+    val rating: RatingFilter = RatingFilter.Any,
 ) {
-    val active: Boolean get() = animeType != null
+    val active: Boolean get() = animeType != null || rating != RatingFilter.Any
 
     fun apply(items: List<LibraryItem>): List<LibraryItem> =
-        if (animeType == null) items else items.filter { it.animeType.equals(animeType, ignoreCase = true) }
+        items.filter { item ->
+            val ratingOk =
+                when (rating) {
+                    RatingFilter.Any -> true
+                    RatingFilter.Rated -> item.userRating != null
+                    RatingFilter.Unrated -> item.userRating == null
+                }
+            ratingOk && (animeType == null || item.animeType.equals(animeType, ignoreCase = true))
+        }
 
-    /** Compact form for rememberSaveable. */
-    fun encode(): String = animeType.orEmpty()
+    /** Compact form for rememberSaveable: "animeType|rating". */
+    fun encode(): String = "${animeType.orEmpty()}|${rating.name}"
 
     companion object {
         /** SIMKL anime_type and its label. */
@@ -108,7 +130,13 @@ data class LibraryFilter(
                 "special" to R.string.lib_anime_type_special,
             )
 
-        fun decode(value: String): LibraryFilter = LibraryFilter(animeType = value.ifEmpty { null })
+        fun decode(value: String): LibraryFilter {
+            val parts = value.split("|")
+            return LibraryFilter(
+                animeType = parts[0].ifEmpty { null },
+                rating = RatingFilter.entries.firstOrNull { it.name == parts.getOrNull(1) } ?: RatingFilter.Any,
+            )
+        }
     }
 }
 
@@ -180,35 +208,61 @@ fun SortButton(
 }
 
 /**
- * Anime only: the type filter button of the title bar, a menu of anime types (the current one
- * ticked). A dot on the button shows that a type is chosen.
+ * The filter button of a library tab's title bar: a menu with my rating (all, rated by me, not
+ * rated) and, on Anime, the type; the current choices are ticked. A dot on the button shows that
+ * a filter is on.
  */
 @Composable
-fun AnimeTypeButton(
+fun FilterButton(
     filter: LibraryFilter,
+    animeTypes: Boolean,
     onFilter: (LibraryFilter) -> Unit,
 ) {
     var open by remember { mutableStateOf(false) }
-    val types = listOf<Pair<String?, Int>>(null to R.string.lib_filter_all) + LibraryFilter.animeTypes
     Box {
         IconButton(onClick = { open = true }) {
             BadgedBox(badge = { if (filter.active) Badge() }) {
-                Icon(Icons.Rounded.FilterList, contentDescription = stringResource(R.string.lib_filter_type))
+                Icon(Icons.Rounded.FilterList, contentDescription = stringResource(R.string.lib_filter))
             }
         }
         DropdownMenu(expanded = open, onDismissRequest = { open = false }) {
-            types.forEach { (key, label) ->
+            MenuHeader(stringResource(R.string.lib_filter_my_rating))
+            RatingFilter.entries.forEach { option ->
                 DropdownMenuItem(
-                    text = { Text(stringResource(label)) },
+                    text = { Text(stringResource(option.label)) },
                     onClick = {
                         open = false
-                        onFilter(filter.copy(animeType = key))
+                        onFilter(filter.copy(rating = option))
                     },
-                    trailingIcon = { if (key == filter.animeType) Icon(Icons.Rounded.Check, null) },
+                    trailingIcon = { if (option == filter.rating) Icon(Icons.Rounded.Check, null) },
                 )
+            }
+            if (animeTypes) {
+                HorizontalDivider()
+                MenuHeader(stringResource(R.string.lib_filter_type_header))
+                (listOf<Pair<String?, Int>>(null to R.string.lib_filter_all) + LibraryFilter.animeTypes).forEach { (key, label) ->
+                    DropdownMenuItem(
+                        text = { Text(stringResource(label)) },
+                        onClick = {
+                            open = false
+                            onFilter(filter.copy(animeType = key))
+                        },
+                        trailingIcon = { if (key == filter.animeType) Icon(Icons.Rounded.Check, null) },
+                    )
+                }
             }
         }
     }
+}
+
+@Composable
+private fun MenuHeader(text: String) {
+    Text(
+        text,
+        style = MaterialTheme.typography.labelMedium,
+        color = MaterialTheme.colorScheme.primary,
+        modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp),
+    )
 }
 
 @Composable

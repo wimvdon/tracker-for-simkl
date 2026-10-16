@@ -26,6 +26,11 @@
     <string name="lib_sort_release">Releasedatum</string>
     <string name="lib_filter_type">Filteren op type</string>
     <string name="lib_filter_all">Alle</string>
+    <string name="lib_filter">Filteren</string>
+    <string name="lib_filter_my_rating">Mijn beoordeling</string>
+    <string name="lib_filter_type_header">Type</string>
+    <string name="lib_filter_rated">Door mij beoordeeld</string>
+    <string name="lib_filter_unrated">Niet beoordeeld</string>
     <string name="lib_anime_type_tv">TV</string>
     <string name="lib_anime_type_movie">Film</string>
     <string name="lib_anime_type_ova">OVA</string>
