@@ -1,6 +1,7 @@
 package io.github.impca201.trackerforsimkl.data
 
 import io.github.impca201.trackerforsimkl.data.model.CalendarEntry
+import io.github.impca201.trackerforsimkl.data.model.Dates
 import io.github.impca201.trackerforsimkl.data.model.EpisodeRef
 import io.github.impca201.trackerforsimkl.data.model.LibraryItem
 import io.github.impca201.trackerforsimkl.data.model.ListStatus
@@ -61,6 +62,24 @@ class NewEpisodesTest {
         assertEquals(setOf("Tv:1:S01E05"), off.notified)
         val backOn = NewEpisodes.plan(calendar, off.remembered, library, off.notified, now.plusSeconds(3600))
         assertTrue(backOn.alerts.isEmpty())
+    }
+
+    @Test
+    fun nextAirDateIsTheFirstRememberedEpisodeStillToAir() {
+        val library = listOf(show(1), show(2))
+        val calendar = listOf(episode(1, 5, hoursAgo = 3), episode(1, 6, hoursAgo = -30), episode(2, 1, hoursAgo = -6))
+        val plan = NewEpisodes.plan(calendar, emptySet(), library, emptySet(), now)
+        assertEquals(now.plus(Duration.ofHours(6)), NewEpisodes.nextAirDate(plan.remembered, now))
+        assertNull(NewEpisodes.nextAirDate(emptySet(), now))
+    }
+
+    @Test
+    fun airTimesKeepSimklsOffsetWhateverThePhonesTimeZone() {
+        // A Japanese broadcast at 23:30 in Tokyo and a US one at 21:00 in New York are the same
+        // moments everywhere; the phone's time zone only changes how they are shown.
+        assertEquals(Instant.parse("2026-10-15T14:30:00Z"), Dates.parse("2026-10-15T23:30:00+09:00"))
+        assertEquals(Instant.parse("2026-10-16T01:00:00Z"), Dates.parse("2026-10-15T21:00:00-04:00"))
+        assertEquals(Instant.parse("2026-10-15T20:00:00Z"), Dates.parse("2026-10-15T20:00:00Z"))
     }
 
     @Test

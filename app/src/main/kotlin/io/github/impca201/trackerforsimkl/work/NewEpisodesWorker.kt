@@ -15,7 +15,9 @@ import androidx.core.content.ContextCompat
 import androidx.work.Constraints
 import androidx.work.CoroutineWorker
 import androidx.work.ExistingPeriodicWorkPolicy
+import androidx.work.ExistingWorkPolicy
 import androidx.work.NetworkType
+import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkManager
 import androidx.work.WorkerParameters
@@ -32,6 +34,7 @@ import io.github.impca201.trackerforsimkl.data.model.Images
 import io.github.impca201.trackerforsimkl.data.model.MediaType
 import io.github.impca201.trackerforsimkl.data.model.NewEpisodes
 import io.github.impca201.trackerforsimkl.ui.MainActivity
+import java.time.Duration
 import java.time.Instant
 import java.util.concurrent.TimeUnit
 
@@ -65,12 +68,17 @@ class NewEpisodesWorker(
         plan.alerts.forEach { notify(applicationContext, it, showInfo[it.item.key]?.fanart) }
         app.settings.setNotifiedEpisodes(plan.notified)
         app.settings.setRememberedEpisodes(plan.remembered)
+        scheduleAtAirTime(applicationContext, NewEpisodes.nextAirDate(plan.remembered, now), now)
         return Result.success()
     }
 
     companion object {
         private const val CHANNEL = "new_episodes"
         private const val WORK = "new_episodes"
+        private const val AIR_TIME_WORK = "new_episodes_air_time"
+
+        /** SIMKL's air times are when an episode starts; give the calendar files a moment to catch up. */
+        private val AIR_TIME_MARGIN: Duration = Duration.ofMinutes(15)
 
         /** TV and anime episodes from SIMKL's calendar files. */
         private suspend fun airedAndUpcoming(app: TrackerApp): List<CalendarEntry> =
@@ -114,8 +122,32 @@ class NewEpisodesWorker(
             WorkManager.getInstance(context).enqueueUniquePeriodicWork(WORK, policy, request)
         }
 
+        /**
+         * One extra check just after the next episode of a watched show airs, so its notification
+         * doesn't wait up to four hours for the regular check. Android may still delay it a little
+         * (Doze); exact alarms would need an extra permission.
+         */
+        private fun scheduleAtAirTime(
+            context: Context,
+            next: Instant?,
+            now: Instant,
+        ) {
+            val manager = WorkManager.getInstance(context)
+            if (next == null) {
+                manager.cancelUniqueWork(AIR_TIME_WORK)
+                return
+            }
+            val request =
+                OneTimeWorkRequestBuilder<NewEpisodesWorker>()
+                    .setInitialDelay(Duration.between(now, next).plus(AIR_TIME_MARGIN))
+                    .setConstraints(Constraints.Builder().setRequiredNetworkType(NetworkType.CONNECTED).build())
+                    .build()
+            manager.enqueueUniqueWork(AIR_TIME_WORK, ExistingWorkPolicy.REPLACE, request)
+        }
+
         fun cancel(context: Context) {
             WorkManager.getInstance(context).cancelUniqueWork(WORK)
+            WorkManager.getInstance(context).cancelUniqueWork(AIR_TIME_WORK)
         }
 
         /** Downloads a picture for a notification (they need software bitmaps); null when it fails. */
