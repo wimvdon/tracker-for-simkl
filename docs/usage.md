@@ -35,7 +35,7 @@ Shelves: **Plan to watch**, **Watched**, **Dropped**, with the same sort button.
 
 ## Details
 
-Tap any poster. You get fanart, ratings (SIMKL, IMDb, MAL…), genres, overview, airing info, trailers, recommendations, links (SIMKL, IMDb, TMDB, MAL, AniList…), your list status, your 1–10 rating, **Mark as watched** / **Check in**, and the full episode list per season.
+Tap any poster. You get fanart, ratings (SIMKL, IMDb, MAL…), genres, overview, airing info, trailers, recommendations, links (SIMKL, IMDb, TMDB, MAL, AniList…), your list status, your 1–10 rating, **Watched** / **Watching now**, and the full episode list per season.
 
 The show's status is shown in the app's language, and the weekly broadcast day and time are converted from the broadcaster's time zone to your phone's time zone. The episode list opens on the season you are watching: the season of a paused episode, else the season of your latest watched episode (not season 1 when you skipped earlier seasons).
 

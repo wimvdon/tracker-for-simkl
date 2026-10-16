@@ -55,7 +55,7 @@ import io.github.impca201.trackerforsimkl.data.NavTab
 import io.github.impca201.trackerforsimkl.data.model.CalendarEntry
 import io.github.impca201.trackerforsimkl.data.model.MediaType
 import io.github.impca201.trackerforsimkl.ui.LocalNavigator
-import io.github.impca201.trackerforsimkl.ui.components.EmptyState
+import io.github.impca201.trackerforsimkl.ui.theme.EmptyState
 import io.github.impca201.trackerforsimkl.ui.components.Format
 import io.github.impca201.trackerforsimkl.ui.components.Poster
 import io.github.impca201.trackerforsimkl.ui.components.PosterBadge
@@ -141,7 +141,7 @@ fun CalendarScreen(types: List<MediaType>) {
                     EmptyState(
                         Icons.Rounded.EventBusy,
                         stringResource(R.string.screens_calendar_nothing),
-                        stringResource(R.string.screens_calendar_mine_hint),
+                        body = stringResource(R.string.screens_calendar_mine_hint),
                     )
                 } else {
                     LazyColumn(

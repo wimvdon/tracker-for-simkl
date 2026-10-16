@@ -60,7 +60,7 @@ tracker-for-simkl/
         │   │       ├── calendar/    Upcoming episodes and releases
         │   │       ├── search/  profile/  settings/  login/
         │   │       ├── components/  Posters, labels, skeletons, shared widgets
-        │   │       └── theme/       Material 3 theme, shapes, motion, system bars, settings kit
+        │   │       └── theme/       Material 3 theme, shapes, motion, system bars, settings kit, empty states
         │   └── res/
         │       ├── values/          English strings (split by area), colours, themes
         │       ├── values-{nl,fr,de,es,it}/   Translations

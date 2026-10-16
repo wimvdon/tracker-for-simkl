@@ -33,7 +33,7 @@ import io.github.impca201.trackerforsimkl.data.NavTab
 import io.github.impca201.trackerforsimkl.data.model.MediaType
 import io.github.impca201.trackerforsimkl.data.model.MovieShelf
 import io.github.impca201.trackerforsimkl.ui.LocalNavigator
-import io.github.impca201.trackerforsimkl.ui.components.EmptyState
+import io.github.impca201.trackerforsimkl.ui.theme.EmptyState
 import io.github.impca201.trackerforsimkl.ui.components.rememberApp
 import io.github.impca201.trackerforsimkl.ui.main.MainTopBar
 import kotlinx.coroutines.launch
@@ -103,7 +103,7 @@ fun MoviesScreen() {
                     EmptyState(
                         icon,
                         stringResource(title),
-                        if (shelf == MovieShelf.PlanToWatch) stringResource(R.string.lib_empty_plan_movies_text) else null,
+                        body = if (shelf == MovieShelf.PlanToWatch) stringResource(R.string.lib_empty_plan_movies_text) else null,
                     )
                 } else {
                     LibraryGrid(

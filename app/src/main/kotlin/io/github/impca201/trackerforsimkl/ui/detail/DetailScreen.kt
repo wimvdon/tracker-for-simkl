@@ -123,7 +123,7 @@ import io.github.impca201.trackerforsimkl.data.model.MediaType
 import io.github.impca201.trackerforsimkl.ui.LocalNavigator
 import io.github.impca201.trackerforsimkl.ui.Route
 import io.github.impca201.trackerforsimkl.ui.components.AiringBadge
-import io.github.impca201.trackerforsimkl.ui.components.EmptyState
+import io.github.impca201.trackerforsimkl.ui.theme.EmptyState
 import io.github.impca201.trackerforsimkl.ui.components.Format
 import io.github.impca201.trackerforsimkl.ui.components.Poster
 import io.github.impca201.trackerforsimkl.ui.components.PosterRow
@@ -249,8 +249,8 @@ fun DetailScreen(
                 EmptyState(
                     Icons.Rounded.ErrorOutline,
                     stringResource(R.string.detail_load_failed_title),
-                    error,
-                    modifier = Modifier.padding(innerPadding),
+                    Modifier.padding(innerPadding),
+                    body = error,
                 ) {
                     Button(onClick = { reload++ }) { Text(stringResource(R.string.detail_try_again)) }
                 }
@@ -721,7 +721,8 @@ private fun Trailers(d: MediaDetails) {
                             Icon(Icons.Rounded.PlayArrow, stringResource(R.string.detail_play), Modifier.padding(8.dp))
                         }
                     }
-                    t.name?.let { Text(it, style = MaterialTheme.typography.labelMedium, maxLines = 1, overflow = TextOverflow.Ellipsis) }
+                    // One line even without a name, so the row keeps its height while it scrolls.
+                    Text(t.name.orEmpty(), style = MaterialTheme.typography.labelMedium, minLines = 1, maxLines = 1, overflow = TextOverflow.Ellipsis)
                 }
             }
         }

@@ -13,7 +13,7 @@
     <string name="lib_duration_minutes">%1$dmin</string>
     <string name="lib_confirm_watched_title">Segnare come visto?</string>
     <string name="lib_confirm_watched_text">Hai interrotto %1$s al %2$d%%. Se lo segni come visto, i progressi salvati su SIMKL verranno rimossi.</string>
-    <string name="lib_mark_watched">Segna come visto</string>
+    <string name="lib_mark_watched">Visto</string>
     <string name="lib_cancel">Annulla</string>
     <string name="lib_badge_airing">In corso</string>
     <string name="lib_badge_ended">Conclusa</string>

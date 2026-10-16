@@ -13,7 +13,7 @@
     <string name="lib_duration_minutes">%1$dm</string>
     <string name="lib_confirm_watched_title">Markeren als gezien?</string>
     <string name="lib_confirm_watched_text">Je bent bij %1$s gestopt op %2$d%%. Als je het als gezien markeert, wordt die opgeslagen voortgang op SIMKL verwijderd.</string>
-    <string name="lib_mark_watched">Markeren als gezien</string>
+    <string name="lib_mark_watched">Gezien</string>
     <string name="lib_cancel">Annuleren</string>
     <string name="lib_badge_airing">Loopt</string>
     <string name="lib_badge_ended">Afgelopen</string>

@@ -26,6 +26,7 @@ import androidx.compose.material.icons.rounded.CheckCircle
 import androidx.compose.material.icons.rounded.SearchOff
 import androidx.compose.material.icons.rounded.Pause
 import androidx.compose.material.icons.rounded.PlayCircle
+import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilledTonalIconButton
@@ -36,7 +37,6 @@ import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Tab
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.runtime.Composable
@@ -62,7 +62,7 @@ import io.github.impca201.trackerforsimkl.data.model.Shelf
 import io.github.impca201.trackerforsimkl.data.model.Shelves
 import io.github.impca201.trackerforsimkl.ui.LocalNavigator
 import io.github.impca201.trackerforsimkl.ui.components.ConfirmWatchedDialog
-import io.github.impca201.trackerforsimkl.ui.components.EmptyState
+import io.github.impca201.trackerforsimkl.ui.theme.EmptyState
 import io.github.impca201.trackerforsimkl.ui.components.Format
 import io.github.impca201.trackerforsimkl.ui.components.rememberApp
 import io.github.impca201.trackerforsimkl.ui.main.MainTopBar
@@ -179,7 +179,7 @@ fun ShowsScreen(
                 when {
                     items.isEmpty() && filter.active ->
                         EmptyState(Icons.Rounded.SearchOff, stringResource(R.string.lib_no_matches)) {
-                            TextButton(onClick = { options.setFilter(page, LibraryFilter()) }) { Text(stringResource(R.string.lib_clear_filters)) }
+                            Button(onClick = { options.setFilter(page, LibraryFilter()) }) { Text(stringResource(R.string.lib_clear_filters)) }
                         }
                     (state.firstSync || state.refreshingStale) && shelf == Shelf.UpNext ->
                         PosterListSkeleton(
@@ -189,7 +189,7 @@ fun ShowsScreen(
                         )
                     state.firstSync -> PosterGridSkeleton(bottomPadding())
                     items.isEmpty() && state.loaded && !state.syncing ->
-                        EmptyState(shelf.emptyIcon(), stringResource(shelf.emptyTitle(type)), stringResource(shelf.emptyText()))
+                        EmptyState(shelf.emptyIcon(), stringResource(shelf.emptyTitle(type)), body = stringResource(shelf.emptyText()))
                     shelf == Shelf.UpNext ->
                         UpNextList(items, state, fromLatest, ::open) { message -> scope.launch { snackbar.showSnackbar(message) } }
                     else ->
