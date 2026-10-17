@@ -10,8 +10,6 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.wrapContentWidth
-import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.padding
@@ -75,6 +73,7 @@ import kotlinx.coroutines.launch
 import io.github.impca201.trackerforsimkl.ui.components.CardSkeleton
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
+import io.github.impca201.trackerforsimkl.ui.theme.readableWidth
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -108,7 +107,7 @@ fun ProfileScreen(types: Set<MediaType>) {
                 ),
             verticalArrangement = Arrangement.spacedBy(12.dp),
             // A readable width on wide windows, centred (DESIGN.md, about 640dp like Settings).
-            modifier = Modifier.fillMaxSize().wrapContentWidth().widthIn(max = 640.dp).fillMaxWidth(),
+            modifier = Modifier.fillMaxSize().readableWidth(),
         ) {
             item(key = "header") { ProfileHeader(profile) }
             val s = stats

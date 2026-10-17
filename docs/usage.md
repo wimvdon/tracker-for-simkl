@@ -10,11 +10,11 @@ For people using the app. It assumes the app is installed (see the [README](../R
 
 Nobody needs a SIMKL developer account. If the browser shows the app chooser (when a test build is also installed), pick the app you started the sign-in from.
 
-**Log out:** Profile (top bar) › **Log out**. This deletes the token and the cached library from the phone.
+**Sign out:** Profile (top bar) › **Sign out**. This deletes the token and the cached library from the phone.
 
 ## Navigation
 
-- The **navigation bar** at the bottom holds the destinations: **TV Shows**, **Movies**, **Anime**, **Discover** and **Calendar**. Change their order and turn them on or off in *Settings › Bottom bar*.
+- The **navigation bar** at the bottom holds the destinations: **TV Shows**, **Movies**, **Anime**, **Discover** and **Calendar**. Change their order (drag a row by its handle) and turn them on or off in *Settings › Bottom bar*.
 - **Content** (*Settings › Content*): turn **TV Shows**, **Anime** and **Movies** on or off for the whole app. A type that is off disappears from the bottom bar (and its row in *Settings › Bottom bar*), Discover's tabs, the Calendar, Search, the profile's stats and new-episode notifications. At least one stays on. Your SIMKL lists don't change, and turning a type back on brings everything back (episodes that aired while it was off are not notified afterwards).
 - **Tabs** switch between parallel sections of a destination (library shelves, Discover's media types).
 - The **sort** button in the top bar of TV Shows, Movies and Anime sorts the open tab; the **filter** button next to it filters it. Each tab offers only the options that make sense there (see below). The Calendar has a filter button too; **chips** filter search results.
@@ -66,7 +66,7 @@ Upcoming episodes and releases of titles in your lists. The **filter** button in
 
 ## Profile
 
-Watch-time statistics per type and status, then **My ratings** (with how many titles you rated), then sync and your SIMKL page, and **Log out** on its own at the bottom. Settings is the gear at the top.
+Watch-time statistics per type and status, then **My ratings** (with how many titles you rated), then sync and your SIMKL page, and **Sign out** on its own at the bottom. Settings is the gear at the top.
 
 **My ratings** shows everything you rated, a row per type (TV Shows, Anime, Movies; only the types turned on in *Settings › Content*), highest rating first. Tap a row's header (with the **>**) to see all of that type in a grid.
 
@@ -87,7 +87,7 @@ Turn on *Settings › Library › New episode notifications* (Android 13+ asks f
 
 | You see | What to do |
 |---|---|
-| "Your SIMKL login expired. Log out and in again." | Profile › Log out, then sign in again. |
+| "Your SIMKL sign-in expired. Sign out and sign in again." | Profile › Sign out, then sign in again. |
 | "Sign-in failed: …" right after approving | Start the sign-in again from the app (an old browser tab can't finish a new sign-in). |
 | "This build has no SIMKL client ID" | The APK was built without `-PsimklClientId`. Install a release APK. |
 | A crash report on start | The app crashed last time. Tap **Copy crash report**, paste it in a GitHub issue, then tap **Continue**. |

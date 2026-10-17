@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="data_error_login_expired">Your SIMKL login expired. Log out and in again.</string>
+    <string name="data_error_login_expired">Your SIMKL sign-in expired. Sign out and sign in again.</string>
     <string name="data_notif_channel_name">New episodes</string>
     <string name="data_notif_channel_description">When a new episode of a show you are watching is available</string>
     <string name="data_notif_new_episode">New episode available</string>

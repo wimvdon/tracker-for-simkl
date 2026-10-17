@@ -29,6 +29,7 @@ import androidx.compose.ui.unit.dp
 import io.github.impca201.trackerforsimkl.R
 import io.github.impca201.trackerforsimkl.ui.theme.AppShapes
 import io.github.impca201.trackerforsimkl.ui.theme.SkeletonLine
+import io.github.impca201.trackerforsimkl.ui.theme.readableWidth
 import io.github.impca201.trackerforsimkl.ui.theme.skeleton
 
 // Placeholders shown while a list loads for the first time. They have the size and shape of the
@@ -112,7 +113,7 @@ fun PosterListSkeleton(
         contentPadding = contentPadding,
         verticalArrangement = Arrangement.spacedBy(spacing),
         userScrollEnabled = false,
-        modifier = Modifier.fillMaxSize().loadingSemantics(),
+        modifier = Modifier.fillMaxSize().readableWidth().loadingSemantics(),
     ) {
         items(8) { PosterListRowSkeleton(posterWidth, lines = lines) }
     }

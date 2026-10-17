@@ -39,8 +39,9 @@
     <string name="screens_settings_types">Inhalte</string>
     <string name="screens_settings_types_hint">Ausgeschaltete Arten sind überall in der App ausgeblendet. Deine SIMKL-Listen bleiben unverändert.</string>
     <string name="screens_settings_bottom_bar">Untere Leiste</string>
-    <string name="screens_settings_move_up">Nach oben</string>
-    <string name="screens_settings_move_down">Nach unten</string>
+    <string name="action_reorder">Neu anordnen</string>
+    <string name="action_move_up">Nach oben</string>
+    <string name="action_move_down">Nach unten</string>
     <string name="screens_settings_library">Bibliothek</string>
     <string name="screens_settings_hide_specials">Specials ausblenden</string>
     <string name="screens_settings_continue_latest">Ab der neuesten Folge fortsetzen</string>

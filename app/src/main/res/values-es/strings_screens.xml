@@ -39,8 +39,9 @@
     <string name="screens_settings_types">Contenido</string>
     <string name="screens_settings_types_hint">Los tipos desactivados se ocultan en toda la app. Tus listas de SIMKL no cambian.</string>
     <string name="screens_settings_bottom_bar">Barra inferior</string>
-    <string name="screens_settings_move_up">Subir</string>
-    <string name="screens_settings_move_down">Bajar</string>
+    <string name="action_reorder">Reordenar</string>
+    <string name="action_move_up">Subir</string>
+    <string name="action_move_down">Bajar</string>
     <string name="screens_settings_library">Biblioteca</string>
     <string name="screens_settings_hide_specials">Ocultar especiales</string>
     <string name="screens_settings_continue_latest">Continuar desde el último episodio</string>
