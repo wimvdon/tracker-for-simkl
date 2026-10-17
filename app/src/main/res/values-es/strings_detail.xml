@@ -66,6 +66,8 @@
     <string name="detail_fact_budget">Presupuesto</string>
     <string name="detail_fact_box_office">Taquilla</string>
     <string name="detail_fact_also_known_as">Otros títulos</string>
+    <string name="detail_fact_rank">Puesto</string>
+    <string name="detail_fact_genres">Géneros</string>
     <string name="detail_trailers">Tráileres</string>
     <string name="detail_play">Reproducir</string>
     <string name="detail_episodes">Episodios</string>

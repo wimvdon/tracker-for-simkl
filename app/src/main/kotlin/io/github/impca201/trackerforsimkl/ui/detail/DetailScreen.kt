@@ -9,7 +9,6 @@ import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.togetherWith
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -17,7 +16,6 @@ import androidx.compose.ui.semantics.stateDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.Role
 import androidx.compose.foundation.combinedClickable
-import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -128,7 +126,6 @@ import io.github.impca201.trackerforsimkl.ui.Route
 import io.github.impca201.trackerforsimkl.ui.components.AiringBadge
 import io.github.impca201.trackerforsimkl.ui.theme.EmptyState
 import io.github.impca201.trackerforsimkl.ui.components.Format
-import io.github.impca201.trackerforsimkl.ui.components.RatingStar
 import io.github.impca201.trackerforsimkl.ui.components.Poster
 import io.github.impca201.trackerforsimkl.ui.components.PosterRow
 import io.github.impca201.trackerforsimkl.ui.components.openUrl
@@ -609,52 +606,10 @@ private fun ratingWord(value: Int): Int =
         else -> R.string.detail_rating_10
     }
 
-/**
- * A rating, rank or genre: information, not a control, so not a chip (a chip that does nothing
- * when tapped misleads). Same size and outline as a chip, without the touch feedback.
- */
-@Composable
-private fun InfoTag(
-    text: String,
-    icon: (@Composable () -> Unit)? = null,
-) {
-    Surface(
-        shape = MaterialTheme.shapes.small,
-        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant),
-        color = Color.Transparent,
-        contentColor = MaterialTheme.colorScheme.onSurfaceVariant,
-    ) {
-        Row(
-            Modifier.heightIn(min = 32.dp).padding(horizontal = 12.dp),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(8.dp),
-        ) {
-            icon?.invoke()
-            Text(text, style = MaterialTheme.typography.labelLarge)
-        }
-    }
-}
-
 @Composable
 private fun About(d: MediaDetails) {
     var expanded by rememberSaveable { mutableStateOf(false) }
     Column(Modifier.padding(horizontal = 16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
-        if (d.ratings.isNotEmpty() || d.rank != null) {
-            LazyRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                items(d.ratings) { r ->
-                    InfoTag(
-                        text = "${r.source} ${Format.rating(r.value)}" + (r.votes?.let { " (${compact(it)})" } ?: ""),
-                        icon = { Icon(Icons.Rounded.Star, null, Modifier.size(16.dp), tint = RatingStar) },
-                    )
-                }
-                d.rank?.let { rank -> item { InfoTag(stringResource(R.string.detail_rank, rank)) } }
-            }
-        }
-        if (d.genres.isNotEmpty()) {
-            LazyRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                items(d.genres) { g -> InfoTag(g.replaceFirstChar { it.uppercase() }) }
-            }
-        }
         d.overview?.let { overview ->
             val stateText = stringResource(if (expanded) R.string.section_expanded else R.string.section_collapsed)
             Text(
@@ -670,25 +625,33 @@ private fun About(d: MediaDetails) {
                         .semantics { stateDescription = stateText },
             )
         }
-        val facts =
-            listOfNotNull(
-                d.status?.let { R.string.detail_fact_status to (ShowStatus.fromApi(it)?.let { s -> stringResource(s.label) } ?: it.replaceFirstChar { c -> c.uppercase() }) },
-                d.airs?.let { Format.airs(it) }?.let { R.string.detail_fact_airs to it },
-                d.firstAired?.let { (if (d.type == MediaType.Movie) R.string.detail_fact_released else R.string.detail_fact_first_aired) to (Format.date(it) ?: it) },
-                d.totalEpisodes?.takeIf { it > 0 }?.let { R.string.detail_fact_episodes to it.toString() },
-                d.network?.let { R.string.detail_fact_network to it },
-                d.country?.let { R.string.detail_fact_country to it },
-                d.director?.let { R.string.detail_fact_director to it },
-                d.budget?.let { R.string.detail_fact_budget to money(it) },
-                d.revenue?.let { R.string.detail_fact_box_office to money(it) },
-                d.alternativeTitles.takeIf { it.isNotEmpty() }?.let { R.string.detail_fact_also_known_as to it.take(4).joinToString(", ") },
-            )
+        // Ratings, rank and genres are information, not controls, so they sit in the facts box as plain rows.
+        val facts: List<Pair<String, String>> =
+            d.ratings.map { r -> r.source to (Format.rating(r.value) + (r.votes?.let { " (${compact(it)})" } ?: "")) } +
+                listOfNotNull(
+                    d.rank?.let { stringResource(R.string.detail_fact_rank) to "#$it" },
+                    d.genres.takeIf { it.isNotEmpty() }?.let { genres ->
+                        stringResource(R.string.detail_fact_genres) to genres.joinToString(", ") { it.replaceFirstChar { c -> c.uppercase() } }
+                    },
+                    d.status?.let { stringResource(R.string.detail_fact_status) to (ShowStatus.fromApi(it)?.let { s -> stringResource(s.label) } ?: it.replaceFirstChar { c -> c.uppercase() }) },
+                    d.airs?.let { Format.airs(it) }?.let { stringResource(R.string.detail_fact_airs) to it },
+                    d.firstAired?.let { date ->
+                        stringResource(if (d.type == MediaType.Movie) R.string.detail_fact_released else R.string.detail_fact_first_aired) to (Format.date(date) ?: date)
+                    },
+                    d.totalEpisodes?.takeIf { it > 0 }?.let { stringResource(R.string.detail_fact_episodes) to it.toString() },
+                    d.network?.let { stringResource(R.string.detail_fact_network) to it },
+                    d.country?.let { stringResource(R.string.detail_fact_country) to it },
+                    d.director?.let { stringResource(R.string.detail_fact_director) to it },
+                    d.budget?.let { stringResource(R.string.detail_fact_budget) to money(it) },
+                    d.revenue?.let { stringResource(R.string.detail_fact_box_office) to money(it) },
+                    d.alternativeTitles.takeIf { it.isNotEmpty() }?.let { stringResource(R.string.detail_fact_also_known_as) to it.take(4).joinToString(", ") },
+                )
         if (facts.isNotEmpty()) {
             Surface(shape = AppShapes.Item, color = MaterialTheme.colorScheme.surfaceContainerLow) {
                 Column(Modifier.fillMaxWidth().padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
                     facts.forEach { (label, value) ->
                         Row {
-                            Text(stringResource(label), style = MaterialTheme.typography.labelLarge, color = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.width(110.dp))
+                            Text(label, style = MaterialTheme.typography.labelLarge, color = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.width(110.dp))
                             Text(value, style = MaterialTheme.typography.bodyMedium, modifier = Modifier.weight(1f))
                         }
                     }

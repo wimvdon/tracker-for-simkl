@@ -66,6 +66,8 @@
     <string name="detail_fact_budget">Budget</string>
     <string name="detail_fact_box_office">Einnahmen</string>
     <string name="detail_fact_also_known_as">Auch bekannt als</string>
+    <string name="detail_fact_rank">Platz</string>
+    <string name="detail_fact_genres">Genres</string>
     <string name="detail_trailers">Trailer</string>
     <string name="detail_play">Abspielen</string>
     <string name="detail_episodes">Folgen</string>

@@ -2,6 +2,15 @@
 
 Newest first. Add an entry for every notable choice: what was decided, why, and what was rejected.
 
+## 2026-10-17: Ratings, rank and genres in the detail page's info box
+
+The rating, rank and genre chips sat above the overview, and nothing happened when tapped. A chip
+is for input or filtering, so M3 does not allow read-only chips. Ratings, rank and genres are now
+rows in the info box, with the status and air facts. The overview is the first text under the
+actions. Rejected: keeping them as read-only tags (still look like buttons), and a separate
+"Ratings" section (one more box for a few lines). The gold star no longer appears on the detail
+page's ratings; it stays on poster badges as the user's own rating.
+
 ## 2026-10-17: Material 3 check of the profile and detail page
 
 "My ratings" is content you browse, so it no longer sits among the profile's account actions; it
