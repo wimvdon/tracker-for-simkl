@@ -37,7 +37,7 @@
     <string name="lib_anime_type_ona">ONA</string>
     <string name="lib_anime_type_special">Special</string>
     <string name="lib_next_air">Next %1$s</string>
-    <string name="lib_empty_up_next_text">Nothing to watch right now. New episodes of shows you\'re watching show up here.</string>
+    <string name="lib_empty_up_next_text">New episodes of shows you’re watching show up here.</string>
     <string name="lib_empty_watched_text">Shows you\'re caught up on or have finished show up here.</string>
     <string name="lib_empty_plan_text">Add shows you want to watch from Discover or search.</string>
     <string name="lib_empty_other_text">Nothing here yet.</string>
