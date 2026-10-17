@@ -2,6 +2,16 @@
 
 Newest first. Add an entry for every notable choice: what was decided, why, and what was rejected.
 
+## 2026-10-17: Material 3 check of the profile and detail page
+
+"My ratings" is content you browse, so it no longer sits among the profile's account actions; it
+has its own row right below the watch-time statistics, with how many titles you rated (rejected:
+an entry in the library tabs, which already sort by "My rating"). Log out has its own group at
+the bottom, apart from the routine actions (DESIGN.md: destructive actions are separated). The
+Settings row is gone: the gear in the top bar already opens it. The profile keeps a readable
+width (640dp) on wide windows, like Settings. The detail page's overview tells screen readers it
+can be tapped and whether it is expanded. Rating stars use one colour (`RatingStar`) everywhere.
+
 ## 2026-10-17: Caption directly under a one-line poster title
 
 Poster tiles still reserve two title lines and one caption line (rows keep one height), but the

@@ -50,6 +50,11 @@
     <string name="screens_settings_about">Tracker for Simkl %1$s · Non affiliato a SIMKL. Dati e immagini © SIMKL e relative fonti.</string>
     <string name="screens_login_tagline">Tieni traccia di serie TV, anime e film con SIMKL.</string>
     <string name="screens_login_sign_in">Accedi con SIMKL</string>
+    <plurals name="screens_profile_rated">
+        <item quantity="one">%1$d titolo valutato</item>
+        <item quantity="other">%1$d titoli valutati</item>
+        <item quantity="many">%1$d titoli valutati</item>
+    </plurals>
     <plurals name="screens_profile_episodes">
         <item quantity="one">%1$d episodio</item>
         <item quantity="other">%1$d episodi</item>

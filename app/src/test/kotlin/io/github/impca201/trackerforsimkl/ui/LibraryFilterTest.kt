@@ -133,5 +133,9 @@ class LibraryFilterTest {
         assertEquals(listOf(3L, 1L), Ratings.rated(all, MediaType.Anime).map { it.ids.simkl })
         assertEquals(listOf(9L), Ratings.rated(all, MediaType.Movie).map { it.ids.simkl })
         assertTrue(Ratings.rated(all, MediaType.Tv).isEmpty())
+        // Only the types turned on count, and only rated titles.
+        assertEquals(3, Ratings.count(all, listOf(MediaType.Anime, MediaType.Movie)))
+        assertEquals(1, Ratings.count(all, listOf(MediaType.Movie, MediaType.Tv)))
+        assertEquals(0, Ratings.count(all, emptyList()))
     }
 }
