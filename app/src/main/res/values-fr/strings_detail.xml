@@ -66,6 +66,8 @@
     <string name="detail_fact_budget">Budget</string>
     <string name="detail_fact_box_office">Box-office</string>
     <string name="detail_fact_also_known_as">Autres titres</string>
+    <string name="detail_fact_rank">Rang</string>
+    <string name="detail_fact_genres">Genres</string>
     <string name="detail_trailers">Bandes-annonces</string>
     <string name="detail_play">Lire</string>
     <string name="detail_episodes">Épisodes</string>
