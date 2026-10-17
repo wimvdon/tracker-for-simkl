@@ -37,7 +37,7 @@
     <string name="lib_anime_type_ona">ONA</string>
     <string name="lib_anime_type_special">Spécial</string>
     <string name="lib_next_air">Prochain : %1$s</string>
-    <string name="lib_empty_up_next_text">Rien à regarder pour l\'instant. Les nouveaux épisodes des séries que vous suivez apparaissent ici.</string>
+    <string name="lib_empty_up_next_text">Les nouveaux épisodes des séries que vous suivez apparaissent ici.</string>
     <string name="lib_empty_watched_text">Les séries à jour ou terminées apparaissent ici.</string>
     <string name="lib_empty_plan_text">Ajoutez les séries que vous voulez voir depuis Découvrir ou la recherche.</string>
     <string name="lib_empty_other_text">Rien pour l\'instant.</string>

@@ -37,7 +37,7 @@
     <string name="lib_anime_type_ona">ONA</string>
     <string name="lib_anime_type_special">Special</string>
     <string name="lib_next_air">Volgende: %1$s</string>
-    <string name="lib_empty_up_next_text">Niets te kijken op dit moment. Nieuwe afleveringen van series die je kijkt, verschijnen hier.</string>
+    <string name="lib_empty_up_next_text">Nieuwe afleveringen van series die je kijkt, verschijnen hier.</string>
     <string name="lib_empty_watched_text">Series waarmee je bij bent of die je hebt uitgekeken, verschijnen hier.</string>
     <string name="lib_empty_plan_text">Voeg series die je wilt zien toe via Ontdekken of zoeken.</string>
     <string name="lib_empty_other_text">Hier staat nog niets.</string>
