@@ -13,6 +13,10 @@ nothing hidden can filter a list. The profile links to "My ratings": a poster ro
 highest rating first, whose header opens a grid of that type. The ratings come from the synced
 library, so the page needs no extra SIMKL calls.
 
+## 2026-10-17: Less help text
+
+The owner found the app over-explanatory; the shared rule is in `DESIGN.md` ("Wording"): help text only says what the screen can't. Settings repeated their labels and described the obvious. Removed: the line above the bottom-bar list (a list with checkboxes and arrows under the header "Bottom bar") and "Leave out special episodes" under "Hide specials". Shortened: the Content explanation (no list of every screen), "Continue from the latest episode", the notifications subtitle, the Up next empty text and the Dynamic color line. Kept: consequences, privacy notes and setup steps. Rejected: removing every hint (the remaining ones say something the screen doesn't).
+
 ## 2026-10-16: Shared empty state, steady poster rows, short buttons
 
 A Material 3 audit of the sibling apps added shared rules to `DESIGN.md` ("Empty and setup states"). This app's empty, no-result and failed screens now use the shared `ui/theme/EmptyState.kt` instead of its own copy in `Common.kt` (same look, plus a heading for screen readers and a readable width). Poster tiles always take two title lines and one caption line, and trailers always one name line, because a row of tiles only measures the tiles on screen: a longer title scrolling into view made the whole row taller and pushed everything below it down. "Mark as watched" buttons now say "Watched" ("Gezien"); the screen already says what is being marked. Rejected: measuring every tile in a row to find the tallest (costs a full layout pass of items that aren't visible) and keeping long button labels (they wrap or get cut off in Dutch and German).

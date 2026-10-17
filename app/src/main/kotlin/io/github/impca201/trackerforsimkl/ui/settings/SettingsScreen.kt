@@ -105,7 +105,7 @@ fun SettingsScreen(settings: AppSettings) {
             SettingsSection(title = stringResource(R.string.screens_settings_library)) {
                 SwitchSetting(
                     title = stringResource(R.string.screens_settings_hide_specials),
-                    summary = stringResource(R.string.screens_settings_hide_specials_sub),
+                    summary = null,
                     checked = settings.hideSpecials,
                     onCheckedChange = { scope.launch { app.settings.setHideSpecials(it) } },
                 )
@@ -144,13 +144,6 @@ fun SettingsScreen(settings: AppSettings) {
             val shown = settings.nav.available(settings.types)
             val shownOn = shown.count { it in settings.nav.enabled }
             SettingsSection(title = stringResource(R.string.screens_settings_bottom_bar)) {
-                SettingsBlock {
-                    Text(
-                        stringResource(R.string.screens_settings_bottom_bar_hint),
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    )
-                }
                 shown.forEachIndexed { index, tab ->
                     val enabled = tab in settings.nav.enabled
                     ListItem(
