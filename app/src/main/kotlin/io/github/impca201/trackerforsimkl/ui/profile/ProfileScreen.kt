@@ -22,6 +22,7 @@ import androidx.compose.material.icons.automirrored.rounded.Logout
 import androidx.compose.material.icons.automirrored.rounded.OpenInNew
 import androidx.compose.material.icons.rounded.Person
 import androidx.compose.material.icons.rounded.Settings
+import androidx.compose.material.icons.rounded.Star
 import androidx.compose.material.icons.rounded.Sync
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.CircularProgressIndicator
@@ -161,6 +162,12 @@ fun ProfileScreen(types: Set<MediaType>) {
                                 modifier = Modifier.clickableRow { context.openUrl("https://simkl.com/${p.id}/") },
                             )
                         }
+                        ListItem(
+                            headlineContent = { Text(stringResource(R.string.screens_ratings)) },
+                            leadingContent = { Icon(Icons.Rounded.Star, null) },
+                            colors = colors,
+                            modifier = Modifier.clickableRow { navigator.push(Route.Ratings) },
+                        )
                         ListItem(
                             headlineContent = { Text(stringResource(R.string.screens_settings)) },
                             leadingContent = { Icon(Icons.Rounded.Settings, null) },

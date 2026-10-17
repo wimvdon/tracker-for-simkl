@@ -22,8 +22,10 @@
     <string name="lib_sort_recent">Vistos recientemente</string>
     <string name="lib_sort_added">Añadidos recientemente</string>
     <string name="lib_sort_title">Título</string>
-    <string name="lib_sort_rating">Valoración</string>
     <string name="lib_sort_release">Fecha de estreno</string>
+    <string name="lib_sort_episodes_left">Menos episodios pendientes</string>
+    <string name="lib_filter_airing_header">Estado</string>
+    <string name="lib_see_all">Ver todo</string>
     <string name="lib_filter_type">Filtrar por tipo</string>
     <string name="lib_filter_all">Todos</string>
     <string name="lib_filter">Filtrar</string>

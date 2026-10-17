@@ -36,6 +36,18 @@ sealed interface Route {
     data object Settings : Route {
         override val key = "settings"
     }
+
+    /** "My ratings", from the profile. */
+    data object Ratings : Route {
+        override val key = "ratings"
+    }
+
+    /** All rated titles of one type, from a row of "My ratings". */
+    data class RatedGrid(
+        val type: MediaType,
+    ) : Route {
+        override val key = "rated/$type"
+    }
 }
 
 class Navigator {
@@ -91,6 +103,8 @@ private fun Route.encode(): List<String> =
         Route.Search -> listOf("search", "", "", "", "")
         Route.Profile -> listOf("profile", "", "", "", "")
         Route.Settings -> listOf("settings", "", "", "", "")
+        Route.Ratings -> listOf("ratings", "", "", "", "")
+        is Route.RatedGrid -> listOf("rated", type.name, "", "", "")
     }
 
 private fun decodeRoute(parts: List<String>): Route? {
@@ -108,6 +122,8 @@ private fun decodeRoute(parts: List<String>): Route? {
         "search" -> Route.Search
         "profile" -> Route.Profile
         "settings" -> Route.Settings
+        "ratings" -> Route.Ratings
+        "rated" -> Route.RatedGrid(type ?: return null)
         else -> null
     }
 }

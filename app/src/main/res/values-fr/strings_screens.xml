@@ -4,6 +4,10 @@
     <string name="screens_clear">Effacer</string>
     <string name="screens_cancel">Annuler</string>
     <string name="screens_settings">Paramètres</string>
+    <string name="screens_ratings">Mes notes</string>
+    <string name="screens_ratings_of">Mes notes · %1$s</string>
+    <string name="screens_ratings_empty">Rien de noté pour l’instant</string>
+    <string name="screens_ratings_empty_text">Notez une série ou un film sur sa page et il apparaîtra ici.</string>
     <string name="screens_powered_by">Propulsé par SIMKL · simkl.com</string>
     <string name="screens_search_placeholder">Rechercher sur SIMKL</string>
     <string name="screens_search_all">Tout</string>

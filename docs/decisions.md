@@ -2,6 +2,17 @@
 
 Newest first. Add an entry for every notable choice: what was decided, why, and what was rejected.
 
+## 2026-10-17: Per-tab sort and filter options, "My ratings" page
+
+With a filter and sort button on every library screen, each tab now offers only what makes sense
+there (`TabSpec`): no my-rating filter or sort on Up next and Want to watch (titles you haven't
+seen aren't rated), no "recently watched" on Want to watch, an airing / ended filter on the show
+tabs, and "fewest episodes left" on Up next. Defaults stay: recently watched where something was
+watched, recently added on Want to watch. A filter or sort a tab doesn't offer is ignored, so
+nothing hidden can filter a list. The profile links to "My ratings": a poster row per type,
+highest rating first, whose header opens a grid of that type. The ratings come from the synced
+library, so the page needs no extra SIMKL calls.
+
 ## 2026-10-17: Less help text
 
 The owner found the app over-explanatory; the shared rule is in `DESIGN.md` ("Wording"): help text only says what the screen can't. Settings repeated their labels and described the obvious. Removed: the line above the bottom-bar list (a list with checkboxes and arrows under the header "Bottom bar") and "Leave out special episodes" under "Hide specials". Shortened: the Content explanation (no list of every screen), "Continue from the latest episode", the notifications subtitle, the Up next empty text and the Dynamic color line. Kept: consequences, privacy notes and setup steps. Rejected: removing every hint (the remaining ones say something the screen doesn't).

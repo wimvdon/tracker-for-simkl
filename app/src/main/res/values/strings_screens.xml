@@ -4,6 +4,10 @@
     <string name="screens_clear">Clear</string>
     <string name="screens_cancel">Cancel</string>
     <string name="screens_settings">Settings</string>
+    <string name="screens_ratings">My ratings</string>
+    <string name="screens_ratings_of">My ratings · %1$s</string>
+    <string name="screens_ratings_empty">Nothing rated yet</string>
+    <string name="screens_ratings_empty_text">Rate a show or movie on its page and it shows up here.</string>
     <string name="screens_powered_by">Powered by SIMKL · simkl.com</string>
     <string name="screens_search_placeholder">Search SIMKL</string>
     <string name="screens_search_all">All</string>

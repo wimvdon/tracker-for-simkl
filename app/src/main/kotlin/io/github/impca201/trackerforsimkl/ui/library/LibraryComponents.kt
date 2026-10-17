@@ -5,11 +5,13 @@ import androidx.compose.ui.res.stringResource
 import io.github.impca201.trackerforsimkl.R
 import io.github.impca201.trackerforsimkl.ui.theme.AppShapes
 import io.github.impca201.trackerforsimkl.ui.theme.Motion
+import androidx.compose.material.icons.automirrored.rounded.KeyboardArrowRight
 import androidx.compose.material.icons.automirrored.rounded.Sort
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.runtime.saveable.rememberSaveable
 import io.github.impca201.trackerforsimkl.ui.components.Format
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -54,6 +56,8 @@ import androidx.compose.ui.unit.dp
 import io.github.impca201.trackerforsimkl.data.LibraryState
 import io.github.impca201.trackerforsimkl.data.model.AiringState
 import io.github.impca201.trackerforsimkl.data.model.LibraryItem
+import io.github.impca201.trackerforsimkl.data.model.MovieShelf
+import io.github.impca201.trackerforsimkl.data.model.Shelf
 import io.github.impca201.trackerforsimkl.data.model.Shelves
 import io.github.impca201.trackerforsimkl.ui.components.AiringBadge
 import io.github.impca201.trackerforsimkl.ui.components.Poster
@@ -66,8 +70,9 @@ enum class SortOrder(
     Recent(R.string.lib_sort_recent),
     Added(R.string.lib_sort_added),
     Title(R.string.lib_sort_title),
-    Rating(R.string.lib_sort_rating),
+    Rating(R.string.lib_filter_my_rating),
     Release(R.string.lib_sort_release),
+    EpisodesLeft(R.string.lib_sort_episodes_left),
     ;
 
     fun sort(items: List<LibraryItem>): List<LibraryItem> =
@@ -75,37 +80,102 @@ enum class SortOrder(
             Recent -> items.sortedByDescending { it.lastWatchedAt ?: it.addedAt ?: "" }
             Added -> items.sortedByDescending { it.addedAt ?: "" }
             Title -> items.sortedBy { it.title.lowercase() }
-            Rating -> items.sortedByDescending { it.userRating ?: 0 }
+            // Unrated titles go last; equal ratings by title.
+            Rating -> items.sortedWith(compareByDescending<LibraryItem> { it.userRating ?: 0 }.thenBy { it.title.lowercase() })
             // The library only carries the release year; titles keep a stable order within a year.
             Release -> items.sortedWith(compareByDescending<LibraryItem> { it.year ?: 0 }.thenBy { it.title.lowercase() })
+            // Closest to caught up first; most recently watched among equals.
+            EpisodesLeft ->
+                items.sortedWith(
+                    compareBy<LibraryItem> { it.airedUnwatched }.thenByDescending { it.lastWatchedAt ?: it.addedAt ?: "" },
+                )
         }
+}
+
+/**
+ * What a library tab offers: its sort orders (the first is the default) and which filters make
+ * sense. My rating only where titles were watched (nobody rates what they haven't seen); airing
+ * or ended only for shows; the anime type only on Anime.
+ */
+data class TabSpec(
+    val sorts: List<SortOrder>,
+    val rating: Boolean,
+    val airing: Boolean,
+    val animeTypes: Boolean,
+) {
+    val defaultSort: SortOrder get() = sorts.first()
+
+    /** False when the tab has nothing to filter by, so the filter button is left out. */
+    val hasFilters: Boolean get() = rating || airing || animeTypes
+
+    /** [filter] without the parts this tab doesn't offer. */
+    fun allowed(filter: LibraryFilter): LibraryFilter =
+        LibraryFilter(
+            animeType = filter.animeType.takeIf { animeTypes },
+            rating = if (rating) filter.rating else RatingFilter.Any,
+            airing = if (airing) filter.airing else AiringFilter.Any,
+        )
+
+    /** [sort] if this tab offers it, else its default. */
+    fun allowed(sort: SortOrder): SortOrder = sort.takeIf { it in sorts } ?: defaultSort
 
     companion object {
-        /** The sort orders a shelf offers: nothing on Want to watch has been watched yet. */
-        fun choices(planToWatch: Boolean): List<SortOrder> = if (planToWatch) entries - Recent else entries.toList()
+        private val all = listOf(SortOrder.Recent, SortOrder.Added, SortOrder.Title, SortOrder.Rating, SortOrder.Release)
+        private val unwatched = listOf(SortOrder.Added, SortOrder.Title, SortOrder.Release)
+
+        fun of(
+            shelf: Shelf,
+            anime: Boolean,
+        ): TabSpec =
+            when (shelf) {
+                Shelf.UpNext ->
+                    TabSpec(listOf(SortOrder.Recent, SortOrder.EpisodesLeft, SortOrder.Added, SortOrder.Title, SortOrder.Release), rating = false, airing = true, animeTypes = anime)
+                Shelf.PlanToWatch -> TabSpec(unwatched, rating = false, airing = true, animeTypes = anime)
+                Shelf.Watched, Shelf.OnHold, Shelf.Dropped -> TabSpec(all, rating = true, airing = true, animeTypes = anime)
+            }
+
+        fun of(shelf: MovieShelf): TabSpec =
+            when (shelf) {
+                MovieShelf.PlanToWatch -> TabSpec(unwatched, rating = false, airing = false, animeTypes = false)
+                MovieShelf.Completed, MovieShelf.Dropped -> TabSpec(all, rating = true, airing = false, animeTypes = false)
+            }
     }
 }
 
 /** The my-rating filter of a library tab. */
 enum class RatingFilter(
-    @androidx.annotation.StringRes val label: Int,
+    @StringRes val label: Int,
 ) {
     Any(R.string.lib_filter_all),
     Rated(R.string.lib_filter_rated),
     Unrated(R.string.lib_filter_unrated),
 }
 
+/** Shows only: still airing or ended. Shows whose state isn't known yet only appear under Any. */
+enum class AiringFilter(
+    @StringRes val label: Int,
+) {
+    Any(R.string.lib_filter_all),
+    Airing(R.string.lib_badge_airing),
+    Ended(R.string.lib_badge_ended),
+}
+
 /**
- * The filter of a library tab: my rating, and for anime SIMKL's anime_type ("tv", "movie",
- * "ova", ...), null for all.
+ * The filter of a library tab: my rating, airing or ended, and for anime SIMKL's anime_type
+ * ("tv", "movie", "ova", ...), null for all.
  */
 data class LibraryFilter(
     val animeType: String? = null,
     val rating: RatingFilter = RatingFilter.Any,
+    val airing: AiringFilter = AiringFilter.Any,
 ) {
-    val active: Boolean get() = animeType != null || rating != RatingFilter.Any
+    val active: Boolean get() = animeType != null || rating != RatingFilter.Any || airing != AiringFilter.Any
 
-    fun apply(items: List<LibraryItem>): List<LibraryItem> =
+    /** [airingOf] gives a show's airing state; only needed when [airing] is set. */
+    fun apply(
+        items: List<LibraryItem>,
+        airingOf: (LibraryItem) -> AiringState = { AiringState.Unknown },
+    ): List<LibraryItem> =
         items.filter { item ->
             val ratingOk =
                 when (rating) {
@@ -113,11 +183,17 @@ data class LibraryFilter(
                     RatingFilter.Rated -> item.userRating != null
                     RatingFilter.Unrated -> item.userRating == null
                 }
-            ratingOk && (animeType == null || item.animeType.equals(animeType, ignoreCase = true))
+            val airingOk =
+                when (airing) {
+                    AiringFilter.Any -> true
+                    AiringFilter.Airing -> airingOf(item) == AiringState.Airing
+                    AiringFilter.Ended -> airingOf(item) == AiringState.Ended
+                }
+            ratingOk && airingOk && (animeType == null || item.animeType.equals(animeType, ignoreCase = true))
         }
 
-    /** Compact form for rememberSaveable: "animeType|rating". */
-    fun encode(): String = "${animeType.orEmpty()}|${rating.name}"
+    /** Compact form for rememberSaveable: "animeType|rating|airing". */
+    fun encode(): String = "${animeType.orEmpty()}|${rating.name}|${airing.name}"
 
     companion object {
         /** SIMKL anime_type and its label. */
@@ -135,6 +211,7 @@ data class LibraryFilter(
             return LibraryFilter(
                 animeType = parts[0].ifEmpty { null },
                 rating = RatingFilter.entries.firstOrNull { it.name == parts.getOrNull(1) } ?: RatingFilter.Any,
+                airing = AiringFilter.entries.firstOrNull { it.name == parts.getOrNull(2) } ?: AiringFilter.Any,
             )
         }
     }
@@ -142,18 +219,21 @@ data class LibraryFilter(
 
 /**
  * Sort and filter of each tab of a library screen, kept separately per tab for the session.
- * Indexes are tab positions.
+ * Indexes are tab positions; [specs] say what each tab offers.
  */
 class TabOptions(
+    private val specs: List<TabSpec>,
     private val sorts: androidx.compose.runtime.MutableState<List<String>>,
     private val filters: androidx.compose.runtime.MutableState<List<String>>,
 ) {
     /** Changes whenever any tab's sort or filter changes (a remember key). */
     val version: Any get() = sorts.value to filters.value
 
-    fun sort(tab: Int): SortOrder = SortOrder.entries.firstOrNull { it.name == sorts.value.getOrNull(tab) } ?: SortOrder.Recent
+    fun spec(tab: Int): TabSpec = specs[tab]
 
-    fun filter(tab: Int): LibraryFilter = LibraryFilter.decode(filters.value.getOrNull(tab).orEmpty())
+    fun sort(tab: Int): SortOrder = specs[tab].allowed(SortOrder.entries.firstOrNull { it.name == sorts.value.getOrNull(tab) } ?: specs[tab].defaultSort)
+
+    fun filter(tab: Int): LibraryFilter = specs[tab].allowed(LibraryFilter.decode(filters.value.getOrNull(tab).orEmpty()))
 
     fun setSort(
         tab: Int,
@@ -171,10 +251,10 @@ class TabOptions(
 }
 
 @Composable
-fun rememberTabOptions(defaultSorts: List<SortOrder>): TabOptions {
-    val sorts = rememberSaveable { mutableStateOf(defaultSorts.map { it.name }) }
-    val filters = rememberSaveable { mutableStateOf(defaultSorts.map { "" }) }
-    return remember(sorts, filters) { TabOptions(sorts, filters) }
+fun rememberTabOptions(specs: List<TabSpec>): TabOptions {
+    val sorts = rememberSaveable { mutableStateOf(specs.map { it.defaultSort.name }) }
+    val filters = rememberSaveable { mutableStateOf(specs.map { "" }) }
+    return remember(sorts, filters) { TabOptions(specs, sorts, filters) }
 }
 
 /** Room below a destination's content: the docked navigation bar, if shown, covers the system bar. */
@@ -208,14 +288,13 @@ fun SortButton(
 }
 
 /**
- * The filter button of a library tab's title bar: a menu with my rating (all, rated by me, not
- * rated) and, on Anime, the type; the current choices are ticked. A dot on the button shows that
- * a filter is on.
+ * The filter button of a library tab's title bar: a menu with the filters the tab offers (see
+ * [TabSpec]), the current choices ticked. A dot on the button shows that a filter is on.
  */
 @Composable
 fun FilterButton(
     filter: LibraryFilter,
-    animeTypes: Boolean,
+    spec: TabSpec,
     onFilter: (LibraryFilter) -> Unit,
 ) {
     var open by remember { mutableStateOf(false) }
@@ -226,30 +305,39 @@ fun FilterButton(
             }
         }
         DropdownMenu(expanded = open, onDismissRequest = { open = false }) {
-            MenuHeader(stringResource(R.string.lib_filter_my_rating))
-            RatingFilter.entries.forEach { option ->
-                DropdownMenuItem(
-                    text = { Text(stringResource(option.label)) },
-                    onClick = {
-                        open = false
-                        onFilter(filter.copy(rating = option))
-                    },
-                    trailingIcon = { if (option == filter.rating) Icon(Icons.Rounded.Check, null) },
-                )
-            }
-            if (animeTypes) {
-                HorizontalDivider()
-                MenuHeader(stringResource(R.string.lib_filter_type_header))
-                (listOf<Pair<String?, Int>>(null to R.string.lib_filter_all) + LibraryFilter.animeTypes).forEach { (key, label) ->
+            var first = true
+
+            @Composable
+            fun <T> section(
+                header: Int,
+                options: List<T>,
+                label: (T) -> Int,
+                selected: (T) -> Boolean,
+                pick: (T) -> LibraryFilter,
+            ) {
+                if (!first) HorizontalDivider()
+                first = false
+                MenuHeader(stringResource(header))
+                options.forEach { option ->
                     DropdownMenuItem(
-                        text = { Text(stringResource(label)) },
+                        text = { Text(stringResource(label(option))) },
                         onClick = {
                             open = false
-                            onFilter(filter.copy(animeType = key))
+                            onFilter(pick(option))
                         },
-                        trailingIcon = { if (key == filter.animeType) Icon(Icons.Rounded.Check, null) },
+                        trailingIcon = { if (selected(option)) Icon(Icons.Rounded.Check, null) },
                     )
                 }
+            }
+            if (spec.rating) {
+                section(R.string.lib_filter_my_rating, RatingFilter.entries, { it.label }, { it == filter.rating }) { filter.copy(rating = it) }
+            }
+            if (spec.airing) {
+                section(R.string.lib_filter_airing_header, AiringFilter.entries, { it.label }, { it == filter.airing }) { filter.copy(airing = it) }
+            }
+            if (spec.animeTypes) {
+                val types = listOf<Pair<String?, Int>>(null to R.string.lib_filter_all) + LibraryFilter.animeTypes
+                section(R.string.lib_filter_type_header, types, { it.second }, { it.first == filter.animeType }) { filter.copy(animeType = it.first) }
             }
         }
     }
@@ -328,14 +416,27 @@ fun SectionHeader(
     title: String,
     count: Int? = null,
     modifier: Modifier = Modifier,
+    /** Opens the full list; the header then ends in a ">" and the whole row is tappable. */
+    onOpen: (() -> Unit)? = null,
 ) {
     Row(
-        modifier.fillMaxWidth().padding(start = 8.dp, end = 8.dp, top = 16.dp, bottom = 8.dp),
+        modifier
+            .fillMaxWidth()
+            .then(if (onOpen != null) Modifier.clip(RoundedCornerShape(12.dp)).clickable(onClick = onOpen) else Modifier)
+            .padding(start = 8.dp, end = 8.dp, top = 16.dp, bottom = 8.dp),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(8.dp),
     ) {
         Text(title, style = MaterialTheme.typography.titleSmall, color = MaterialTheme.colorScheme.primary)
         if (count != null) Text(count.toString(), style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+        if (onOpen != null) {
+            Box(Modifier.weight(1f))
+            Icon(
+                Icons.AutoMirrored.Rounded.KeyboardArrowRight,
+                contentDescription = stringResource(R.string.lib_see_all),
+                tint = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
+        }
     }
 }
 
