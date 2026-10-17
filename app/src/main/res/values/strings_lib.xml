@@ -13,7 +13,7 @@
     <string name="lib_duration_minutes">%1$dm</string>
     <string name="lib_confirm_watched_title">Mark as watched?</string>
     <string name="lib_confirm_watched_text">You stopped %1$s at %2$d%%. Marking it watched removes that saved progress on SIMKL.</string>
-    <string name="lib_mark_watched">Mark watched</string>
+    <string name="lib_mark_watched">Watched</string>
     <string name="lib_cancel">Cancel</string>
     <string name="lib_badge_airing">Airing</string>
     <string name="lib_badge_ended">Ended</string>

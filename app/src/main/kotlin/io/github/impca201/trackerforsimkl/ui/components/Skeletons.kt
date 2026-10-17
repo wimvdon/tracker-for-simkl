@@ -47,6 +47,7 @@ fun PosterTileSkeleton(modifier: Modifier = Modifier) {
     Column(modifier.padding(4.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
         Box(Modifier.fillMaxWidth().aspectRatio(2f / 3f).skeleton(PosterShape))
         SkeletonLine(Modifier.fillMaxWidth(0.85f).padding(horizontal = 2.dp))
+        SkeletonLine(Modifier.fillMaxWidth(0.6f).padding(horizontal = 2.dp))
         SkeletonLine(Modifier.fillMaxWidth(0.4f).padding(horizontal = 2.dp), height = 10.dp)
     }
 }

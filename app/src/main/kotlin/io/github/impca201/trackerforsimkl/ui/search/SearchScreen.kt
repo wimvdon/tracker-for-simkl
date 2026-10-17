@@ -61,7 +61,7 @@ import io.github.impca201.trackerforsimkl.R
 import io.github.impca201.trackerforsimkl.data.model.MediaSummary
 import io.github.impca201.trackerforsimkl.data.model.MediaType
 import io.github.impca201.trackerforsimkl.ui.LocalNavigator
-import io.github.impca201.trackerforsimkl.ui.components.EmptyState
+import io.github.impca201.trackerforsimkl.ui.theme.EmptyState
 import io.github.impca201.trackerforsimkl.ui.components.Format
 import io.github.impca201.trackerforsimkl.ui.components.PosterBadge
 import io.github.impca201.trackerforsimkl.ui.components.PosterRow
@@ -156,9 +156,9 @@ fun SearchScreen(types: List<MediaType>) {
         ) { shown ->
             if (shown.isEmpty()) {
                 if (query.trim().length >= 2 && !loading) {
-                    EmptyState(Icons.Rounded.SearchOff, stringResource(R.string.screens_search_no_results, query.trim()), modifier = Modifier.padding(padding))
+                    EmptyState(Icons.Rounded.SearchOff, stringResource(R.string.screens_search_no_results, query.trim()), Modifier.padding(padding))
                 } else {
-                    EmptyState(Icons.Rounded.Search, stringResource(R.string.screens_search_empty_title), stringResource(R.string.screens_search_empty_body), Modifier.padding(padding))
+                    EmptyState(Icons.Rounded.Search, stringResource(R.string.screens_search_empty_title), Modifier.padding(padding), body = stringResource(R.string.screens_search_empty_body))
                 }
             } else {
                 LazyColumn(

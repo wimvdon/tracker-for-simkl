@@ -14,6 +14,7 @@ import androidx.compose.material.icons.rounded.Block
 import androidx.compose.material.icons.rounded.Bookmark
 import androidx.compose.material.icons.rounded.CheckCircle
 import androidx.compose.material.icons.rounded.SearchOff
+import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.PrimaryTabRow
 import androidx.compose.material3.Scaffold
@@ -21,7 +22,6 @@ import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Tab
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.runtime.Composable
@@ -36,7 +36,7 @@ import io.github.impca201.trackerforsimkl.data.NavTab
 import io.github.impca201.trackerforsimkl.data.model.MediaType
 import io.github.impca201.trackerforsimkl.data.model.MovieShelf
 import io.github.impca201.trackerforsimkl.ui.LocalNavigator
-import io.github.impca201.trackerforsimkl.ui.components.EmptyState
+import io.github.impca201.trackerforsimkl.ui.theme.EmptyState
 import io.github.impca201.trackerforsimkl.ui.components.rememberApp
 import io.github.impca201.trackerforsimkl.ui.main.MainTopBar
 import kotlinx.coroutines.launch
@@ -98,7 +98,7 @@ fun MoviesScreen() {
                 val filter = options.filter(page)
                 if (items.isEmpty() && filter.active) {
                     EmptyState(Icons.Rounded.SearchOff, stringResource(R.string.lib_no_matches)) {
-                        TextButton(onClick = { options.setFilter(page, LibraryFilter()) }) { Text(stringResource(R.string.lib_clear_filters)) }
+                        Button(onClick = { options.setFilter(page, LibraryFilter()) }) { Text(stringResource(R.string.lib_clear_filters)) }
                     }
                 } else if (state.firstSync) {
                     PosterGridSkeleton(bottomPadding())
@@ -112,7 +112,7 @@ fun MoviesScreen() {
                     EmptyState(
                         icon,
                         stringResource(title),
-                        if (shelf == MovieShelf.PlanToWatch) stringResource(R.string.lib_empty_plan_movies_text) else null,
+                        body = if (shelf == MovieShelf.PlanToWatch) stringResource(R.string.lib_empty_plan_movies_text) else null,
                     )
                 } else {
                     LibraryGrid(

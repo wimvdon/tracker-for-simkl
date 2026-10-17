@@ -13,7 +13,7 @@
     <string name="lib_duration_minutes">%1$dmin</string>
     <string name="lib_confirm_watched_title">¿Marcar como visto?</string>
     <string name="lib_confirm_watched_text">Dejaste %1$s al %2$d %%. Si lo marcas como visto, se eliminará ese progreso guardado en SIMKL.</string>
-    <string name="lib_mark_watched">Marcar como visto</string>
+    <string name="lib_mark_watched">Visto</string>
     <string name="lib_cancel">Cancelar</string>
     <string name="lib_badge_airing">En emisión</string>
     <string name="lib_badge_ended">Finalizada</string>

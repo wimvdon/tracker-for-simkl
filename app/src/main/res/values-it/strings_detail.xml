@@ -19,11 +19,11 @@
     <string name="detail_add_to_list">Aggiungi a lista</string>
     <string name="detail_remove_from_lists">Rimuovi dalle mie liste</string>
     <string name="detail_rate">Vota</string>
-    <string name="detail_mark_as_watched">Segna come visto</string>
+    <string name="detail_mark_as_watched">Visto</string>
     <string name="detail_watching_now">Sto guardando</string>
     <string name="detail_in_progress">In corso · %1$d%%</string>
     <string name="detail_in_progress_episode">In corso · %1$s · %2$d%%</string>
-    <string name="detail_mark_watched">Segna visto</string>
+    <string name="detail_mark_watched">Visto</string>
     <string name="detail_watched_episode">Visto %1$s</string>
     <string name="detail_watched_episode_titled">Visto %1$s · %2$s</string>
     <string name="detail_watching_episode_now">Sto guardando %1$s</string>

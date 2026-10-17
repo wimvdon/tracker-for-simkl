@@ -13,7 +13,7 @@
     <string name="lib_duration_minutes">%1$dmin</string>
     <string name="lib_confirm_watched_title">Marquer comme vu ?</string>
     <string name="lib_confirm_watched_text">Vous avez arrêté %1$s à %2$d %%. Le marquer comme vu supprime cette progression enregistrée sur SIMKL.</string>
-    <string name="lib_mark_watched">Marquer comme vu</string>
+    <string name="lib_mark_watched">Vu</string>
     <string name="lib_cancel">Annuler</string>
     <string name="lib_badge_airing">En cours</string>
     <string name="lib_badge_ended">Terminée</string>

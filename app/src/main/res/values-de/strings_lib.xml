@@ -13,7 +13,7 @@
     <string name="lib_duration_minutes">%1$d Min.</string>
     <string name="lib_confirm_watched_title">Als gesehen markieren?</string>
     <string name="lib_confirm_watched_text">Du hast %1$s bei %2$d %% angehalten. Wenn du es als gesehen markierst, wird dieser gespeicherte Fortschritt auf SIMKL entfernt.</string>
-    <string name="lib_mark_watched">Als gesehen markieren</string>
+    <string name="lib_mark_watched">Gesehen</string>
     <string name="lib_cancel">Abbrechen</string>
     <string name="lib_badge_airing">Läuft</string>
     <string name="lib_badge_ended">Beendet</string>
