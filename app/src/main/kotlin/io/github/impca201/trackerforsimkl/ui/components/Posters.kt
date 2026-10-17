@@ -176,25 +176,35 @@ fun PosterTile(
                 )
             }
         }
-        // Always two title lines and one caption line, so tiles side by side are the same
-        // height and a row doesn't jump while it scrolls (DESIGN.md, "Navigation and structure").
-        Text(
-            title,
-            style = MaterialTheme.typography.labelLarge,
-            minLines = 2,
-            maxLines = 2,
-            overflow = TextOverflow.Ellipsis,
-            modifier = Modifier.padding(horizontal = 2.dp),
-        )
-        Text(
-            subtitle.orEmpty(),
-            style = MaterialTheme.typography.labelSmall,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
-            minLines = 1,
-            maxLines = 1,
-            overflow = TextOverflow.Ellipsis,
-            modifier = Modifier.padding(horizontal = 2.dp),
-        )
+        // The text always takes the space of two title lines and one caption line, so tiles side by
+        // side are the same height and a row doesn't jump while it scrolls (DESIGN.md, "Navigation
+        // and structure"). The caption follows the title directly; a one-line title leaves the
+        // spare line at the bottom instead of between title and caption.
+        Box {
+            Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                Text("", style = MaterialTheme.typography.labelLarge, minLines = 2)
+                Text("", style = MaterialTheme.typography.labelSmall, minLines = 1)
+            }
+            Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                Text(
+                    title,
+                    style = MaterialTheme.typography.labelLarge,
+                    maxLines = 2,
+                    overflow = TextOverflow.Ellipsis,
+                    modifier = Modifier.padding(horizontal = 2.dp),
+                )
+                if (!subtitle.isNullOrEmpty()) {
+                    Text(
+                        subtitle,
+                        style = MaterialTheme.typography.labelSmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
+                        modifier = Modifier.padding(horizontal = 2.dp),
+                    )
+                }
+            }
+        }
     }
 }
 
