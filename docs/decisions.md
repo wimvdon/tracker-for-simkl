@@ -2,6 +2,14 @@
 
 Newest first. Add an entry for every notable choice: what was decided, why, and what was rejected.
 
+## 2026-10-17: Caption directly under a one-line poster title
+
+Poster tiles still reserve two title lines and one caption line (rows keep one height), but the
+caption now follows the title: with a one-line title the spare line sits at the bottom of the tile
+instead of as a gap between title and caption. Done with an invisible placeholder of the same
+lines behind the text, so it keeps working with any font size. Rejected: a fixed height in dp
+(breaks with larger system fonts).
+
 ## 2026-10-17: Per-tab sort and filter options, "My ratings" page
 
 With a filter and sort button on every library screen, each tab now offers only what makes sense
