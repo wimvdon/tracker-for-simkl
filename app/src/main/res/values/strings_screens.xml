@@ -25,8 +25,8 @@
     <string name="screens_profile_never_synced">Never synced</string>
     <string name="screens_profile_sync">Sync</string>
     <string name="screens_profile_open_page">Open my SIMKL page</string>
-    <string name="screens_profile_log_out">Log out</string>
-    <string name="screens_profile_log_out_title">Log out?</string>
+    <string name="screens_profile_log_out">Sign out</string>
+    <string name="screens_profile_log_out_title">Sign out?</string>
     <string name="screens_profile_log_out_body">Your lists stay on SIMKL. This only removes them from this device.</string>
     <string name="screens_profile_joined">Joined %1$s</string>
     <string name="screens_profile_time_watched">Time watched</string>
@@ -39,8 +39,9 @@
     <string name="screens_settings_types">Content</string>
     <string name="screens_settings_types_hint">Turned-off types are hidden everywhere in the app. Your SIMKL lists stay as they are.</string>
     <string name="screens_settings_bottom_bar">Bottom bar</string>
-    <string name="screens_settings_move_up">Move up</string>
-    <string name="screens_settings_move_down">Move down</string>
+    <string name="action_reorder">Reorder</string>
+    <string name="action_move_up">Move up</string>
+    <string name="action_move_down">Move down</string>
     <string name="screens_settings_library">Library</string>
     <string name="screens_settings_hide_specials">Hide specials</string>
     <string name="screens_settings_continue_latest">Continue from the latest episode</string>

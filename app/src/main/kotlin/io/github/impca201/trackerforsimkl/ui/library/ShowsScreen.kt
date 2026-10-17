@@ -72,6 +72,7 @@ import java.time.Instant
 import kotlin.math.roundToInt
 import io.github.impca201.trackerforsimkl.ui.components.PosterGridSkeleton
 import io.github.impca201.trackerforsimkl.ui.components.PosterListSkeleton
+import io.github.impca201.trackerforsimkl.ui.theme.readableWidth
 
 private fun Shelf.emptyIcon(): ImageVector =
     when (this) {
@@ -252,7 +253,7 @@ private fun UpNextList(
         state = listState,
         contentPadding = PaddingValues(start = 12.dp, end = 12.dp, top = 12.dp, bottom = bottomPadding()),
         verticalArrangement = Arrangement.spacedBy(10.dp),
-        modifier = Modifier.fillMaxSize(),
+        modifier = Modifier.fillMaxSize().readableWidth(),
     ) {
         items(items, key = { it.key }) { item ->
             val playback = state.playbackFor(item.type, item.ids.simkl)?.takeIf { it.episode != null }

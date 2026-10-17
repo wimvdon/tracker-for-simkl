@@ -9,11 +9,11 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Animation
-import androidx.compose.material.icons.filled.CalendarMonth
-import androidx.compose.material.icons.filled.Explore
-import androidx.compose.material.icons.filled.Movie
-import androidx.compose.material.icons.filled.Tv
+import androidx.compose.material.icons.rounded.Animation
+import androidx.compose.material.icons.rounded.CalendarMonth
+import androidx.compose.material.icons.rounded.Explore
+import androidx.compose.material.icons.rounded.Movie
+import androidx.compose.material.icons.rounded.Tv
 import androidx.compose.material.icons.outlined.Animation
 import androidx.compose.material.icons.outlined.CalendarMonth
 import androidx.compose.material.icons.outlined.Explore
@@ -49,11 +49,11 @@ val LocalNavigationBarShown = staticCompositionLocalOf { false }
 
 fun NavTab.icon(selected: Boolean): ImageVector =
     when (this) {
-        NavTab.Tv -> if (selected) Icons.Filled.Tv else Icons.Outlined.Tv
-        NavTab.Anime -> if (selected) Icons.Filled.Animation else Icons.Outlined.Animation
-        NavTab.Movies -> if (selected) Icons.Filled.Movie else Icons.Outlined.Movie
-        NavTab.Discover -> if (selected) Icons.Filled.Explore else Icons.Outlined.Explore
-        NavTab.Calendar -> if (selected) Icons.Filled.CalendarMonth else Icons.Outlined.CalendarMonth
+        NavTab.Tv -> if (selected) Icons.Rounded.Tv else Icons.Outlined.Tv
+        NavTab.Anime -> if (selected) Icons.Rounded.Animation else Icons.Outlined.Animation
+        NavTab.Movies -> if (selected) Icons.Rounded.Movie else Icons.Outlined.Movie
+        NavTab.Discover -> if (selected) Icons.Rounded.Explore else Icons.Outlined.Explore
+        NavTab.Calendar -> if (selected) Icons.Rounded.CalendarMonth else Icons.Outlined.CalendarMonth
     }
 
 /**

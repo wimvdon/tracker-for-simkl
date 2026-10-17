@@ -40,11 +40,21 @@ class MediaTypesSettingTest {
         val types = setOf(MediaType.Tv, MediaType.Anime)
         val shown = nav.available(types)
         assertEquals(listOf(NavTab.Tv, NavTab.Anime, NavTab.Discover, NavTab.Calendar), shown)
-        val moved = nav.moved(NavTab.Anime, up = true, shown)
+        val moved = nav.moved(NavTab.Anime, to = 0, shown)
         assertEquals(listOf(NavTab.Anime, NavTab.Movies, NavTab.Tv, NavTab.Discover, NavTab.Calendar), moved.order)
         assertEquals(listOf(NavTab.Anime, NavTab.Tv, NavTab.Discover, NavTab.Calendar), moved.available(types))
         // Nothing to move past at either end.
-        assertEquals(nav, nav.moved(NavTab.Tv, up = true, nav.order))
-        assertEquals(nav, nav.moved(NavTab.Calendar, up = false, nav.order))
+        assertEquals(nav, nav.moved(NavTab.Tv, to = -1, nav.order))
+        assertEquals(nav, nav.moved(NavTab.Calendar, to = nav.order.size, nav.order))
+    }
+
+    @Test
+    fun draggingMovesATabSeveralPlacesAtOnce() {
+        // Calendar dragged to the top; the hidden Movies tab keeps its place.
+        val types = setOf(MediaType.Tv, MediaType.Anime)
+        val shown = nav.available(types)
+        val moved = nav.moved(NavTab.Calendar, to = 0, shown)
+        assertEquals(listOf(NavTab.Calendar, NavTab.Movies, NavTab.Tv, NavTab.Anime, NavTab.Discover), moved.order)
+        assertEquals(listOf(NavTab.Calendar, NavTab.Tv, NavTab.Anime, NavTab.Discover), moved.available(types))
     }
 }

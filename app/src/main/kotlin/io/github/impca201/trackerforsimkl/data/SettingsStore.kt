@@ -96,22 +96,21 @@ data class NavConfig(
         visible.filter { it.allowedFor(types) }.ifEmpty { available(types).take(1) }
 
     /**
-     * Moves [tab] one place up or down among the tabs of [shown] (what the settings list shows),
-     * skipping hidden tabs in between.
+     * Moves [tab] to place [to] among the tabs of [shown] (what the settings list shows). Hidden
+     * tabs in between keep their places.
      */
     fun moved(
         tab: NavTab,
-        up: Boolean,
+        to: Int,
         shown: List<NavTab>,
     ): NavConfig {
-        val index = shown.indexOf(tab)
-        val other = shown.getOrNull(if (up) index - 1 else index + 1) ?: return this
-        if (index < 0) return this
+        val from = shown.indexOf(tab)
+        if (from < 0 || to !in shown.indices || from == to) return this
+        val reordered = shown.toMutableList().apply { add(to, removeAt(from)) }
+        // The places the listed tabs take in the full order, filled with them in their new order.
+        val slots = order.indices.filter { order[it] in shown }
         val list = order.toMutableList()
-        val a = list.indexOf(tab)
-        val b = list.indexOf(other)
-        list[a] = other
-        list[b] = tab
+        slots.forEachIndexed { i, slot -> list[slot] = reordered[i] }
         return copy(order = list)
     }
 }

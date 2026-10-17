@@ -2,6 +2,16 @@
 
 Newest first. Add an entry for every notable choice: what was decided, why, and what was rejected.
 
+## 2026-10-17: Drag handles for the bottom bar order
+
+A design review of the sibling apps found four ways to put a list in order (drag handles, a long
+press, chevrons and arrows). The shared rule in `DESIGN.md` ("Reordering") is now a drag handle at
+the end of each row, from the shared `Reorder.kt`. Settings › Bottom bar drops its up and down
+arrows: drag a destination by its handle (screen readers keep Move up and Move down). The
+navigation bar's selected icons come from Material's Rounded set like every other icon; lists keep
+a readable width on wide windows (`Layout.kt`); and English says "Sign out", matching "Sign in".
+Rejected: keeping the arrows (one more way to do the same thing across the apps).
+
 ## 2026-10-17: Ratings, rank and genres in the detail page's info box
 
 The rating, rank and genre chips sat above the overview, and nothing happened when tapped. A chip

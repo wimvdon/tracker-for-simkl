@@ -7,10 +7,7 @@ import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Row
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.rounded.KeyboardArrowDown
-import androidx.compose.material.icons.rounded.KeyboardArrowUp
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.ListItem
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Switch
@@ -40,6 +37,8 @@ import io.github.impca201.trackerforsimkl.ui.components.openUrl
 import io.github.impca201.trackerforsimkl.ui.components.rememberApp
 import io.github.impca201.trackerforsimkl.ui.main.icon
 import io.github.impca201.trackerforsimkl.ui.theme.AppearanceSettings
+import io.github.impca201.trackerforsimkl.ui.theme.DragHandle
+import io.github.impca201.trackerforsimkl.ui.theme.ReorderableColumn
 import io.github.impca201.trackerforsimkl.ui.theme.SettingsBlock
 import io.github.impca201.trackerforsimkl.ui.theme.SettingsSection
 import io.github.impca201.trackerforsimkl.ui.theme.SettingsFooter
@@ -144,21 +143,17 @@ fun SettingsScreen(settings: AppSettings) {
             val shown = settings.nav.available(settings.types)
             val shownOn = shown.count { it in settings.nav.enabled }
             SettingsSection(title = stringResource(R.string.screens_settings_bottom_bar)) {
-                shown.forEachIndexed { index, tab ->
+                ReorderableColumn(
+                    items = shown,
+                    key = { it },
+                    onMove = { from, to -> scope.launch { app.settings.setNav(settings.nav.moved(shown[from], to, shown)) } },
+                ) { tab ->
                     val enabled = tab in settings.nav.enabled
                     ListItem(
                         headlineContent = { Text(tab.label()) },
                         leadingContent = { Icon(tab.icon(enabled), null) },
                         trailingContent = {
                             Row(verticalAlignment = Alignment.CenterVertically) {
-                                IconButton(
-                                    enabled = index > 0,
-                                    onClick = { scope.launch { app.settings.setNav(settings.nav.moved(tab, up = true, shown)) } },
-                                ) { Icon(Icons.Rounded.KeyboardArrowUp, stringResource(R.string.screens_settings_move_up)) }
-                                IconButton(
-                                    enabled = index < shown.lastIndex,
-                                    onClick = { scope.launch { app.settings.setNav(settings.nav.moved(tab, up = false, shown)) } },
-                                ) { Icon(Icons.Rounded.KeyboardArrowDown, stringResource(R.string.screens_settings_move_down)) }
                                 Switch(
                                     checked = enabled,
                                     // At least one destination stays on.
@@ -168,6 +163,7 @@ fun SettingsScreen(settings: AppSettings) {
                                         scope.launch { app.settings.setNav(NavConfig(settings.nav.order, set)) }
                                     },
                                 )
+                                DragHandle(handleModifier)
                             }
                         },
                     )

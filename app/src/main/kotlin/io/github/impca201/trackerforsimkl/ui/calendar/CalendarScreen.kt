@@ -68,6 +68,7 @@ import kotlinx.coroutines.launch
 import java.time.LocalDate
 import java.time.ZoneId
 import io.github.impca201.trackerforsimkl.ui.components.PosterListSkeleton
+import io.github.impca201.trackerforsimkl.ui.theme.readableWidth
 
 /** Upcoming episodes and releases from SIMKL's calendars, by day. */
 @OptIn(ExperimentalMaterial3Api::class)
@@ -147,7 +148,7 @@ fun CalendarScreen(types: List<MediaType>) {
                     LazyColumn(
                         contentPadding = PaddingValues(start = 12.dp, end = 12.dp, bottom = bottomPadding()),
                         verticalArrangement = Arrangement.spacedBy(8.dp),
-                        modifier = Modifier.fillMaxSize(),
+                        modifier = Modifier.fillMaxSize().readableWidth(),
                     ) {
                         shownDays.forEach { (day, entries) ->
                             item(key = "d-$day") { SectionHeader(Format.day(day), entries.size, Modifier.animateItem()) }
