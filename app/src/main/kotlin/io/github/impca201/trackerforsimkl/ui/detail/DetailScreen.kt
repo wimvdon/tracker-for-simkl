@@ -13,6 +13,9 @@ import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.ui.semantics.stateDescription
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.Role
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.Arrangement
@@ -125,6 +128,7 @@ import io.github.impca201.trackerforsimkl.ui.Route
 import io.github.impca201.trackerforsimkl.ui.components.AiringBadge
 import io.github.impca201.trackerforsimkl.ui.theme.EmptyState
 import io.github.impca201.trackerforsimkl.ui.components.Format
+import io.github.impca201.trackerforsimkl.ui.components.RatingStar
 import io.github.impca201.trackerforsimkl.ui.components.Poster
 import io.github.impca201.trackerforsimkl.ui.components.PosterRow
 import io.github.impca201.trackerforsimkl.ui.components.openUrl
@@ -640,7 +644,7 @@ private fun About(d: MediaDetails) {
                 items(d.ratings) { r ->
                     InfoTag(
                         text = "${r.source} ${Format.rating(r.value)}" + (r.votes?.let { " (${compact(it)})" } ?: ""),
-                        icon = { Icon(Icons.Rounded.Star, null, Modifier.size(16.dp), tint = Color(0xFFFFB300)) },
+                        icon = { Icon(Icons.Rounded.Star, null, Modifier.size(16.dp), tint = RatingStar) },
                     )
                 }
                 d.rank?.let { rank -> item { InfoTag(stringResource(R.string.detail_rank, rank)) } }
@@ -652,12 +656,18 @@ private fun About(d: MediaDetails) {
             }
         }
         d.overview?.let { overview ->
+            val stateText = stringResource(if (expanded) R.string.section_expanded else R.string.section_collapsed)
             Text(
                 overview,
                 style = MaterialTheme.typography.bodyMedium,
                 maxLines = if (expanded) Int.MAX_VALUE else 5,
                 overflow = TextOverflow.Ellipsis,
-                modifier = Modifier.animateContentSize().clickable { expanded = !expanded },
+                // Tells screen readers the text can be tapped to show all of it, as ExpandableSetting does.
+                modifier =
+                    Modifier
+                        .animateContentSize()
+                        .clickable(role = Role.Button) { expanded = !expanded }
+                        .semantics { stateDescription = stateText },
             )
         }
         val facts =

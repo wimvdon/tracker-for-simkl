@@ -10,6 +10,8 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.wrapContentWidth
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.padding
@@ -58,6 +60,7 @@ import coil3.compose.AsyncImage
 import io.github.impca201.trackerforsimkl.R
 import io.github.impca201.trackerforsimkl.data.model.Images
 import io.github.impca201.trackerforsimkl.data.model.TypeStats
+import io.github.impca201.trackerforsimkl.data.model.Ratings
 import io.github.impca201.trackerforsimkl.data.model.MediaType
 import io.github.impca201.trackerforsimkl.data.model.UserProfile
 import io.github.impca201.trackerforsimkl.data.model.UserStats
@@ -104,7 +107,8 @@ fun ProfileScreen(types: Set<MediaType>) {
                     bottom = 24.dp + WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding(),
                 ),
             verticalArrangement = Arrangement.spacedBy(12.dp),
-            modifier = Modifier.fillMaxSize(),
+            // A readable width on wide windows, centred (DESIGN.md, about 640dp like Settings).
+            modifier = Modifier.fillMaxSize().wrapContentWidth().widthIn(max = 640.dp).fillMaxWidth(),
         ) {
             item(key = "header") { ProfileHeader(profile) }
             val s = stats
@@ -125,6 +129,28 @@ fun ProfileScreen(types: Set<MediaType>) {
                 item(key = "totals") { Box(Modifier.animateItem()) { Totals(s) } }
                 // Only the media types turned on in Settings.
                 s.types.filter { it.type in types }.forEachIndexed { i, t -> item(key = "type-$i") { Box(Modifier.animateItem()) { TypeCard(t) } } }
+            }
+            // What you watched and what you thought of it belong together: "My ratings" follows the
+            // statistics, apart from the account actions below.
+            item(key = "ratings") {
+                val rated = remember(library.items, types) { Ratings.count(library.items, types) }
+                Surface(shape = AppShapes.Group, color = MaterialTheme.colorScheme.surfaceContainerLow, modifier = Modifier.animateItem()) {
+                    ListItem(
+                        headlineContent = { Text(stringResource(R.string.screens_ratings)) },
+                        supportingContent = {
+                            Text(
+                                if (rated > 0) {
+                                    pluralStringResource(R.plurals.screens_profile_rated, rated, rated)
+                                } else {
+                                    stringResource(R.string.screens_ratings_empty)
+                                },
+                            )
+                        },
+                        leadingContent = { Icon(Icons.Rounded.Star, null) },
+                        colors = ListItemDefaults.colors(containerColor = MaterialTheme.colorScheme.surfaceContainerLow),
+                        modifier = Modifier.clickableRow { navigator.push(Route.Ratings) },
+                    )
+                }
             }
             item(key = "actions") {
                 Surface(shape = AppShapes.Group, color = MaterialTheme.colorScheme.surfaceContainerLow, modifier = Modifier.animateItem()) {
@@ -162,25 +188,20 @@ fun ProfileScreen(types: Set<MediaType>) {
                                 modifier = Modifier.clickableRow { context.openUrl("https://simkl.com/${p.id}/") },
                             )
                         }
-                        ListItem(
-                            headlineContent = { Text(stringResource(R.string.screens_ratings)) },
-                            leadingContent = { Icon(Icons.Rounded.Star, null) },
-                            colors = colors,
-                            modifier = Modifier.clickableRow { navigator.push(Route.Ratings) },
-                        )
-                        ListItem(
-                            headlineContent = { Text(stringResource(R.string.screens_settings)) },
-                            leadingContent = { Icon(Icons.Rounded.Settings, null) },
-                            colors = colors,
-                            modifier = Modifier.clickableRow { navigator.push(Route.Settings) },
-                        )
-                        ListItem(
-                            headlineContent = { Text(stringResource(R.string.screens_profile_log_out), color = MaterialTheme.colorScheme.error) },
-                            leadingContent = { Icon(Icons.AutoMirrored.Rounded.Logout, null, tint = MaterialTheme.colorScheme.error) },
-                            colors = colors,
-                            modifier = Modifier.clickableRow { confirmLogout = true },
-                        )
+                        // Settings is the gear in the top bar; no second entry here.
                     }
+                }
+            }
+            // Log out on its own, apart from the routine actions (DESIGN.md: destructive actions are
+            // separated and confirmed).
+            item(key = "logout") {
+                Surface(shape = AppShapes.Group, color = MaterialTheme.colorScheme.surfaceContainerLow, modifier = Modifier.animateItem()) {
+                    ListItem(
+                        headlineContent = { Text(stringResource(R.string.screens_profile_log_out), color = MaterialTheme.colorScheme.error) },
+                        leadingContent = { Icon(Icons.AutoMirrored.Rounded.Logout, null, tint = MaterialTheme.colorScheme.error) },
+                        colors = ListItemDefaults.colors(containerColor = MaterialTheme.colorScheme.surfaceContainerLow),
+                        modifier = Modifier.clickableRow { confirmLogout = true },
+                    )
                 }
             }
         }

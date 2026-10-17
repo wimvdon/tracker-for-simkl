@@ -49,6 +49,9 @@ import androidx.compose.ui.graphics.RectangleShape
 
 val PosterShape: Shape = RoundedCornerShape(12.dp)
 
+/** The one star colour for ratings, on posters and on the detail page. */
+val RatingStar = Color(0xFFFFB300)
+
 @Composable
 fun Poster(
     path: String?,
@@ -152,7 +155,7 @@ fun PosterTile(
                     contentColor = Color.White,
                 ) {
                     Row(Modifier.padding(horizontal = 5.dp, vertical = 2.dp), verticalAlignment = Alignment.CenterVertically) {
-                        Icon(Icons.Rounded.Star, null, Modifier.size(12.dp), tint = Color(0xFFFFC857))
+                        Icon(Icons.Rounded.Star, null, Modifier.size(12.dp), tint = RatingStar)
                         Text(Format.rating(rating), style = MaterialTheme.typography.labelSmall)
                     }
                 }
