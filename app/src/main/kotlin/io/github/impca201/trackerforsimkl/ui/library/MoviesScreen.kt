@@ -51,7 +51,7 @@ fun MoviesScreen() {
     val state by app.library.state.collectAsState()
     val snackbar = remember { SnackbarHostState() }
     val shelves = MovieShelf.entries
-    val options = rememberTabOptions(shelves.map { if (it == MovieShelf.PlanToWatch) SortOrder.Added else SortOrder.Recent })
+    val options = rememberTabOptions(shelves.map { TabSpec.of(it) })
     val pagerState = rememberPagerState { shelves.size }
     val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
     val byStatus =
@@ -72,8 +72,9 @@ fun MoviesScreen() {
             Column {
                 MainTopBar(NavTab.Movies.label(), scrollBehavior) {
                     val page = pagerState.currentPage
-                    FilterButton(options.filter(page), animeTypes = false) { options.setFilter(page, it) }
-                    SortButton(options.sort(page), SortOrder.choices(planToWatch = shelves[page] == MovieShelf.PlanToWatch)) { options.setSort(page, it) }
+                    val spec = options.spec(page)
+                    if (spec.hasFilters) FilterButton(options.filter(page), spec) { options.setFilter(page, it) }
+                    SortButton(options.sort(page), spec.sorts) { options.setSort(page, it) }
                 }
                 PrimaryTabRow(selectedTabIndex = pagerState.currentPage) {
                     shelves.forEachIndexed { index, shelf ->

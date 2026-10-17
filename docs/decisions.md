@@ -2,6 +2,17 @@
 
 Newest first. Add an entry for every notable choice: what was decided, why, and what was rejected.
 
+## 2026-10-17: Per-tab sort and filter options, "My ratings" page
+
+With a filter and sort button on every library screen, each tab now offers only what makes sense
+there (`TabSpec`): no my-rating filter or sort on Up next and Want to watch (titles you haven't
+seen aren't rated), no "recently watched" on Want to watch, an airing / ended filter on the show
+tabs, and "fewest episodes left" on Up next. Defaults stay: recently watched where something was
+watched, recently added on Want to watch. A filter or sort a tab doesn't offer is ignored, so
+nothing hidden can filter a list. The profile links to "My ratings": a poster row per type,
+highest rating first, whose header opens a grid of that type. The ratings come from the synced
+library, so the page needs no extra SIMKL calls.
+
 ## 2026-10-16: Shared empty state, steady poster rows, short buttons
 
 A Material 3 audit of the sibling apps added shared rules to `DESIGN.md` ("Empty and setup states"). This app's empty, no-result and failed screens now use the shared `ui/theme/EmptyState.kt` instead of its own copy in `Common.kt` (same look, plus a heading for screen readers and a readable width). Poster tiles always take two title lines and one caption line, and trailers always one name line, because a row of tiles only measures the tiles on screen: a longer title scrolling into view made the whole row taller and pushed everything below it down. "Mark as watched" buttons now say "Watched" ("Gezien"); the screen already says what is being marked. Rejected: measuring every tile in a row to find the tallest (costs a full layout pass of items that aren't visible) and keeping long button labels (they wrap or get cut off in Dutch and German).

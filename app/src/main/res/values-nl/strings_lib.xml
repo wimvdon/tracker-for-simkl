@@ -22,8 +22,10 @@
     <string name="lib_sort_recent">Recent bekeken</string>
     <string name="lib_sort_added">Recent toegevoegd</string>
     <string name="lib_sort_title">Titel</string>
-    <string name="lib_sort_rating">Beoordeling</string>
     <string name="lib_sort_release">Releasedatum</string>
+    <string name="lib_sort_episodes_left">Minste afleveringen te gaan</string>
+    <string name="lib_filter_airing_header">Status</string>
+    <string name="lib_see_all">Alles bekijken</string>
     <string name="lib_filter_type">Filteren op type</string>
     <string name="lib_filter_all">Alle</string>
     <string name="lib_filter">Filteren</string>

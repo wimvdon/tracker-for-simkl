@@ -4,6 +4,10 @@
     <string name="screens_clear">Wissen</string>
     <string name="screens_cancel">Annuleren</string>
     <string name="screens_settings">Instellingen</string>
+    <string name="screens_ratings">Mijn beoordelingen</string>
+    <string name="screens_ratings_of">Mijn beoordelingen · %1$s</string>
+    <string name="screens_ratings_empty">Nog niets beoordeeld</string>
+    <string name="screens_ratings_empty_text">Beoordeel een serie of film op de pagina ervan en ze verschijnt hier.</string>
     <string name="screens_powered_by">Mogelijk gemaakt door SIMKL · simkl.com</string>
     <string name="screens_search_placeholder">Zoeken op SIMKL</string>
     <string name="screens_search_all">Alle</string>

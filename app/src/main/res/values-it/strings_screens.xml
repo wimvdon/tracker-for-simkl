@@ -4,6 +4,10 @@
     <string name="screens_clear">Cancella</string>
     <string name="screens_cancel">Annulla</string>
     <string name="screens_settings">Impostazioni</string>
+    <string name="screens_ratings">Le mie valutazioni</string>
+    <string name="screens_ratings_of">Le mie valutazioni · %1$s</string>
+    <string name="screens_ratings_empty">Nessuna valutazione</string>
+    <string name="screens_ratings_empty_text">Valuta una serie o un film nella sua pagina e apparirà qui.</string>
     <string name="screens_powered_by">Con la tecnologia di SIMKL · simkl.com</string>
     <string name="screens_search_placeholder">Cerca su SIMKL</string>
     <string name="screens_search_all">Tutti</string>

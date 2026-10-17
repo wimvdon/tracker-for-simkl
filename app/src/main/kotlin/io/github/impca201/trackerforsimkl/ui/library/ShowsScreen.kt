@@ -116,7 +116,7 @@ fun ShowsScreen(
     val state by app.library.state.collectAsState()
     val snackbar = remember { SnackbarHostState() }
     val shelves = Shelf.entries
-    val options = rememberTabOptions(shelves.map { if (it == Shelf.PlanToWatch) SortOrder.Added else SortOrder.Recent })
+    val options = rememberTabOptions(shelves.map { TabSpec.of(it, anime = type == MediaType.Anime) })
     val pagerState = rememberPagerState { shelves.size }
     val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
     val fromLatest = settings.continueFromLatest
@@ -129,7 +129,8 @@ fun ShowsScreen(
                 .groupBy { Shelves.shelfOf(it, now, fromLatest, state.latestNext[it.key]) }
                 .mapValues { (shelf, v) ->
                     val tab = shelves.indexOf(shelf)
-                    val sorted = options.sort(tab).sort(options.filter(tab).apply(v))
+                    val airingOf = { item: LibraryItem -> Shelves.airingOf(item, state.showInfo[item.key], state.nextAirDate(item)) }
+                    val sorted = options.sort(tab).sort(options.filter(tab).apply(v, airingOf))
                     // Episodes in progress come first in Up next.
                     if (shelf == Shelf.UpNext) sorted.sortedByDescending { state.playbackFor(it.type, it.ids.simkl) != null } else sorted
                 }
@@ -151,8 +152,9 @@ fun ShowsScreen(
                     scrollBehavior = scrollBehavior,
                 ) {
                     val page = pagerState.currentPage
-                    FilterButton(options.filter(page), animeTypes = type == MediaType.Anime) { options.setFilter(page, it) }
-                    SortButton(options.sort(page), SortOrder.choices(planToWatch = shelves[page] == Shelf.PlanToWatch)) { options.setSort(page, it) }
+                    val spec = options.spec(page)
+                    if (spec.hasFilters) FilterButton(options.filter(page), spec) { options.setFilter(page, it) }
+                    SortButton(options.sort(page), spec.sorts) { options.setSort(page, it) }
                 }
                 PrimaryScrollableTabRow(selectedTabIndex = pagerState.currentPage, edgePadding = 16.dp) {
                     shelves.forEachIndexed { index, shelf ->

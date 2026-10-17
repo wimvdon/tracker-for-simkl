@@ -7,7 +7,7 @@ Tracker for Simkl is a single-module, single-activity Android app. Compose rende
 ```
  MainActivity ─ AppRoot ─ Navigator (stack of Route)
                    │            ├─ MainScreen (bottom bar: TV Shows, Movies, Anime, Discover, Calendar)
-                   │            ├─ DetailScreen, SearchScreen, ProfileScreen, SettingsScreen
+                   │            ├─ DetailScreen, SearchScreen, ProfileScreen (› RatingsScreen › RatedGridScreen), SettingsScreen
                    ▼
  TrackerApp (Application, one instance)
    ├─ OkHttpClient (50 MB HTTP cache) ─── also used by Coil for images (wsrv.nl)

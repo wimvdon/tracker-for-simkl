@@ -27,6 +27,8 @@ import io.github.impca201.trackerforsimkl.ui.login.LoginScreen
 import io.github.impca201.trackerforsimkl.ui.main.MainScreen
 import io.github.impca201.trackerforsimkl.ui.profile.ProfileScreen
 import io.github.impca201.trackerforsimkl.ui.search.SearchScreen
+import io.github.impca201.trackerforsimkl.ui.profile.RatedGridScreen
+import io.github.impca201.trackerforsimkl.ui.profile.RatingsScreen
 import io.github.impca201.trackerforsimkl.ui.settings.SettingsScreen
 import io.github.impca201.trackerforsimkl.ui.theme.Motion
 import io.github.impca201.trackerforsimkl.ui.theme.TrackerTheme
@@ -93,6 +95,8 @@ private fun LoggedIn(
                     Route.Search -> SearchScreen(settings.typeList)
                     Route.Profile -> ProfileScreen(settings.types)
                     Route.Settings -> SettingsScreen(settings)
+                    Route.Ratings -> RatingsScreen(settings.typeList)
+                    is Route.RatedGrid -> RatedGridScreen(route.type)
                 }
             }
         }
