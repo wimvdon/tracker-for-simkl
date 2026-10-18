@@ -13,6 +13,12 @@
     <string name="screens_search_all">Alle</string>
     <string name="screens_search_no_results">Geen resultaten voor “%1$s”</string>
     <string name="screens_search_empty_title">Zoek series, anime en films</string>
+    <string name="screens_search_empty_title_tv_anime">Zoek series en anime</string>
+    <string name="screens_search_empty_title_tv_movies">Zoek series en films</string>
+    <string name="screens_search_empty_title_anime_movies">Zoek anime en films</string>
+    <string name="screens_search_empty_title_tv">Zoek series</string>
+    <string name="screens_search_empty_title_anime">Zoek anime</string>
+    <string name="screens_search_empty_title_movies">Zoek films</string>
     <string name="screens_search_empty_body">Zoek op titel in de hele SIMKL-catalogus.</string>
     <string name="screens_discover_no_suggestion">SIMKL had deze keer geen suggestie</string>
     <string name="screens_discover_surprise">Verras me</string>

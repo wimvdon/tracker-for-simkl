@@ -13,6 +13,12 @@
     <string name="screens_search_all">Tutti</string>
     <string name="screens_search_no_results">Nessun risultato per “%1$s”</string>
     <string name="screens_search_empty_title">Trova serie TV, anime e film</string>
+    <string name="screens_search_empty_title_tv_anime">Trova serie TV e anime</string>
+    <string name="screens_search_empty_title_tv_movies">Trova serie TV e film</string>
+    <string name="screens_search_empty_title_anime_movies">Trova anime e film</string>
+    <string name="screens_search_empty_title_tv">Trova serie TV</string>
+    <string name="screens_search_empty_title_anime">Trova anime</string>
+    <string name="screens_search_empty_title_movies">Trova film</string>
     <string name="screens_search_empty_body">Cerca per titolo in tutto il catalogo SIMKL.</string>
     <string name="screens_discover_no_suggestion">SIMKL non ha suggerimenti questa volta</string>
     <string name="screens_discover_surprise">Sorprendimi</string>
