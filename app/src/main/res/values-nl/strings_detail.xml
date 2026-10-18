@@ -20,13 +20,14 @@
     <string name="detail_remove_from_lists">Uit mijn lijsten verwijderen</string>
     <string name="detail_rate">Beoordelen</string>
     <string name="detail_mark_as_watched">Gezien</string>
-    <string name="detail_watching_now">Kijk ik nu</string>
+    <string name="detail_check_in">Inchecken</string>
+    <string name="detail_check_in_title">Inchecken?</string>
+    <string name="detail_check_in_text">Laat SIMKL weten dat je nu naar %1$s kijkt. SIMKL markeert het als gezien zodra het afgelopen is.</string>
     <string name="detail_in_progress">Bezig · %1$d%%</string>
     <string name="detail_in_progress_episode">Bezig · %1$s · %2$d%%</string>
     <string name="detail_mark_watched">Gezien</string>
     <string name="detail_watched_episode">%1$s gezien</string>
     <string name="detail_watched_episode_titled">%1$s gezien · %2$s</string>
-    <string name="detail_watching_episode_now">Kijk nu %1$s</string>
     <string name="detail_your_note">Je notitie: %1$s</string>
     <string name="detail_last_watched">laatst %1$s</string>
     <string name="detail_your_rating">Jouw beoordeling</string>

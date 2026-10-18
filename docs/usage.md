@@ -43,7 +43,7 @@ Shelves: **Plan to watch**, **Watched**, **Dropped**, with the same sort button.
 
 ## Details
 
-Tap any poster. You get fanart, your list status, your 1–10 rating, **Watched** / **Watching now**, the overview, an info box (ratings from SIMKL, IMDb, MAL…, rank, genres, status, airing info, network and country), trailers, recommendations, links (SIMKL, IMDb, TMDB, MAL, AniList…), and the full episode list per season.
+Tap any poster. You get fanart, your list status, your 1–10 rating, **Watched** / **Check in**, the overview, an info box (ratings from SIMKL, IMDb, MAL…, rank, genres, status, airing info, network and country), trailers, recommendations, links (SIMKL, IMDb, TMDB, MAL, AniList…), and the full episode list per season.
 
 The show's status is shown in the app's language, and the weekly broadcast day and time are converted from the broadcaster's time zone to your phone's time zone. The episode list opens on the season you are watching: the season of a paused episode, else the season of your latest watched episode (not season 1 when you skipped earlier seasons).
 
@@ -54,7 +54,9 @@ In the episode list:
 - long-press an episode to mark everything up to it;
 - mark a whole season at once.
 
-A title you paused part-way (on another device) shows a **progress banner** with its own **Watched** button. While the banner is there, the plain Watched button for that same movie or episode is hidden, so there is only one; **Watching now** stays.
+A title you paused part-way (on another device) shows a **progress banner** with its own **Watched** button. While the banner is there, the plain Watched button for that same movie or episode is hidden, so there is only one; **Check in** stays.
+
+The buttons at the top: **Add to list** (list icon; once the title is in a list it shows the list's name) opens the list statuses, **Rate** opens the 1–10 rating, **Watched** (check mark) marks it watched, and **Check in** (TV icon) tells SIMKL you are watching it right now. Check in asks first and explains itself; SIMKL then marks the title watched when it ends.
 
 Links to `simkl.com/tv/…`, `/anime/…` and `/movies/…` from other apps can open straight in these details.
 
