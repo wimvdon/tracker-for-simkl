@@ -13,6 +13,12 @@
     <string name="screens_search_all">All</string>
     <string name="screens_search_no_results">No results for “%1$s”</string>
     <string name="screens_search_empty_title">Find TV shows, anime and movies</string>
+    <string name="screens_search_empty_title_tv_anime">Find TV shows and anime</string>
+    <string name="screens_search_empty_title_tv_movies">Find TV shows and movies</string>
+    <string name="screens_search_empty_title_anime_movies">Find anime and movies</string>
+    <string name="screens_search_empty_title_tv">Find TV shows</string>
+    <string name="screens_search_empty_title_anime">Find anime</string>
+    <string name="screens_search_empty_title_movies">Find movies</string>
     <string name="screens_search_empty_body">Search by title in the whole SIMKL catalogue.</string>
     <string name="screens_discover_no_suggestion">SIMKL had no suggestion this time</string>
     <string name="screens_discover_surprise">Surprise me</string>

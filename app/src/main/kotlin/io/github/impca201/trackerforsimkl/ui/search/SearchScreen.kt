@@ -60,6 +60,7 @@ import androidx.compose.ui.unit.dp
 import io.github.impca201.trackerforsimkl.R
 import io.github.impca201.trackerforsimkl.data.model.MediaSummary
 import io.github.impca201.trackerforsimkl.data.model.MediaType
+import io.github.impca201.trackerforsimkl.data.model.SearchSubject
 import io.github.impca201.trackerforsimkl.ui.LocalNavigator
 import io.github.impca201.trackerforsimkl.ui.theme.EmptyState
 import io.github.impca201.trackerforsimkl.ui.components.Format
@@ -158,7 +159,7 @@ fun SearchScreen(types: List<MediaType>) {
                 if (query.trim().length >= 2 && !loading) {
                     EmptyState(Icons.Rounded.SearchOff, stringResource(R.string.screens_search_no_results, query.trim()), Modifier.padding(padding))
                 } else {
-                    EmptyState(Icons.Rounded.Search, stringResource(R.string.screens_search_empty_title), Modifier.padding(padding), body = stringResource(R.string.screens_search_empty_body))
+                    EmptyState(Icons.Rounded.Search, stringResource(SearchSubject.of(types).titleRes()), Modifier.padding(padding), body = stringResource(R.string.screens_search_empty_body))
                 }
             } else {
                 LazyColumn(
@@ -226,3 +227,15 @@ fun ResultRow(
         }
     }
 }
+
+/** The empty-screen title for the types that are on. */
+private fun SearchSubject.titleRes(): Int =
+    when (this) {
+        SearchSubject.All -> R.string.screens_search_empty_title
+        SearchSubject.TvAndAnime -> R.string.screens_search_empty_title_tv_anime
+        SearchSubject.TvAndMovies -> R.string.screens_search_empty_title_tv_movies
+        SearchSubject.AnimeAndMovies -> R.string.screens_search_empty_title_anime_movies
+        SearchSubject.Tv -> R.string.screens_search_empty_title_tv
+        SearchSubject.Anime -> R.string.screens_search_empty_title_anime
+        SearchSubject.Movies -> R.string.screens_search_empty_title_movies
+    }
