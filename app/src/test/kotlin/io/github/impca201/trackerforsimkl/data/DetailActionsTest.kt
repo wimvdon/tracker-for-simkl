@@ -5,6 +5,7 @@ import io.github.impca201.trackerforsimkl.data.model.EpisodeRef
 import io.github.impca201.trackerforsimkl.data.model.ListStatus
 import io.github.impca201.trackerforsimkl.data.model.MediaType
 import io.github.impca201.trackerforsimkl.data.model.Playback
+import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Test
@@ -42,5 +43,16 @@ class DetailActionsTest {
     fun nextEpisodeButtonStaysForAnotherEpisodeOrUnknownEpisode() {
         assertTrue(DetailActions.showNextEpisodeWatched(next, showPlayback(EpisodeRef(1, 2))))
         assertTrue(DetailActions.showNextEpisodeWatched(next, showPlayback(null)))
+    }
+
+    @Test
+    fun checkInNameIsTheTitleForAMovie() {
+        assertEquals("Film", DetailActions.checkInName("Film", null))
+    }
+
+    @Test
+    fun checkInNameAddsTheEpisodeForAShow() {
+        assertEquals("Show S01E03", DetailActions.checkInName("Show", EpisodeRef(1, 3)))
+        assertEquals("Anime E12", DetailActions.checkInName("Anime", EpisodeRef(null, 12)))
     }
 }

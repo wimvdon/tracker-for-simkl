@@ -40,12 +40,15 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.ArrowBack
 import androidx.compose.material.icons.automirrored.rounded.OpenInNew
+import androidx.compose.material.icons.automirrored.rounded.PlaylistAdd
+import androidx.compose.material.icons.automirrored.rounded.PlaylistAddCheck
 import androidx.compose.material.icons.rounded.Add
 import androidx.compose.material.icons.rounded.Check
 import androidx.compose.material.icons.rounded.CheckCircle
 import androidx.compose.material.icons.rounded.DoneAll
 import androidx.compose.material.icons.rounded.ErrorOutline
 import androidx.compose.material.icons.rounded.ExpandMore
+import androidx.compose.material.icons.rounded.LiveTv
 import androidx.compose.material.icons.rounded.MoreVert
 import androidx.compose.material.icons.rounded.PlayArrow
 import androidx.compose.material.icons.rounded.RemoveDone
@@ -267,6 +270,7 @@ fun DetailScreen(
                 item(key = "actions") {
                     Actions(
                         type = route.type,
+                        title = title,
                         item = item,
                         next = item?.let { Shelves.nextEpisode(it, settings.continueFromLatest, library.latestNext[it.key]) },
                         playback = playback,
@@ -422,6 +426,7 @@ private fun Header(
 @Composable
 private fun Actions(
     type: MediaType,
+    title: String,
     item: LibraryItem?,
     next: NextEpisode?,
     playback: Playback?,
@@ -434,18 +439,19 @@ private fun Actions(
 ) {
     var menu by remember { mutableStateOf(false) }
     var rating by remember { mutableStateOf(false) }
+    var pendingCheckIn by remember { mutableStateOf<PendingCheckIn?>(null) }
     Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
         Row(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalAlignment = Alignment.CenterVertically) {
             Box(Modifier.weight(1f)) {
                 if (item == null) {
                     Button(onClick = { menu = true }, modifier = Modifier.fillMaxWidth()) {
-                        Icon(Icons.Rounded.Add, null, Modifier.size(18.dp))
+                        Icon(Icons.AutoMirrored.Rounded.PlaylistAdd, null, Modifier.size(18.dp))
                         Spacer(Modifier.width(8.dp))
                         Text(stringResource(R.string.detail_add_to_list))
                     }
                 } else {
                     FilledTonalButton(onClick = { menu = true }, modifier = Modifier.fillMaxWidth()) {
-                        Icon(Icons.Rounded.CheckCircle, null, Modifier.size(18.dp))
+                        Icon(Icons.AutoMirrored.Rounded.PlaylistAddCheck, null, Modifier.size(18.dp))
                         Spacer(Modifier.width(8.dp))
                         Text(item.status.label(type))
                         Spacer(Modifier.width(4.dp))
@@ -495,10 +501,10 @@ private fun Actions(
                         Text(stringResource(R.string.detail_mark_as_watched))
                     }
                 }
-                OutlinedButton(onClick = { onCheckIn(null) }, modifier = Modifier.weight(1f)) {
-                    Icon(Icons.Rounded.PlayArrow, null, Modifier.size(18.dp))
+                OutlinedButton(onClick = { pendingCheckIn = PendingCheckIn(null) }, modifier = Modifier.weight(1f)) {
+                    Icon(Icons.Rounded.LiveTv, null, Modifier.size(18.dp))
                     Spacer(Modifier.width(8.dp))
-                    Text(stringResource(R.string.detail_watching_now))
+                    Text(stringResource(R.string.detail_check_in))
                 }
             }
         }
@@ -524,7 +530,6 @@ private fun Actions(
         if (type.isEpisodic && next != null && item?.status == ListStatus.Watching) {
             // When the progress banner is on this very episode, its Watched button replaces this one.
             val showWatched = DetailActions.showNextEpisodeWatched(next.ref, playback)
-            val watchingNow = stringResource(R.string.detail_watching_episode_now, next.ref.label)
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalAlignment = Alignment.CenterVertically) {
                 if (showWatched) {
                     FilledTonalButton(
@@ -539,16 +544,14 @@ private fun Actions(
                             maxLines = 1, overflow = TextOverflow.Ellipsis)
                     }
                 }
-                // Alone in the row it gets a label and the full width; next to the Watched button it stays an icon.
+                // Alone in the row (the banner has the Watched button) it takes the full width.
                 OutlinedButton(
-                    onClick = { onCheckIn(next.ref) },
+                    onClick = { pendingCheckIn = PendingCheckIn(next.ref) },
                     modifier = if (showWatched) Modifier else Modifier.fillMaxWidth(),
                 ) {
-                    Icon(Icons.Rounded.PlayArrow, contentDescription = if (showWatched) watchingNow else null, modifier = Modifier.size(18.dp))
-                    if (!showWatched) {
-                        Spacer(Modifier.width(8.dp))
-                        Text(watchingNow, maxLines = 1, overflow = TextOverflow.Ellipsis)
-                    }
+                    Icon(Icons.Rounded.LiveTv, null, Modifier.size(18.dp))
+                    Spacer(Modifier.width(8.dp))
+                    Text(stringResource(R.string.detail_check_in), maxLines = 1)
                 }
             }
         }
@@ -576,6 +579,38 @@ private fun Actions(
             onRate(it)
         }
     }
+    pendingCheckIn?.let { pending ->
+        CheckInDialog(
+            name = DetailActions.checkInName(title, pending.episode),
+            onDismiss = { pendingCheckIn = null },
+            onConfirm = {
+                pendingCheckIn = null
+                onCheckIn(pending.episode)
+            },
+        )
+    }
+}
+
+/** What the person is about to check in to: a movie (no episode) or one episode. */
+private data class PendingCheckIn(
+    val episode: EpisodeRef?,
+)
+
+/** Says what checking in does before it happens, because the button on its own does not. */
+@Composable
+private fun CheckInDialog(
+    name: String,
+    onDismiss: () -> Unit,
+    onConfirm: () -> Unit,
+) {
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        icon = { Icon(Icons.Rounded.LiveTv, null) },
+        title = { Text(stringResource(R.string.detail_check_in_title)) },
+        text = { Text(stringResource(R.string.detail_check_in_text, name)) },
+        confirmButton = { TextButton(onClick = onConfirm) { Text(stringResource(R.string.detail_check_in)) } },
+        dismissButton = { TextButton(onClick = onDismiss) { Text(stringResource(R.string.detail_cancel)) } },
+    )
 }
 
 @Composable

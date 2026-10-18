@@ -19,4 +19,10 @@ object DetailActions {
         next: EpisodeRef,
         playback: Playback?,
     ): Boolean = playback?.episode != next
+
+    /** How the check-in confirmation names what is being checked in: the title, plus the episode for a show. */
+    fun checkInName(
+        title: String,
+        episode: EpisodeRef?,
+    ): String = if (episode == null) title else "$title ${episode.label}"
 }

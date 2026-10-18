@@ -20,13 +20,14 @@
     <string name="detail_remove_from_lists">Retirer de mes listes</string>
     <string name="detail_rate">Noter</string>
     <string name="detail_mark_as_watched">Vu</string>
-    <string name="detail_watching_now">Je regarde</string>
+    <string name="detail_check_in">Check-in</string>
+    <string name="detail_check_in_title">Faire un check-in ?</string>
+    <string name="detail_check_in_text">SIMKL saura que %1$s est en cours de visionnage. Il le marquera comme vu à la fin.</string>
     <string name="detail_in_progress">En cours · %1$d %%</string>
     <string name="detail_in_progress_episode">En cours · %1$s · %2$d %%</string>
     <string name="detail_mark_watched">Vu</string>
     <string name="detail_watched_episode">%1$s vu</string>
     <string name="detail_watched_episode_titled">%1$s vu · %2$s</string>
-    <string name="detail_watching_episode_now">Je regarde %1$s</string>
     <string name="detail_your_note">Votre mémo : %1$s</string>
     <string name="detail_last_watched">dernier : %1$s</string>
     <string name="detail_your_rating">Votre note</string>
