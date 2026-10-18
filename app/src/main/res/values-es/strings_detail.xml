@@ -69,6 +69,9 @@
     <string name="detail_fact_also_known_as">Otros títulos</string>
     <string name="detail_fact_rank">Puesto</string>
     <string name="detail_fact_genres">Géneros</string>
+    <string name="detail_votes">%1$s votos</string>
+    <string name="detail_show_more">Mostrar más</string>
+    <string name="detail_show_less">Mostrar menos</string>
     <string name="detail_trailers">Tráileres</string>
     <string name="detail_play">Reproducir</string>
     <string name="detail_episodes">Episodios</string>
