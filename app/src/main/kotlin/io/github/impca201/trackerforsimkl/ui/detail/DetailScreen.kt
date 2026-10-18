@@ -9,6 +9,7 @@ import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.togetherWith
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -69,6 +70,7 @@ import androidx.compose.material.icons.rounded.StarOutline
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.AssistChip
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
@@ -245,6 +247,21 @@ fun DetailScreen(
                     }
                 },
                 actions = {
+                    // Putting a title in a list is the main thing to do here, so it sits in the title bar.
+                    ListButton(
+                        type = route.type,
+                        item = item,
+                        onStatus = { status ->
+                            run(resources.getString(R.string.detail_error_update_list)) {
+                                if (status == null) {
+                                    app.library.remove(route.type, ids.simkl)
+                                } else {
+                                    app.library.setStatus(route.type, ids, title, poster, year, status)
+                                }
+                            }
+                        },
+                    )
+                    Spacer(Modifier.width(8.dp))
                     IconButton(
                         onClick = { context.share(title, webUrl(route.type, route.simklId, ids.slug)) },
                         colors = IconButtonDefaults.filledTonalIconButtonColors(),
@@ -290,16 +307,6 @@ fun DetailScreen(
                         next = item?.let { Shelves.nextEpisode(it, settings.continueFromLatest, library.latestNext[it.key]) },
                         playback = playback,
                         onPlaybackWatched = { confirmPlayback = it },
-                        onStatus = { status ->
-                            run(resources.getString(R.string.detail_error_update_list)) {
-                                if (status == null) {
-                                    app.library.remove(route.type, ids.simkl)
-                                } else {
-                                    app.library.setStatus(route.type, ids, title, poster, year, status)
-                                }
-                            }
-                        },
-                        onRate = { rating -> run(resources.getString(R.string.detail_error_save_rating)) { app.library.rate(route.type, ids.simkl, rating) } },
                         onMovieWatched = { run(resources.getString(R.string.detail_error_mark_watched)) { app.library.markMovieWatched(ids, title, poster, year) } },
                         onWatchNext = { next ->
                             run(resources.getString(R.string.detail_error_mark_episode_watched, next.label)) {
@@ -336,7 +343,15 @@ fun DetailScreen(
                         }
                     }
                 } else {
-                    item(key = "about") { Box(Modifier.animateItem()) { About(d) } }
+                    item(key = "about") {
+                        Box(Modifier.animateItem()) {
+                            About(
+                                d = d,
+                                userRating = item?.userRating,
+                                onRate = { rating -> run(resources.getString(R.string.detail_error_save_rating)) { app.library.rate(route.type, ids.simkl, rating) } },
+                            )
+                        }
+                    }
                     if (d.trailers.isNotEmpty()) {
                         item(key = "trailers") { Box(Modifier.animateItem()) { Trailers(d) } }
                     }
@@ -438,6 +453,58 @@ private fun Header(
     }
 }
 
+/**
+ * The list button in the title bar: "Add to list", or the list the title is in. Opens the list
+ * statuses, plus "Remove from my lists" once the title is in one.
+ */
+@Composable
+private fun ListButton(
+    type: MediaType,
+    item: LibraryItem?,
+    onStatus: (ListStatus?) -> Unit,
+) {
+    var menu by remember { mutableStateOf(false) }
+    Box {
+        if (item == null) {
+            Button(onClick = { menu = true }, contentPadding = ButtonDefaults.ButtonWithIconContentPadding) {
+                Icon(Icons.AutoMirrored.Rounded.PlaylistAdd, null, Modifier.size(18.dp))
+                Spacer(Modifier.width(8.dp))
+                Text(stringResource(R.string.detail_add_to_list), maxLines = 1)
+            }
+        } else {
+            FilledTonalButton(onClick = { menu = true }, contentPadding = ButtonDefaults.ButtonWithIconContentPadding) {
+                Icon(Icons.AutoMirrored.Rounded.PlaylistAddCheck, null, Modifier.size(18.dp))
+                Spacer(Modifier.width(8.dp))
+                Text(item.status.label(type), maxLines = 1)
+                Spacer(Modifier.width(4.dp))
+                Icon(Icons.Rounded.ExpandMore, null, Modifier.size(18.dp))
+            }
+        }
+        DropdownMenu(expanded = menu, onDismissRequest = { menu = false }) {
+            ListStatus.forType(type).forEach { status ->
+                DropdownMenuItem(
+                    text = { Text(status.label(type)) },
+                    onClick = {
+                        menu = false
+                        onStatus(status)
+                    },
+                    trailingIcon = { if (item?.status == status) Icon(Icons.Rounded.Check, null) },
+                )
+            }
+            if (item != null) {
+                HorizontalDivider()
+                DropdownMenuItem(
+                    text = { Text(stringResource(R.string.detail_remove_from_lists), color = MaterialTheme.colorScheme.error) },
+                    onClick = {
+                        menu = false
+                        onStatus(null)
+                    },
+                )
+            }
+        }
+    }
+}
+
 @Composable
 private fun Actions(
     type: MediaType,
@@ -446,63 +513,12 @@ private fun Actions(
     next: NextEpisode?,
     playback: Playback?,
     onPlaybackWatched: (Playback) -> Unit,
-    onStatus: (ListStatus?) -> Unit,
-    onRate: (Int?) -> Unit,
     onMovieWatched: () -> Unit,
     onWatchNext: (EpisodeRef) -> Unit,
     onCheckIn: (EpisodeRef?) -> Unit,
 ) {
-    var menu by remember { mutableStateOf(false) }
-    var rating by remember { mutableStateOf(false) }
     var pendingCheckIn by remember { mutableStateOf<PendingCheckIn?>(null) }
     Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
-        Row(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalAlignment = Alignment.CenterVertically) {
-            Box(Modifier.weight(1f)) {
-                if (item == null) {
-                    Button(onClick = { menu = true }, modifier = Modifier.fillMaxWidth()) {
-                        Icon(Icons.AutoMirrored.Rounded.PlaylistAdd, null, Modifier.size(18.dp))
-                        Spacer(Modifier.width(8.dp))
-                        Text(stringResource(R.string.detail_add_to_list))
-                    }
-                } else {
-                    FilledTonalButton(onClick = { menu = true }, modifier = Modifier.fillMaxWidth()) {
-                        Icon(Icons.AutoMirrored.Rounded.PlaylistAddCheck, null, Modifier.size(18.dp))
-                        Spacer(Modifier.width(8.dp))
-                        Text(item.status.label(type))
-                        Spacer(Modifier.width(4.dp))
-                        Icon(Icons.Rounded.ExpandMore, null, Modifier.size(18.dp))
-                    }
-                }
-                DropdownMenu(expanded = menu, onDismissRequest = { menu = false }) {
-                    ListStatus.forType(type).forEach { status ->
-                        DropdownMenuItem(
-                            text = { Text(status.label(type)) },
-                            onClick = {
-                                menu = false
-                                onStatus(status)
-                            },
-                            trailingIcon = { if (item?.status == status) Icon(Icons.Rounded.Check, null) },
-                        )
-                    }
-                    if (item != null) {
-                        HorizontalDivider()
-                        DropdownMenuItem(
-                            text = { Text(stringResource(R.string.detail_remove_from_lists), color = MaterialTheme.colorScheme.error) },
-                            onClick = {
-                                menu = false
-                                onStatus(null)
-                            },
-                        )
-                    }
-                }
-            }
-            OutlinedButton(onClick = { rating = true }) {
-                val rated = item?.userRating
-                Icon(if (rated != null) Icons.Rounded.Star else Icons.Rounded.StarOutline, null, Modifier.size(18.dp))
-                Spacer(Modifier.width(6.dp))
-                Text(rated?.toString() ?: stringResource(R.string.detail_rate))
-            }
-        }
         if (type == MediaType.Movie) {
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 // While the progress banner below is showing, its own Watched button does the same, so only one is shown.
@@ -588,12 +604,6 @@ private fun Actions(
             )
         }
     }
-    if (rating) {
-        RatingDialog(item?.userRating, onDismiss = { rating = false }) {
-            rating = false
-            onRate(it)
-        }
-    }
     pendingCheckIn?.let { pending ->
         CheckInDialog(
             name = DetailActions.checkInName(title, pending.episode),
@@ -672,7 +682,11 @@ private fun ratingWord(value: Int): Int =
     }
 
 @Composable
-private fun About(d: MediaDetails) {
+private fun About(
+    d: MediaDetails,
+    userRating: Int?,
+    onRate: (Int?) -> Unit,
+) {
     var expanded by rememberSaveable { mutableStateOf(false) }
     Column(Modifier.padding(horizontal = 16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
         d.overview?.let { overview ->
@@ -717,7 +731,8 @@ private fun About(d: MediaDetails) {
                 d.revenue?.let { Fact(Icons.Rounded.AttachMoney, stringResource(R.string.detail_fact_box_office), money(it)) },
                 d.alternativeTitles.takeIf { it.isNotEmpty() }?.let { Fact(Icons.Rounded.Translate, stringResource(R.string.detail_fact_also_known_as), it.take(4).joinToString(", ")) },
             )
-        if (d.ratings.isNotEmpty() || facts.isNotEmpty()) InfoCard(d.ratings, facts)
+        // Always shown: your own rating sits in it, next to the others.
+        InfoCard(d.ratings, facts, userRating, onRate)
     }
 }
 
@@ -736,8 +751,11 @@ private data class Fact(
 private fun InfoCard(
     ratings: List<Rating>,
     facts: List<Fact>,
+    userRating: Int?,
+    onRate: (Int?) -> Unit,
 ) {
     var expanded by rememberSaveable { mutableStateOf(false) }
+    var rating by remember { mutableStateOf(false) }
     val stateText = stringResource(if (expanded) R.string.section_expanded else R.string.section_collapsed)
     val chevron by animateFloatAsState(if (expanded) 180f else 0f, Motion.fadeSpec(), label = "infoChevron")
     Surface(shape = AppShapes.Item, color = MaterialTheme.colorScheme.surfaceContainerLow) {
@@ -745,10 +763,10 @@ private fun InfoCard(
             Modifier.fillMaxWidth().animateContentSize().padding(vertical = 12.dp),
             verticalArrangement = Arrangement.spacedBy(12.dp),
         ) {
-            if (ratings.isNotEmpty()) {
-                LazyRow(contentPadding = PaddingValues(horizontal = 12.dp), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    items(ratings) { RatingTile(it) }
-                }
+            // Your rating comes first, so it stays in view however many ratings follow.
+            LazyRow(contentPadding = PaddingValues(horizontal = 12.dp), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                item(key = "yours") { YourRatingTile(userRating) { rating = true } }
+                items(ratings) { RatingTile(it) }
             }
             DetailFacts.visible(facts, expanded).forEach { FactRow(it) }
             if (DetailFacts.canExpand(facts.size)) {
@@ -770,6 +788,39 @@ private fun InfoCard(
                     Icon(Icons.Rounded.ExpandMore, null, Modifier.size(18.dp).rotate(chevron), tint = MaterialTheme.colorScheme.primary)
                 }
             }
+        }
+    }
+    if (rating) {
+        RatingDialog(userRating, onDismiss = { rating = false }) {
+            rating = false
+            onRate(it)
+        }
+    }
+}
+
+/** Your own rating, as a tile next to SIMKL's and the others'. Tap it to rate or change the rating. */
+@Composable
+private fun YourRatingTile(
+    userRating: Int?,
+    onClick: () -> Unit,
+) {
+    Surface(
+        onClick = onClick,
+        shape = RoundedCornerShape(12.dp),
+        color = MaterialTheme.colorScheme.surfaceContainerLow,
+        contentColor = MaterialTheme.colorScheme.primary,
+        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant),
+    ) {
+        Column(Modifier.padding(horizontal = 14.dp, vertical = 8.dp), horizontalAlignment = Alignment.CenterHorizontally) {
+            Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+                Icon(if (userRating != null) Icons.Rounded.Star else Icons.Rounded.StarOutline, null, Modifier.size(18.dp))
+                Text(
+                    userRating?.toString() ?: stringResource(R.string.detail_rate),
+                    style = if (userRating != null) MaterialTheme.typography.titleLarge else MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.Bold,
+                )
+            }
+            Text(stringResource(R.string.detail_your_rating), style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
         }
     }
 }
