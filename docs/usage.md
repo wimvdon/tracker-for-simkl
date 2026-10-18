@@ -56,7 +56,7 @@ In the episode list:
 
 A title you paused part-way (on another device) shows a **progress banner** with its own **Watched** button. While the banner is there, the plain Watched button for that same movie or episode is hidden, so there is only one; **Check in** stays.
 
-The buttons at the top: **Add to list** (list icon; once the title is in a list it shows the list's name) opens the list statuses, **Rate** opens the 1–10 rating, **Watched** (check mark) marks it watched, and **Check in** (TV icon) tells SIMKL you are watching it right now. Check in asks first and explains itself; SIMKL then marks the title watched when it ends.
+**Add to list** sits in the title bar, next to Share (list icon; once the title is in a list it shows the list's name) and opens the list statuses. **Your rating** is the first tile in the info card, next to SIMKL's and the other ratings; tap it to open the 1–10 rating. Below the poster, **Watched** (check mark) marks it watched, and **Check in** (TV icon) tells SIMKL you are watching it right now. Check in asks first and explains itself; SIMKL then marks the title watched when it ends.
 
 Links to `simkl.com/tv/…`, `/anime/…` and `/movies/…` from other apps can open straight in these details.
 
