@@ -48,6 +48,17 @@ import androidx.compose.material.icons.rounded.CheckCircle
 import androidx.compose.material.icons.rounded.DoneAll
 import androidx.compose.material.icons.rounded.ErrorOutline
 import androidx.compose.material.icons.rounded.ExpandMore
+import androidx.compose.material.icons.rounded.EmojiEvents
+import androidx.compose.material.icons.rounded.Category
+import androidx.compose.material.icons.rounded.Info
+import androidx.compose.material.icons.rounded.Schedule
+import androidx.compose.material.icons.rounded.CalendarMonth
+import androidx.compose.material.icons.rounded.VideoLibrary
+import androidx.compose.material.icons.rounded.Tv
+import androidx.compose.material.icons.rounded.Public
+import androidx.compose.material.icons.rounded.Movie
+import androidx.compose.material.icons.rounded.AttachMoney
+import androidx.compose.material.icons.rounded.Translate
 import androidx.compose.material.icons.rounded.LiveTv
 import androidx.compose.material.icons.rounded.MoreVert
 import androidx.compose.material.icons.rounded.PlayArrow
@@ -68,6 +79,8 @@ import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.LinearProgressIndicator
 import io.github.impca201.trackerforsimkl.data.model.DetailActions
 import io.github.impca201.trackerforsimkl.data.model.NextEpisode
+import io.github.impca201.trackerforsimkl.data.model.DetailFacts
+import io.github.impca201.trackerforsimkl.data.model.Rating
 import io.github.impca201.trackerforsimkl.data.model.Playback
 import io.github.impca201.trackerforsimkl.data.model.Shelves
 import io.github.impca201.trackerforsimkl.data.model.ShowStatus
@@ -104,8 +117,10 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalResources
@@ -675,39 +690,121 @@ private fun About(d: MediaDetails) {
                         .semantics { stateDescription = stateText },
             )
         }
-        // Ratings, rank and genres are information, not controls, so they sit in the facts box as plain rows.
-        val facts: List<Pair<String, String>> =
-            d.ratings.map { r -> r.source to (Format.rating(r.value) + (r.votes?.let { " (${compact(it)})" } ?: "")) } +
-                listOfNotNull(
-                    d.rank?.let { stringResource(R.string.detail_fact_rank) to "#$it" },
-                    d.genres.takeIf { it.isNotEmpty() }?.let { genres ->
-                        stringResource(R.string.detail_fact_genres) to genres.joinToString(", ") { it.replaceFirstChar { c -> c.uppercase() } }
-                    },
-                    d.status?.let { stringResource(R.string.detail_fact_status) to (ShowStatus.fromApi(it)?.let { s -> stringResource(s.label) } ?: it.replaceFirstChar { c -> c.uppercase() }) },
-                    d.airs?.let { Format.airs(it) }?.let { stringResource(R.string.detail_fact_airs) to it },
-                    d.firstAired?.let { date ->
-                        stringResource(if (d.type == MediaType.Movie) R.string.detail_fact_released else R.string.detail_fact_first_aired) to (Format.date(date) ?: date)
-                    },
-                    d.totalEpisodes?.takeIf { it > 0 }?.let { stringResource(R.string.detail_fact_episodes) to it.toString() },
-                    d.network?.let { stringResource(R.string.detail_fact_network) to it },
-                    d.country?.let { stringResource(R.string.detail_fact_country) to it },
-                    d.director?.let { stringResource(R.string.detail_fact_director) to it },
-                    d.budget?.let { stringResource(R.string.detail_fact_budget) to money(it) },
-                    d.revenue?.let { stringResource(R.string.detail_fact_box_office) to money(it) },
-                    d.alternativeTitles.takeIf { it.isNotEmpty() }?.let { stringResource(R.string.detail_fact_also_known_as) to it.take(4).joinToString(", ") },
-                )
-        if (facts.isNotEmpty()) {
-            Surface(shape = AppShapes.Item, color = MaterialTheme.colorScheme.surfaceContainerLow) {
-                Column(Modifier.fillMaxWidth().padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                    facts.forEach { (label, value) ->
-                        Row {
-                            Text(label, style = MaterialTheme.typography.labelLarge, color = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.width(110.dp))
-                            Text(value, style = MaterialTheme.typography.bodyMedium, modifier = Modifier.weight(1f))
-                        }
-                    }
+        // Ratings, rank and genres are information, not controls, so they sit in the info card.
+        // Only the ratings and the first few facts show until the card is expanded.
+        val facts: List<Fact> =
+            listOfNotNull(
+                d.rank?.let { Fact(Icons.Rounded.EmojiEvents, stringResource(R.string.detail_fact_rank), "#$it") },
+                d.genres.takeIf { it.isNotEmpty() }?.let { genres ->
+                    Fact(Icons.Rounded.Category, stringResource(R.string.detail_fact_genres), genres.joinToString(", ") { it.replaceFirstChar { c -> c.uppercase() } })
+                },
+                d.status?.let {
+                    Fact(Icons.Rounded.Info, stringResource(R.string.detail_fact_status), ShowStatus.fromApi(it)?.let { s -> stringResource(s.label) } ?: it.replaceFirstChar { c -> c.uppercase() })
+                },
+                d.airs?.let { Format.airs(it) }?.let { Fact(Icons.Rounded.Schedule, stringResource(R.string.detail_fact_airs), it) },
+                d.firstAired?.let { date ->
+                    Fact(
+                        Icons.Rounded.CalendarMonth,
+                        stringResource(if (d.type == MediaType.Movie) R.string.detail_fact_released else R.string.detail_fact_first_aired),
+                        Format.date(date) ?: date,
+                    )
+                },
+                d.totalEpisodes?.takeIf { it > 0 }?.let { Fact(Icons.Rounded.VideoLibrary, stringResource(R.string.detail_fact_episodes), it.toString()) },
+                d.network?.let { Fact(Icons.Rounded.Tv, stringResource(R.string.detail_fact_network), it) },
+                d.country?.let { Fact(Icons.Rounded.Public, stringResource(R.string.detail_fact_country), it) },
+                d.director?.let { Fact(Icons.Rounded.Movie, stringResource(R.string.detail_fact_director), it) },
+                d.budget?.let { Fact(Icons.Rounded.AttachMoney, stringResource(R.string.detail_fact_budget), money(it)) },
+                d.revenue?.let { Fact(Icons.Rounded.AttachMoney, stringResource(R.string.detail_fact_box_office), money(it)) },
+                d.alternativeTitles.takeIf { it.isNotEmpty() }?.let { Fact(Icons.Rounded.Translate, stringResource(R.string.detail_fact_also_known_as), it.take(4).joinToString(", ")) },
+            )
+        if (d.ratings.isNotEmpty() || facts.isNotEmpty()) InfoCard(d.ratings, facts)
+    }
+}
+
+/** One row of the info card: an icon, what it is and its value. */
+private data class Fact(
+    val icon: ImageVector,
+    val label: String,
+    val value: String,
+)
+
+/**
+ * The information about a title. The ratings stand out as tiles at the top; the facts below them
+ * show only the first few until the card is expanded.
+ */
+@Composable
+private fun InfoCard(
+    ratings: List<Rating>,
+    facts: List<Fact>,
+) {
+    var expanded by rememberSaveable { mutableStateOf(false) }
+    val stateText = stringResource(if (expanded) R.string.section_expanded else R.string.section_collapsed)
+    val chevron by animateFloatAsState(if (expanded) 180f else 0f, Motion.fadeSpec(), label = "infoChevron")
+    Surface(shape = AppShapes.Item, color = MaterialTheme.colorScheme.surfaceContainerLow) {
+        Column(
+            Modifier.fillMaxWidth().animateContentSize().padding(vertical = 12.dp),
+            verticalArrangement = Arrangement.spacedBy(12.dp),
+        ) {
+            if (ratings.isNotEmpty()) {
+                LazyRow(contentPadding = PaddingValues(horizontal = 12.dp), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    items(ratings) { RatingTile(it) }
+                }
+            }
+            DetailFacts.visible(facts, expanded).forEach { FactRow(it) }
+            if (DetailFacts.canExpand(facts.size)) {
+                Row(
+                    Modifier
+                        .fillMaxWidth()
+                        .clickable(role = Role.Button) { expanded = !expanded }
+                        .semantics { stateDescription = stateText }
+                        .padding(horizontal = 16.dp, vertical = 4.dp),
+                    horizontalArrangement = Arrangement.Center,
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    Text(
+                        stringResource(if (expanded) R.string.detail_show_less else R.string.detail_show_more),
+                        style = MaterialTheme.typography.labelLarge,
+                        color = MaterialTheme.colorScheme.primary,
+                    )
+                    Spacer(Modifier.width(4.dp))
+                    Icon(Icons.Rounded.ExpandMore, null, Modifier.size(18.dp).rotate(chevron), tint = MaterialTheme.colorScheme.primary)
                 }
             }
         }
+    }
+}
+
+@Composable
+private fun RatingTile(rating: Rating) {
+    Surface(
+        shape = RoundedCornerShape(12.dp),
+        color = MaterialTheme.colorScheme.primaryContainer,
+        contentColor = MaterialTheme.colorScheme.onPrimaryContainer,
+    ) {
+        Column(Modifier.padding(horizontal = 14.dp, vertical = 8.dp), horizontalAlignment = Alignment.CenterHorizontally) {
+            Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+                Icon(Icons.Rounded.Star, null, Modifier.size(18.dp))
+                Text(Format.rating(rating.value), style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold)
+            }
+            Text(rating.source, style = MaterialTheme.typography.labelMedium)
+            rating.votes?.let {
+                Text(
+                    stringResource(R.string.detail_votes, compact(it)),
+                    style = MaterialTheme.typography.labelSmall,
+                    color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.75f),
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun FactRow(fact: Fact) {
+    Row(Modifier.fillMaxWidth().padding(horizontal = 16.dp), verticalAlignment = Alignment.Top) {
+        Icon(fact.icon, null, Modifier.size(20.dp), tint = MaterialTheme.colorScheme.onSurfaceVariant)
+        Spacer(Modifier.width(12.dp))
+        Text(fact.label, style = MaterialTheme.typography.labelLarge, color = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.width(100.dp))
+        Text(fact.value, style = MaterialTheme.typography.bodyMedium, modifier = Modifier.weight(1f))
     }
 }
 

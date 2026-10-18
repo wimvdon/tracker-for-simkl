@@ -69,6 +69,9 @@
     <string name="detail_fact_also_known_as">Ook bekend als</string>
     <string name="detail_fact_rank">Rang</string>
     <string name="detail_fact_genres">Genres</string>
+    <string name="detail_votes">%1$s stemmen</string>
+    <string name="detail_show_more">Toon meer</string>
+    <string name="detail_show_less">Toon minder</string>
     <string name="detail_trailers">Trailers</string>
     <string name="detail_play">Afspelen</string>
     <string name="detail_episodes">Afleveringen</string>
