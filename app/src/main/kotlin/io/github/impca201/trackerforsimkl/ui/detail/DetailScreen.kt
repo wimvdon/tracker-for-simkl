@@ -63,6 +63,7 @@ import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.LinearProgressIndicator
+import io.github.impca201.trackerforsimkl.data.model.DetailActions
 import io.github.impca201.trackerforsimkl.data.model.NextEpisode
 import io.github.impca201.trackerforsimkl.data.model.Playback
 import io.github.impca201.trackerforsimkl.data.model.Shelves
@@ -483,9 +484,10 @@ private fun Actions(
         }
         if (type == MediaType.Movie) {
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                if (item?.status != ListStatus.Completed) {
+                // While the progress banner below is showing, its own Watched button does the same, so only one is shown.
+                if (DetailActions.showMovieWatched(item?.status, playback)) {
                     FilledTonalButton(
-                        onClick = { if (playback != null) onPlaybackWatched(playback) else onMovieWatched() },
+                        onClick = onMovieWatched,
                         modifier = Modifier.weight(1f),
                     ) {
                         Icon(Icons.Rounded.Check, null, Modifier.size(18.dp))
@@ -520,20 +522,33 @@ private fun Actions(
             }
         }
         if (type.isEpisodic && next != null && item?.status == ListStatus.Watching) {
+            // When the progress banner is on this very episode, its Watched button replaces this one.
+            val showWatched = DetailActions.showNextEpisodeWatched(next.ref, playback)
+            val watchingNow = stringResource(R.string.detail_watching_episode_now, next.ref.label)
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalAlignment = Alignment.CenterVertically) {
-                FilledTonalButton(
-                    onClick = { if (playback != null && playback.episode == next.ref) onPlaybackWatched(playback) else onWatchNext(next.ref) },
-                    modifier = Modifier.weight(1f),
-                ) {
-                    Icon(Icons.Rounded.Check, null, Modifier.size(18.dp))
-                    Spacer(Modifier.width(8.dp))
-                    Text(
-                        next.title?.let { stringResource(R.string.detail_watched_episode_titled, next.ref.label, it) }
-                            ?: stringResource(R.string.detail_watched_episode, next.ref.label),
-                        maxLines = 1, overflow = TextOverflow.Ellipsis)
+                if (showWatched) {
+                    FilledTonalButton(
+                        onClick = { onWatchNext(next.ref) },
+                        modifier = Modifier.weight(1f),
+                    ) {
+                        Icon(Icons.Rounded.Check, null, Modifier.size(18.dp))
+                        Spacer(Modifier.width(8.dp))
+                        Text(
+                            next.title?.let { stringResource(R.string.detail_watched_episode_titled, next.ref.label, it) }
+                                ?: stringResource(R.string.detail_watched_episode, next.ref.label),
+                            maxLines = 1, overflow = TextOverflow.Ellipsis)
+                    }
                 }
-                OutlinedButton(onClick = { onCheckIn(next.ref) }) {
-                    Icon(Icons.Rounded.PlayArrow, contentDescription = stringResource(R.string.detail_watching_episode_now, next.ref.label), modifier = Modifier.size(18.dp))
+                // Alone in the row it gets a label and the full width; next to the Watched button it stays an icon.
+                OutlinedButton(
+                    onClick = { onCheckIn(next.ref) },
+                    modifier = if (showWatched) Modifier else Modifier.fillMaxWidth(),
+                ) {
+                    Icon(Icons.Rounded.PlayArrow, contentDescription = if (showWatched) watchingNow else null, modifier = Modifier.size(18.dp))
+                    if (!showWatched) {
+                        Spacer(Modifier.width(8.dp))
+                        Text(watchingNow, maxLines = 1, overflow = TextOverflow.Ellipsis)
+                    }
                 }
             }
         }
