@@ -54,6 +54,8 @@ In the episode list:
 - long-press an episode to mark everything up to it;
 - mark a whole season at once.
 
+A title you paused part-way (on another device) shows a **progress banner** with its own **Watched** button. While the banner is there, the plain Watched button for that same movie or episode is hidden, so there is only one; **Watching now** stays.
+
 Links to `simkl.com/tv/…`, `/anime/…` and `/movies/…` from other apps can open straight in these details.
 
 ## Discover
