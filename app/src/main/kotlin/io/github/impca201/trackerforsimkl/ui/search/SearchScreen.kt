@@ -29,6 +29,7 @@ import androidx.compose.material.icons.rounded.Search
 import androidx.compose.material.icons.rounded.SearchOff
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilterChip
+import androidx.compose.material3.FilterChipDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.LinearProgressIndicator
@@ -133,7 +134,8 @@ fun SearchScreen(
     Scaffold(
         contentWindowInsets = WindowInsets(0),
         topBar = {
-            Column {
+            // Opaque, so results scrolling up don't show through the chips.
+            Column(Modifier.background(MaterialTheme.colorScheme.surface)) {
                 TopAppBar(
                     navigationIcon = {
                         IconButton(onClick = { navigator.pop() }) { Icon(Icons.AutoMirrored.Rounded.ArrowBack, contentDescription = stringResource(R.string.screens_back)) }
@@ -163,13 +165,15 @@ fun SearchScreen(
                     },
                 )
                 if (types.size > 1 || key != null) {
+                    // Filled like the search field, not just an outline.
+                    val chipColors = FilterChipDefaults.filterChipColors(containerColor = MaterialTheme.colorScheme.surfaceContainerHigh)
                     LazyRow(contentPadding = PaddingValues(horizontal = 16.dp), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                        item { FilterChip(selected = type == null && !peopleOnly, onClick = { typeName = null }, label = { Text(stringResource(R.string.screens_search_all)) }) }
+                        item { FilterChip(selected = type == null && !peopleOnly, onClick = { typeName = null }, label = { Text(stringResource(R.string.screens_search_all)) }, colors = chipColors) }
                         items(types) { t ->
-                            FilterChip(selected = type == t, onClick = { typeName = t.name }, label = { Text(t.label()) })
+                            FilterChip(selected = type == t, onClick = { typeName = t.name }, label = { Text(t.label()) }, colors = chipColors)
                         }
                         if (key != null) {
-                            item { FilterChip(selected = peopleOnly, onClick = { typeName = PEOPLE }, label = { Text(stringResource(R.string.screens_search_people)) }) }
+                            item { FilterChip(selected = peopleOnly, onClick = { typeName = PEOPLE }, label = { Text(stringResource(R.string.screens_search_people)) }, colors = chipColors) }
                         }
                     }
                 }
@@ -201,18 +205,10 @@ fun SearchScreen(
                     modifier = Modifier.fillMaxSize(),
                 ) {
                     fun openPerson(p: PersonResult) = navigator.push(Route.Person(p.id, p.name, p.photo))
-                    // "People" gets the full list; "All" a row of them first.
+                    // "People" gets the full list; "All" a row of them after the titles.
                     if (peopleOnly) {
                         items(shownPeople, key = { "person:${it.id}" }) { p ->
                             PersonResultRow(p, Modifier.animateItem()) { openPerson(p) }
-                        }
-                    } else if (type == null && shownPeople.isNotEmpty()) {
-                        item(key = "people") {
-                            Box(Modifier.animateItem()) {
-                                PeopleRow(stringResource(R.string.screens_search_people), shownPeople) { p ->
-                                    PersonTile(p.name, p.knownFor.firstOrNull(), p.photo) { openPerson(p) }
-                                }
-                            }
                         }
                     }
                     // "All" with several types: a row of posters per type, like Discover. A chosen
@@ -236,6 +232,15 @@ fun SearchScreen(
                                 val inLibrary = library.item(result.type, result.simklId)
                                 ResultRow(result, inLibrary?.status?.label(result.type), Modifier.animateItem()) {
                                     navigator.openDetail(result.type, result.simklId, result.title, result.poster)
+                                }
+                            }
+                        }
+                    }
+                    if (!peopleOnly && type == null && shownPeople.isNotEmpty()) {
+                        item(key = "people") {
+                            Box(Modifier.animateItem()) {
+                                PeopleRow(stringResource(R.string.screens_search_people), shownPeople) { p ->
+                                    PersonTile(p.name, p.knownFor.firstOrNull(), p.photo) { openPerson(p) }
                                 }
                             }
                         }
