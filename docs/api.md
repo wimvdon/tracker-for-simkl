@@ -33,6 +33,7 @@ Files on `data.simkl.in` get no extra query parameters, as SIMKL asks.
 | GET | `/{tv,anime,movies}/{id}?extended=full` | Details |
 | GET | `/{tv,anime}/episodes/{id}?extended=full` | Episode list |
 | GET | `/search/{tv,anime,movie}?q=` | Search (50 results) |
+| GET | `/search/id?tmdb=&type={movie,show}` | The SIMKL title of a TMDB title tapped on a person's page (only when it isn't in the library) |
 | POST | `/search/random/` | "Surprise me" |
 | GET | `/{type}/best/{filter}`, `/{type}/airing`, `/{type}/premieres/{new,soon}` | Discover sections |
 | GET | `https://data.simkl.in/discover/…`, `https://data.simkl.in/calendar/{tv,anime,movie_release}.json` | Trending lists, calendars |
@@ -66,8 +67,10 @@ Every request also sends `User-Agent: tracker-for-simkl/<version>`.
 | GET | `/authentication` | Checks a key before Settings saves it (401 = rejected) |
 | GET | `/movie/{tmdb}/credits` | Cast and crew of a movie or anime movie |
 | GET | `/tv/{tmdb}/aggregate_credits` | Cast and crew of a show or anime series, over every season, with episode counts |
+| GET | `/person/{id}?append_to_response=combined_credits&language=<phone language>` | A person's page: photo, life dates, biography and every movie and TV credit |
+| GET | `/person/{id}` (English) | Only when the biography is missing in the phone's language |
 
-The TMDB ID comes from SIMKL's details (`ids.tmdb`); titles without one show no cast and crew. A failed request just leaves the section out. Cast photos are `https://wsrv.nl/?url=https://image.tmdb.org/t/p/w185<profile_path>`. Tapping a person opens `https://www.themoviedb.org/person/{id}` in the browser.
+The TMDB ID comes from SIMKL's details (`ids.tmdb`); titles without one show no cast and crew. A failed request just leaves the section out. Cast photos are `https://wsrv.nl/?url=https://image.tmdb.org/t/p/w185<profile_path>`. Tapping a person opens their page in the app; its title bar links to `https://www.themoviedb.org/person/{id}`. On that page, appearances as themselves and in talk or news shows are left out. Tapping a title opens its details: straight away when it is in the library (matched by TMDB ID and kind, since TMDB's movie and TV IDs overlap), else after SIMKL's `/search/id`; when SIMKL doesn't have it, a snackbar offers the TMDB page.
 
 TMDB's terms require the notice "This product uses the TMDB API but is not endorsed or certified by TMDB." and one of TMDB's approved logos in an About or Credits section. The logo (`res/drawable/tmdb_logo.xml`, TMDB's `blue_short.svg` converted unchanged), the notice and a link to themoviedb.org are at the bottom of Settings.
 

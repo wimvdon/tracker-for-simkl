@@ -5,8 +5,11 @@ import io.github.impca201.trackerforsimkl.data.model.Credits
 import io.github.impca201.trackerforsimkl.data.model.CrewJob
 import io.github.impca201.trackerforsimkl.data.model.CrewMember
 import io.github.impca201.trackerforsimkl.data.model.Images
+import io.github.impca201.trackerforsimkl.data.model.Person
+import io.github.impca201.trackerforsimkl.data.model.PersonCredit
 import kotlinx.serialization.json.JsonElement
 import kotlinx.serialization.json.JsonObject
+import java.time.LocalDate
 
 /** Maps TMDB JSON to the app's models. Pure functions, so they are unit tested. */
 object TmdbParsers {
@@ -79,4 +82,77 @@ object TmdbParsers {
             .take(MAX_CREW)
             .map { e -> CrewMember(e.id, e.name, e.jobs.keys.sortedBy { it.ordinal }, e.photo) }
     }
+
+    // TMDB genres of talk shows and news; appearances there aren't roles.
+    private val notRoles = setOf(10767, 10763)
+    private val selfRole = Regex("^(self|himself|herself|themselves)\\b", RegexOption.IGNORE_CASE)
+
+    /**
+     * `/person/{id}?append_to_response=combined_credits`. Appearances as themselves and in talk or
+     * news shows are left out, as are crew jobs the app doesn't show; a title they both played in
+     * and worked on is one credit. Newest first, unreleased titles (no date) on top.
+     */
+    fun person(element: JsonElement?): Person? {
+        val obj = element.asObject() ?: return null
+        val id = obj.long("id") ?: return null
+        val name = obj.str("name") ?: return null
+        val all = obj.obj("combined_credits")
+        class Entry(val credit: PersonCredit, val characters: MutableList<String>, val jobs: MutableSet<CrewJob>)
+        val titles = LinkedHashMap<String, Entry>()
+        fun add(o: JsonObject, character: String?, job: CrewJob?) {
+            val movie =
+                when (o.str("media_type")) {
+                    "movie" -> true
+                    "tv" -> false
+                    else -> return
+                }
+            val tmdbId = o.str("id") ?: return
+            val title = o.str("title") ?: o.str("name") ?: return
+            val entry =
+                titles.getOrPut("$movie:$tmdbId") {
+                    val credit =
+                        PersonCredit(
+                            tmdbId = tmdbId,
+                            movie = movie,
+                            title = title,
+                            date = o.str("release_date") ?: o.str("first_air_date"),
+                            poster = Images.tmdbPoster(o.str("poster_path")),
+                            characters = emptyList(),
+                            jobs = emptyList(),
+                            votes = o.int("vote_count") ?: 0,
+                            episodes = o.int("episode_count"),
+                        )
+                    Entry(credit, mutableListOf(), mutableSetOf())
+                }
+            character?.let { if (it !in entry.characters) entry.characters += it }
+            job?.let { entry.jobs += it }
+        }
+        all?.arr("cast").objects().forEach { o ->
+            val character = role(o.str("character"))
+            val genres = o.arr("genre_ids")?.mapNotNull { (it as? kotlinx.serialization.json.JsonPrimitive)?.content?.toIntOrNull() }.orEmpty()
+            if (character != null && selfRole.containsMatchIn(character)) return@forEach
+            if (genres.any { it in notRoles }) return@forEach
+            add(o, character, null)
+        }
+        all?.arr("crew").objects().forEach { o -> CrewJob.of(o.str("job"))?.let { add(o, null, it) } }
+        val credits =
+            titles.values
+                .map { e -> e.credit.copy(characters = e.characters, jobs = e.jobs.sortedBy { it.ordinal }) }
+                .sortedWith(compareBy<PersonCredit> { it.date != null }.thenByDescending { it.date })
+        return Person(
+            id = id,
+            name = name,
+            photo = Images.tmdbProfile(obj.str("profile_path"), large = true),
+            biography = obj.str("biography")?.trim()?.ifBlank { null },
+            birthday = date(obj.str("birthday")),
+            deathday = date(obj.str("deathday")),
+            placeOfBirth = obj.str("place_of_birth"),
+            credits = credits,
+        )
+    }
+
+    /** Only the biography, from a second request in English when the app's language has none. */
+    fun biography(element: JsonElement?): String? = element.asObject()?.str("biography")?.trim()?.ifBlank { null }
+
+    private fun date(value: String?): LocalDate? = value?.let { runCatching { LocalDate.parse(it) }.getOrNull() }
 }

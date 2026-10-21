@@ -23,40 +23,39 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImage
 import io.github.impca201.trackerforsimkl.R
-import io.github.impca201.trackerforsimkl.data.api.TmdbApi
 import io.github.impca201.trackerforsimkl.data.model.CastMember
 import io.github.impca201.trackerforsimkl.data.model.CrewJob
 import io.github.impca201.trackerforsimkl.data.model.CrewMember
-import io.github.impca201.trackerforsimkl.ui.components.openUrl
+import io.github.impca201.trackerforsimkl.ui.LocalNavigator
+import io.github.impca201.trackerforsimkl.ui.Route
 import io.github.impca201.trackerforsimkl.ui.library.SectionHeader
 
-/** "Cast" on a details page: photos, names and roles from TMDB. A tap opens the person on TMDB. */
+/** "Cast" on a details page: photos, names and roles from TMDB. A tap opens the person's page. */
 @Composable
 fun CastRow(cast: List<CastMember>) {
-    val context = LocalContext.current
+    val navigator = LocalNavigator.current
     PeopleRow(stringResource(R.string.detail_cast), cast) { person ->
-        Person(person.name, person.character, person.photo) { context.openUrl(TmdbApi.personUrl(person.personId)) }
+        Person(person.name, person.character, person.photo) { navigator.push(Route.Person(person.personId, person.name, person.photo)) }
     }
 }
 
 /** "Crew": directors, writers and other key jobs, from TMDB. */
 @Composable
 fun CrewRow(crew: List<CrewMember>) {
-    val context = LocalContext.current
+    val navigator = LocalNavigator.current
     PeopleRow(stringResource(R.string.detail_crew), crew) { person ->
         val jobs = person.jobs.map { stringResource(it.label) }.joinToString(", ")
-        Person(person.name, jobs, person.photo) { context.openUrl(TmdbApi.personUrl(person.personId)) }
+        Person(person.name, jobs, person.photo) { navigator.push(Route.Person(person.personId, person.name, person.photo)) }
     }
 }
 
-private val CrewJob.label: Int
+val CrewJob.label: Int
     get() =
         when (this) {
             CrewJob.Director -> R.string.detail_fact_director

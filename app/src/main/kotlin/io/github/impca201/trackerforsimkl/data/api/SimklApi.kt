@@ -423,6 +423,15 @@ class SimklApi(
         query: String,
     ): JsonElement = get("/search/${type.searchPath}", mapOf("q" to query, "extended" to "full", "page" to "1", "limit" to "50"))
 
+    /**
+     * GET /search/id: the SIMKL title with this TMDB ID. TMDB movie and TV IDs overlap, so the
+     * kind is passed along ("movie" or "show"; anime series are shows).
+     */
+    suspend fun searchByTmdb(
+        tmdbId: String,
+        movie: Boolean,
+    ): JsonElement = get("/search/id", mapOf("tmdb" to tmdbId, "type" to if (movie) "movie" else "show"))
+
     /** A random title (POST /search/random), skipping what the user watched. Returns {"id", "url"}. */
     suspend fun random(type: MediaType): JsonElement = call("POST", "/search/random/", mapOf("service" to "simkl", "type" to type.searchPath))
 

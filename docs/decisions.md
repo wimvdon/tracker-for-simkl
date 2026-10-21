@@ -20,7 +20,10 @@ open, and never in the background.
 - **A second HTTP class**, `TmdbApi`, next to `SimklApi` (CLAUDE.md updated); OkHttp and
   kotlinx-serialization were already there, so no new dependency.
 - **Attribution:** TMDB's approved short logo, notice and link at the bottom of Settings.
-- Tapping a person opens their TMDB page in the browser for now; a person screen in the app may follow.
+- **A person screen** (photo, life dates, biography, known for, filmography). A title opens its
+  SIMKL details: matched in the library by TMDB ID and kind first, else looked up with SIMKL's
+  `/search/id` (a foreground call on a tap, as SIMKL's rules allow). Rejected: TMDB title pages
+  inside the app, which would duplicate the details screen without the user's lists.
 
 ## 2026-10-17: Drag handles for the bottom bar order
 

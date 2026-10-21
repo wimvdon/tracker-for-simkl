@@ -14,11 +14,14 @@ import io.github.impca201.trackerforsimkl.data.model.Episode
 import io.github.impca201.trackerforsimkl.data.model.MediaDetails
 import io.github.impca201.trackerforsimkl.data.model.MediaSummary
 import io.github.impca201.trackerforsimkl.data.model.MediaType
+import io.github.impca201.trackerforsimkl.data.model.Person
+import io.github.impca201.trackerforsimkl.data.model.PersonCredit
 import io.github.impca201.trackerforsimkl.data.model.UserProfile
 import io.github.impca201.trackerforsimkl.data.model.UserStats
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.coroutineScope
+import java.util.Locale
 import java.util.concurrent.ConcurrentHashMap
 
 /** A row on the Discover screen. Each row lists the endpoints to try, in order. */
@@ -36,6 +39,8 @@ class CatalogRepository(
 ) {
     private val details = ConcurrentHashMap<String, MediaDetails>()
     private val credits = ConcurrentHashMap<CreditsSource, Credits>()
+    private val people = ConcurrentHashMap<Long, Person>()
+    private val simklTitles = ConcurrentHashMap<String, MediaSummary>()
     private val episodes = ConcurrentHashMap<String, List<Episode>>()
     private val lists = ConcurrentHashMap<String, List<MediaSummary>>()
 
@@ -61,6 +66,33 @@ class CatalogRepository(
         val source = CreditsSource.of(details) ?: return null
         credits[source]?.let { return it }
         return TmdbParsers.credits(tmdb.credits(key, source)).also { credits[source] = it }
+    }
+
+    /**
+     * A person's page from TMDB, in the phone's language; the biography falls back to English,
+     * which TMDB often has when the translation is missing.
+     */
+    suspend fun person(
+        personId: Long,
+        key: TmdbKey,
+    ): Person {
+        people[personId]?.let { return it }
+        val language = Locale.getDefault().toLanguageTag()
+        val person = TmdbParsers.person(tmdb.person(key, personId, language)) ?: throw ApiException(404, "Not found")
+        val withBio =
+            if (person.biography == null && !language.startsWith("en")) {
+                person.copy(biography = runCatching { TmdbParsers.biography(tmdb.person(key, personId, withCredits = false)) }.getOrNull())
+            } else {
+                person
+            }
+        return withBio.also { people[personId] = it }
+    }
+
+    /** The SIMKL title of a TMDB credit (GET /search/id), or null when SIMKL doesn't have it. */
+    suspend fun simklTitle(credit: PersonCredit): MediaSummary? {
+        val key = "${credit.movie}:${credit.tmdbId}"
+        simklTitles[key]?.let { return it }
+        return Parsers.lookup(api.searchByTmdb(credit.tmdbId, credit.movie), credit.movie)?.also { simklTitles[key] = it }
     }
 
     suspend fun episodes(

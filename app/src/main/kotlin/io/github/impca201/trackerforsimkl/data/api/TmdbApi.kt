@@ -86,6 +86,17 @@ class TmdbApi(
         source: CreditsSource,
     ): JsonElement = call(key, if (source.movie) "/movie/${source.tmdbId}/credits" else "/tv/${source.tmdbId}/aggregate_credits")
 
+    /** A person with their combined (movie and TV) credits, in [language] ("nl-NL") where TMDB has it. */
+    suspend fun person(
+        key: TmdbKey,
+        personId: Long,
+        language: String? = null,
+        withCredits: Boolean = true,
+    ): JsonElement {
+        val query = listOfNotNull("append_to_response=combined_credits".takeIf { withCredits }, language?.let { "language=$it" })
+        return call(key, "/person/$personId" + if (query.isEmpty()) "" else query.joinToString("&", prefix = "?"))
+    }
+
     /** Asks TMDB whether [key] works, for the Settings dialog. */
     suspend fun check(key: TmdbKey): TmdbKeyCheck =
         try {

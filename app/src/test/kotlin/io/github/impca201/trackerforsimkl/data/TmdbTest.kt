@@ -1,11 +1,14 @@
 package io.github.impca201.trackerforsimkl.data
 
+import io.github.impca201.trackerforsimkl.data.api.Parsers
 import io.github.impca201.trackerforsimkl.data.api.TmdbKey
 import io.github.impca201.trackerforsimkl.data.api.TmdbParsers
 import io.github.impca201.trackerforsimkl.data.model.AiringState
 import io.github.impca201.trackerforsimkl.data.model.CreditsSource
 import io.github.impca201.trackerforsimkl.data.model.CrewJob
 import io.github.impca201.trackerforsimkl.data.model.Images
+import io.github.impca201.trackerforsimkl.data.model.LibraryItem
+import io.github.impca201.trackerforsimkl.data.model.ListStatus
 import io.github.impca201.trackerforsimkl.data.model.MediaDetails
 import io.github.impca201.trackerforsimkl.data.model.MediaIds
 import io.github.impca201.trackerforsimkl.data.model.MediaType
@@ -15,6 +18,7 @@ import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Test
+import java.time.LocalDate
 
 /** TMDB cast and crew: response mapping (shapes from TMDB's API reference), key handling, sources. */
 class TmdbTest {
@@ -167,5 +171,110 @@ class TmdbTest {
     fun profilePhotosNeedATmdbPath() {
         assertNull(Images.tmdbProfile(null))
         assertNull(Images.tmdbProfile("noslash.jpg"))
+    }
+
+    // Shaped like /person/17419?append_to_response=combined_credits (trimmed live response).
+    private val person =
+        """
+        {
+          "id": 17419, "name": "Bryan Cranston", "biography": "", "birthday": "1956-03-07", "deathday": null,
+          "place_of_birth": "Hollywood, Los Angeles, California, USA", "profile_path": "/bc.jpg",
+          "combined_credits": {
+            "cast": [
+              { "id": 1396, "media_type": "tv", "name": "Breaking Bad", "first_air_date": "2008-01-20", "poster_path": "/bb.jpg",
+                "character": "Walter White", "episode_count": 62, "vote_count": 16000, "genre_ids": [18] },
+              { "id": 64808, "media_type": "movie", "title": "Drive", "release_date": "2011-09-15", "character": "Shannon",
+                "vote_count": 14146, "genre_ids": [18, 53] },
+              { "id": 1, "media_type": "movie", "title": "An Audience with Adele", "release_date": "2021-11-21", "character": "Self",
+                "vote_count": 45, "genre_ids": [10402] },
+              { "id": 2, "media_type": "tv", "name": "The Tonight Show", "first_air_date": "2014-02-17", "character": "Guest",
+                "vote_count": 300, "genre_ids": [10767] },
+              { "id": 3, "media_type": "movie", "title": "Untitled Project", "character": "Lead", "vote_count": 0, "genre_ids": [] }
+            ],
+            "crew": [
+              { "id": 1396, "media_type": "tv", "name": "Breaking Bad", "first_air_date": "2008-01-20", "job": "Director", "vote_count": 16000 },
+              { "id": 1396, "media_type": "tv", "name": "Breaking Bad", "first_air_date": "2008-01-20", "job": "Producer", "vote_count": 16000 },
+              { "id": 4, "media_type": "tv", "name": "Your Honor", "first_air_date": "2020-12-06", "job": "Executive Producer", "vote_count": 600 }
+            ]
+          }
+        }
+        """.trimIndent()
+
+    private val cranston get() = TmdbParsers.person(Json.parseToJsonElement(person))!!
+
+    @Test
+    fun personKeepsRolesAndJobsAndLeavesOutAppearances() {
+        val p = cranston
+        assertEquals("Bryan Cranston", p.name)
+        assertNull(p.biography)
+        assertEquals(LocalDate.of(1956, 3, 7), p.birthday)
+        assertEquals("https://wsrv.nl/?url=https://image.tmdb.org/t/p/w342/bc.jpg", p.photo)
+        // Unreleased first, then newest; "Self" and talk shows are left out, and so is a title
+        // with only jobs the app doesn't show.
+        assertEquals(listOf("Untitled Project", "Drive", "Breaking Bad"), p.credits.map { it.title })
+        val bb = p.credits.last()
+        assertEquals(listOf("Walter White"), bb.characters)
+        assertEquals(listOf(CrewJob.Director), bb.jobs)
+        assertEquals(62, bb.episodes)
+        assertFalse(bb.movie)
+        assertEquals("https://wsrv.nl/?url=https://image.tmdb.org/t/p/w185/bb.jpg", bb.poster)
+        assertEquals("https://www.themoviedb.org/tv/1396", bb.tmdbUrl)
+    }
+
+    @Test
+    fun knownForIsMostVotedFirst() {
+        assertEquals(listOf("Breaking Bad", "Drive"), cranston.knownFor(2).map { it.title })
+    }
+
+    @Test
+    fun ageCountsToTodayOrToTheirDeath() {
+        val p = cranston
+        assertEquals(69, p.age(LocalDate.of(2026, 3, 6)))
+        assertEquals(70, p.age(LocalDate.of(2026, 3, 7)))
+        assertEquals(50, p.copy(deathday = LocalDate.of(2006, 3, 7)).age(LocalDate.of(2026, 1, 1)))
+        assertNull(p.copy(birthday = null).age(LocalDate.of(2026, 1, 1)))
+    }
+
+    @Test
+    fun personWithoutIdOrNameIsNull() {
+        assertNull(TmdbParsers.person(Json.parseToJsonElement("""{"name": "X"}""")))
+        assertNull(TmdbParsers.person(null))
+    }
+
+    @Test
+    fun biographyFallback() {
+        assertEquals("Actor.", TmdbParsers.biography(Json.parseToJsonElement("""{"biography": " Actor. "}""")))
+        assertNull(TmdbParsers.biography(Json.parseToJsonElement("""{"biography": ""}""")))
+    }
+
+    @Test
+    fun creditsMatchLibraryTitlesOfTheSameKind() {
+        val show = LibraryItem(MediaType.Tv, MediaIds(10, tmdb = "1396"), "Breaking Bad", status = ListStatus.Watching)
+        val movieWithSameNumber = LibraryItem(MediaType.Movie, MediaIds(11, tmdb = "64808"), "Drive", status = ListStatus.Watching)
+        val animeMovie = LibraryItem(MediaType.Anime, MediaIds(12, tmdb = "64808"), "Some anime movie", status = ListStatus.Watching)
+        val items = listOf(animeMovie, show, movieWithSameNumber)
+        val credits = cranston.credits
+        assertEquals(10L, credits.first { it.title == "Breaking Bad" }.match(items)?.ids?.simkl)
+        assertEquals(11L, credits.first { it.title == "Drive" }.match(items)?.ids?.simkl)
+        assertNull(credits.first { it.title == "Untitled Project" }.match(items))
+        // A TMDB movie never matches a TV show with the same number.
+        val tvWithMovieId = LibraryItem(MediaType.Tv, MediaIds(13, tmdb = "64808"), "Other", status = ListStatus.Watching)
+        assertNull(credits.first { it.title == "Drive" }.match(listOf(tvWithMovieId)))
+    }
+
+    @Test
+    fun simklLookupByTmdbId() {
+        val found =
+            Parsers.lookup(
+                Json.parseToJsonElement("""[{"type": "anime", "title": "One Piece", "poster": "74/abc", "year": 1999, "ids": {"simkl": 38636, "slug": "one-piece"}}]"""),
+                movie = false,
+            )
+        assertEquals(MediaType.Anime, found?.type)
+        assertEquals(38636L, found?.simklId)
+        assertEquals("74/abc", found?.poster)
+        // No type: the kind that was asked for.
+        assertEquals(MediaType.Movie, Parsers.lookup(Json.parseToJsonElement("""[{"title": "Drive", "ids": {"simkl": 5}}]"""), movie = true)?.type)
+        assertNull(Parsers.lookup(Json.parseToJsonElement("[]"), movie = true))
+        assertNull(Parsers.lookup(null, movie = true))
     }
 }

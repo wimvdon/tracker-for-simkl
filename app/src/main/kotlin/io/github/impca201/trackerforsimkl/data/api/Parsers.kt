@@ -195,6 +195,19 @@ object Parsers {
         )
     }
 
+    /**
+     * The first match of GET /search/id: `[{"type": "movie"|"show"|"anime", "title", "poster",
+     * "year", "ids": {"simkl", ...}}]`. Without a usable type, [movie] decides Movie or TV.
+     */
+    fun lookup(
+        root: JsonElement?,
+        movie: Boolean,
+    ): MediaSummary? {
+        val obj = (root.asArray()?.firstOrNull() ?: root).asObject() ?: return null
+        val type = MediaType.fromApi(obj.str("type")) ?: if (movie) MediaType.Movie else MediaType.Tv
+        return summary(obj, type)
+    }
+
     fun summaries(
         root: JsonElement?,
         type: MediaType,

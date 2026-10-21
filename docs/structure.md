@@ -50,6 +50,7 @@ tracker-for-simkl/
         │   │   │   │   └── Pkce.kt            PKCE verifier/challenge
         │   │   │   └── model/
         │   │   │       ├── Models.kt          Items, details, episodes, images (wsrv.nl URLs)
+        │   │   │       ├── Credits.kt         Cast, crew, people and their credits (TMDB)
         │   │   │       ├── Shelves.kt         Shelves, episode order, continue-from-latest
         │   │   │       └── NewEpisodes.kt     Which aired episodes a notification announces
         │   │   ├── work/NewEpisodesWorker.kt  Periodic new-episode notifications
@@ -57,7 +58,8 @@ tracker-for-simkl/
         │   │       ├── MainActivity.kt, AppRoot.kt, Navigation.kt   Entry, root, back stack
         │   │       ├── main/        Navigation bar and top bar
         │   │       ├── library/     TV Shows / Anime and Movies shelves
-        │   │       ├── detail/      Title details, episodes, rating, links
+        │   │       ├── detail/      Title details, episodes, rating, cast and crew, links
+        │   │       ├── person/      A person's page (TMDB): bio, known for, filmography
         │   │       ├── discover/    Trending, airing, premieres, best, "Surprise me"
         │   │       ├── calendar/    Upcoming episodes and releases
         │   │       ├── search/  profile/  settings/  login/

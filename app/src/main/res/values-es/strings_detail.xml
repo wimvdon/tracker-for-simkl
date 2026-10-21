@@ -95,4 +95,21 @@
     <string name="detail_job_novel">Libro</string>
     <string name="detail_job_music">Música</string>
     <string name="detail_job_camera">Fotografía</string>
+    <string name="person_load_failed">No se pudo cargar esta persona</string>
+    <string name="person_lookup_failed">No se pudo buscar este título en SIMKL.</string>
+    <string name="person_not_on_simkl">SIMKL no tiene este título.</string>
+    <string name="person_open_tmdb">Abrir en TMDB</string>
+    <string name="person_no_key">Añade tu clave de TMDB en Ajustes › Reparto y equipo para ver personas.</string>
+    <string name="person_known_for">Conocido por</string>
+    <string name="person_filmography">Filmografía</string>
+    <string name="person_born">Nacimiento: %1$s</string>
+    <string name="person_born_age">Nacimiento: %1$s (%2$d años)</string>
+    <string name="person_died">Fallecimiento: %1$s</string>
+    <string name="person_died_age">Fallecimiento: %1$s (%2$d años)</string>
+    <string name="person_in_library">En tu biblioteca</string>
+    <plurals name="person_episodes">
+        <item quantity="one">%1$d episodio</item>
+        <item quantity="many">%1$d episodios</item>
+        <item quantity="other">%1$d episodios</item>
+    </plurals>
 </resources>
