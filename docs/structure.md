@@ -44,10 +44,13 @@ tracker-for-simkl/
         │   │   │   ├── api/
         │   │   │   │   ├── SimklApi.kt        HTTP client for api.simkl.com and data.simkl.in
         │   │   │   │   ├── Parsers.kt         JSON → models
+        │   │   │   │   ├── TmdbApi.kt         Read-only HTTP client for api.themoviedb.org (user's own key)
+        │   │   │   │   ├── TmdbParsers.kt     TMDB credits JSON → models
         │   │   │   │   ├── JsonExt.kt         Null-safe JSON accessors
         │   │   │   │   └── Pkce.kt            PKCE verifier/challenge
         │   │   │   └── model/
         │   │   │       ├── Models.kt          Items, details, episodes, images (wsrv.nl URLs)
+        │   │   │       ├── Credits.kt         Cast, crew, people and their credits (TMDB)
         │   │   │       ├── Shelves.kt         Shelves, episode order, continue-from-latest
         │   │   │       └── NewEpisodes.kt     Which aired episodes a notification announces
         │   │   ├── work/NewEpisodesWorker.kt  Periodic new-episode notifications
@@ -55,7 +58,8 @@ tracker-for-simkl/
         │   │       ├── MainActivity.kt, AppRoot.kt, Navigation.kt   Entry, root, back stack
         │   │       ├── main/        Navigation bar and top bar
         │   │       ├── library/     TV Shows / Anime and Movies shelves
-        │   │       ├── detail/      Title details, episodes, rating, links
+        │   │       ├── detail/      Title details, episodes, rating, cast and crew, links
+        │   │       ├── person/      A person's page (TMDB): bio, known for, filmography
         │   │       ├── discover/    Trending, airing, premieres, best, "Surprise me"
         │   │       ├── calendar/    Upcoming episodes and releases
         │   │       ├── search/  profile/  settings/  login/
@@ -74,8 +78,8 @@ tracker-for-simkl/
 
 | Layer | Where | Rules |
 |---|---|---|
-| **Network** | `data/api/SimklApi.kt` | The only place that builds HTTP requests or knows URLs, headers and tokens. |
-| **Mapping** | `data/api/Parsers.kt`, `data/model/` | Pure Kotlin, no Android types, unit tested. |
+| **Network** | `data/api/SimklApi.kt`, `data/api/TmdbApi.kt` | The only places that build HTTP requests or know URLs, headers, tokens and keys. |
+| **Mapping** | `data/api/Parsers.kt`, `data/api/TmdbParsers.kt`, `data/model/` | Pure Kotlin, no Android types, unit tested. |
 | **State** | `data/*Repository.kt`, `SettingsStore.kt` | Own the in-memory state, cache files and DataStore. Expose `StateFlow`s and suspend functions. |
 | **UI** | `ui/` | Composables render state and forward clicks to repositories. No HTTP, no JSON. |
 | **Background** | `work/` | Reads cached state and public data files only; never calls the API. |

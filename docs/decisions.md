@@ -2,6 +2,29 @@
 
 Newest first. Add an entry for every notable choice: what was decided, why, and what was rejected.
 
+## 2026-10-21: Cast and crew from TMDB, with the user's own key
+
+SIMKL gives no cast, only a director. TMDB has full credits and SIMKL's details already carry each
+title's TMDB ID, so details pages now show a Cast and a Crew row from TMDB. SIMKL stays the source
+of everything else (lists, sync, sign-in); TMDB is read only, called only while a details page is
+open, and never in the background.
+
+- **The user enters their own TMDB key** in Settings (v3 API key or v4 Read Access Token; checked
+  with TMDB before saving). Without one, the app never contacts TMDB. Reason: TMDB's free API is for
+  non-commercial use and the app may become paid; with each user's own personal key the app ships
+  no key and needs no commercial agreement. Rejected: a build-time key like the SIMKL client ID
+  (anyone could extract it from the APK, and a paid app would need a commercial TMDB licence).
+- **The key is stored in the device DataStore file, not backed up**, like the SIMKL tokens.
+- **Photos go through wsrv.nl**, like SIMKL's images, so the phone only contacts one new host
+  (api.themoviedb.org). New network destination approved by the owner.
+- **A second HTTP class**, `TmdbApi`, next to `SimklApi` (CLAUDE.md updated); OkHttp and
+  kotlinx-serialization were already there, so no new dependency.
+- **Attribution:** TMDB's approved short logo, notice and link at the bottom of Settings.
+- **A person screen** (photo, life dates, biography, known for, filmography). A title opens its
+  SIMKL details: matched in the library by TMDB ID and kind first, else looked up with SIMKL's
+  `/search/id` (a foreground call on a tap, as SIMKL's rules allow). Rejected: TMDB title pages
+  inside the app, which would duplicate the details screen without the user's lists.
+
 ## 2026-10-17: Drag handles for the bottom bar order
 
 A design review of the sibling apps found four ways to put a list in order (drag handles, a long

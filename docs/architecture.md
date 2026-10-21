@@ -25,10 +25,11 @@ Tracker for Simkl is a single-module, single-activity Android app. Compose rende
 | Component | Responsibility |
 |---|---|
 | `TrackerApp` | Creates the shared HTTP client, API client and repositories lazily; provides Coil's image loader and WorkManager's configuration; installs `CrashReporter` before library start-up providers run. |
-| `SimklApi` | The only class that builds HTTP requests. Adds `simkl-api-key`, `client_id`, `app-name`, `app-version` and the bearer token; leaves data.simkl.in URLs untouched (SIMKL asks for no query strings there). Refreshes AUTH V2 tokens 12 hours before expiry under a mutex. |
+| `SimklApi` | The only class that builds HTTP requests to SIMKL. Adds `simkl-api-key`, `client_id`, `app-name`, `app-version` and the bearer token; leaves data.simkl.in URLs untouched (SIMKL asks for no query strings there). Refreshes AUTH V2 tokens 12 hours before expiry under a mutex. |
+| `TmdbApi`, `TmdbParsers` | Read-only TMDB client with the user's own key (v3 key as `api_key`, v4 token as bearer), and the mapping of credits to `Credits` (cast in billing order, crew limited to key jobs, one entry per person). See `docs/api.md`. |
 | `Parsers` | Maps `JsonElement` responses to the app's models by hand. Pure Kotlin, unit tested against SIMKL's documented examples. |
 | `LibraryRepository` | Holds `LibraryState` (items, show info, calendar, playback, "continue from latest" positions). Loads the cache from `library.json` / `show_info.json`, syncs, applies changes optimistically and writes files atomically (temp file + rename). |
-| `CatalogRepository` | Stateless reads for screens: details, episodes, search, Discover sections (API lists and data.simkl.in trending files), random title. |
+| `CatalogRepository` | Stateless reads for screens: details, episodes, search, Discover sections (API lists and data.simkl.in trending files), random title, TMDB cast and crew and people (cached in memory), and the SIMKL title of a TMDB credit. |
 | `SettingsStore` | DataStore Preferences wrapper over two files (see "Backup"). A corrupt file is replaced with empty preferences instead of crashing. |
 | `Navigator` | A `mutableStateListOf<Route>` back stack. Pushing a route already on the stack pops back to it. |
 | `NewEpisodesWorker` | Every 4 hours (network required), only while signed in with notifications on: downloads the calendar files and lets `NewEpisodes` match them against the cached library. It posts one notification per show with newly aired, unwatched episodes ("S01E05 is out", or "3 new episodes, up to S01E07"), with the show's poster (thumbnail) and backdrop (expanded) from wsrv.nl. Upcoming episodes of watched shows are remembered, so a check that runs days late (phone off, battery saver) still announces episodes from the last 7 days; at most five shows per check, the others follow at the next. After each check, one extra check is scheduled 15 minutes after the next remembered episode airs (`NewEpisodes.nextAirDate`), so a notification doesn't wait for the 4-hourly check; Android can still delay it a little (Doze). Air dates are parsed with SIMKL's offset (`Dates.parse`), so they are moments in time and the phone's time zone only changes how they are shown. Every app start re-registers the check (`restore`), because Android drops scheduled work when an app is force-stopped. |
@@ -73,7 +74,7 @@ guarded by `BackupRulesTest`).
 
 | Stays on this phone | Why |
 |---|---|
-| `settings` DataStore: tokens, pending sign-in, notifications on/off, notified and remembered episodes | The sign-in must not leave the phone. Notifications need the permission and a scheduled check on the new phone, which a restore doesn't bring. |
+| `settings` DataStore: tokens, pending sign-in, TMDB key, notifications on/off, notified and remembered episodes | The sign-in and the TMDB key are credentials and must not leave the phone. Notifications need the permission and a scheduled check on the new phone, which a restore doesn't bring. |
 | `library.json`, `show_info.json` | Downloaded again after signing in. |
 | `last_crash.txt`, HTTP and image caches | Only about this phone. |
 

@@ -41,7 +41,7 @@ object DataFiles {
     /** Appearance, bottom bar and list settings. Backed up. */
     const val BACKED_UP_SETTINGS = "backed_up_settings"
 
-    /** Sign-in tokens and notification state: never leave this phone. Historical name. */
+    /** Sign-in tokens, the TMDB key and notification state: never leave this phone. Historical name. */
     const val DEVICE = "settings"
 
     /** Where DataStore keeps a file, relative to the app's files folder (backup rules use this). */
@@ -126,6 +126,8 @@ data class AppSettings(
     val continueFromLatest: Boolean = false,
     /** Media types shown throughout the app; at least one stays on. */
     val types: Set<MediaType> = MediaType.entries.toSet(),
+    /** The user's own TMDB key, for cast and crew; null when not set. Stays on this phone. */
+    val tmdbKey: String? = null,
 ) {
     /** [types] in the app's usual order: TV shows, anime, movies. */
     val typeList: List<MediaType> get() = MediaType.entries.filter { it in types }
@@ -162,6 +164,7 @@ class SettingsStore(
         val remembered = stringSetPreferencesKey("remembered_episodes")
         val authState = stringPreferencesKey("auth_state")
         val authVerifier = stringPreferencesKey("auth_verifier")
+        val tmdbKey = stringPreferencesKey("tmdb_key")
     }
 
     val settings: Flow<AppSettings> =
@@ -189,6 +192,7 @@ class SettingsStore(
                         ?.toSet()
                         ?.ifEmpty { null }
                         ?: MediaType.entries.toSet(),
+                tmdbKey = d[Keys.tmdbKey],
             )
         }
 
@@ -268,6 +272,9 @@ class SettingsStore(
     suspend fun setContinueFromLatest(value: Boolean) = context.backedUpStore.edit { it[Keys.continueFromLatest] = value }
 
     suspend fun setTypes(value: Set<MediaType>) = context.backedUpStore.edit { it[Keys.mediaTypes] = value.map { t -> t.name }.toSet() }
+
+    /** A key like a password: in the device file, never backed up. Null removes it. */
+    suspend fun setTmdbKey(value: String?) = context.dataStore.edit { if (value == null) it -= Keys.tmdbKey else it[Keys.tmdbKey] = value }
 
     suspend fun notifiedEpisodes(): Set<String> = context.dataStore.data.first()[Keys.notified].orEmpty()
 

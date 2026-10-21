@@ -436,6 +436,17 @@ object Images {
 
     fun avatar(path: String?): String? = path?.let { absolute(it) ?: "$CDN/avatars/${it}_100.jpg" }
 
+    private const val TMDB = "https://wsrv.nl/?url=https://image.tmdb.org/t/p"
+
+    /** A TMDB profile photo ("/abc.jpg"), 185 wide (or 342 for a person's page), through the same wsrv.nl proxy. */
+    fun tmdbProfile(
+        path: String?,
+        large: Boolean = false,
+    ): String? = path?.takeIf { it.startsWith("/") }?.let { "$TMDB/${if (large) "w342" else "w185"}$it" }
+
+    /** A TMDB poster, 185 wide, through wsrv.nl. */
+    fun tmdbPoster(path: String?): String? = path?.takeIf { it.startsWith("/") }?.let { "$TMDB/w185$it" }
+
     /**
      * Pictures for a new-episode notification: the show's poster as the thumbnail (the library's
      * copy first, else the calendar's) and its backdrop, from the cached show info, as the large

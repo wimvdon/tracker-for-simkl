@@ -42,6 +42,15 @@ sealed interface Route {
         override val key = "ratings"
     }
 
+    /** A person from a title's cast or crew (TMDB), with their filmography. */
+    data class Person(
+        val personId: Long,
+        val name: String? = null,
+        val photo: String? = null,
+    ) : Route {
+        override val key = "person/$personId"
+    }
+
     /** All rated titles of one type, from a row of "My ratings". */
     data class RatedGrid(
         val type: MediaType,
@@ -105,6 +114,7 @@ private fun Route.encode(): List<String> =
         Route.Settings -> listOf("settings", "", "", "", "")
         Route.Ratings -> listOf("ratings", "", "", "", "")
         is Route.RatedGrid -> listOf("rated", type.name, "", "", "")
+        is Route.Person -> listOf("person", "", personId.toString(), name.orEmpty(), photo.orEmpty())
     }
 
 private fun decodeRoute(parts: List<String>): Route? {
@@ -124,6 +134,7 @@ private fun decodeRoute(parts: List<String>): Route? {
         "settings" -> Route.Settings
         "ratings" -> Route.Ratings
         "rated" -> Route.RatedGrid(type ?: return null)
+        "person" -> Route.Person(parts[2].toLongOrNull() ?: return null, parts[3].ifEmpty { null }, parts[4].ifEmpty { null })
         else -> null
     }
 }

@@ -23,6 +23,7 @@ import androidx.lifecycle.repeatOnLifecycle
 import io.github.impca201.trackerforsimkl.data.AppSettings
 import io.github.impca201.trackerforsimkl.ui.components.rememberApp
 import io.github.impca201.trackerforsimkl.ui.detail.DetailScreen
+import io.github.impca201.trackerforsimkl.ui.person.PersonScreen
 import io.github.impca201.trackerforsimkl.ui.login.LoginScreen
 import io.github.impca201.trackerforsimkl.ui.main.MainScreen
 import io.github.impca201.trackerforsimkl.ui.profile.ProfileScreen
@@ -97,6 +98,7 @@ private fun LoggedIn(
                     Route.Settings -> SettingsScreen(settings)
                     Route.Ratings -> RatingsScreen(settings.typeList)
                     is Route.RatedGrid -> RatedGridScreen(route.type)
+                    is Route.Person -> PersonScreen(route, settings)
                 }
             }
         }

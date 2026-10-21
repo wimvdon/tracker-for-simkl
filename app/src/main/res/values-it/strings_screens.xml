@@ -71,4 +71,18 @@
     <string name="screens_login_redirect_invalid">Questo link di accesso non corrisponde a quello avviato dall\'app. Tocca di nuovo Accedi con SIMKL.</string>
     <string name="screens_login_failed">Accesso non riuscito: %1$s</string>
     <string name="screens_login_note">Accedi su simkl.com; questa app non vede mai la tua password. Tracker for Simkl non è affiliato a Simkl.</string>
+    <string name="screens_settings_tmdb">Cast e troupe</string>
+    <string name="screens_settings_tmdb_key">Chiave API di TMDB</string>
+    <string name="screens_settings_tmdb_key_on">Aggiunta. Le schede mostrano cast e troupe di TMDB.</string>
+    <string name="screens_settings_tmdb_key_off">Aggiungi la tua chiave gratuita di TMDB per vedere cast e troupe nelle schede.</string>
+    <string name="screens_tmdb_dialog_text">TMDB offre chiavi API gratuite per uso personale. Accedi su themoviedb.org, apri Impostazioni › API, richiedi una chiave e copia qui la «API Key» o il «API Read Access Token». Resta su questo telefono e viene inviata solo a TMDB.</string>
+    <string name="screens_tmdb_get_key">Ottieni una chiave su themoviedb.org</string>
+    <string name="screens_tmdb_key_label">Chiave API o Read Access Token</string>
+    <string name="screens_tmdb_save">Salva</string>
+    <string name="screens_tmdb_remove">Rimuovi</string>
+    <string name="screens_tmdb_rejected">TMDB non ha accettato questa chiave. Controlla di averla copiata per intero.</string>
+    <string name="screens_tmdb_unreachable">Impossibile raggiungere TMDB. Controlla la connessione e riprova.</string>
+    <string name="screens_tmdb_notice">Questo prodotto usa l\'API di TMDB ma non è approvato né certificato da TMDB.</string>
+    <string name="screens_tmdb_link">Cast e troupe di TMDB · themoviedb.org</string>
+    <string name="screens_tmdb_logo">TMDB</string>
 </resources>

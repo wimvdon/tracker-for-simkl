@@ -70,4 +70,18 @@
     <string name="screens_login_redirect_invalid">Die inloglink hoort niet bij de inlogpoging van deze app. Tik opnieuw op Inloggen met SIMKL.</string>
     <string name="screens_login_failed">Inloggen mislukt: %1$s</string>
     <string name="screens_login_note">Je logt in op simkl.com; deze app ziet je wachtwoord nooit. Tracker for Simkl is niet verbonden aan Simkl.</string>
+    <string name="screens_settings_tmdb">Cast en crew</string>
+    <string name="screens_settings_tmdb_key">TMDB API-sleutel</string>
+    <string name="screens_settings_tmdb_key_on">Toegevoegd. Detailpagina’s tonen cast en crew van TMDB.</string>
+    <string name="screens_settings_tmdb_key_off">Voeg je eigen gratis TMDB-sleutel toe om cast en crew op detailpagina’s te zien.</string>
+    <string name="screens_tmdb_dialog_text">TMDB geeft gratis API-sleutels voor persoonlijk gebruik. Log in op themoviedb.org, open Instellingen › API, vraag een sleutel aan en kopieer de „API Key” of het „API Read Access Token” naar hier. De sleutel blijft op deze telefoon en gaat alleen naar TMDB.</string>
+    <string name="screens_tmdb_get_key">Sleutel aanvragen op themoviedb.org</string>
+    <string name="screens_tmdb_key_label">API-sleutel of Read Access Token</string>
+    <string name="screens_tmdb_save">Opslaan</string>
+    <string name="screens_tmdb_remove">Verwijderen</string>
+    <string name="screens_tmdb_rejected">TMDB accepteert deze sleutel niet. Controleer of je hem helemaal hebt gekopieerd.</string>
+    <string name="screens_tmdb_unreachable">TMDB is niet bereikbaar. Controleer je verbinding en probeer het opnieuw.</string>
+    <string name="screens_tmdb_notice">Dit product gebruikt de TMDB API, maar wordt niet door TMDB onderschreven of gecertificeerd.</string>
+    <string name="screens_tmdb_link">Cast en crew van TMDB · themoviedb.org</string>
+    <string name="screens_tmdb_logo">TMDB</string>
 </resources>

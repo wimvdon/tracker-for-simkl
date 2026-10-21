@@ -54,4 +54,9 @@ class BackupRulesTest {
         val names = SettingsStore.BACKED_UP_KEYS.map { it.name }
         assertEquals(listOf("theme", "dynamic_color", "nav_order", "nav_enabled", "hide_specials", "continue_from_latest"), names)
     }
+
+    @Test
+    fun `the TMDB key stays on this phone`() {
+        assertTrue(SettingsStore.BACKED_UP_KEYS.none { it.name == SettingsStore.Keys.tmdbKey.name })
+    }
 }

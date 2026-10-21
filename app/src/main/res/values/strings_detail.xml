@@ -88,4 +88,27 @@
         <item quantity="one">%1$d of %2$d episode watched</item>
         <item quantity="other">%1$d of %2$d episodes watched</item>
     </plurals>
+    <string name="detail_cast">Cast</string>
+    <string name="detail_crew">Crew</string>
+    <string name="detail_job_writer">Writer</string>
+    <string name="detail_job_story">Story</string>
+    <string name="detail_job_novel">Book</string>
+    <string name="detail_job_music">Music</string>
+    <string name="detail_job_camera">Cinematography</string>
+    <string name="person_load_failed">Couldn\'t load this person</string>
+    <string name="person_lookup_failed">Couldn\'t look this title up on SIMKL.</string>
+    <string name="person_not_on_simkl">SIMKL doesn\'t have this title.</string>
+    <string name="person_open_tmdb">Open on TMDB</string>
+    <string name="person_no_key">Add your TMDB key in Settings › Cast and crew to see people.</string>
+    <string name="person_known_for">Known for</string>
+    <string name="person_filmography">Filmography</string>
+    <string name="person_born">Born %1$s</string>
+    <string name="person_born_age">Born %1$s (age %2$d)</string>
+    <string name="person_died">Died %1$s</string>
+    <string name="person_died_age">Died %1$s (aged %2$d)</string>
+    <string name="person_in_library">In your library</string>
+    <plurals name="person_episodes">
+        <item quantity="one">%1$d episode</item>
+        <item quantity="other">%1$d episodes</item>
+    </plurals>
 </resources>

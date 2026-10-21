@@ -88,4 +88,27 @@
         <item quantity="one">%1$d van %2$d aflevering gezien</item>
         <item quantity="other">%1$d van %2$d afleveringen gezien</item>
     </plurals>
+    <string name="detail_cast">Cast</string>
+    <string name="detail_crew">Crew</string>
+    <string name="detail_job_writer">Scenario</string>
+    <string name="detail_job_story">Verhaal</string>
+    <string name="detail_job_novel">Boek</string>
+    <string name="detail_job_music">Muziek</string>
+    <string name="detail_job_camera">Camera</string>
+    <string name="person_load_failed">Deze persoon kon niet worden geladen</string>
+    <string name="person_lookup_failed">Deze titel kon niet worden opgezocht op SIMKL.</string>
+    <string name="person_not_on_simkl">SIMKL heeft deze titel niet.</string>
+    <string name="person_open_tmdb">Openen op TMDB</string>
+    <string name="person_no_key">Voeg je TMDB-sleutel toe in Instellingen › Cast en crew om personen te zien.</string>
+    <string name="person_known_for">Bekend van</string>
+    <string name="person_filmography">Filmografie</string>
+    <string name="person_born">Geboren op %1$s</string>
+    <string name="person_born_age">Geboren op %1$s (%2$d jaar)</string>
+    <string name="person_died">Overleden op %1$s</string>
+    <string name="person_died_age">Overleden op %1$s (%2$d jaar)</string>
+    <string name="person_in_library">In je bibliotheek</string>
+    <plurals name="person_episodes">
+        <item quantity="one">%1$d aflevering</item>
+        <item quantity="other">%1$d afleveringen</item>
+    </plurals>
 </resources>

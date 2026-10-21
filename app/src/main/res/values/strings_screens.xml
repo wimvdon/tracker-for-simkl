@@ -70,4 +70,18 @@
     <string name="screens_login_redirect_invalid">That sign-in link doesn\'t match the one this app started. Tap Sign in with SIMKL again.</string>
     <string name="screens_login_failed">Sign-in failed: %1$s</string>
     <string name="screens_login_note">You sign in on simkl.com; this app never sees your password. Tracker for Simkl is not affiliated with Simkl.</string>
+    <string name="screens_settings_tmdb">Cast and crew</string>
+    <string name="screens_settings_tmdb_key">TMDB API key</string>
+    <string name="screens_settings_tmdb_key_on">Added. Details pages show cast and crew from TMDB.</string>
+    <string name="screens_settings_tmdb_key_off">Add your own free TMDB key to see cast and crew on details pages.</string>
+    <string name="screens_tmdb_dialog_text">TMDB gives free API keys for personal use. Sign in on themoviedb.org, open Settings › API, request a key, then copy the “API Key” or the “API Read Access Token” and paste it here. It stays on this phone and is only sent to TMDB.</string>
+    <string name="screens_tmdb_get_key">Get a key on themoviedb.org</string>
+    <string name="screens_tmdb_key_label">API key or Read Access Token</string>
+    <string name="screens_tmdb_save">Save</string>
+    <string name="screens_tmdb_remove">Remove</string>
+    <string name="screens_tmdb_rejected">TMDB didn\'t accept this key. Check that you copied all of it.</string>
+    <string name="screens_tmdb_unreachable">Couldn\'t reach TMDB. Check your connection and try again.</string>
+    <string name="screens_tmdb_notice">This product uses the TMDB API but is not endorsed or certified by TMDB.</string>
+    <string name="screens_tmdb_link">Cast and crew from TMDB · themoviedb.org</string>
+    <string name="screens_tmdb_logo">TMDB</string>
 </resources>

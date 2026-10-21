@@ -14,6 +14,7 @@ import io.github.impca201.trackerforsimkl.data.CatalogRepository
 import io.github.impca201.trackerforsimkl.data.LibraryRepository
 import io.github.impca201.trackerforsimkl.data.SettingsStore
 import io.github.impca201.trackerforsimkl.data.api.SimklApi
+import io.github.impca201.trackerforsimkl.data.api.TmdbApi
 import io.github.impca201.trackerforsimkl.work.NewEpisodesWorker
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.SupervisorJob
@@ -42,7 +43,8 @@ class TrackerApp :
     val settings by lazy { SettingsStore(this) }
     val api by lazy { SimklApi(http, settings) }
     val library by lazy { LibraryRepository(this, api, settings, scope) }
-    val catalog by lazy { CatalogRepository(api) }
+    val tmdb by lazy { TmdbApi(http) }
+    val catalog by lazy { CatalogRepository(api, tmdb) }
     val account by lazy { AccountRepository(api) }
 
     /** The latest sign-in redirect from simkl.com, until the login screen has handled it. */
