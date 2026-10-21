@@ -131,9 +131,7 @@ fun ShowsScreen(
                 .mapValues { (shelf, v) ->
                     val tab = shelves.indexOf(shelf)
                     val airingOf = { item: LibraryItem -> Shelves.airingOf(item, state.showInfo[item.key], state.nextAirDate(item)) }
-                    val sorted = options.sort(tab).sort(options.filter(tab).apply(v, airingOf))
-                    // Episodes in progress come first in Up next.
-                    if (shelf == Shelf.UpNext) sorted.sortedByDescending { state.playbackFor(it.type, it.ids.simkl) != null } else sorted
+                    options.sort(tab).sort(options.filter(tab).apply(v, airingOf))
                 }
         }
 
