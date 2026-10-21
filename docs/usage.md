@@ -24,7 +24,7 @@ Nobody needs a SIMKL developer account. If the browser shows the app chooser (wh
 
 Shelves: **Up next** (shows with an aired, unwatched episode), **Watched** (caught up or completed, with the next air date when known), **Plan to watch**, **On hold**, **Dropped**. Every poster shows an *Airing* or *Ended* badge.
 
-- **Mark the next episode watched:** tap ✓ on a show in Up next. Episodes in progress (paused on another device) come first and show their progress; marking one watched asks first, because it removes the saved progress.
+- **Mark the next episode watched:** tap ✓ on a show in Up next. Episodes in progress (paused on another device) show their progress and keep their place in the chosen sort order; marking one watched asks first, because it removes the saved progress.
 - **Sort and filter** with the buttons in the top bar, kept per tab. A dot on the filter button shows a filter is on.
 
   | Tab | Sort (default first) | Filter |
