@@ -16,6 +16,8 @@ import io.github.impca201.trackerforsimkl.data.model.MediaSummary
 import io.github.impca201.trackerforsimkl.data.model.MediaType
 import io.github.impca201.trackerforsimkl.data.model.Person
 import io.github.impca201.trackerforsimkl.data.model.PersonCredit
+import io.github.impca201.trackerforsimkl.data.model.PersonResult
+import io.github.impca201.trackerforsimkl.data.api.tmdbLanguage
 import io.github.impca201.trackerforsimkl.data.model.UserProfile
 import io.github.impca201.trackerforsimkl.data.model.UserStats
 import kotlinx.coroutines.async
@@ -77,7 +79,7 @@ class CatalogRepository(
         key: TmdbKey,
     ): Person {
         people[personId]?.let { return it }
-        val language = Locale.getDefault().toLanguageTag()
+        val language = tmdbLanguage(Locale.getDefault())
         val person = TmdbParsers.person(tmdb.person(key, personId, language)) ?: throw ApiException(404, "Not found")
         val withBio =
             if (person.biography == null && !language.startsWith("en")) {
@@ -87,6 +89,12 @@ class CatalogRepository(
             }
         return withBio.also { people[personId] = it }
     }
+
+    /** People by name from TMDB, for Search › People. */
+    suspend fun searchPeople(
+        query: String,
+        key: TmdbKey,
+    ): List<PersonResult> = TmdbParsers.people(tmdb.searchPeople(key, query, tmdbLanguage(Locale.getDefault())))
 
     /** The SIMKL title of a TMDB credit (GET /search/id), or null when SIMKL doesn't have it. */
     suspend fun simklTitle(credit: PersonCredit): MediaSummary? {

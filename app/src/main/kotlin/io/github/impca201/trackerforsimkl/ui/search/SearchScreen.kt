@@ -72,10 +72,27 @@ import io.github.impca201.trackerforsimkl.ui.components.label
 import io.github.impca201.trackerforsimkl.ui.library.SectionHeader
 import io.github.impca201.trackerforsimkl.ui.theme.Motion
 import kotlinx.coroutines.delay
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material.icons.rounded.Person
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.layout.ContentScale
+import coil3.compose.AsyncImage
+import io.github.impca201.trackerforsimkl.data.api.TmdbKey
+import io.github.impca201.trackerforsimkl.data.model.PersonResult
+import io.github.impca201.trackerforsimkl.ui.Route
+import io.github.impca201.trackerforsimkl.ui.detail.PeopleRow
+import io.github.impca201.trackerforsimkl.ui.detail.PersonTile
+import kotlinx.coroutines.async
+import kotlinx.coroutines.coroutineScope
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun SearchScreen(types: List<MediaType>) {
+fun SearchScreen(
+    types: List<MediaType>,
+    tmdbKey: String?,
+) {
     val app = rememberApp()
     val navigator = LocalNavigator.current
     val library by app.library.state.collectAsState()
@@ -83,23 +100,33 @@ fun SearchScreen(types: List<MediaType>) {
     var typeName by rememberSaveable { mutableStateOf<String?>(null) }
     // Only the types turned on in Settings; "All" when the chosen one was turned off.
     val type = types.firstOrNull { it.name == typeName }
+    // People (TMDB) only with the user's own token; "All" when it was removed.
+    val key = TmdbKey.parse(tmdbKey)
+    val peopleOnly = key != null && typeName == PEOPLE
     var results by remember { mutableStateOf<Map<MediaType, List<MediaSummary>>>(emptyMap()) }
+    var people by remember { mutableStateOf<List<PersonResult>>(emptyList()) }
     var loading by remember { mutableStateOf(false) }
     val focus = remember { FocusRequester() }
     val keyboard = LocalSoftwareKeyboardController.current
 
     LaunchedEffect(Unit) { if (query.isEmpty()) focus.requestFocus() }
-    LaunchedEffect(query, type, types) {
+    LaunchedEffect(query, type, types, peopleOnly, key) {
         val q = query.trim()
         if (q.length < 2) {
             results = emptyMap()
+            people = emptyList()
             loading = false
             return@LaunchedEffect
         }
         // Loading covers the debounce too, so "No results" doesn't flash before the search runs.
         loading = true
         delay(350) // Debounce typing.
-        results = app.catalog.search(q, type?.let { listOf(it) } ?: types)
+        coroutineScope {
+            // People show under "All" and "People"; a failed TMDB search just shows none.
+            val found = async { if (key != null && (type == null || peopleOnly)) runCatching { app.catalog.searchPeople(q, key) }.getOrDefault(emptyList()) else emptyList() }
+            results = if (peopleOnly) emptyMap() else app.catalog.search(q, type?.let { listOf(it) } ?: types)
+            people = found.await()
+        }
         loading = false
     }
 
@@ -135,11 +162,14 @@ fun SearchScreen(types: List<MediaType>) {
                         )
                     },
                 )
-                if (types.size > 1) {
+                if (types.size > 1 || key != null) {
                     LazyRow(contentPadding = PaddingValues(horizontal = 16.dp), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                        item { FilterChip(selected = type == null, onClick = { typeName = null }, label = { Text(stringResource(R.string.screens_search_all)) }) }
+                        item { FilterChip(selected = type == null && !peopleOnly, onClick = { typeName = null }, label = { Text(stringResource(R.string.screens_search_all)) }) }
                         items(types) { t ->
                             FilterChip(selected = type == t, onClick = { typeName = t.name }, label = { Text(t.label()) })
+                        }
+                        if (key != null) {
+                            item { FilterChip(selected = peopleOnly, onClick = { typeName = PEOPLE }, label = { Text(stringResource(R.string.screens_search_people)) }) }
                         }
                     }
                 }
@@ -149,13 +179,13 @@ fun SearchScreen(types: List<MediaType>) {
     ) { padding ->
         val sections = results.filterValues { it.isNotEmpty() }
         AnimatedContent(
-            targetState = sections,
-            contentKey = { it.isEmpty() },
+            targetState = sections to people,
+            contentKey = { (s, p) -> s.isEmpty() && p.isEmpty() },
             transitionSpec = { fadeIn(Motion.fadeSpec(210, delayMillis = 90)) togetherWith fadeOut(Motion.fadeSpec(90)) },
             label = "searchContent",
             modifier = Modifier.fillMaxSize(),
-        ) { shown ->
-            if (shown.isEmpty()) {
+        ) { (shown, shownPeople) ->
+            if (shown.isEmpty() && shownPeople.isEmpty()) {
                 if (query.trim().length >= 2 && !loading) {
                     EmptyState(Icons.Rounded.SearchOff, stringResource(R.string.screens_search_no_results, query.trim()), Modifier.padding(padding))
                 } else {
@@ -170,9 +200,24 @@ fun SearchScreen(types: List<MediaType>) {
                         ),
                     modifier = Modifier.fillMaxSize(),
                 ) {
+                    fun openPerson(p: PersonResult) = navigator.push(Route.Person(p.id, p.name, p.photo))
+                    // "People" gets the full list; "All" a row of them first.
+                    if (peopleOnly) {
+                        items(shownPeople, key = { "person:${it.id}" }) { p ->
+                            PersonResultRow(p, Modifier.animateItem()) { openPerson(p) }
+                        }
+                    } else if (type == null && shownPeople.isNotEmpty()) {
+                        item(key = "people") {
+                            Box(Modifier.animateItem()) {
+                                PeopleRow(stringResource(R.string.screens_search_people), shownPeople) { p ->
+                                    PersonTile(p.name, p.knownFor.firstOrNull(), p.photo) { openPerson(p) }
+                                }
+                            }
+                        }
+                    }
                     // "All" with several types: a row of posters per type, like Discover. A chosen
                     // type gets the full list with overviews.
-                    if (type == null && types.size > 1) {
+                    if (!peopleOnly && type == null && types.size > 1) {
                         shown.forEach { (t, list) ->
                             item(key = "row-$t") {
                                 Column(Modifier.animateItem()) {
@@ -185,7 +230,7 @@ fun SearchScreen(types: List<MediaType>) {
                                 }
                             }
                         }
-                    } else {
+                    } else if (!peopleOnly) {
                         shown.forEach { (t, list) ->
                             items(list, key = { "$t:${it.simklId}" }) { result ->
                                 val inLibrary = library.item(result.type, result.simklId)
@@ -224,6 +269,42 @@ fun ResultRow(
                 }
             }
             if (status != null) PosterBadge(status)
+        }
+    }
+}
+
+/** Marks the People chip in the saved filter (the others are media type names). */
+private const val PEOPLE = "people"
+
+/** A person in Search › People: round photo, name and a few titles they are known for. */
+@Composable
+private fun PersonResultRow(
+    person: PersonResult,
+    modifier: Modifier = Modifier,
+    onClick: () -> Unit,
+) {
+    Surface(onClick = onClick, modifier = modifier, color = Color.Transparent) {
+        Row(
+            Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 8.dp),
+            horizontalArrangement = Arrangement.spacedBy(14.dp),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            Box(Modifier.size(56.dp).clip(CircleShape).background(MaterialTheme.colorScheme.surfaceContainerHighest), contentAlignment = Alignment.Center) {
+                Icon(Icons.Rounded.Person, null, tint = MaterialTheme.colorScheme.onSurfaceVariant)
+                if (person.photo != null) AsyncImage(person.photo, null, contentScale = ContentScale.Crop, modifier = Modifier.size(56.dp).clip(CircleShape))
+            }
+            Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(2.dp)) {
+                Text(person.name, style = MaterialTheme.typography.titleMedium, maxLines = 1, overflow = TextOverflow.Ellipsis)
+                if (person.knownFor.isNotEmpty()) {
+                    Text(
+                        person.knownFor.joinToString(", "),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        maxLines = 2,
+                        overflow = TextOverflow.Ellipsis,
+                    )
+                }
+            }
         }
     }
 }

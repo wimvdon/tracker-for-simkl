@@ -19,7 +19,12 @@ open, and never in the background.
   (api.themoviedb.org). New network destination approved by the owner.
 - **A second HTTP class**, `TmdbApi`, next to `SimklApi` (CLAUDE.md updated); OkHttp and
   kotlinx-serialization were already there, so no new dependency.
-- **Attribution:** TMDB's approved short logo, notice and link at the bottom of Settings.
+- **Attribution:** *Settings › Credits* has a row for SIMKL and one for TMDB, each with its own
+  logo (unchanged, never tinted), what it provides and a link; TMDB's row carries its notice.
+- **Read Access Token only** (changed after 1.6.0, which also took the v3 API Key): one way to
+  sign requests, and the owner found the API Key failing. A saved API Key is ignored and Settings
+  asks to replace it.
+- **Person search** under Search (a People chip and a row under All), only with a token.
 - **A person screen** (photo, life dates, biography, known for, filmography). A title opens its
   SIMKL details: matched in the library by TMDB ID and kind first, else looked up with SIMKL's
   `/search/id` (a foreground call on a tap, as SIMKL's rules allow). Rejected: TMDB title pages

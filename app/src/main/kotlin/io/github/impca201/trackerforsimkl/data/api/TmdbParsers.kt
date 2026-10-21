@@ -7,6 +7,7 @@ import io.github.impca201.trackerforsimkl.data.model.CrewMember
 import io.github.impca201.trackerforsimkl.data.model.Images
 import io.github.impca201.trackerforsimkl.data.model.Person
 import io.github.impca201.trackerforsimkl.data.model.PersonCredit
+import io.github.impca201.trackerforsimkl.data.model.PersonResult
 import kotlinx.serialization.json.JsonElement
 import kotlinx.serialization.json.JsonObject
 import java.time.LocalDate
@@ -150,6 +151,15 @@ object TmdbParsers {
             credits = credits,
         )
     }
+
+    /** `/search/person` results, in TMDB's order (most popular first). */
+    fun people(element: JsonElement?): List<PersonResult> =
+        element.asObject()?.arr("results").objects().mapNotNull { o ->
+            val id = o.long("id") ?: return@mapNotNull null
+            val name = o.str("name") ?: return@mapNotNull null
+            val known = o.arr("known_for").objects().mapNotNull { it.str("title") ?: it.str("name") }.distinct().take(3)
+            PersonResult(id, name, Images.tmdbProfile(o.str("profile_path")), known)
+        }.distinctBy { it.id }
 
     /** Only the biography, from a second request in English when the app's language has none. */
     fun biography(element: JsonElement?): String? = element.asObject()?.str("biography")?.trim()?.ifBlank { null }

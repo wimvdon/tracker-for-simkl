@@ -99,7 +99,7 @@
     <string name="person_lookup_failed">Impossibile cercare questo titolo su SIMKL.</string>
     <string name="person_not_on_simkl">SIMKL non ha questo titolo.</string>
     <string name="person_open_tmdb">Apri su TMDB</string>
-    <string name="person_no_key">Aggiungi la tua chiave TMDB in Impostazioni › Cast e troupe per vedere le persone.</string>
+    <string name="person_no_key">Aggiungi il tuo token di TMDB in Impostazioni › Cast e troupe per vedere le persone.</string>
     <string name="person_known_for">Noto per</string>
     <string name="person_filmography">Filmografia</string>
     <string name="person_born">Nascita: %1$s</string>

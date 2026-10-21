@@ -139,6 +139,9 @@ import coil3.compose.AsyncImage
 import io.github.impca201.trackerforsimkl.R
 import io.github.impca201.trackerforsimkl.data.AppSettings
 import io.github.impca201.trackerforsimkl.data.api.TmdbKey
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.compose.LocalLifecycleOwner
+import androidx.lifecycle.repeatOnLifecycle
 import io.github.impca201.trackerforsimkl.data.model.Credits
 import io.github.impca201.trackerforsimkl.data.model.Episode
 import io.github.impca201.trackerforsimkl.data.model.EpisodeRef
@@ -204,12 +207,18 @@ fun DetailScreen(
             error = e.message ?: resources.getString(R.string.detail_load_failed_fallback)
         }
     }
-    // Cast and crew from TMDB, only with the user's own key. A failure just leaves them out.
+    // Cast and crew from TMDB, only with the user's own token. A failure leaves them out until the
+    // token changes or the app comes back to the foreground, so nothing needs a restart.
     var credits by remember { mutableStateOf<Credits?>(null) }
     val tmdbKey = TmdbKey.parse(settings.tmdbKey)
-    LaunchedEffect(details, tmdbKey) {
-        val d = details
-        credits = if (d != null && tmdbKey != null) runCatching { app.catalog.credits(d, tmdbKey) }.getOrNull() else null
+    val lifecycle = LocalLifecycleOwner.current.lifecycle
+    LaunchedEffect(details, tmdbKey, lifecycle) {
+        credits = null
+        val d = details ?: return@LaunchedEffect
+        if (tmdbKey == null) return@LaunchedEffect
+        lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
+            if (credits == null) credits = runCatching { app.catalog.credits(d, tmdbKey) }.getOrNull()
+        }
     }
     LaunchedEffect(route.simklId, reload) {
         if (route.type.isEpisodic) episodes = runCatching { app.catalog.episodes(route.type, route.simklId, refresh = reload > 0) }.getOrDefault(emptyList())

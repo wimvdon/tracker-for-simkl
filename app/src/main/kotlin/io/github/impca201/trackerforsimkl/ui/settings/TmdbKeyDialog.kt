@@ -33,9 +33,12 @@ import io.github.impca201.trackerforsimkl.ui.components.openUrl
 import io.github.impca201.trackerforsimkl.ui.components.rememberApp
 import kotlinx.coroutines.launch
 
+/** Why the dialog didn't save what was pasted. */
+private enum class TokenProblem { ApiKey, NotToken, Rejected, Unreachable }
+
 /**
- * Enter, change or remove the user's own TMDB key. The key is checked with TMDB before it is
- * saved, so a typo shows here instead of as missing cast and crew later.
+ * Enter, change or remove the user's own TMDB Read Access Token. It is checked with TMDB before
+ * it is saved, so a typo shows here instead of as missing cast and crew later.
  */
 @Composable
 fun TmdbKeyDialog(
@@ -45,12 +48,17 @@ fun TmdbKeyDialog(
     val app = rememberApp()
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
-    var text by rememberSaveable { mutableStateOf(current.orEmpty()) }
+    // A saved API Key (accepted by version 1.6.0) isn't shown: it has to be replaced by the token.
+    var text by rememberSaveable { mutableStateOf(TmdbKey.parse(current)?.value.orEmpty()) }
     var checking by remember { mutableStateOf(false) }
-    var problem by remember { mutableStateOf<TmdbKeyCheck?>(null) }
+    var problem by remember { mutableStateOf<TokenProblem?>(null) }
 
     fun save() {
-        val key = TmdbKey.parse(text) ?: return
+        val key = TmdbKey.parse(text)
+        if (key == null) {
+            problem = if (TmdbKey.isApiKey(text)) TokenProblem.ApiKey else TokenProblem.NotToken
+            return
+        }
         checking = true
         problem = null
         scope.launch {
@@ -60,7 +68,7 @@ fun TmdbKeyDialog(
                 app.settings.setTmdbKey(key.value)
                 onDismiss()
             } else {
-                problem = result
+                problem = if (result == TmdbKeyCheck.Rejected) TokenProblem.Rejected else TokenProblem.Unreachable
             }
         }
     }
@@ -85,7 +93,14 @@ fun TmdbKeyDialog(
                         problem?.let {
                             {
                                 Text(
-                                    stringResource(if (it == TmdbKeyCheck.Rejected) R.string.screens_tmdb_rejected else R.string.screens_tmdb_unreachable),
+                                    stringResource(
+                                        when (it) {
+                                            TokenProblem.ApiKey -> R.string.screens_tmdb_api_key
+                                            TokenProblem.NotToken -> R.string.screens_tmdb_not_token
+                                            TokenProblem.Rejected -> R.string.screens_tmdb_rejected
+                                            TokenProblem.Unreachable -> R.string.screens_tmdb_unreachable
+                                        },
+                                    ),
                                 )
                             }
                         },
@@ -105,7 +120,7 @@ fun TmdbKeyDialog(
                         enabled = !checking,
                     ) { Text(stringResource(R.string.screens_tmdb_remove)) }
                 }
-                TextButton(onClick = ::save, enabled = !checking && TmdbKey.parse(text) != null) {
+                TextButton(onClick = ::save, enabled = !checking && text.isNotBlank()) {
                     if (checking) CircularProgressIndicator(Modifier.size(18.dp), strokeWidth = 2.dp) else Text(stringResource(R.string.screens_tmdb_save))
                 }
             }

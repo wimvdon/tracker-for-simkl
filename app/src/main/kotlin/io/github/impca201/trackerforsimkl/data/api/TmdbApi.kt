@@ -7,36 +7,44 @@ import kotlinx.coroutines.withContext
 import kotlinx.serialization.SerializationException
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonElement
-import okhttp3.HttpUrl
 import okhttp3.HttpUrl.Companion.toHttpUrl
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import java.io.IOException
+import java.util.Locale
 
-/** What TMDB said about a key the user entered. */
+/** What TMDB said about a token the user entered. */
 enum class TmdbKeyCheck { Valid, Rejected, Unreachable }
 
 /**
- * The user's own TMDB key, as pasted: either a v3 "API Key" (sent as `api_key`) or a v4
- * "API Read Access Token" (a JWT, sent as a bearer token). TMDB's settings page shows both.
+ * The user's own TMDB "API Read Access Token" (a JWT, sent as a bearer token), as pasted. TMDB's
+ * settings page also shows a shorter "API Key"; the app doesn't take that one.
  */
 data class TmdbKey(
     val value: String,
 ) {
-    val isAccessToken: Boolean get() = value.count { it == '.' } == 2
-
     companion object {
-        /** Trims what people paste along with the key; null when nothing is left. */
-        fun parse(input: String?): TmdbKey? {
-            val text = input?.trim()?.removePrefix("Bearer ")?.trim()?.trim('"')?.trim() ?: return null
-            return text.takeIf { it.isNotEmpty() && it.none(Char::isWhitespace) }?.let { TmdbKey(it) }
-        }
+        private val token = Regex("""eyJ[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+""")
+        private val apiKey = Regex("""\b[0-9a-f]{32}\b""")
+
+        /** The token in what people paste (with "Bearer ", quotes or a label around it); null when there is none. */
+        fun parse(input: String?): TmdbKey? = input?.let { token.find(it) }?.value?.let { TmdbKey(it) }
+
+        /** True for TMDB's short "API Key", so the dialog can point to the token instead. */
+        fun isApiKey(input: String?): Boolean = input != null && parse(input) == null && apiKey.containsMatchIn(input)
     }
 }
 
 /**
- * Thin client for https://api.themoviedb.org with the key the user entered in Settings. Read
- * only, called only while a details page is open. OkHttp caches responses as TMDB's headers allow.
+ * The `language` TMDB expects ("nl-NL", or just "nl"): Android's full locale tag can carry
+ * extensions ("nl-NL-u-mu-celsius") and scripts that TMDB doesn't know.
+ */
+fun tmdbLanguage(locale: Locale): String = if (locale.country.isBlank()) locale.language else "${locale.language}-${locale.country}"
+
+/**
+ * Thin client for https://api.themoviedb.org with the token the user entered in Settings. Read
+ * only, called only while a details, person or search screen is open. OkHttp caches responses as
+ * TMDB's headers allow.
  */
 class TmdbApi(
     private val http: OkHttpClient,
@@ -46,17 +54,18 @@ class TmdbApi(
     private suspend fun get(
         key: TmdbKey,
         path: String,
+        params: Map<String, String?> = emptyMap(),
     ): Pair<Int, String> {
-        val url: HttpUrl =
+        val url =
             (BASE + path).toHttpUrl().newBuilder()
-                .apply { if (!key.isAccessToken) addQueryParameter("api_key", key.value) }
+                .apply { params.forEach { (k, v) -> if (v != null) addQueryParameter(k, v) } }
                 .build()
         val request =
             Request.Builder()
                 .url(url)
                 .header("User-Agent", "${SimklApi.APP_NAME}/${BuildConfig.VERSION_NAME}")
                 .header("Accept", "application/json")
-                .apply { if (key.isAccessToken) header("Authorization", "Bearer ${key.value}") }
+                .header("Authorization", "Bearer ${key.value}")
                 .get()
                 .build()
         return withContext(Dispatchers.IO) {
@@ -67,8 +76,9 @@ class TmdbApi(
     private suspend fun call(
         key: TmdbKey,
         path: String,
+        params: Map<String, String?> = emptyMap(),
     ): JsonElement {
-        val (code, text) = get(key, path)
+        val (code, text) = get(key, path, params)
         if (code !in 200..299) {
             val message = runCatching { json.parseToJsonElement(text).asObject()?.str("status_message") }.getOrNull()
             throw ApiException(code, message ?: "HTTP $code")
@@ -92,10 +102,15 @@ class TmdbApi(
         personId: Long,
         language: String? = null,
         withCredits: Boolean = true,
-    ): JsonElement {
-        val query = listOfNotNull("append_to_response=combined_credits".takeIf { withCredits }, language?.let { "language=$it" })
-        return call(key, "/person/$personId" + if (query.isEmpty()) "" else query.joinToString("&", prefix = "?"))
-    }
+    ): JsonElement =
+        call(key, "/person/$personId", mapOf("append_to_response" to "combined_credits".takeIf { withCredits }, "language" to language))
+
+    /** `/search/person`: people by name, most popular first (first page, 20 results). */
+    suspend fun searchPeople(
+        key: TmdbKey,
+        query: String,
+        language: String? = null,
+    ): JsonElement = call(key, "/search/person", mapOf("query" to query, "language" to language, "include_adult" to "false"))
 
     /** Asks TMDB whether [key] works, for the Settings dialog. */
     suspend fun check(key: TmdbKey): TmdbKeyCheck =
@@ -113,7 +128,7 @@ class TmdbApi(
     companion object {
         const val BASE = "https://api.themoviedb.org/3"
 
-        /** Where people request a key (signed in on themoviedb.org). */
+        /** Where people request a token (signed in on themoviedb.org). */
         const val KEY_PAGE = "https://www.themoviedb.org/settings/api"
 
         fun personUrl(personId: Long) = "https://www.themoviedb.org/person/$personId"
