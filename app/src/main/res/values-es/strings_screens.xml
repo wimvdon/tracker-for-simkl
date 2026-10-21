@@ -84,4 +84,5 @@
     <string name="screens_tmdb_unreachable">No se pudo conectar con TMDB. Comprueba tu conexión e inténtalo de nuevo.</string>
     <string name="screens_tmdb_notice">Este producto usa la API de TMDB, pero TMDB no lo respalda ni lo certifica.</string>
     <string name="screens_tmdb_link">Reparto y equipo de TMDB · themoviedb.org</string>
+    <string name="screens_tmdb_logo">TMDB</string>
 </resources>

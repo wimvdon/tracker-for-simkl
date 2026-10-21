@@ -5,7 +5,11 @@ import android.content.pm.PackageManager
 import android.os.Build
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.aspectRatio
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material3.Icon
 import androidx.compose.material3.ListItem
@@ -22,7 +26,9 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.dp
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.core.content.ContextCompat
@@ -205,7 +211,13 @@ fun SettingsScreen(settings: AppSettings) {
         item(key = "footer") {
             SettingsFooter(stringResource(R.string.screens_settings_about, BuildConfig.VERSION_NAME)) {
                 TextButton(onClick = { context.openUrl("https://simkl.com/") }) { Text(stringResource(R.string.screens_powered_by)) }
-                // TMDB's required attribution, shown whether or not a key is set.
+                // TMDB's required attribution (approved logo, unchanged, smaller than the app's own
+                // name), shown whether or not a key is set.
+                Image(
+                    painterResource(R.drawable.tmdb_logo),
+                    contentDescription = stringResource(R.string.screens_tmdb_logo),
+                    modifier = Modifier.padding(top = 8.dp).height(12.dp).aspectRatio(273.42f / 35.52f),
+                )
                 TextButton(onClick = { context.openUrl("https://www.themoviedb.org/") }) { Text(stringResource(R.string.screens_tmdb_link)) }
                 Text(
                     stringResource(R.string.screens_tmdb_notice),

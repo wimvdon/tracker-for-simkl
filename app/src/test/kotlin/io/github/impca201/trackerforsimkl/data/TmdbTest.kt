@@ -46,7 +46,8 @@ class TmdbTest {
             { "id": 17419, "name": "Bryan Cranston", "profile_path": "/bc.jpg", "order": 0, "total_episode_count": 62,
               "roles": [ { "credit_id": "a", "character": "Walter White", "episode_count": 62 } ] },
             { "id": 84497, "name": "Aaron Paul", "order": 1,
-              "roles": [ { "character": "Jesse Pinkman", "episode_count": 60 }, { "character": "Jesse", "episode_count": 2 } ] }
+              "roles": [ { "character": "Jesse Pinkman", "episode_count": 60 }, { "character": "Jesse", "episode_count": 2 } ] },
+            { "id": 99, "name": "Voice Actor", "order": 2, "roles": [ { "character": "Monkey D. Luffy (voice)", "episode_count": 5 } ] }
           ],
           "crew": [
             { "id": 1, "name": "Rare Director", "jobs": [ { "job": "Director", "episode_count": 1 } ], "total_episode_count": 1 },
@@ -94,6 +95,19 @@ class TmdbTest {
         assertEquals(62, cast[0].episodes)
         assertEquals("Jesse Pinkman / Jesse", cast[1].character)
         assertEquals(62, cast[1].episodes)
+    }
+
+    @Test
+    fun voiceRolesLoseTheirMarker() {
+        assertEquals("Monkey D. Luffy", TmdbParsers.credits(Json.parseToJsonElement(tvCredits)).cast[2].character)
+    }
+
+    @Test
+    fun manyEpisodeDirectorsLeaveRoomForOtherJobs() {
+        val directors = (1..10).joinToString(",") { """{"id": $it, "name": "D$it", "jobs": [{"job": "Director", "episode_count": $it}]}""" }
+        val writer = """{"id": 50, "name": "Writer", "jobs": [{"job": "Writer", "episode_count": 1}]}"""
+        val crew = TmdbParsers.credits(Json.parseToJsonElement("""{"crew": [$directors, $writer]}""")).crew
+        assertEquals(listOf("D10", "D9", "D8", "Writer"), crew.map { it.name })
     }
 
     @Test

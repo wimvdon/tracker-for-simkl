@@ -13,10 +13,14 @@ object TmdbParsers {
     const val MAX_CAST = 20
     const val MAX_CREW = 12
 
+    /** People per job, so a show's many episode directors don't push out its writers and composer. */
+    const val MAX_PER_JOB = 3
+
     /**
      * Credits from `/movie/{id}/credits` (one `character` and `job` per entry) or
      * `/tv/{id}/aggregate_credits` (`roles` and `jobs` lists with episode counts, every season).
-     * The cast keeps TMDB's billing order; the crew keeps only [CrewJob]s, one entry per person.
+     * The cast keeps TMDB's billing order; the crew keeps only [CrewJob]s, one entry per person and
+     * at most [MAX_PER_JOB] people per job.
      */
     fun credits(element: JsonElement?): Credits {
         val obj = element.asObject() ?: return Credits(emptyList(), emptyList())
@@ -35,13 +39,16 @@ object TmdbParsers {
         val roles = o.arr("roles").objects()
         val character =
             if (roles.isNotEmpty()) {
-                roles.mapNotNull { it.str("character") }.distinct().joinToString(" / ").ifBlank { null }
+                roles.mapNotNull { role(it.str("character")) }.distinct().joinToString(" / ").ifBlank { null }
             } else {
-                o.str("character")
+                role(o.str("character"))
             }
         val episodes = o.int("total_episode_count") ?: roles.mapNotNull { it.int("episode_count") }.takeIf { it.isNotEmpty() }?.sum()
         return CastMember(id, name, character, Images.tmdbProfile(o.str("profile_path")), episodes)
     }
+
+    /** TMDB marks voice roles with an English " (voice)"; the row is about who plays whom. */
+    private fun role(character: String?): String? = character?.removeSuffix(" (voice)")?.trim()?.ifBlank { null }
 
     private fun crew(entries: List<JsonObject>): List<CrewMember> {
         // A movie lists a person once per job; a show lists them once with all their jobs.
@@ -57,13 +64,18 @@ object TmdbParsers {
             val entry = people.getOrPut(id) { Entry(id, name, Images.tmdbProfile(o.str("profile_path")), mutableMapOf(), index) }
             jobs.forEach { (job, count) -> entry.jobs[job] = (entry.jobs[job] ?: 0) + count }
         }
+        // Each person counts under their main (first listed) job.
+        fun Entry.main() = jobs.keys.minBy { it.ordinal }
         return people.values
             .sortedWith(
-                compareBy<Entry> { e -> e.jobs.keys.minOf { it.ordinal } }
+                compareBy<Entry> { it.main().ordinal }
                     // Within a job, who did the most episodes first; movies keep TMDB's order.
-                    .thenByDescending { e -> e.jobs[e.jobs.keys.minBy { it.ordinal }] ?: 0 }
+                    .thenByDescending { e -> e.jobs[e.main()] ?: 0 }
                     .thenBy { it.first },
             )
+            .groupBy { it.main() }
+            .values
+            .flatMap { it.take(MAX_PER_JOB) }
             .take(MAX_CREW)
             .map { e -> CrewMember(e.id, e.name, e.jobs.keys.sortedBy { it.ordinal }, e.photo) }
     }

@@ -69,7 +69,7 @@ Every request also sends `User-Agent: tracker-for-simkl/<version>`.
 
 The TMDB ID comes from SIMKL's details (`ids.tmdb`); titles without one show no cast and crew. A failed request just leaves the section out. Cast photos are `https://wsrv.nl/?url=https://image.tmdb.org/t/p/w185<profile_path>`. Tapping a person opens `https://www.themoviedb.org/person/{id}` in the browser.
 
-TMDB's terms require the notice "This product uses the TMDB API but is not endorsed or certified by TMDB." and one of TMDB's approved logos in an About or Credits section. The notice and a link to themoviedb.org are at the bottom of Settings; the logo still has to be added (it must be TMDB's own file, unchanged).
+TMDB's terms require the notice "This product uses the TMDB API but is not endorsed or certified by TMDB." and one of TMDB's approved logos in an About or Credits section. The logo (`res/drawable/tmdb_logo.xml`, TMDB's `blue_short.svg` converted unchanged), the notice and a link to themoviedb.org are at the bottom of Settings.
 
 ## Entry points for other apps
 

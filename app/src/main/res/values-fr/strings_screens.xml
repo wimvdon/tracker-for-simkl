@@ -85,4 +85,5 @@
     <string name="screens_tmdb_unreachable">Impossible de joindre TMDB. Vérifiez votre connexion et réessayez.</string>
     <string name="screens_tmdb_notice">Ce produit utilise l\'API TMDB mais n\'est ni approuvé ni certifié par TMDB.</string>
     <string name="screens_tmdb_link">Distribution et équipe de TMDB · themoviedb.org</string>
+    <string name="screens_tmdb_logo">TMDB</string>
 </resources>

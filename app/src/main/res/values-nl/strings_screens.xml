@@ -83,4 +83,5 @@
     <string name="screens_tmdb_unreachable">TMDB is niet bereikbaar. Controleer je verbinding en probeer het opnieuw.</string>
     <string name="screens_tmdb_notice">Dit product gebruikt de TMDB API, maar wordt niet door TMDB onderschreven of gecertificeerd.</string>
     <string name="screens_tmdb_link">Cast en crew van TMDB · themoviedb.org</string>
+    <string name="screens_tmdb_logo">TMDB</string>
 </resources>

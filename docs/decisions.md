@@ -19,7 +19,7 @@ open, and never in the background.
   (api.themoviedb.org). New network destination approved by the owner.
 - **A second HTTP class**, `TmdbApi`, next to `SimklApi` (CLAUDE.md updated); OkHttp and
   kotlinx-serialization were already there, so no new dependency.
-- **Attribution:** TMDB's notice and link at the bottom of Settings.
+- **Attribution:** TMDB's approved short logo, notice and link at the bottom of Settings.
 - Tapping a person opens their TMDB page in the browser for now; a person screen in the app may follow.
 
 ## 2026-10-17: Drag handles for the bottom bar order
