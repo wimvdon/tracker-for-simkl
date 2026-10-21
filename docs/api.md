@@ -1,6 +1,6 @@
 # API and entry points
 
-The app has no API of its own. This page lists what it calls (SIMKL, and TMDB with the user's own key) and what other apps can call (deep links).
+The app has no API of its own. This page lists what it calls (SIMKL, and TMDB with the user's own token) and what other apps can call (deep links).
 
 ## SIMKL API
 
@@ -53,26 +53,22 @@ OAuth 2.0 authorization code with PKCE (AUTH V2): no client secret. The access t
 
 ## TMDB API
 
-Base URL `https://api.themoviedb.org/3`, implemented in `data/api/TmdbApi.kt`, mapped in `data/api/TmdbParsers.kt`. Only used when the user entered their own key in *Settings › Cast and crew*; the app ships no TMDB key. Read only, and only while a details page is open (never in the background).
+Base URL `https://api.themoviedb.org/3`, implemented in `data/api/TmdbApi.kt`, mapped in `data/api/TmdbParsers.kt`. Only used when the user entered their own token in *Settings › Cast and crew*; the app ships no TMDB key. Read only, and only while a details, person or search screen is open (never in the background).
 
-| Key the user pasted | Sent as |
-|---|---|
-| v3 "API Key" | Query `api_key=<key>` |
-| v4 "API Read Access Token" (a JWT, two dots) | Header `Authorization: Bearer <token>` |
-
-Every request also sends `User-Agent: tracker-for-simkl/<version>`.
+Every request sends the user's "API Read Access Token" as `Authorization: Bearer <token>` and `User-Agent: tracker-for-simkl/<version>`. TMDB's shorter v3 "API Key" is not accepted (the dialog says to paste the token instead; a key saved by 1.6.0 is ignored and Settings asks to replace it). The language is the phone's language and country only (`nl-NL`), without Android's locale extensions.
 
 | Method | Path | Used for |
 |---|---|---|
-| GET | `/authentication` | Checks a key before Settings saves it (401 = rejected) |
+| GET | `/authentication` | Checks a token before Settings saves it (401 = rejected) |
 | GET | `/movie/{tmdb}/credits` | Cast and crew of a movie or anime movie |
 | GET | `/tv/{tmdb}/aggregate_credits` | Cast and crew of a show or anime series, over every season, with episode counts |
 | GET | `/person/{id}?append_to_response=combined_credits&language=<phone language>` | A person's page: photo, life dates, biography and every movie and TV credit |
 | GET | `/person/{id}` (English) | Only when the biography is missing in the phone's language |
+| GET | `/search/person?query=&language=&include_adult=false` | Search › People, and the People row under All (first page) |
 
 The TMDB ID comes from SIMKL's details (`ids.tmdb`); titles without one show no cast and crew. A failed request just leaves the section out. Cast photos are `https://wsrv.nl/?url=https://image.tmdb.org/t/p/w185<profile_path>`. Tapping a person opens their page in the app; its title bar links to `https://www.themoviedb.org/person/{id}`. On that page, appearances as themselves and in talk or news shows are left out. Tapping a title opens its details: straight away when it is in the library (matched by TMDB ID and kind, since TMDB's movie and TV IDs overlap), else after SIMKL's `/search/id`; when SIMKL doesn't have it, a snackbar offers the TMDB page.
 
-TMDB's terms require the notice "This product uses the TMDB API but is not endorsed or certified by TMDB." and one of TMDB's approved logos in an About or Credits section. The logo (`res/drawable/tmdb_logo.xml`, TMDB's `blue_short.svg` converted unchanged), the notice and a link to themoviedb.org are at the bottom of Settings.
+TMDB's terms require the notice "This product uses the TMDB API but is not endorsed or certified by TMDB." and one of TMDB's approved logos in an About or Credits section. They are in *Settings › Credits*: TMDB's stacked logo (`res/drawable/tmdb_logo_square.xml`, `blue_square_2.svg` converted unchanged), what TMDB provides and the notice, next to SIMKL's logo (`res/drawable-nodpi/simkl_logo.png`, simkl.com's own app icon, unchanged).
 
 ## Entry points for other apps
 

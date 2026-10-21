@@ -115,3 +115,11 @@ data class PersonCredit(
     /** The title's page on themoviedb.org, when SIMKL doesn't have it. */
     val tmdbUrl: String get() = "https://www.themoviedb.org/${if (movie) "movie" else "tv"}/$tmdbId"
 }
+
+/** A person found by name (TMDB search), with a few of their best-known titles. */
+data class PersonResult(
+    val id: Long,
+    val name: String,
+    val photo: String?,
+    val knownFor: List<String>,
+)

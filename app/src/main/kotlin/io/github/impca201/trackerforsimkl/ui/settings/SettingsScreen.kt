@@ -6,9 +6,16 @@ import android.os.Build
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
+import io.github.impca201.trackerforsimkl.data.api.TmdbKey
+import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.graphics.painter.Painter
+import androidx.compose.ui.draw.clip
+import androidx.compose.material.icons.automirrored.rounded.OpenInNew
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.aspectRatio
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material3.Icon
@@ -30,7 +37,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.style.TextAlign
 import androidx.core.content.ContextCompat
 import io.github.impca201.trackerforsimkl.BuildConfig
 import io.github.impca201.trackerforsimkl.R
@@ -152,7 +158,15 @@ fun SettingsScreen(settings: AppSettings) {
             SettingsSection(title = stringResource(R.string.screens_settings_tmdb)) {
                 SettingItem(
                     title = stringResource(R.string.screens_settings_tmdb_key),
-                    summary = stringResource(if (settings.tmdbKey != null) R.string.screens_settings_tmdb_key_on else R.string.screens_settings_tmdb_key_off),
+                    summary =
+                        stringResource(
+                            when {
+                                TmdbKey.parse(settings.tmdbKey) != null -> R.string.screens_settings_tmdb_key_on
+                                // The API Key that version 1.6.0 accepted: it has to be replaced.
+                                settings.tmdbKey != null -> R.string.screens_settings_tmdb_key_old
+                                else -> R.string.screens_settings_tmdb_key_off
+                            },
+                        ),
                     onClick = { editing = true },
                 )
             }
@@ -208,24 +222,49 @@ fun SettingsScreen(settings: AppSettings) {
             }
         }
 
-        item(key = "footer") {
-            SettingsFooter(stringResource(R.string.screens_settings_about, BuildConfig.VERSION_NAME)) {
-                TextButton(onClick = { context.openUrl("https://simkl.com/") }) { Text(stringResource(R.string.screens_powered_by)) }
-                // TMDB's required attribution (approved logo, unchanged, smaller than the app's own
-                // name), shown whether or not a key is set.
-                Image(
-                    painterResource(R.drawable.tmdb_logo),
-                    contentDescription = stringResource(R.string.screens_tmdb_logo),
-                    modifier = Modifier.padding(top = 8.dp).height(12.dp).aspectRatio(273.42f / 35.52f),
+        item(key = "credits") {
+            // Where the data comes from. TMDB's attribution (its approved logo, unchanged, and its
+            // notice) is required in a credits section, whether or not a token is set.
+            SettingsSection(title = stringResource(R.string.screens_settings_credits)) {
+                CreditItem(
+                    logo = painterResource(R.drawable.simkl_logo),
+                    logoDescription = stringResource(R.string.screens_simkl_logo),
+                    title = stringResource(R.string.screens_credit_simkl_title),
+                    text = stringResource(R.string.screens_credit_simkl_text),
+                    onClick = { context.openUrl("https://simkl.com/") },
                 )
-                TextButton(onClick = { context.openUrl("https://www.themoviedb.org/") }) { Text(stringResource(R.string.screens_tmdb_link)) }
-                Text(
-                    stringResource(R.string.screens_tmdb_notice),
-                    style = MaterialTheme.typography.labelMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    textAlign = TextAlign.Center,
+                CreditItem(
+                    logo = painterResource(R.drawable.tmdb_logo_square),
+                    logoDescription = stringResource(R.string.screens_tmdb_logo),
+                    title = stringResource(R.string.screens_credit_tmdb_title),
+                    text = stringResource(R.string.screens_credit_tmdb_text) + "\n" + stringResource(R.string.screens_tmdb_notice),
+                    onClick = { context.openUrl("https://www.themoviedb.org/") },
                 )
             }
         }
+
+        item(key = "footer") {
+            SettingsFooter(stringResource(R.string.screens_settings_version, BuildConfig.VERSION_NAME))
+        }
     }
+}
+
+/** A source of the app's data in Settings › Credits: its logo (unchanged, never tinted), name and what it provides. */
+@Composable
+private fun CreditItem(
+    logo: Painter,
+    logoDescription: String,
+    title: String,
+    text: String,
+    onClick: () -> Unit,
+) {
+    ListItem(
+        headlineContent = { Text(title) },
+        supportingContent = { Text(text) },
+        leadingContent = {
+            Image(logo, logoDescription, contentScale = ContentScale.Fit, modifier = Modifier.size(40.dp).clip(RoundedCornerShape(8.dp)))
+        },
+        trailingContent = { Icon(Icons.AutoMirrored.Rounded.OpenInNew, null) },
+        modifier = Modifier.clickable(role = Role.Button, onClick = onClick),
+    )
 }

@@ -41,7 +41,7 @@ import io.github.impca201.trackerforsimkl.ui.library.SectionHeader
 fun CastRow(cast: List<CastMember>) {
     val navigator = LocalNavigator.current
     PeopleRow(stringResource(R.string.detail_cast), cast) { person ->
-        Person(person.name, person.character, person.photo) { navigator.push(Route.Person(person.personId, person.name, person.photo)) }
+        PersonTile(person.name, person.character, person.photo) { navigator.push(Route.Person(person.personId, person.name, person.photo)) }
     }
 }
 
@@ -51,7 +51,7 @@ fun CrewRow(crew: List<CrewMember>) {
     val navigator = LocalNavigator.current
     PeopleRow(stringResource(R.string.detail_crew), crew) { person ->
         val jobs = person.jobs.map { stringResource(it.label) }.joinToString(", ")
-        Person(person.name, jobs, person.photo) { navigator.push(Route.Person(person.personId, person.name, person.photo)) }
+        PersonTile(person.name, jobs, person.photo) { navigator.push(Route.Person(person.personId, person.name, person.photo)) }
     }
 }
 
@@ -66,8 +66,9 @@ val CrewJob.label: Int
             CrewJob.Camera -> R.string.detail_job_camera
         }
 
+/** A titled row of people (cast, crew, search results). */
 @Composable
-private fun <T> PeopleRow(
+fun <T> PeopleRow(
     title: String,
     people: List<T>,
     content: @Composable (T) -> Unit,
@@ -80,8 +81,9 @@ private fun <T> PeopleRow(
     }
 }
 
+/** A round photo with a name and a role or other detail underneath. */
 @Composable
-private fun Person(
+fun PersonTile(
     name: String,
     role: String?,
     photo: String?,

@@ -3,6 +3,7 @@ package io.github.impca201.trackerforsimkl.data
 import io.github.impca201.trackerforsimkl.data.api.Parsers
 import io.github.impca201.trackerforsimkl.data.api.TmdbKey
 import io.github.impca201.trackerforsimkl.data.api.TmdbParsers
+import io.github.impca201.trackerforsimkl.data.api.tmdbLanguage
 import io.github.impca201.trackerforsimkl.data.model.AiringState
 import io.github.impca201.trackerforsimkl.data.model.CreditsSource
 import io.github.impca201.trackerforsimkl.data.model.CrewJob
@@ -19,6 +20,7 @@ import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Test
 import java.time.LocalDate
+import java.util.Locale
 
 /** TMDB cast and crew: response mapping (shapes from TMDB's API reference), key handling, sources. */
 class TmdbTest {
@@ -144,19 +146,51 @@ class TmdbTest {
     }
 
     @Test
-    fun pastedKeysAreCleanedUp() {
-        assertEquals("abc123", TmdbKey.parse("  abc123\n")?.value)
-        assertEquals("eyJ.a.b", TmdbKey.parse("Bearer eyJ.a.b")?.value)
-        assertEquals("abc123", TmdbKey.parse("\"abc123\"")?.value)
+    fun onlyReadAccessTokensAreTaken() {
+        val token = "eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiJ4In0.s-ig_1"
+        assertEquals(token, TmdbKey.parse(token)?.value)
+        // What people paste along with it.
+        assertEquals(token, TmdbKey.parse("  Bearer $token\n")?.value)
+        assertEquals(token, TmdbKey.parse("\"$token\"")?.value)
+        assertEquals(token, TmdbKey.parse("API Read Access Token: $token")?.value)
+        // The short API Key is recognised, so the dialog can point to the token.
+        val apiKey = "0123456789abcdef0123456789abcdef"
+        assertNull(TmdbKey.parse(apiKey))
+        assertTrue(TmdbKey.isApiKey(" $apiKey "))
+        assertFalse(TmdbKey.isApiKey(token))
+        assertFalse(TmdbKey.isApiKey("hello"))
         assertNull(TmdbKey.parse("   "))
         assertNull(TmdbKey.parse(null))
-        assertNull(TmdbKey.parse("two words"))
     }
 
     @Test
-    fun readAccessTokensAreToldApartFromApiKeys() {
-        assertTrue(TmdbKey("eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiJ4In0.sig").isAccessToken)
-        assertFalse(TmdbKey("0123456789abcdef0123456789abcdef").isAccessToken)
+    fun languageIsWhatTmdbExpects() {
+        assertEquals("nl-NL", tmdbLanguage(Locale.forLanguageTag("nl-NL-u-mu-celsius")))
+        assertEquals("en-US", tmdbLanguage(Locale.US))
+        assertEquals("de", tmdbLanguage(Locale.GERMAN))
+        assertEquals("sr-RS", tmdbLanguage(Locale.forLanguageTag("sr-Latn-RS")))
+    }
+
+    @Test
+    fun peopleSearchResults() {
+        // Shaped like /search/person?query=bryan (trimmed live response).
+        val json =
+            """
+            {"page": 1, "results": [
+              {"id": 17419, "name": "Bryan Cranston", "profile_path": "/bc.jpg", "known_for_department": "Acting",
+               "known_for": [{"media_type": "tv", "name": "Breaking Bad"}, {"media_type": "movie", "title": "Drive"},
+                             {"media_type": "tv", "name": "Malcolm in the Middle"}, {"media_type": "movie", "title": "Argo"}]},
+              {"id": 2, "name": "No Photo", "profile_path": null, "known_for": []},
+              {"name": "No ID"},
+              {"id": 17419, "name": "Bryan Cranston"}
+            ]}
+            """.trimIndent()
+        val people = TmdbParsers.people(Json.parseToJsonElement(json))
+        assertEquals(listOf(17419L, 2L), people.map { it.id })
+        assertEquals(listOf("Breaking Bad", "Drive", "Malcolm in the Middle"), people[0].knownFor)
+        assertEquals("https://wsrv.nl/?url=https://image.tmdb.org/t/p/w185/bc.jpg", people[0].photo)
+        assertNull(people[1].photo)
+        assertTrue(TmdbParsers.people(null).isEmpty())
     }
 
     @Test

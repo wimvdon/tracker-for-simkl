@@ -93,7 +93,7 @@ private fun LoggedIn(
                 when (route) {
                     Route.Main -> MainScreen(settings)
                     is Route.Detail -> DetailScreen(route, settings)
-                    Route.Search -> SearchScreen(settings.typeList)
+                    Route.Search -> SearchScreen(settings.typeList, settings.tmdbKey)
                     Route.Profile -> ProfileScreen(settings.types)
                     Route.Settings -> SettingsScreen(settings)
                     Route.Ratings -> RatingsScreen(settings.typeList)
