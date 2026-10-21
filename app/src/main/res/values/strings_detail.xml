@@ -88,4 +88,11 @@
         <item quantity="one">%1$d of %2$d episode watched</item>
         <item quantity="other">%1$d of %2$d episodes watched</item>
     </plurals>
+    <string name="detail_cast">Cast</string>
+    <string name="detail_crew">Crew</string>
+    <string name="detail_job_writer">Writer</string>
+    <string name="detail_job_story">Story</string>
+    <string name="detail_job_novel">Book</string>
+    <string name="detail_job_music">Music</string>
+    <string name="detail_job_camera">Cinematography</string>
 </resources>

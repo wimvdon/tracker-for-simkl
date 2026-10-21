@@ -70,4 +70,17 @@
     <string name="screens_login_redirect_invalid">Dieser Anmeldelink gehört nicht zur Anmeldung dieser App. Tippe erneut auf Mit SIMKL anmelden.</string>
     <string name="screens_login_failed">Anmeldung fehlgeschlagen: %1$s</string>
     <string name="screens_login_note">Du meldest dich auf simkl.com an; diese App sieht dein Passwort nie. Tracker for Simkl ist nicht mit Simkl verbunden.</string>
+    <string name="screens_settings_tmdb">Besetzung und Team</string>
+    <string name="screens_settings_tmdb_key">TMDB-API-Schlüssel</string>
+    <string name="screens_settings_tmdb_key_on">Hinzugefügt. Detailseiten zeigen Besetzung und Team von TMDB.</string>
+    <string name="screens_settings_tmdb_key_off">Füge deinen eigenen kostenlosen TMDB-Schlüssel hinzu, um Besetzung und Team auf Detailseiten zu sehen.</string>
+    <string name="screens_tmdb_dialog_text">TMDB vergibt kostenlose API-Schlüssel für die private Nutzung. Melde dich auf themoviedb.org an, öffne Einstellungen › API, beantrage einen Schlüssel und kopiere den „API Key“ oder das „API Read Access Token“ hierher. Er bleibt auf diesem Telefon und wird nur an TMDB gesendet.</string>
+    <string name="screens_tmdb_get_key">Schlüssel auf themoviedb.org holen</string>
+    <string name="screens_tmdb_key_label">API-Schlüssel oder Read Access Token</string>
+    <string name="screens_tmdb_save">Speichern</string>
+    <string name="screens_tmdb_remove">Entfernen</string>
+    <string name="screens_tmdb_rejected">TMDB hat diesen Schlüssel nicht akzeptiert. Prüfe, ob du ihn vollständig kopiert hast.</string>
+    <string name="screens_tmdb_unreachable">TMDB ist nicht erreichbar. Prüfe deine Verbindung und versuche es erneut.</string>
+    <string name="screens_tmdb_notice">Dieses Produkt verwendet die TMDB-API, wird aber nicht von TMDB unterstützt oder zertifiziert.</string>
+    <string name="screens_tmdb_link">Besetzung und Team von TMDB · themoviedb.org</string>
 </resources>

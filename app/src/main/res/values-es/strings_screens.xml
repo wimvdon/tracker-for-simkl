@@ -71,4 +71,17 @@
     <string name="screens_login_redirect_invalid">Ese enlace de inicio de sesión no coincide con el que inició la app. Toca de nuevo Iniciar sesión con SIMKL.</string>
     <string name="screens_login_failed">Error al iniciar sesión: %1$s</string>
     <string name="screens_login_note">Inicias sesión en simkl.com; esta app nunca ve tu contraseña. Tracker for Simkl no está afiliado a Simkl.</string>
+    <string name="screens_settings_tmdb">Reparto y equipo</string>
+    <string name="screens_settings_tmdb_key">Clave de API de TMDB</string>
+    <string name="screens_settings_tmdb_key_on">Añadida. Las fichas muestran el reparto y el equipo de TMDB.</string>
+    <string name="screens_settings_tmdb_key_off">Añade tu propia clave gratuita de TMDB para ver el reparto y el equipo en las fichas.</string>
+    <string name="screens_tmdb_dialog_text">TMDB ofrece claves de API gratuitas para uso personal. Inicia sesión en themoviedb.org, abre Ajustes › API, solicita una clave y copia aquí la «API Key» o el «API Read Access Token». Se queda en este teléfono y solo se envía a TMDB.</string>
+    <string name="screens_tmdb_get_key">Conseguir una clave en themoviedb.org</string>
+    <string name="screens_tmdb_key_label">Clave de API o Read Access Token</string>
+    <string name="screens_tmdb_save">Guardar</string>
+    <string name="screens_tmdb_remove">Quitar</string>
+    <string name="screens_tmdb_rejected">TMDB no ha aceptado esta clave. Comprueba que la has copiado entera.</string>
+    <string name="screens_tmdb_unreachable">No se pudo conectar con TMDB. Comprueba tu conexión e inténtalo de nuevo.</string>
+    <string name="screens_tmdb_notice">Este producto usa la API de TMDB, pero TMDB no lo respalda ni lo certifica.</string>
+    <string name="screens_tmdb_link">Reparto y equipo de TMDB · themoviedb.org</string>
 </resources>

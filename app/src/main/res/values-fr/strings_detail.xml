@@ -89,4 +89,11 @@
         <item quantity="many">%1$d sur %2$d épisodes vus</item>
         <item quantity="other">%1$d sur %2$d épisodes vus</item>
     </plurals>
+    <string name="detail_cast">Distribution</string>
+    <string name="detail_crew">Équipe</string>
+    <string name="detail_job_writer">Scénario</string>
+    <string name="detail_job_story">Histoire</string>
+    <string name="detail_job_novel">Livre</string>
+    <string name="detail_job_music">Musique</string>
+    <string name="detail_job_camera">Photographie</string>
 </resources>

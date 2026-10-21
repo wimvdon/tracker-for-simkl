@@ -88,4 +88,11 @@
         <item quantity="one">%1$d van %2$d aflevering gezien</item>
         <item quantity="other">%1$d van %2$d afleveringen gezien</item>
     </plurals>
+    <string name="detail_cast">Cast</string>
+    <string name="detail_crew">Crew</string>
+    <string name="detail_job_writer">Scenario</string>
+    <string name="detail_job_story">Verhaal</string>
+    <string name="detail_job_novel">Boek</string>
+    <string name="detail_job_music">Muziek</string>
+    <string name="detail_job_camera">Camera</string>
 </resources>

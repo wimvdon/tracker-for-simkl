@@ -436,6 +436,9 @@ object Images {
 
     fun avatar(path: String?): String? = path?.let { absolute(it) ?: "$CDN/avatars/${it}_100.jpg" }
 
+    /** A TMDB profile photo ("/abc.jpg"), 185 wide, through the same wsrv.nl proxy. */
+    fun tmdbProfile(path: String?): String? = path?.takeIf { it.startsWith("/") }?.let { "https://wsrv.nl/?url=https://image.tmdb.org/t/p/w185$it" }
+
     /**
      * Pictures for a new-episode notification: the show's poster as the thumbnail (the library's
      * copy first, else the calendar's) and its backdrop, from the cached show info, as the large

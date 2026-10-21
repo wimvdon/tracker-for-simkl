@@ -58,6 +58,8 @@ A title you paused part-way (on another device) shows a **progress banner** with
 
 **Add to list** sits in the title bar, next to Share (list icon; once the title is in a list it shows the list's name) and opens the list statuses. **Your rating** is the tile on the right of the info card's ratings row, as tall as SIMKL's and the other rating tiles; it stays in place while the other ratings scroll, and you tap it to open the 1–10 rating. Below the poster, **Watched** (check mark) marks it watched, and **Check in** (TV icon) tells SIMKL you are watching it right now. Check in asks first and explains itself; SIMKL then marks the title watched when it ends.
 
+**Cast and crew** (optional): add your own free TMDB key in *Settings › Cast and crew* and details pages show a **Cast** row (photo, name and role; for shows, every season) and a **Crew** row (director, writers, book, music, camera) below the trailers. Tap a person to open their TMDB page. To get a key: sign in on [themoviedb.org](https://www.themoviedb.org/settings/api), open *Settings › API*, request a key, and paste either the "API Key" or the "API Read Access Token". The app checks it with TMDB before saving it. The key stays on your phone (it isn't backed up). Titles TMDB doesn't know (many anime) show no cast.
+
 Links to `simkl.com/tv/…`, `/anime/…` and `/movies/…` from other apps can open straight in these details.
 
 ## Discover

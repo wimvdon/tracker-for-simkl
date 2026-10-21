@@ -88,4 +88,11 @@
         <item quantity="one">%1$d de %2$d episodio visto</item>
         <item quantity="other">%1$d de %2$d episodios vistos</item>
     </plurals>
+    <string name="detail_cast">Reparto</string>
+    <string name="detail_crew">Equipo</string>
+    <string name="detail_job_writer">Guion</string>
+    <string name="detail_job_story">Historia</string>
+    <string name="detail_job_novel">Libro</string>
+    <string name="detail_job_music">Música</string>
+    <string name="detail_job_camera">Fotografía</string>
 </resources>

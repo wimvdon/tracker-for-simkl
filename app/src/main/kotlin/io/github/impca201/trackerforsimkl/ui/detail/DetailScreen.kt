@@ -138,6 +138,8 @@ import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImage
 import io.github.impca201.trackerforsimkl.R
 import io.github.impca201.trackerforsimkl.data.AppSettings
+import io.github.impca201.trackerforsimkl.data.api.TmdbKey
+import io.github.impca201.trackerforsimkl.data.model.Credits
 import io.github.impca201.trackerforsimkl.data.model.Episode
 import io.github.impca201.trackerforsimkl.data.model.EpisodeRef
 import io.github.impca201.trackerforsimkl.data.model.Images
@@ -201,6 +203,13 @@ fun DetailScreen(
         } catch (e: Exception) {
             error = e.message ?: resources.getString(R.string.detail_load_failed_fallback)
         }
+    }
+    // Cast and crew from TMDB, only with the user's own key. A failure just leaves them out.
+    var credits by remember { mutableStateOf<Credits?>(null) }
+    val tmdbKey = TmdbKey.parse(settings.tmdbKey)
+    LaunchedEffect(details, tmdbKey) {
+        val d = details
+        credits = if (d != null && tmdbKey != null) runCatching { app.catalog.credits(d, tmdbKey) }.getOrNull() else null
     }
     LaunchedEffect(route.simklId, reload) {
         if (route.type.isEpisodic) episodes = runCatching { app.catalog.episodes(route.type, route.simklId, refresh = reload > 0) }.getOrDefault(emptyList())
@@ -358,6 +367,10 @@ fun DetailScreen(
                     }
                     if (d.trailers.isNotEmpty()) {
                         item(key = "trailers") { Box(Modifier.animateItem()) { Trailers(d) } }
+                    }
+                    credits?.let { c ->
+                        if (c.cast.isNotEmpty()) item(key = "cast") { Box(Modifier.animateItem()) { CastRow(c.cast) } }
+                        if (c.crew.isNotEmpty()) item(key = "crew") { Box(Modifier.animateItem()) { CrewRow(c.crew) } }
                     }
                 }
                 val shownEpisodes = if (settings.hideSpecials) episodes.filterNot { it.special } else episodes

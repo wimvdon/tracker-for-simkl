@@ -1,6 +1,6 @@
 # API and entry points
 
-The app has no API of its own. This page lists what it calls (SIMKL) and what other apps can call (deep links).
+The app has no API of its own. This page lists what it calls (SIMKL, and TMDB with the user's own key) and what other apps can call (deep links).
 
 ## SIMKL API
 
@@ -49,6 +49,27 @@ Images are loaded from `https://wsrv.nl/?url=https://simkl.in/...` (the image pr
 ### Authentication
 
 OAuth 2.0 authorization code with PKCE (AUTH V2): no client secret. The access token lasts about a week and is refreshed with the refresh token 12 hours before it expires. Tokens are stored in DataStore, in a file that is excluded from backups (see `docs/architecture.md`, "Backup").
+
+## TMDB API
+
+Base URL `https://api.themoviedb.org/3`, implemented in `data/api/TmdbApi.kt`, mapped in `data/api/TmdbParsers.kt`. Only used when the user entered their own key in *Settings › Cast and crew*; the app ships no TMDB key. Read only, and only while a details page is open (never in the background).
+
+| Key the user pasted | Sent as |
+|---|---|
+| v3 "API Key" | Query `api_key=<key>` |
+| v4 "API Read Access Token" (a JWT, two dots) | Header `Authorization: Bearer <token>` |
+
+Every request also sends `User-Agent: tracker-for-simkl/<version>`.
+
+| Method | Path | Used for |
+|---|---|---|
+| GET | `/authentication` | Checks a key before Settings saves it (401 = rejected) |
+| GET | `/movie/{tmdb}/credits` | Cast and crew of a movie or anime movie |
+| GET | `/tv/{tmdb}/aggregate_credits` | Cast and crew of a show or anime series, over every season, with episode counts |
+
+The TMDB ID comes from SIMKL's details (`ids.tmdb`); titles without one show no cast and crew. A failed request just leaves the section out. Cast photos are `https://wsrv.nl/?url=https://image.tmdb.org/t/p/w185<profile_path>`. Tapping a person opens `https://www.themoviedb.org/person/{id}` in the browser.
+
+TMDB's terms require the notice "This product uses the TMDB API but is not endorsed or certified by TMDB." and one of TMDB's approved logos in an About or Credits section. The notice and a link to themoviedb.org are at the bottom of Settings; the logo still has to be added (it must be TMDB's own file, unchanged).
 
 ## Entry points for other apps
 

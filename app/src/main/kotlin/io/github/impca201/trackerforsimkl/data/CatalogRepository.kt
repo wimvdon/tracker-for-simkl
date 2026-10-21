@@ -5,6 +5,11 @@ import io.github.impca201.trackerforsimkl.R
 import io.github.impca201.trackerforsimkl.data.api.ApiException
 import io.github.impca201.trackerforsimkl.data.api.Parsers
 import io.github.impca201.trackerforsimkl.data.api.SimklApi
+import io.github.impca201.trackerforsimkl.data.api.TmdbApi
+import io.github.impca201.trackerforsimkl.data.api.TmdbKey
+import io.github.impca201.trackerforsimkl.data.api.TmdbParsers
+import io.github.impca201.trackerforsimkl.data.model.Credits
+import io.github.impca201.trackerforsimkl.data.model.CreditsSource
 import io.github.impca201.trackerforsimkl.data.model.Episode
 import io.github.impca201.trackerforsimkl.data.model.MediaDetails
 import io.github.impca201.trackerforsimkl.data.model.MediaSummary
@@ -27,8 +32,10 @@ data class DiscoverSection(
 /** Public catalogue data (no user state): details, episodes, search, discovery lists. */
 class CatalogRepository(
     private val api: SimklApi,
+    private val tmdb: TmdbApi,
 ) {
     private val details = ConcurrentHashMap<String, MediaDetails>()
+    private val credits = ConcurrentHashMap<CreditsSource, Credits>()
     private val episodes = ConcurrentHashMap<String, List<Episode>>()
     private val lists = ConcurrentHashMap<String, List<MediaSummary>>()
 
@@ -41,6 +48,19 @@ class CatalogRepository(
         if (!refresh) details[key]?.let { return it }
         val obj = api.details(type, simklId) ?: throw ApiException(404, "Not found")
         return (Parsers.details(obj, type) ?: throw ApiException(404, "Not found")).also { details[key] = it }
+    }
+
+    /**
+     * Cast and crew from TMDB with the user's own [key]; null when the title has no TMDB ID.
+     * Throws when TMDB fails, like the SIMKL calls.
+     */
+    suspend fun credits(
+        details: MediaDetails,
+        key: TmdbKey,
+    ): Credits? {
+        val source = CreditsSource.of(details) ?: return null
+        credits[source]?.let { return it }
+        return TmdbParsers.credits(tmdb.credits(key, source)).also { credits[source] = it }
     }
 
     suspend fun episodes(
