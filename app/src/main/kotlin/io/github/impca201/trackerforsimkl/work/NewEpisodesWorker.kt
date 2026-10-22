@@ -33,16 +33,19 @@ import io.github.impca201.trackerforsimkl.data.model.CalendarEntry
 import io.github.impca201.trackerforsimkl.data.model.Images
 import io.github.impca201.trackerforsimkl.data.model.MediaType
 import io.github.impca201.trackerforsimkl.data.model.NewEpisodes
+import io.github.impca201.trackerforsimkl.data.model.NewReleases
+import io.github.impca201.trackerforsimkl.data.model.NotifyChannel
 import io.github.impca201.trackerforsimkl.ui.MainActivity
 import java.time.Duration
 import java.time.Instant
 import java.util.concurrent.TimeUnit
 
 /**
- * Notifies about newly aired episodes of shows the user is watching. It reads SIMKL's calendar
+ * Notifies about newly aired episodes of shows the user is watching and released movies on their
+ * "Plan to watch" list, each type in its own channel ([NotifyChannel]). It reads SIMKL's calendar
  * data files (static files on data.simkl.in's CDN, which don't count against the API) and the
- * library as it was last synced; it never syncs or calls the API in the background. Which
- * episodes to announce is decided by [NewEpisodes].
+ * library as it was last synced; it never syncs or calls the API in the background. What to
+ * announce is decided by [NewEpisodes] and [NewReleases].
  */
 class NewEpisodesWorker(
     context: Context,
@@ -62,18 +65,25 @@ class NewEpisodesWorker(
             } catch (e: Exception) {
                 return Result.retry()
             }
+        // Movies are extra: a failed release file doesn't hold up the episodes.
+        val releases = if (MediaType.Movie in settings.types) runCatching { movieReleases(app) }.getOrDefault(emptyList()) else emptyList()
         val now = Instant.now()
-        val plan = NewEpisodes.plan(calendar, app.settings.rememberedEpisodes(), library, app.settings.notifiedEpisodes(), now, settings.types)
+        // Episodes and movies share the stored sets; their keys never clash.
+        val notified = app.settings.notifiedEpisodes()
+        val remembered = app.settings.rememberedEpisodes()
+        val episodes = NewEpisodes.plan(calendar, remembered, library, notified, now, settings.types)
+        val movies = NewReleases.plan(releases, remembered, library, notified, now)
         val showInfo = app.library.state.value.showInfo
-        plan.alerts.forEach { notify(applicationContext, it, showInfo[it.item.key]?.fanart) }
-        app.settings.setNotifiedEpisodes(plan.notified)
-        app.settings.setRememberedEpisodes(plan.remembered)
-        scheduleAtAirTime(applicationContext, NewEpisodes.nextAirDate(plan.remembered, now), now)
+        episodes.alerts.forEach { notify(applicationContext, it, showInfo[it.item.key]?.fanart) }
+        movies.alerts.forEach { notifyRelease(applicationContext, it) }
+        app.settings.setNotifiedEpisodes(episodes.notified + movies.notified)
+        app.settings.setRememberedEpisodes(episodes.remembered + movies.remembered)
+        val next = listOfNotNull(NewEpisodes.nextAirDate(episodes.remembered, now), NewReleases.nextReleaseDate(movies.remembered, now)).minOrNull()
+        scheduleAtAirTime(applicationContext, next, now)
         return Result.success()
     }
 
     companion object {
-        private const val CHANNEL = "new_episodes"
         private const val WORK = "new_episodes"
         private const val AIR_TIME_WORK = "new_episodes_air_time"
 
@@ -86,17 +96,36 @@ class NewEpisodesWorker(
                 Parsers.calendar(app.api.calendar(type), type).filter { it.episode != null }
             }
 
-        fun createChannel(context: Context) {
-            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) return
-            val channel = NotificationChannel(CHANNEL, context.getString(R.string.data_notif_channel_name), NotificationManager.IMPORTANCE_DEFAULT)
-            channel.description = context.getString(R.string.data_notif_channel_description)
-            context.getSystemService(NotificationManager::class.java).createNotificationChannel(channel)
+        /** Movie releases from SIMKL's calendar file. */
+        private suspend fun movieReleases(app: TrackerApp): List<CalendarEntry> = Parsers.calendar(app.api.calendar(MediaType.Movie), MediaType.Movie)
+
+        /**
+         * Creates (or renames, in the phone's language) one channel per type. Android keeps what
+         * the user changed in a channel; only its name and description are updated.
+         */
+        fun createChannels(context: Context) {
+            val manager = context.getSystemService(NotificationManager::class.java)
+            NotifyChannel.entries.forEach { c ->
+                val (name, description) =
+                    when (c) {
+                        NotifyChannel.Tv -> R.string.data_notif_channel_tv to R.string.data_notif_channel_tv_description
+                        NotifyChannel.Anime -> R.string.data_notif_channel_anime to R.string.data_notif_channel_anime_description
+                        NotifyChannel.Movies -> R.string.data_notif_channel_movies to R.string.data_notif_channel_movies_description
+                    }
+                val channel = NotificationChannel(c.id, context.getString(name), NotificationManager.IMPORTANCE_DEFAULT)
+                channel.description = context.getString(description)
+                manager.createNotificationChannel(channel)
+            }
         }
 
         /** Starts the periodic check; episodes that already aired are not announced. */
         suspend fun enable(context: Context) {
             val app = context.applicationContext as TrackerApp
-            runCatching { app.settings.setNotifiedEpisodes(NewEpisodes.aired(airedAndUpcoming(app), Instant.now())) }
+            val now = Instant.now()
+            runCatching {
+                val movies = runCatching { NewReleases.released(movieReleases(app), now) }.getOrDefault(emptySet())
+                app.settings.setNotifiedEpisodes(NewEpisodes.aired(airedAndUpcoming(app), now) + movies)
+            }
             // UPDATE replaces the old library-syncing schedule of earlier versions.
             schedule(context, ExistingPeriodicWorkPolicy.UPDATE)
         }
@@ -192,7 +221,7 @@ class NewEpisodesWorker(
             val poster = bitmap(context, art.poster)
             val backdrop = bitmap(context, art.backdrop)
             val builder =
-                NotificationCompat.Builder(context, CHANNEL)
+                NotificationCompat.Builder(context, NotifyChannel.of(item.type).id)
                     .setSmallIcon(R.drawable.ic_notification)
                     .setContentTitle(item.title)
                     .setContentText(text)
@@ -213,6 +242,40 @@ class NewEpisodesWorker(
                 )
             }
             // One notification per show: a newer episode replaces it, and its text counts all of them.
+            NotificationManagerCompat.from(context).notify(item.key.hashCode(), builder.build())
+        }
+
+        /** "Out now" for a released movie from the "Plan to watch" list, in the movie channel. */
+        @SuppressLint("MissingPermission")
+        private suspend fun notifyRelease(
+            context: Context,
+            alert: NewReleases.Alert,
+        ) {
+            if (Build.VERSION.SDK_INT >= 33 &&
+                ContextCompat.checkSelfPermission(context, Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED
+            ) {
+                return
+            }
+            val item = alert.item
+            val intent =
+                PendingIntent.getActivity(
+                    context,
+                    item.ids.simkl.toInt(),
+                    MainActivity.detailIntent(context, item.type, item.ids.simkl),
+                    PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE,
+                )
+            val poster = bitmap(context, Images.poster(item.poster ?: alert.release.poster, large = true))
+            val builder =
+                NotificationCompat.Builder(context, NotifyChannel.Movies.id)
+                    .setSmallIcon(R.drawable.ic_notification)
+                    .setContentTitle(item.title)
+                    .setContentText(context.getString(R.string.data_notif_movie_out))
+                    .setLargeIcon(poster)
+                    .setContentIntent(intent)
+                    .setAutoCancel(true)
+                    .setCategory(NotificationCompat.CATEGORY_RECOMMENDATION)
+                    .setWhen(alert.release.date.toEpochMilli())
+                    .setShowWhen(true)
             NotificationManagerCompat.from(context).notify(item.key.hashCode(), builder.build())
         }
     }

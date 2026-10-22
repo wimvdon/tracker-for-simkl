@@ -52,8 +52,8 @@
     <string name="screens_settings_hide_specials">Specials verbergen</string>
     <string name="screens_settings_continue_latest">Doorgaan vanaf de laatste aflevering</string>
     <string name="screens_settings_continue_latest_sub">Ongeziene afleveringen vóór de laatst geziene overslaan</string>
-    <string name="screens_settings_notifications">Meldingen voor nieuwe afleveringen</string>
-    <string name="screens_settings_notifications_sub">Voor series die je kijkt</string>
+    <string name="screens_settings_notifications">Nieuwe afleveringen en films</string>
+    <string name="screens_settings_notifications_sub">Series en anime die je kijkt, films die je wilt zien</string>
     <string name="screens_login_tagline">Houd je series, anime en films bij met SIMKL.</string>
     <string name="screens_login_sign_in">Inloggen met SIMKL</string>
     <plurals name="screens_profile_rated">
@@ -93,4 +93,12 @@
     <string name="screens_settings_version">Tracker for Simkl %1$s</string>
     <string name="screens_simkl_logo">SIMKL</string>
     <string name="screens_search_people">Personen</string>
+    <string name="screens_settings_notifications_section">Meldingen</string>
+    <string name="screens_settings_channel_tv">Series</string>
+    <string name="screens_settings_channel_anime">Anime</string>
+    <string name="screens_settings_channel_movies">Films</string>
+    <string name="screens_settings_channel_on">Aan · geluid en meer in de Android-instellingen</string>
+    <string name="screens_settings_channel_off">Uit in de Android-instellingen. Tik om aan te zetten.</string>
+    <string name="screens_settings_android_notifications">Meldingsinstellingen van Android</string>
+    <string name="screens_settings_android_notifications_sub">Alle soorten, met geluid, trillen en pop-ups</string>
 </resources>

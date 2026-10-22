@@ -1,8 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="data_error_login_expired">Tu sesión de SIMKL ha caducado. Cierra sesión y vuelve a iniciarla.</string>
-    <string name="data_notif_channel_name">Nuevos episodios</string>
-    <string name="data_notif_channel_description">Cuando hay un nuevo episodio de una serie que estás viendo</string>
     <string name="data_notif_new_episode">Nuevo episodio disponible</string>
     <string name="data_crash_title">Tracker for Simkl se cerró inesperadamente la última vez</string>
     <string name="data_crash_copy">Copiar informe de error</string>
@@ -12,4 +10,11 @@
         <item quantity="one">%1$d episodio nuevo, hasta %2$s</item>
         <item quantity="other">%1$d episodios nuevos, hasta %2$s</item>
     </plurals>
+    <string name="data_notif_channel_tv">Nuevos episodios de series</string>
+    <string name="data_notif_channel_tv_description">Cuando sale un nuevo episodio de una serie que estás viendo</string>
+    <string name="data_notif_channel_anime">Nuevos episodios de anime</string>
+    <string name="data_notif_channel_anime_description">Cuando sale un nuevo episodio de un anime que estás viendo</string>
+    <string name="data_notif_channel_movies">Estrenos de películas</string>
+    <string name="data_notif_channel_movies_description">Cuando se estrena una película de tu lista Pendiente</string>
+    <string name="data_notif_movie_out">Ya disponible</string>
 </resources>

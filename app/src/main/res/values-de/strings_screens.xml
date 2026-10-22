@@ -52,8 +52,8 @@
     <string name="screens_settings_hide_specials">Specials ausblenden</string>
     <string name="screens_settings_continue_latest">Ab der neuesten Folge fortsetzen</string>
     <string name="screens_settings_continue_latest_sub">Ungesehene Folgen vor der zuletzt gesehenen überspringen</string>
-    <string name="screens_settings_notifications">Benachrichtigungen zu neuen Folgen</string>
-    <string name="screens_settings_notifications_sub">Für Serien, die du schaust</string>
+    <string name="screens_settings_notifications">Neue Folgen und Filme</string>
+    <string name="screens_settings_notifications_sub">Serien und Animes, die du schaust, Filme, die du sehen willst</string>
     <string name="screens_login_tagline">Verfolge deine Serien, Anime und Filme mit SIMKL.</string>
     <string name="screens_login_sign_in">Mit SIMKL anmelden</string>
     <plurals name="screens_profile_rated">
@@ -93,4 +93,12 @@
     <string name="screens_settings_version">Tracker for Simkl %1$s</string>
     <string name="screens_simkl_logo">SIMKL</string>
     <string name="screens_search_people">Personen</string>
+    <string name="screens_settings_notifications_section">Benachrichtigungen</string>
+    <string name="screens_settings_channel_tv">Serien</string>
+    <string name="screens_settings_channel_anime">Anime</string>
+    <string name="screens_settings_channel_movies">Filme</string>
+    <string name="screens_settings_channel_on">An · Ton und mehr in den Android-Einstellungen</string>
+    <string name="screens_settings_channel_off">In den Android-Einstellungen aus. Tippen zum Einschalten.</string>
+    <string name="screens_settings_android_notifications">Android-Benachrichtigungseinstellungen</string>
+    <string name="screens_settings_android_notifications_sub">Jede Art, mit Ton, Vibration und Pop-ups</string>
 </resources>

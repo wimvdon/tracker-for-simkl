@@ -62,7 +62,7 @@ class TrackerApp :
     override fun onCreate() {
         super.onCreate()
         io.github.impca201.trackerforsimkl.ui.components.Format.context = this
-        runCatching { NewEpisodesWorker.createChannel(this) }
+        runCatching { NewEpisodesWorker.createChannels(this) }
         scope.launch { runCatching { NewEpisodesWorker.restore(this@TrackerApp) } }
     }
 

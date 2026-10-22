@@ -1,8 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="data_error_login_expired">Deine SIMKL-Anmeldung ist abgelaufen. Melde dich ab und erneut an.</string>
-    <string name="data_notif_channel_name">Neue Folgen</string>
-    <string name="data_notif_channel_description">Wenn eine neue Folge einer Serie verfügbar ist, die du schaust</string>
     <string name="data_notif_new_episode">Neue Folge verfügbar</string>
     <string name="data_crash_title">Tracker for Simkl ist beim letzten Mal abgestürzt</string>
     <string name="data_crash_copy">Absturzbericht kopieren</string>
@@ -12,4 +10,11 @@
         <item quantity="one">%1$d neue Folge, bis %2$s</item>
         <item quantity="other">%1$d neue Folgen, bis %2$s</item>
     </plurals>
+    <string name="data_notif_channel_tv">Neue Serienfolgen</string>
+    <string name="data_notif_channel_tv_description">Wenn eine neue Folge einer Serie erscheint, die du schaust</string>
+    <string name="data_notif_channel_anime">Neue Anime-Folgen</string>
+    <string name="data_notif_channel_anime_description">Wenn eine neue Folge eines Animes erscheint, den du schaust</string>
+    <string name="data_notif_channel_movies">Filmstarts</string>
+    <string name="data_notif_channel_movies_description">Wenn ein Film auf deiner Liste Geplant erscheint</string>
+    <string name="data_notif_movie_out">Jetzt erschienen</string>
 </resources>
