@@ -1,6 +1,6 @@
 # Privacy policy
 
-_Last updated: 2026-10-21_
+_Last updated: 2026-10-22_
 
 Tracker for Simkl is an unofficial client for [SIMKL](https://simkl.com). It has no analytics, advertising or third-party crash reporting.
 
@@ -16,7 +16,7 @@ Tracker for Simkl is an unofficial client for [SIMKL](https://simkl.com). It has
 
 - Your SIMKL access and refresh tokens, your TMDB token if you entered one, and your settings (theme, bottom bar, content types, library options, notifications).
 - A copy of your library and of show details, so the app opens fast and works offline.
-- Which episodes it already notified you about, and the upcoming episodes of shows you're watching (so it can still notify you if a check runs late).
+- Which episodes and movies it already notified you about, and the upcoming episodes of shows you're watching and releases of movies you plan to watch (so it can still notify you if a check runs late).
 - An HTTP and image cache.
 - If the app crashes: the error's stack trace with the app version and phone model, shown to you the next time the app opens so you can copy it. It is deleted after it is shown and never sent anywhere.
 
@@ -24,12 +24,12 @@ Only your settings (theme, bottom bar, content types and library options) are in
 
 ## Background activity
 
-Only when you turn on new-episode notifications: about every 4 hours, with a network connection, the app downloads SIMKL's public calendar files and compares them with your library as last synced. For each new episode it announces, it downloads that show's poster and backdrop picture (through wsrv.nl, as everywhere in the app) to show in the notification. It does not call SIMKL's API or TMDB in the background.
+Only when you turn on notifications for new episodes and releases: about every 4 hours, with a network connection, the app downloads SIMKL's public calendar files (episodes, and movie releases when movies are on) and compares them with your library as last synced. For each new episode or movie it announces, it downloads that title's poster (and a show's backdrop) picture (through wsrv.nl, as everywhere in the app) to show in the notification. It does not call SIMKL's API or TMDB in the background.
 
 ## Permissions
 
 - **Internet** and **network state**: to talk to SIMKL (and TMDB, if you added a token).
-- **Notifications** (Android 13+, optional): for new-episode notifications.
+- **Notifications** (Android 13+, optional): for notifications about new episodes and movie releases.
 
 If this changes, this file will be updated **before** the change is released.
 

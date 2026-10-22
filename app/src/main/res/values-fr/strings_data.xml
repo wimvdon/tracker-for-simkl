@@ -1,8 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="data_error_login_expired">Votre session SIMKL a expiré. Déconnectez-vous puis reconnectez-vous.</string>
-    <string name="data_notif_channel_name">Nouveaux épisodes</string>
-    <string name="data_notif_channel_description">Quand un nouvel épisode d’une série que vous regardez est disponible</string>
     <string name="data_notif_new_episode">Nouvel épisode disponible</string>
     <string name="data_crash_title">Tracker for Simkl a planté la dernière fois</string>
     <string name="data_crash_copy">Copier le rapport de plantage</string>
@@ -13,4 +11,11 @@
         <item quantity="many">%1$d nouveaux épisodes, jusqu’à %2$s</item>
         <item quantity="other">%1$d nouveaux épisodes, jusqu’à %2$s</item>
     </plurals>
+    <string name="data_notif_channel_tv">Nouveaux épisodes de séries</string>
+    <string name="data_notif_channel_tv_description">Quand un nouvel épisode d\'une série que vous regardez est disponible</string>
+    <string name="data_notif_channel_anime">Nouveaux épisodes d\'anime</string>
+    <string name="data_notif_channel_anime_description">Quand un nouvel épisode d\'un anime que vous regardez est disponible</string>
+    <string name="data_notif_channel_movies">Sorties de films</string>
+    <string name="data_notif_channel_movies_description">Quand un film de votre liste À voir sort</string>
+    <string name="data_notif_movie_out">Disponible</string>
 </resources>

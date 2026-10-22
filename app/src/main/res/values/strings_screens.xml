@@ -52,8 +52,8 @@
     <string name="screens_settings_hide_specials">Hide specials</string>
     <string name="screens_settings_continue_latest">Continue from the latest episode</string>
     <string name="screens_settings_continue_latest_sub">Skip unwatched episodes before the last one you watched</string>
-    <string name="screens_settings_notifications">New episode notifications</string>
-    <string name="screens_settings_notifications_sub">For shows you’re watching</string>
+    <string name="screens_settings_notifications">New episodes and releases</string>
+    <string name="screens_settings_notifications_sub">Shows and anime you’re watching, movies you plan to watch</string>
     <string name="screens_login_tagline">Track your TV shows, anime and movies with SIMKL.</string>
     <string name="screens_login_sign_in">Sign in with SIMKL</string>
     <plurals name="screens_profile_rated">
@@ -93,4 +93,12 @@
     <string name="screens_settings_version">Tracker for Simkl %1$s</string>
     <string name="screens_simkl_logo">SIMKL</string>
     <string name="screens_search_people">People</string>
+    <string name="screens_settings_notifications_section">Notifications</string>
+    <string name="screens_settings_channel_tv">TV shows</string>
+    <string name="screens_settings_channel_anime">Anime</string>
+    <string name="screens_settings_channel_movies">Movies</string>
+    <string name="screens_settings_channel_on">On · sound and more in Android’s settings</string>
+    <string name="screens_settings_channel_off">Off in Android’s settings. Tap to turn it on.</string>
+    <string name="screens_settings_android_notifications">Android notification settings</string>
+    <string name="screens_settings_android_notifications_sub">Every type, with sound, vibration and pop-ups</string>
 </resources>

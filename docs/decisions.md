@@ -2,6 +2,20 @@
 
 Newest first. Add an entry for every notable choice: what was decided, why, and what was rejected.
 
+## 2026-10-22: A notification channel per type, movie releases, Android's settings shown in the app
+
+TV shows, anime and movies each get an Android notification channel, so people can silence or
+change one type. TV keeps the channel id `new_episodes`, so settings made for it stay; anime and
+movies are new. Movies on the Plan to watch list now get an "Out now" notification from SIMKL's
+public movie release calendar (data.simkl.in, like the episode calendars; no API call in the
+background), with the same seven-day window and memory as episodes, sharing their stored sets.
+
+*Settings › Notifications* mirrors Android: the switch shows off while Android blocks the app's
+notifications, each type shows its channel's state, and a tap opens Android's page for that
+channel (or for the app), read again when Settings comes back. Rejected: in-app switches per type
+that would disagree with Android's (an app can't turn a blocked channel back on), and keeping one
+shared channel.
+
 ## 2026-10-21: Cast and crew from TMDB, with the user's own key
 
 SIMKL gives no cast, only a director. TMDB has full credits and SIMKL's details already carry each

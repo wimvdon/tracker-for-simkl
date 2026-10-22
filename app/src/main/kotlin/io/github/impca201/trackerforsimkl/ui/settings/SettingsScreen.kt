@@ -1,6 +1,12 @@
 package io.github.impca201.trackerforsimkl.ui.settings
 
 import android.Manifest
+import androidx.annotation.RequiresApi
+import io.github.impca201.trackerforsimkl.data.model.NotifyChannel
+import androidx.lifecycle.compose.LifecycleEventEffect
+import androidx.lifecycle.Lifecycle
+import android.content.Context
+import android.app.Activity
 import android.content.pm.PackageManager
 import android.os.Build
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -75,16 +81,18 @@ fun SettingsScreen(settings: AppSettings) {
             NewEpisodesWorker.enable(context)
         }
     }
-    var notificationsAllowed by remember {
-        mutableStateOf(
-            Build.VERSION.SDK_INT < 33 ||
-                ContextCompat.checkSelfPermission(context, Manifest.permission.POST_NOTIFICATIONS) == PackageManager.PERMISSION_GRANTED,
-        )
-    }
+    // Android's own notification settings, read again each time Settings comes back into view.
+    var android by remember { mutableStateOf(AndroidNotifications.read(context)) }
+    LifecycleEventEffect(Lifecycle.Event.ON_RESUME) { android = AndroidNotifications.read(context) }
     val permission =
         rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) { granted ->
-            notificationsAllowed = granted
-            if (granted) enableNotifications()
+            android = AndroidNotifications.read(context)
+            if (granted) {
+                enableNotifications()
+            } else if (Build.VERSION.SDK_INT >= 33 && !permissionAskable(context)) {
+                // Android no longer shows the question: the switch is in its settings now.
+                AndroidNotifications.openAppSettings(context)
+            }
         }
 
     SettingsScaffold(
@@ -134,21 +142,53 @@ fun SettingsScreen(settings: AppSettings) {
                         }
                     },
                 )
+            }
+        }
+
+        item(key = "notifications") {
+            val on = settings.notifications && android.appEnabled
+            SettingsSection(title = stringResource(R.string.screens_settings_notifications_section)) {
                 SwitchSetting(
                     title = stringResource(R.string.screens_settings_notifications),
                     summary = stringResource(R.string.screens_settings_notifications_sub),
-                    // Shown off when the permission was denied or revoked, so turning it on asks again.
-                    checked = settings.notifications && notificationsAllowed,
-                    onCheckedChange = { on ->
-                        if (on) {
-                            if (Build.VERSION.SDK_INT >= 33) permission.launch(Manifest.permission.POST_NOTIFICATIONS) else enableNotifications()
-                        } else {
-                            scope.launch {
-                                app.settings.setNotifications(false)
-                                NewEpisodesWorker.cancel(context)
+                    // Off whenever Android blocks the app's notifications, so turning it on asks again.
+                    checked = on,
+                    onCheckedChange = { turnOn ->
+                        when {
+                            !turnOn ->
+                                scope.launch {
+                                    app.settings.setNotifications(false)
+                                    NewEpisodesWorker.cancel(context)
+                                }
+                            Build.VERSION.SDK_INT >= 33 && !permissionGranted(context) -> permission.launch(Manifest.permission.POST_NOTIFICATIONS)
+                            // Allowed, but switched off in Android's settings: only Android can turn it back on.
+                            !android.appEnabled -> {
+                                enableNotifications()
+                                AndroidNotifications.openAppSettings(context)
                             }
+                            else -> enableNotifications()
                         }
                     },
+                )
+                if (on) {
+                    // One row per type that is on in Content, showing Android's own switch for its channel.
+                    NotifyChannel.entries.filter { it.type in settings.types }.forEach { channel ->
+                        SettingItem(
+                            title = stringResource(channel.titleRes()),
+                            summary =
+                                stringResource(
+                                    if (android.channelOn(channel)) R.string.screens_settings_channel_on else R.string.screens_settings_channel_off,
+                                ),
+                            onClick = { AndroidNotifications.openChannelSettings(context, channel) },
+                            trailing = { Icon(Icons.AutoMirrored.Rounded.OpenInNew, null) },
+                        )
+                    }
+                }
+                SettingItem(
+                    title = stringResource(R.string.screens_settings_android_notifications),
+                    summary = stringResource(R.string.screens_settings_android_notifications_sub),
+                    onClick = { AndroidNotifications.openAppSettings(context) },
+                    trailing = { Icon(Icons.AutoMirrored.Rounded.OpenInNew, null) },
                 )
             }
         }
@@ -268,3 +308,19 @@ private fun CreditItem(
         modifier = Modifier.clickable(role = Role.Button, onClick = onClick),
     )
 }
+
+private fun NotifyChannel.titleRes(): Int =
+    when (this) {
+        NotifyChannel.Tv -> R.string.screens_settings_channel_tv
+        NotifyChannel.Anime -> R.string.screens_settings_channel_anime
+        NotifyChannel.Movies -> R.string.screens_settings_channel_movies
+    }
+
+@RequiresApi(33)
+private fun permissionGranted(context: Context): Boolean =
+    ContextCompat.checkSelfPermission(context, Manifest.permission.POST_NOTIFICATIONS) == PackageManager.PERMISSION_GRANTED
+
+/** False once the user said no twice: Android then refuses silently, so the app opens its settings. */
+@RequiresApi(33)
+private fun permissionAskable(context: Context): Boolean =
+    (context as? Activity)?.shouldShowRequestPermissionRationale(Manifest.permission.POST_NOTIFICATIONS) ?: true

@@ -77,6 +77,6 @@ TMDB's terms require the notice "This product uses the TMDB API but is not endor
 | `trackerforsimkl://oauth?code=…&state=…` | `auth/AuthRedirectActivity` | Finishes sign-in (state must match the one the app started). |
 | `https://simkl.com/tv/…`, `/anime/…`, `/movies/…` | `ui/MainActivity` | Opens the title in the app (when the user picks this app for the link). |
 | Launcher | `ui/MainActivity` | Opens the app, or the sign-in screen when signed out. |
-| New-episode notification | `ui/MainActivity` (extras) | Opens that show's details. |
+| New-episode or movie release notification | `ui/MainActivity` (extras) | Opens that show's or movie's details. |
 
 The debug build (`io.github.impca201.trackerforsimkl.debug`) registers the same links; Android asks which app should open them.

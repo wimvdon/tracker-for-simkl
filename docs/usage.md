@@ -80,9 +80,13 @@ Watch-time statistics per type and status, then **My ratings** (with how many ti
 
 The app syncs when it opens or comes back to the foreground (at most every 15 minutes) and when you pull down to refresh. Everything is cached, so the app opens instantly and works offline; changes you make need a connection.
 
-## New-episode notifications
+## Notifications for new episodes and releases
 
-Turn on *Settings › Library › New episode notifications* (Android 13+ asks for permission). A few times a day, and shortly after an episode of a show you're watching airs, the app checks SIMKL's public episode calendar against your library as last synced and notifies you about newly aired episodes of shows you're watching: one notification per show, also when several episodes came out at once. If your phone was off or saving battery, episodes from the past week are still announced at the next check. Each notification shows the show's poster; expand it to see the show's backdrop picture. Tap a notification to open the show.
+Turn on *Settings › Notifications › New episodes and releases* (Android 13+ asks for permission; if you said no before, the app opens Android's settings instead, because Android no longer asks). A few times a day, and shortly after an episode of a show you're watching airs, the app checks SIMKL's public episode calendar against your library as last synced and notifies you about newly aired episodes of shows you're watching: one notification per show, also when several episodes came out at once. If your phone was off or saving battery, episodes from the past week are still announced at the next check. Each notification shows the show's poster; expand it to see the show's backdrop picture. Tap a notification to open the show.
+
+Movies on your **Plan to watch** list get an "Out now" notification when SIMKL's movie release calendar says they are out (also up to a week late, like episodes), when movies are on in *Settings › Content*.
+
+TV shows, anime and movies each have their own Android notification channel, so you can give each its own sound, make one silent or turn one off. Under the switch, *Settings › Notifications* shows each type's state as Android has it (*On* or *Off in Android's settings*); tap a type to open its page in Android's settings, or *Android notification settings* for all of them. The switch itself is shown off whenever Android blocks the app's notifications. Android doesn't let apps turn a channel back on themselves, so that happens on Android's page. The TV channel is the one earlier versions used, so its settings stay.
 
 ## Appearance and language
 
@@ -97,4 +101,4 @@ Turn on *Settings › Library › New episode notifications* (Android 13+ asks f
 | "Sign-in failed: …" right after approving | Start the sign-in again from the app (an old browser tab can't finish a new sign-in). |
 | "This build has no SIMKL client ID" | The APK was built without `-PsimklClientId`. Install a release APK. |
 | A crash report on start | The app crashed last time. Tap **Copy crash report**, paste it in a GitHub issue, then tap **Continue**. |
-| No notifications | Check that notifications are on in Settings and allowed for the app in Android's settings. They only cover shows you're watching, as of the last sync. Some phones stop background work for apps that are "optimized" or closed from the recent apps list: open the app once (that restarts the checks) and set its battery use to *Unrestricted* in Android's settings. |
+| No notifications | Check *Settings › Notifications*: the switch should be on and the type should say *On*; tap a type that says *Off* to turn it on in Android's settings. They only cover shows you're watching, as of the last sync. Some phones stop background work for apps that are "optimized" or closed from the recent apps list: open the app once (that restarts the checks) and set its battery use to *Unrestricted* in Android's settings. |
