@@ -4,7 +4,11 @@ import io.github.impca201.trackerforsimkl.BuildConfig
 import io.github.impca201.trackerforsimkl.data.model.EpisodeRef
 import io.github.impca201.trackerforsimkl.data.model.ListStatus
 import io.github.impca201.trackerforsimkl.data.model.MediaType
+import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.currentCoroutineContext
+import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.SerializationException
 import kotlinx.serialization.json.Json
@@ -29,6 +33,7 @@ import okhttp3.Request
 import okhttp3.RequestBody.Companion.toRequestBody
 import java.io.IOException
 import java.time.Instant
+import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.TimeUnit
 
 class ApiException(
@@ -62,6 +67,7 @@ class SimklApi(
     private val settings: SettingsStore,
 ) {
     private val refreshLock = Mutex()
+    private val inFlight = ConcurrentHashMap<String, CompletableDeferred<Pair<Int, String>>>()
 
     /** The app's own SIMKL client ID, baked in at build time (not a secret, per SIMKL's API rules). */
     private fun clientId(): String? = BuildConfig.SIMKL_CLIENT_ID.ifBlank { null }
@@ -138,10 +144,7 @@ class SimklApi(
                         else -> get()
                     }
                 }.build()
-        val (code, text) =
-            withContext(Dispatchers.IO) {
-                http.newCall(request).execute().use { response -> response.code to response.body.string() }
-            }
+        val (code, text) = if (method == "GET") shared(request) else send(request)
         // An expired AUTH V2 token: refresh once and retry.
         if (code == 401 && bearer != null && !retried && settings.refreshToken() != null) {
             accessToken(forceRefresh = true)
@@ -157,6 +160,39 @@ class SimklApi(
             json.parseToJsonElement(text)
         } catch (e: SerializationException) {
             throw ApiException(code, "Unexpected response from SIMKL")
+        }
+    }
+
+    private suspend fun send(request: Request): Pair<Int, String> =
+        withContext(Dispatchers.IO) {
+            http.newCall(request).execute().use { response -> response.code to response.body.string() }
+        }
+
+    /**
+     * A GET for a URL that is already being fetched waits for that response instead of sending the
+     * same request again. When the first caller is cancelled, a waiting one sends it itself.
+     */
+    private suspend fun shared(request: Request): Pair<Int, String> {
+        val key = request.url.toString() + " " + request.header("Authorization").orEmpty()
+        while (true) {
+            val mine = CompletableDeferred<Pair<Int, String>>()
+            val running = inFlight.putIfAbsent(key, mine)
+            if (running != null) {
+                try {
+                    return running.await()
+                } catch (e: CancellationException) {
+                    currentCoroutineContext().ensureActive()
+                    continue
+                }
+            }
+            try {
+                return send(request).also { mine.complete(it) }
+            } catch (e: Throwable) {
+                mine.completeExceptionally(e)
+                throw e
+            } finally {
+                inFlight.remove(key, mine)
+            }
         }
     }
 
@@ -281,12 +317,12 @@ class SimklApi(
         call("DELETE", "/sync/playback/$id")
     }
 
-    /** Release status and ratings of every title in the user's lists of one type. */
-    suspend fun watchlistRatings(type: MediaType): JsonElement =
-        get(
-            "/ratings/${type.catalogPath}",
-            mapOf("user_watchlist" to "all", "fields" to "simkl,ext,rank,release_status,year"),
-        )
+    /**
+     * Release status and community ratings of every title in the user's lists, all types in one
+     * call. The user's own ratings come with /sync/all-items instead.
+     */
+    suspend fun watchlistRatings(): JsonElement =
+        get("/ratings/all", mapOf("user_watchlist" to "all", "fields" to "simkl,ext,rank,release_status"))
 
     private fun idsJson(simklId: Long) = buildJsonObject { putJsonObject("ids") { put("simkl", simklId) } }
 

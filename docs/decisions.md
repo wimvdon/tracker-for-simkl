@@ -2,6 +2,24 @@
 
 Newest first. Add an entry for every notable choice: what was decided, why, and what was rejected.
 
+## 2026-10-26: Fewer SIMKL calls, as SIMKL's API team asked
+
+SIMKL reviewed the app's traffic: every launch downloaded the community ratings for the whole
+library (three `/ratings/{type}` calls), the profile, several episode lists (one show three times),
+and launch, foreground and screen triggers each started their own sync within seconds. Now:
+
+- One sync at a time; automatic triggers join a running sync and keep the 15-minute limit
+  (rejected: a WorkManager unique job, which would add background scheduling for a foreground sync).
+- `/sync/playback` and `/users/settings` only when their `/sync/activities` timestamp moved. Before,
+  playback was fetched on every sync because some scrobblers didn't move the timestamp; SIMKL asked
+  to rely on it, so a paused session from such a scrobbler shows at the next change instead.
+- One `/ratings/all` call, at most once a day, its time kept in `library.json`. Titles added in
+  between show their community score and ended/airing state after opening them or the next day.
+- Episode lists and the profile are kept on the device in JSON files (`EpisodeStore`,
+  `profile.json`), like the library; not backed up. Rejected: relying on the HTTP cache alone (it
+  still sends a request each time).
+- Identical GETs that overlap share one request (`SimklApi.shared`).
+
 ## 2026-10-22: A notification channel per type, movie releases, Android's settings shown in the app
 
 TV shows, anime and movies each get an Android notification channel, so people can silence or

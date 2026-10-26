@@ -345,6 +345,7 @@ data class MediaDetails(
     val alternativeTitles: List<String>,
 )
 
+@Serializable
 data class Episode(
     val season: Int?,
     val episode: Int,
@@ -365,6 +366,7 @@ data class CalendarEntry(
     val episode: EpisodeRef?,
 )
 
+@Serializable
 data class UserProfile(
     val id: Long,
     val name: String,

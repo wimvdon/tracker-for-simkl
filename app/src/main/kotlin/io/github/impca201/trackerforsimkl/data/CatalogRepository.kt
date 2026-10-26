@@ -1,5 +1,6 @@
 package io.github.impca201.trackerforsimkl.data
 
+import android.content.Context
 import androidx.annotation.StringRes
 import io.github.impca201.trackerforsimkl.R
 import io.github.impca201.trackerforsimkl.data.api.ApiException
@@ -8,6 +9,7 @@ import io.github.impca201.trackerforsimkl.data.api.SimklApi
 import io.github.impca201.trackerforsimkl.data.api.TmdbApi
 import io.github.impca201.trackerforsimkl.data.api.TmdbKey
 import io.github.impca201.trackerforsimkl.data.api.TmdbParsers
+import io.github.impca201.trackerforsimkl.data.model.AiringState
 import io.github.impca201.trackerforsimkl.data.model.Credits
 import io.github.impca201.trackerforsimkl.data.model.CreditsSource
 import io.github.impca201.trackerforsimkl.data.model.Episode
@@ -20,9 +22,13 @@ import io.github.impca201.trackerforsimkl.data.model.PersonResult
 import io.github.impca201.trackerforsimkl.data.api.tmdbLanguage
 import io.github.impca201.trackerforsimkl.data.model.UserProfile
 import io.github.impca201.trackerforsimkl.data.model.UserStats
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.withContext
+import kotlinx.serialization.json.Json
+import java.io.File
 import java.util.Locale
 import java.util.concurrent.ConcurrentHashMap
 
@@ -38,12 +44,12 @@ data class DiscoverSection(
 class CatalogRepository(
     private val api: SimklApi,
     private val tmdb: TmdbApi,
+    private val episodeStore: EpisodeStore,
 ) {
     private val details = ConcurrentHashMap<String, MediaDetails>()
     private val credits = ConcurrentHashMap<CreditsSource, Credits>()
     private val people = ConcurrentHashMap<Long, Person>()
     private val simklTitles = ConcurrentHashMap<String, MediaSummary>()
-    private val episodes = ConcurrentHashMap<String, List<Episode>>()
     private val lists = ConcurrentHashMap<String, List<MediaSummary>>()
 
     suspend fun details(
@@ -103,17 +109,15 @@ class CatalogRepository(
         return Parsers.lookup(api.searchByTmdb(credit.tmdbId, credit.movie), credit.movie)?.also { simklTitles[key] = it }
     }
 
+    /** The episodes of a show the user opened (refreshed when they were not in the last hour), sorted. */
     suspend fun episodes(
         type: MediaType,
         simklId: Long,
         refresh: Boolean = false,
     ): List<Episode> {
         if (!type.isEpisodic) return emptyList()
-        val key = "$type:$simklId"
-        if (!refresh) episodes[key]?.let { return it }
-        return Parsers.episodes(api.episodes(type, simklId))
+        return episodeStore.episodes(type, simklId, AiringState.Unknown, opened = true, refresh = refresh)
             .sortedWith(compareBy({ if (it.special) 1 else 0 }, { it.season ?: 1 }, { it.episode }))
-            .also { episodes[key] = it }
     }
 
     suspend fun search(
@@ -187,19 +191,36 @@ class CatalogRepository(
     }
 }
 
+/**
+ * The user's SIMKL profile (POST /users/settings), kept on the device and only fetched again after
+ * the sync saw settings.all move in /sync/activities ([settingsChanged]). Not backed up.
+ */
 class AccountRepository(
+    context: Context,
     private val api: SimklApi,
 ) {
-    private var profile: UserProfile? = null
+    private val file = File(context.filesDir, "profile.json")
+    private val json = Json { ignoreUnknownKeys = true }
 
-    suspend fun profile(refresh: Boolean = false): UserProfile {
-        if (!refresh) profile?.let { return it }
-        return (Parsers.user(api.settings()) ?: throw ApiException(0, "Could not read your SIMKL profile")).also { profile = it }
+    @Volatile private var profile: UserProfile? = null
+
+    suspend fun profile(): UserProfile {
+        profile?.let { return it }
+        val kept = withContext(Dispatchers.IO) { runCatching { json.decodeFromString(UserProfile.serializer(), file.readText()) }.getOrNull() }
+        if (kept != null) return kept.also { profile = it }
+        val fresh = Parsers.user(api.settings()) ?: throw ApiException(0, "Could not read your SIMKL profile")
+        profile = fresh
+        withContext(Dispatchers.IO) { runCatching { writeAtomically(file, json.encodeToString(UserProfile.serializer(), fresh)) } }
+        return fresh
     }
 
     suspend fun stats(): UserStats? = Parsers.stats(api.stats(profile().id))
 
-    fun clear() {
+    /** The profile changed on SIMKL: fetch it again the next time it is needed. */
+    suspend fun settingsChanged() = clear()
+
+    suspend fun clear() {
         profile = null
+        withContext(Dispatchers.IO) { file.delete() }
     }
 }

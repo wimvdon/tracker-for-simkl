@@ -83,7 +83,7 @@ fun ProfileScreen(types: Set<MediaType>) {
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
     val library by app.library.state.collectAsState()
-    val profile by produceState<UserProfile?>(null) { value = runCatching { app.account.profile(refresh = true) }.getOrNull() }
+    val profile by produceState<UserProfile?>(null) { value = runCatching { app.account.profile() }.getOrNull() }
     val stats by produceState<UserStats?>(null) { value = runCatching { app.account.stats() }.getOrNull() }
     var confirmLogout by remember { mutableStateOf(false) }
 

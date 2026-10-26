@@ -190,14 +190,39 @@ class ParsersTest {
             [{"id":268470,"type":"movie","release_status":"released","release_year":2014,"rank":10628,"simkl":{"rating":7.1,"votes":151,"droprate":"1%"}},
              {"id":2331788,"type":"anime","release_status":"ongoing","simkl":{"rating":7,"votes":19}},
              {"id":5,"type":"tv","release_status":"returning series"},
-             {"id":6,"type":"tv","release_status":"ended"}]
+             {"id":6,"type":"tv","release_status":"ended"},
+             {"id":7,"release_status":"ended"}]
             """.trimIndent()
+        // /ratings/all: one list for every type, keyed like the library items.
         val map = Parsers.watchlistRatings(Json.parseToJsonElement(json))
-        assertEquals(AiringState.Airing, AiringState.fromApi(map[2331788L]?.first))
-        assertEquals(7.0, map[2331788L]?.second)
-        assertEquals(AiringState.Airing, AiringState.fromApi(map[5L]?.first))
-        assertEquals(AiringState.Ended, AiringState.fromApi(map[6L]?.first))
-        assertEquals("released", map[268470L]?.first)
+        assertEquals(AiringState.Airing, AiringState.fromApi(map["Anime:2331788"]?.first))
+        assertEquals(7.0, map["Anime:2331788"]?.second)
+        assertEquals(AiringState.Airing, AiringState.fromApi(map["Tv:5"]?.first))
+        assertEquals(AiringState.Ended, AiringState.fromApi(map["Tv:6"]?.first))
+        assertEquals("released", map["Movie:268470"]?.first)
+        // Without a type it can't be matched to a list item.
+        assertEquals(4, map.size)
+    }
+
+    @Test
+    fun activityStampsFromDocs() {
+        val json =
+            """
+            {"all":"2026-10-24T15:46:17Z","settings":{"all":"2026-01-02T00:00:00Z"},
+             "tv_shows":{"all":"x","rated_at":"r1","playback":"p1","removed_from_list":"d1"},
+             "anime":{"rated_at":"r2","playback":"p2"},
+             "movies":{"playback":"p3"}}
+            """.trimIndent()
+        val stamps = Parsers.activityStamps(Json.parseToJsonElement(json) as kotlinx.serialization.json.JsonObject)
+        assertEquals("2026-10-24T15:46:17Z", stamps.all)
+        assertEquals("2026-01-02T00:00:00Z", stamps.settings)
+        assertEquals("p1|p2|p3", stamps.playback)
+        assertEquals("r1|r2|", stamps.rated)
+        assertEquals("d1||", stamps.removed)
+        // A movie paused elsewhere moves the joined playback stamp.
+        val moved = Parsers.activityStamps(Json.parseToJsonElement(json.replace("p3", "p4")) as kotlinx.serialization.json.JsonObject)
+        assertTrue(moved.playback != stamps.playback)
+        assertNull(Parsers.activityStamps(null).settings)
     }
 
     @Test

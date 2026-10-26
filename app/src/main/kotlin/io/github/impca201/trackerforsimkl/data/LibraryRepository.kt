@@ -5,8 +5,6 @@ import io.github.impca201.trackerforsimkl.R
 import io.github.impca201.trackerforsimkl.data.api.ApiException
 import io.github.impca201.trackerforsimkl.data.api.Parsers
 import io.github.impca201.trackerforsimkl.data.api.SimklApi
-import io.github.impca201.trackerforsimkl.data.api.obj
-import io.github.impca201.trackerforsimkl.data.api.str
 import io.github.impca201.trackerforsimkl.data.model.AiringState
 import io.github.impca201.trackerforsimkl.data.model.CalendarEntry
 import io.github.impca201.trackerforsimkl.data.model.Episode
@@ -21,9 +19,11 @@ import io.github.impca201.trackerforsimkl.data.model.NextEpisode
 import io.github.impca201.trackerforsimkl.data.model.Playback
 import io.github.impca201.trackerforsimkl.data.model.Shelves
 import io.github.impca201.trackerforsimkl.data.model.ShowInfo
+import io.github.impca201.trackerforsimkl.data.model.SyncRules
 import io.github.impca201.trackerforsimkl.data.model.WatchedSeason
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.async
@@ -57,12 +57,16 @@ private data class LibrarySnapshot(
     val removedStamp: String? = null,
     /** The rated_at timestamps at the last sync. */
     val ratedStamp: String? = null,
+    /** settings.all at the last sync: the profile is fetched again when it moves. */
+    val settingsStamp: String? = null,
     val syncedAt: Long = 0,
     /** Paused, partly watched episodes and movies, and the playback timestamps they belong to. */
     val playback: List<Playback> = emptyList(),
     val playbackStamp: String? = null,
     /** Episode after the latest watched one, per item key (continue-from-latest setting). */
     val latestNext: Map<String, LatestNext> = emptyMap(),
+    /** When the community ratings (/ratings/all) were last downloaded. */
+    val communityRatingsAt: Long = 0,
 )
 
 data class LibraryState(
@@ -121,13 +125,17 @@ data class LibraryState(
  * 2. First sync: the full /sync/all-items. Later: only what changed, with date_from.
  * 3. removed_from_list changed: compare against /sync/all-items?extended=simkl_ids_only.
  * 4. rated_at changed: /sync/ratings with date_from.
+ * 5. playback changed: GET /sync/playback. settings.all changed: [onSettingsChanged].
+ * One sync runs at a time: a trigger while one is running waits for it instead of starting another.
  * Everything is cached on disk so the app opens instantly and works offline.
  */
 class LibraryRepository(
     context: Context,
     private val api: SimklApi,
     private val settings: SettingsStore,
+    private val episodes: EpisodeStore,
     private val scope: CoroutineScope,
+    private val onSettingsChanged: suspend () -> Unit = {},
 ) {
     private val appContext = context.applicationContext
     private val libraryFile = File(context.filesDir, "library.json")
@@ -137,8 +145,10 @@ class LibraryRepository(
     private val mutex = Mutex()
     @Volatile private var snapshot = LibrarySnapshot()
     private var syncJob: Job? = null
+    private val runningLock = Any()
+    private var running: Deferred<String?>? = null
+    private val communityRatingsLock = Mutex()
     private var calendarFetchedAt = 0L
-    private var showInfoFetchedAt = 0L
 
     private val _state = MutableStateFlow(LibraryState())
     val state: StateFlow<LibraryState> = _state.asStateFlow()
@@ -167,12 +177,14 @@ class LibraryRepository(
     }
 
     /**
-     * The automatic sync when the app comes to the foreground: skipped when the last sync is less
-     * than [AUTO_SYNC_INTERVAL] old, as SIMKL's API rules ask. Pull-to-refresh calls [sync] directly.
+     * The automatic sync when the app starts or comes back to the foreground: joins a sync that is
+     * already running, and is skipped when the last one is less than [SyncRules.AUTO_SYNC_INTERVAL]
+     * old, as SIMKL's API team asks. Pull-to-refresh calls [sync] directly.
      */
     suspend fun syncIfStale(): String? {
         load()
-        if (System.currentTimeMillis() - snapshot.syncedAt < AUTO_SYNC_INTERVAL) return null
+        synchronized(runningLock) { running?.takeIf { it.isActive } }?.let { return it.await() }
+        if (!SyncRules.autoSyncDue(snapshot.syncedAt, System.currentTimeMillis())) return null
         _state.update { it.copy(refreshingStale = true) }
         try {
             return sync()
@@ -181,16 +193,32 @@ class LibraryRepository(
         }
     }
 
-    /** Syncs with SIMKL; returns an error message or null. */
-    suspend fun sync(force: Boolean = false): String? {
+    /**
+     * Syncs with SIMKL; returns an error message or null. A sync that is already running is joined,
+     * unless [force] or [fresh] (after a change, which that sync may have missed): then a new one
+     * runs right after it.
+     */
+    suspend fun sync(
+        force: Boolean = false,
+        fresh: Boolean = false,
+    ): String? {
         load()
+        val run =
+            synchronized(runningLock) {
+                running?.takeIf { it.isActive && !force && !fresh }
+                    ?: scope.async { runSync(force) }.also { running = it }
+            }
+        return run.await()
+    }
+
+    private suspend fun runSync(force: Boolean): String? {
         _state.update { it.copy(syncing = true, error = null) }
         val error =
             try {
                 mutex.withLock { syncLocked(force) }
                 null
             } catch (e: CancellationException) {
-                // Cancelled (syncSoon restarting, screen left): not an error to show.
+                // Cancelled (signed out): not an error to show.
                 _state.update { it.copy(syncing = false) }
                 throw e
             } catch (e: ApiException) {
@@ -201,36 +229,46 @@ class LibraryRepository(
         _state.update { it.copy(syncing = false, error = error) }
         if (error == null) {
             scope.launch { runCatching { refreshCalendar() } }
-            scope.launch { runCatching { refreshShowInfo() } }
+            scope.launch { runCatching { refreshCommunityRatings() } }
             scope.launch { runCatching { refreshLatestNext() } }
         }
         return error
     }
 
     private suspend fun syncLocked(force: Boolean) {
-        val activities = api.activities()
-        val all = activities?.str("all")
-        fun stamp(key: String) = listOf("tv_shows", "anime", "movies").joinToString("|") { activities?.obj(it)?.str(key).orEmpty() }
-        val removed = stamp("removed_from_list")
-        val rated = stamp("rated_at")
-        val playbackStamp = stamp("playback")
+        val stamps = Parsers.activityStamps(api.activities())
+        val all = stamps.all
+        val removed = stamps.removed
+        val rated = stamps.rated
         val since = snapshot.activitiesAll
+        if (stamps.settings != snapshot.settingsStamp) runCatching { onSettingsChanged() }
+        // Only when SIMKL says the paused sessions changed, or when everything is downloaded again.
+        val playbackMoved = force || since == null || stamps.playback != snapshot.playbackStamp
         if (force || since == null) {
             val items = Parsers.library(api.allItems())
             saveWithPlayback(
-                snapshot.copy(items = items, activitiesAll = all, removedStamp = removed, ratedStamp = rated, syncedAt = System.currentTimeMillis()),
-                playbackStamp,
+                snapshot.copy(
+                    items = items,
+                    activitiesAll = all,
+                    removedStamp = removed,
+                    ratedStamp = rated,
+                    settingsStamp = stamps.settings,
+                    syncedAt = System.currentTimeMillis(),
+                ),
+                stamps.playback,
+                playbackMoved,
             )
             return
         }
         if (all != null && all == since) {
-            // Always refreshed: SIMKL's playback timestamp doesn't change for every scrobbler.
-            saveWithPlayback(snapshot.copy(syncedAt = System.currentTimeMillis()), playbackStamp)
+            saveWithPlayback(snapshot.copy(settingsStamp = stamps.settings, syncedAt = System.currentTimeMillis()), stamps.playback, playbackMoved)
             return
         }
         var items = snapshot.items
         val changed = Parsers.library(api.allItems(dateFrom = since)).associateBy { it.key }
         if (changed.isNotEmpty()) items = items.map { changed[it.key] ?: it } + changed.values.filter { c -> items.none { it.key == c.key } }
+        // Shows in the delta may have new episodes: their kept episode lists are downloaded again when needed.
+        episodes.forget(changed.values.filter { it.type.isEpisodic }.map { it.key })
         if (removed != snapshot.removedStamp) {
             val response = api.allItemIds()
             val keys = Parsers.libraryKeys(response)
@@ -250,21 +288,26 @@ class LibraryRepository(
                 activitiesAll = all,
                 removedStamp = removed,
                 ratedStamp = rated,
+                settingsStamp = stamps.settings,
                 syncedAt = System.currentTimeMillis(),
                 latestNext = latestNext,
             ),
-            playbackStamp,
+            stamps.playback,
+            playbackMoved,
         )
     }
 
     /**
-     * Saves [value] with a fresh GET /sync/playback in one update, so lists ordered by playback don't
-     * reshuffle twice. A failed playback request keeps the previous list (it is only a convenience).
+     * Saves [value], when [fetch] with a fresh GET /sync/playback in the same update, so lists
+     * ordered by playback don't reshuffle twice. A failed playback request keeps the previous list
+     * and timestamp, so the next sync tries again (it is only a convenience).
      */
     private suspend fun saveWithPlayback(
         value: LibrarySnapshot,
         stamp: String,
+        fetch: Boolean,
     ) {
+        if (!fetch) return save(value)
         val items = value.items
         val list =
             runCatching {
@@ -285,28 +328,13 @@ class LibraryRepository(
         withContext(Dispatchers.IO) { runCatching { writeAtomically(libraryFile, json.encodeToString(LibrarySnapshot.serializer(), value)) } }
     }
 
-    /** Writes via a temporary file and a rename, so a crash or a concurrent write can't leave a truncated cache. */
-    private fun writeAtomically(
-        file: File,
-        text: String,
-    ) {
-        synchronized(file) {
-            val tmp = File(file.path + ".tmp")
-            tmp.writeText(text)
-            if (!tmp.renameTo(file)) {
-                file.writeText(text)
-                tmp.delete()
-            }
-        }
-    }
-
     /** Syncs a moment after local changes so several quick taps end up in one sync. */
     fun syncSoon() {
         syncJob?.cancel()
         syncJob =
             scope.launch {
                 delay(2_000)
-                sync()
+                sync(fresh = true)
             }
     }
 
@@ -324,30 +352,31 @@ class LibraryRepository(
     }
 
     /**
-     * Release status (ended or not) and SIMKL rating of everything in the lists: one
-     * /ratings/{type}?user_watchlist=all call per type, at most twice a day.
+     * Release status (ended or not) and community rating of everything in the lists: one
+     * /ratings/all?user_watchlist=all call, at most once a day (the time is kept on the device).
+     * Titles added in between get theirs when their details are opened, or the next day.
      */
-    private suspend fun refreshShowInfo(force: Boolean = false) {
-        val age = System.currentTimeMillis() - showInfoFetchedAt
-        val missing = _state.value.items.any { it.key !in _state.value.showInfo }
-        // Twice a day, or sooner (but not more than every 10 minutes) when new titles were added.
-        if (!force && age < TimeUnit.HOURS.toMillis(if (missing) 0 else 12) + TimeUnit.MINUTES.toMillis(10)) return
-        val now = System.currentTimeMillis()
-        val fetched =
-            coroutineScope {
-                MediaType.entries.map { type ->
-                    async {
-                        runCatching { Parsers.watchlistRatings(api.watchlistRatings(type)) }.getOrNull()?.map { (id, value) ->
-                            "${type.name}:$id" to value
-                        }
-                    }
-                }.awaitAll()
-            }
-        if (fetched.all { it == null }) return
-        showInfoFetchedAt = now
+    private suspend fun refreshCommunityRatings() {
+        // Already running (two syncs finishing close together): nothing to add.
+        if (!communityRatingsLock.tryLock()) return
+        try {
+            val now = System.currentTimeMillis()
+            if (!SyncRules.communityRatingsDue(snapshot.communityRatingsAt, now)) return
+            val fetched = Parsers.watchlistRatings(api.watchlistRatings())
+            applyCommunityRatings(fetched, now)
+            mutex.withLock { save(snapshot.copy(communityRatingsAt = now)) }
+        } finally {
+            communityRatingsLock.unlock()
+        }
+    }
+
+    private suspend fun applyCommunityRatings(
+        fetched: Map<String, Pair<String?, Double?>>,
+        now: Long,
+    ) {
         _state.update { state ->
             val info = state.showInfo.toMutableMap()
-            fetched.filterNotNull().flatten().forEach { (key, value) ->
+            fetched.forEach { (key, value) ->
                 val (status, rating) = value
                 val old = info[key]
                 // A missing release status keeps what was known (e.g. from the details screen).
@@ -387,15 +416,20 @@ class LibraryRepository(
         mutex.withLock { save(snapshot.copy(latestNext = snapshot.latestNext + found)) }
     }
 
-    /** Episode lists of [items], a few at a time (only with the continue-from-latest setting). */
+    /**
+     * Episode lists of [items], a few at a time (only with the continue-from-latest setting). The
+     * lists kept on the device are used while [SyncRules.episodesDue] allows, so most don't call SIMKL.
+     */
     private suspend fun lookupLatestNext(items: List<LibraryItem>): Map<String, LatestNext> {
         if (items.isEmpty() || !settings.current().continueFromLatest) return emptyMap()
         val semaphore = Semaphore(3)
+        val showInfo = _state.value.showInfo
         return coroutineScope {
             items.map { item ->
                 async {
                     semaphore.withPermit {
-                        runCatching { Parsers.episodes(api.episodes(item.type, item.ids.simkl)) }.getOrNull()?.let {
+                        val airing = showInfo[item.key]?.airing ?: AiringState.Unknown
+                        runCatching { episodes.episodes(item.type, item.ids.simkl, airing) }.getOrNull()?.let {
                             item.key to Shelves.latestNextFrom(item, it)
                         }
                     }
@@ -544,9 +578,9 @@ class LibraryRepository(
 
     suspend fun clear() {
         syncJob?.cancel()
+        synchronized(runningLock) { running?.cancel() }
         mutex.withLock {
             calendarFetchedAt = 0L
-            showInfoFetchedAt = 0L
             snapshot = LibrarySnapshot()
             _state.value = LibraryState(loaded = true)
             withContext(Dispatchers.IO) {
@@ -557,9 +591,6 @@ class LibraryRepository(
     }
 
     companion object {
-        /** Minimum time between automatic (foreground) syncs. */
-        val AUTO_SYNC_INTERVAL = TimeUnit.MINUTES.toMillis(15)
-
         fun applyEpisodes(
             item: LibraryItem,
             refs: List<EpisodeRef>,
