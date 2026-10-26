@@ -39,7 +39,9 @@ tracker-for-simkl/
         │   │   ├── auth/AuthRedirectActivity.kt   Receives trackerforsimkl://oauth
         │   │   ├── data/
         │   │   │   ├── LibraryRepository.kt   Library state, sync, cache files, changes
-        │   │   │   ├── CatalogRepository.kt   Details, search, Discover; AccountRepository (profile, stats)
+        │   │   │   ├── CatalogRepository.kt   Details, search, Discover; AccountRepository (profile kept on the device, stats)
+        │   │   │   ├── EpisodeStore.kt        Episode lists kept on the device
+        │   │   │   ├── Files.kt               Atomic file writes
         │   │   │   ├── SettingsStore.kt       DataStore: tokens, settings, notified and remembered episodes (two files)
         │   │   │   ├── api/
         │   │   │   │   ├── SimklApi.kt        HTTP client for api.simkl.com and data.simkl.in

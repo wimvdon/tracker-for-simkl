@@ -1,5 +1,6 @@
 package io.github.impca201.trackerforsimkl.data.api
 
+import io.github.impca201.trackerforsimkl.data.model.ActivityStamps
 import io.github.impca201.trackerforsimkl.data.model.AirTime
 import io.github.impca201.trackerforsimkl.data.model.AiringState
 import io.github.impca201.trackerforsimkl.data.model.CalendarEntry
@@ -114,12 +115,34 @@ object Parsers {
         }
     }
 
-    /** /ratings/{type}?user_watchlist=all: release status and SIMKL rating per simkl id. */
-    fun watchlistRatings(root: JsonElement?): Map<Long, Pair<String?, Double?>> =
+    /**
+     * /ratings/all?user_watchlist=all: release status and SIMKL rating per "Type:simklId" key.
+     * Every entry has a "type" (tv, anime or movie); entries without a known one are skipped.
+     */
+    fun watchlistRatings(root: JsonElement?): Map<String, Pair<String?, Double?>> =
         root.objects().mapNotNull { e ->
             val id = e.long("id") ?: return@mapNotNull null
-            id to (e.str("release_status") to e.obj("simkl")?.double("rating"))
+            val type =
+                when (e.str("type")?.lowercase()) {
+                    "tv", "show", "shows" -> MediaType.Tv
+                    "anime" -> MediaType.Anime
+                    "movie", "movies" -> MediaType.Movie
+                    else -> return@mapNotNull null
+                }
+            "${type.name}:$id" to (e.str("release_status") to e.obj("simkl")?.double("rating"))
         }.toMap()
+
+    /** The POST /sync/activities timestamps the sync compares with the previous ones. */
+    fun activityStamps(root: JsonObject?): ActivityStamps {
+        fun stamp(key: String) = listOf("tv_shows", "anime", "movies").joinToString("|") { root?.obj(it)?.str(key).orEmpty() }
+        return ActivityStamps(
+            all = root?.str("all"),
+            removed = stamp("removed_from_list"),
+            rated = stamp("rated_at"),
+            playback = stamp("playback"),
+            settings = root?.obj("settings")?.str("all"),
+        )
+    }
 
     /**
      * GET /sync/playback. Shows come as "show" for TV and anime alike; [typeOf] tells which one a

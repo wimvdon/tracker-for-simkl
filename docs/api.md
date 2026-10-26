@@ -24,20 +24,30 @@ Files on `data.simkl.in` get no extra query parameters, as SIMKL asks.
 | POST | `/sync/activities` | What changed since the last sync |
 | GET | `/sync/all-items/` (`date_from`, `extended=simkl_ids_only`) | Full or incremental library, removal check |
 | POST | `/sync/ratings/` (`date_from`) | Changed ratings |
-| GET / DELETE | `/sync/playback`, `/sync/playback/{id}` | Paused episodes and movies |
-| GET | `/ratings/{tv,anime,movies}?user_watchlist=all` | Airing/ended status and ratings for library titles |
+| GET / DELETE | `/sync/playback`, `/sync/playback/{id}` | Paused episodes and movies (GET only when a `playback` timestamp moved) |
+| GET | `/ratings/all?user_watchlist=all&fields=simkl,ext,rank,release_status` | Airing/ended status and community ratings for library titles, at most once a day |
 | POST | `/sync/add-to-list` | Set list status |
 | POST | `/sync/history`, `/sync/history/remove` | Mark watched / unwatched, remove from lists |
 | POST | `/sync/ratings`, `/sync/ratings/remove` | Rate 1–10, clear a rating |
 | POST | `/scrobble/checkin` | Check in |
 | GET | `/{tv,anime,movies}/{id}?extended=full` | Details |
-| GET | `/{tv,anime}/episodes/{id}?extended=full` | Episode list |
+| GET | `/{tv,anime}/episodes/{id}?extended=full` | Episode list, kept on the device (see below) |
 | GET | `/search/{tv,anime,movie}?q=` | Search (50 results) |
 | GET | `/search/id?tmdb=&type={movie,show}` | The SIMKL title of a TMDB title tapped on a person's page (only when it isn't in the library) |
 | POST | `/search/random/` | "Surprise me" |
 | GET | `/{type}/best/{filter}`, `/{type}/airing`, `/{type}/premieres/{new,soon}` | Discover sections |
 | GET | `https://data.simkl.in/discover/…`, `https://data.simkl.in/calendar/{tv,anime,movie_release}.json` | Trending lists, calendars |
-| POST | `/users/settings`, `/users/{id}/stats` | Profile and statistics |
+| POST | `/users/settings`, `/users/{id}/stats` | Profile (kept on the device, fetched again when `settings.all` moves) and statistics |
+
+### Keeping the number of calls down
+
+SIMKL's API team reviewed the app's traffic (October 2026) and asked for the following, which the app does:
+
+- **One sync at a time, automatic ones at most every 15 minutes.** App start, coming back to the foreground and screens all ask `LibraryRepository.syncIfStale()`, which joins a sync that is running and otherwise skips when the last one is under 15 minutes old (`SyncRules.autoSyncDue`). Pull-to-refresh skips the time limit but still joins a running sync. A change (mark watched, rate, …) queues one sync after the running one, so the change is not missed.
+- **Only what `/sync/activities` says moved**: `/sync/playback` when a `playback` timestamp moved, `/sync/ratings` when `rated_at` moved, the profile (`/users/settings`) when `settings.all` moved.
+- **The user's own ratings come from `/sync/all-items`** (`user_rating`); the community scores and release status from one `/ratings/all` call, kept on the device and downloaded at most once a day (`SyncRules.communityRatingsDue`).
+- **Episode lists are kept on the device** (`EpisodeStore`, `episodes.json`): they are the same for everyone. A show's list is downloaded again only when the show comes back in a `/sync/all-items` delta, when the user opens it (unless that was within the hour), and once a day for shows still airing (`SyncRules.episodesDue`). Lists not used for 30 days are dropped.
+- **The same GET is never sent twice at once**: a request for a URL that is already being fetched waits for that response (`SimklApi.shared`). OkHttp's HTTP cache makes repeated episode-list calls conditional (304).
 
 Images are loaded from `https://wsrv.nl/?url=https://simkl.in/...` (the image proxy SIMKL asks apps to use).
 

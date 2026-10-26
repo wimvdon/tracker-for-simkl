@@ -11,6 +11,7 @@ import coil3.network.okhttp.OkHttpNetworkFetcherFactory
 import coil3.request.crossfade
 import io.github.impca201.trackerforsimkl.data.AccountRepository
 import io.github.impca201.trackerforsimkl.data.CatalogRepository
+import io.github.impca201.trackerforsimkl.data.EpisodeStore
 import io.github.impca201.trackerforsimkl.data.LibraryRepository
 import io.github.impca201.trackerforsimkl.data.SettingsStore
 import io.github.impca201.trackerforsimkl.data.api.SimklApi
@@ -42,10 +43,11 @@ class TrackerApp :
 
     val settings by lazy { SettingsStore(this) }
     val api by lazy { SimklApi(http, settings) }
-    val library by lazy { LibraryRepository(this, api, settings, scope) }
+    val episodes by lazy { EpisodeStore(this, api) }
+    val account by lazy { AccountRepository(this, api) }
+    val library by lazy { LibraryRepository(this, api, settings, episodes, scope) { account.settingsChanged() } }
     val tmdb by lazy { TmdbApi(http) }
-    val catalog by lazy { CatalogRepository(api, tmdb) }
-    val account by lazy { AccountRepository(api) }
+    val catalog by lazy { CatalogRepository(api, tmdb, episodes) }
 
     /** The latest sign-in redirect from simkl.com, until the login screen has handled it. */
     val authRedirect = MutableStateFlow<Uri?>(null)
@@ -76,6 +78,7 @@ class TrackerApp :
         settings.setToken(null)
         library.clear()
         account.clear()
+        episodes.clear()
         NewEpisodesWorker.cancel(this)
     }
 }
