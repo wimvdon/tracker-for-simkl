@@ -1,6 +1,6 @@
 # Privacy policy
 
-_Last updated: 2026-10-22_
+_Last updated: 2026-10-30_
 
 Watchlist is an unofficial client for [SIMKL](https://simkl.com). It has no analytics, advertising or third-party crash reporting.
 
@@ -20,7 +20,7 @@ Watchlist is an unofficial client for [SIMKL](https://simkl.com). It has no anal
 - An HTTP and image cache.
 - If the app crashes: the error's stack trace with the app version and phone model, shown to you the next time the app opens so you can copy it. It is deleted after it is shown and never sent anywhere.
 
-Only your settings (theme, bottom bar, content types and library options) are included in Android's own backup to your Google account, if you turned that on, and in a transfer to a new phone, so they come back after a reset or on a new phone. Nothing else above is: not your tokens (you sign in again on a new phone), not your TMDB token (you enter it again), not the library copy (downloaded again after signing in), not the notification setting (it needs the permission again on a new phone). Signing out deletes the tokens, the library copy, the profile and the episode lists; uninstalling the app deletes everything.
+Only your settings (theme, bottom bar, content types and library options) are included in Android's own backup to your Google account, if you turned that on, and in a transfer to a new phone, so they come back after a reset or on a new phone. Nothing else above is: not your tokens (you sign in again on a new phone), not your TMDB token (you enter it again), not the library copy (downloaded again after signing in), not the notification setting (it needs the permission again on a new phone). Signing out deletes the tokens, the library copy, the profile, the episode lists and the record of which episodes and movies you were notified about; uninstalling the app deletes everything.
 
 ## Background activity
 

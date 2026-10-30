@@ -66,26 +66,32 @@
     <string name="lib_mark_episode_watched">Marcar %1$s como visto</string>
     <plurals name="lib_relative_in_days">
         <item quantity="one">en %d día</item>
+        <item quantity="many">en %d días</item>
         <item quantity="other">en %d días</item>
     </plurals>
     <plurals name="lib_ago_hours">
         <item quantity="one">hace %d h</item>
+        <item quantity="many">hace %d h</item>
         <item quantity="other">hace %d h</item>
     </plurals>
     <plurals name="lib_ago_days">
         <item quantity="one">hace %d día</item>
+        <item quantity="many">hace %d días</item>
         <item quantity="other">hace %d días</item>
     </plurals>
     <plurals name="lib_ago_months">
         <item quantity="one">hace %d mes</item>
+        <item quantity="many">hace %d meses</item>
         <item quantity="other">hace %d meses</item>
     </plurals>
     <plurals name="lib_ago_years">
         <item quantity="one">hace %d año</item>
+        <item quantity="many">hace %d años</item>
         <item quantity="other">hace %d años</item>
     </plurals>
     <plurals name="lib_episodes_left">
         <item quantity="one">queda %d episodio</item>
+        <item quantity="many">quedan %d episodios</item>
         <item quantity="other">quedan %d episodios</item>
     </plurals>
 </resources>

@@ -414,8 +414,8 @@ fun LibraryGrid(
 @Composable
 fun SectionHeader(
     title: String,
-    count: Int? = null,
     modifier: Modifier = Modifier,
+    count: Int? = null,
     /** Opens the full list; the header then ends in a ">" and the whole row is tappable. */
     onOpen: (() -> Unit)? = null,
 ) {

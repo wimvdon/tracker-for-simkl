@@ -2,7 +2,6 @@
 <resources>
     <string name="detail_back">Indietro</string>
     <string name="detail_share">Condividi</string>
-    <string name="detail_load_failed_fallback">Impossibile caricare i dettagli</string>
     <string name="detail_load_failed_title">Impossibile caricare questo titolo</string>
     <string name="detail_try_again">Riprova</string>
     <string name="detail_failure_reason">%1$s: %2$s</string>
@@ -44,7 +43,6 @@
     <string name="detail_rating_8">Molto buono</string>
     <string name="detail_rating_9">Ottimo</string>
     <string name="detail_rating_10">Capolavoro</string>
-    <string name="detail_rank">Posizione #%1$d</string>
     <string name="detail_fact_status">Stato</string>
     <string name="detail_fact_airs">In onda</string>
     <string name="detail_status_airing">In corso</string>
@@ -86,6 +84,7 @@
     <string name="detail_links">Link</string>
     <plurals name="detail_episodes_watched">
         <item quantity="one">%1$d di %2$d episodio visto</item>
+        <item quantity="many">%1$d di %2$d episodi visti</item>
         <item quantity="other">%1$d di %2$d episodi visti</item>
     </plurals>
     <string name="detail_cast">Cast</string>

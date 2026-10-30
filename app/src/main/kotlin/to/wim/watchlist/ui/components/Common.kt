@@ -1,9 +1,9 @@
 package to.wim.watchlist.ui.components
 
+import android.annotation.SuppressLint
 import android.content.ActivityNotFoundException
 import android.content.Context
 import android.content.Intent
-import android.net.Uri
 import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.size
@@ -20,6 +20,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import androidx.core.net.toUri
 import coil3.compose.AsyncImage
 import to.wim.watchlist.R
 import to.wim.watchlist.WatchlistApp
@@ -41,7 +42,7 @@ fun rememberApp(): WatchlistApp = (LocalContext.current.applicationContext as Wa
 
 fun Context.openUrl(url: String) {
     try {
-        startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(url)).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK))
+        startActivity(Intent(Intent.ACTION_VIEW, url.toUri()).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK))
     } catch (_: ActivityNotFoundException) {
         Toast.makeText(this, getString(R.string.lib_no_app_for_url, url), Toast.LENGTH_SHORT).show()
     }
@@ -75,6 +76,8 @@ fun AvatarButton(
     }
 }
 
+// The context is the Application, which lives as long as the process: nothing leaks.
+@SuppressLint("StaticFieldLeak")
 object Format {
     /** Context for the localised strings, set by WatchlistApp.onCreate (and [rememberApp]). */
     @Volatile

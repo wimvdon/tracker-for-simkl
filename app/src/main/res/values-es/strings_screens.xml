@@ -26,6 +26,7 @@
     <string name="screens_calendar_mine_hint">Aquí aparecen los próximos episodios y estrenos de los títulos de tus listas.</string>
     <string name="screens_calendar_release">Estreno</string>
     <string name="screens_profile_title">Perfil</string>
+    <string name="screens_profile_unnamed">Usuario de SIMKL</string>
     <string name="screens_profile_sync_now">Sincronizar ahora</string>
     <string name="screens_profile_last_synced">Última sincronización: %1$s</string>
     <string name="screens_profile_never_synced">Nunca sincronizado</string>
@@ -63,6 +64,7 @@
     </plurals>
     <plurals name="screens_profile_episodes">
         <item quantity="one">%1$d episodio</item>
+        <item quantity="many">%1$d episodios</item>
         <item quantity="other">%1$d episodios</item>
     </plurals>
     <string name="screens_login_waiting_browser">Aprueba el inicio de sesión en simkl.com. Volverás aquí automáticamente.</string>

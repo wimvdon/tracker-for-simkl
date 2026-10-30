@@ -66,6 +66,7 @@ import to.wim.watchlist.R
 import to.wim.watchlist.data.AppSettings
 import to.wim.watchlist.data.api.TmdbApi
 import to.wim.watchlist.data.api.TmdbKey
+import to.wim.watchlist.data.userMessage
 import to.wim.watchlist.data.model.Person
 import to.wim.watchlist.data.model.PersonCredit
 import to.wim.watchlist.ui.LocalNavigator
@@ -116,7 +117,7 @@ fun PersonScreen(
         } catch (e: CancellationException) {
             throw e
         } catch (e: Exception) {
-            error = e.message ?: resources.getString(R.string.person_load_failed)
+            error = e.userMessage(resources)
         }
     }
 

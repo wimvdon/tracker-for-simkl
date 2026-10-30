@@ -26,6 +26,7 @@
     <string name="screens_calendar_mine_hint">Upcoming episodes and releases of titles in your lists show up here.</string>
     <string name="screens_calendar_release">Release</string>
     <string name="screens_profile_title">Profile</string>
+    <string name="screens_profile_unnamed">SIMKL user</string>
     <string name="screens_profile_sync_now">Sync now</string>
     <string name="screens_profile_last_synced">Last synced %1$s</string>
     <string name="screens_profile_never_synced">Never synced</string>

@@ -1,4 +1,4 @@
-# Builds a signed release APK and publishes it as a GitHub Release.
+# Builds a signed release APK and app bundle (AAB, for Google Play) and publishes them as a GitHub Release.
 #
 # How to start it:
 #   - Actions tab -> Release -> Run workflow -> choose "patch", "minor" or "major".
@@ -191,9 +191,11 @@ jobs:
           base="$(./gradlew -q :app:printApkBaseName "${args[@]}")"
           mkdir -p dist
           if [ "$SIGNED" = "true" ]; then
-            ./gradlew assembleRelease "${args[@]}"
+            # The APK is for GitHub Releases; Google Play takes the app bundle, signed with the same key.
+            ./gradlew assembleRelease bundleRelease "${args[@]}"
             apk="dist/$base.apk"
             cp app/build/outputs/apk/release/app-release.apk "$apk"
+            cp app/build/outputs/bundle/release/app-release.aab "dist/$base.aab"
             cp app/build/outputs/mapping/release/mapping.txt "dist/$base-mapping.txt"
             apksigner="$(find "$ANDROID_HOME/build-tools" -name apksigner -type f | sort -V | tail -n 1)"
             "$apksigner" verify "$apk"
@@ -206,6 +208,7 @@ jobs:
           fi
           echo "apk=$apk" >> "$GITHUB_OUTPUT"
           echo "### Built \`$(basename "$apk")\`" >> "$GITHUB_STEP_SUMMARY"
+          if [ "$SIGNED" = "true" ]; then echo "Also built \`$base.aab\` for Google Play." >> "$GITHUB_STEP_SUMMARY"; fi
 
       - name: Remove signing key
         if: always()
@@ -217,6 +220,15 @@ jobs:
           path: ${{ steps.build.outputs.apk }}
           archive: false
           retention-days: 30
+          if-no-files-found: error
+
+      - name: Upload app bundle (Google Play)
+        if: steps.signing.outputs.signed == 'true'
+        uses: actions/upload-artifact@v7
+        with:
+          path: dist/*.aab
+          archive: false
+          retention-days: 90
           if-no-files-found: error
 
       - name: Upload R8 mapping file
@@ -239,7 +251,7 @@ jobs:
           notes_from=()
           if [ -n "$PREVIOUS" ]; then notes_from=(--notes-start-tag "$PREVIOUS"); fi
           # Creates the tag on this exact commit if it does not exist yet (manual runs).
-          gh release create "$TAG" dist/*.apk dist/*-mapping.txt \
+          gh release create "$TAG" dist/*.apk dist/*.aab dist/*-mapping.txt \
             --repo "$GITHUB_REPOSITORY" \
             --target "$GITHUB_SHA" \
             --title "$TAG" \
@@ -251,7 +263,7 @@ jobs:
   # OPTIONAL: upload to Google Play internal testing. Disabled until a Play
   # Console app and a service account exist. To enable (see README, "Google Play"):
   #   1. Create the app in the Play Console with the same applicationId and upload
-  #      the first AAB by hand (Play requires that).
+  #      the first AAB by hand (Play requires that): watchlist-<version>.aab from a release.
   #   2. Create a service account with "Release to testing tracks" permission and
   #      add its JSON key as the repository secret PLAY_SERVICE_ACCOUNT_JSON.
   #   3. Set PACKAGE_NAME below and uncomment this job.

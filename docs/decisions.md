@@ -2,6 +2,38 @@
 
 Newest first. Add an entry for every notable choice: what was decided, why, and what was rejected.
 
+## 2026-10-30: Pre-launch audit: errors in the user's language, Play bundle, polish
+
+A read-through of the whole app before the Google Play launch (people will pay for it). Fixed in
+one pull request:
+
+- **Failed requests are worded in the user's language.** Screens showed raw exception text
+  ("Unable to resolve host …", "HTTP 503"). `UserError` (plain Kotlin, tested) sorts a failure by
+  what the user can do about it (offline, signed out, not found, busy, server down, other HTTP
+  error, unexpected) and `userMessage` turns it into a string in six languages. Used by the sync,
+  the details and person pages, sign-in and the Up next checkmark. Rejected: translating every
+  server message (they change, and most are not for end users).
+- **The release builds an app bundle too** (`watchlist-<version>.aab`, same key), because Google
+  Play only takes bundles. The APK stays for GitHub Releases and direct installs.
+- **Signing in again restores the notification schedule** that signing out cancelled, and
+  signing out clears which episodes were announced (they belong to that account). Before, the
+  setting looked on but nothing ran until the next app start.
+- **Settings reads survive an unreadable file**: the refresh token, PKCE state and notification
+  bookkeeping now read the device file the same forgiving way as the settings flow.
+- **No English in the data layer**: "12 eps" in search results, "SIMKL user" and "$1.2B" were
+  built in code; the screens now word them with plurals and the locale's compact number format.
+- **Overviews decode HTML entities** ("&amp;amp;", "&amp;#39;", "&amp;hellip;") as well as tags.
+- **TMDB and Trakt links of anime movies** point at their movie pages (both sites file them
+  under movies; SIMKL under anime), the way the cast lookup already did.
+- Lint warnings cleared: Spanish and Italian plurals get the `many` quantity, two unused strings
+  removed, `SectionHeader` takes its modifier first, the `Format` context (the Application) is
+  marked as not a leak, `Uri.parse` → KTX.
+
+Known and left for later (not launch blockers): an optimistic change and a sync finishing at the
+same moment can briefly show the older list until the sync two seconds later; `CatalogRepository`
+caches details for the whole session; the crash screen shows the raw stack trace (by design, see
+"Local crash report instead of a crash-reporting service").
+
 ## 2026-10-30: Renamed to Watchlist, application ID `to.wim.watchlist`
 
 Before the Google Play launch the app gets its final name, **Watchlist** (store listing:

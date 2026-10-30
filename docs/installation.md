@@ -65,7 +65,7 @@ Open the pull request › **Checks** › **CI** › **Artifacts** and install `w
 
 ## Release builds
 
-Signed APKs are built only by `.github/workflows/release.yml`. It needs, under **Settings › Secrets and variables › Actions**:
+Signed APKs and app bundles (AAB, for Google Play) are built only by `.github/workflows/release.yml`. It needs, under **Settings › Secrets and variables › Actions**:
 
 | Name | Kind | Value |
 |---|---|---|
@@ -81,4 +81,4 @@ The secret names without `ANDROID_` also work, as earlier releases used them. Th
 
 **Actions › Release › Run workflow** on `main`, choose `patch`, `minor` or `major` (or `none` to only build an APK artifact). Pushing a tag such as `v1.2.3` also releases. The versionCode is `major × 10000 + minor × 100 + patch`.
 
-It refuses to publish when not on `main`, when the tag or release exists, when the version is not higher than the last release, or when nothing changed. Each release has `watchlist-<version>.apk` and `watchlist-<version>-mapping.txt`.
+It refuses to publish when not on `main`, when the tag or release exists, when the version is not higher than the last release, or when nothing changed. Each release has `watchlist-<version>.apk` (to install directly), `watchlist-<version>.aab` (to upload to Google Play; signed with the same key) and `watchlist-<version>-mapping.txt`.

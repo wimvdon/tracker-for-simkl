@@ -54,6 +54,7 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
+import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.style.TextOverflow
@@ -217,7 +218,7 @@ fun SearchScreen(
                         shown.forEach { (t, list) ->
                             item(key = "row-$t") {
                                 Column(Modifier.animateItem()) {
-                                    SectionHeader(t.label(), list.size, Modifier.padding(horizontal = 8.dp))
+                                    SectionHeader(t.label(), Modifier.padding(horizontal = 8.dp), list.size)
                                     PosterRow(
                                         list,
                                         onClick = { navigator.openDetail(it.type, it.simklId, it.title, it.poster) },
@@ -267,7 +268,12 @@ fun ResultRow(
             Poster(item.poster, item.title, Modifier.width(56.dp), shape = RoundedCornerShape(10.dp))
             Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(2.dp)) {
                 Text(item.title, style = MaterialTheme.typography.titleMedium, maxLines = 2, overflow = TextOverflow.Ellipsis)
-                val meta = listOfNotNull(item.subtitle, item.rating?.let { "★ ${Format.rating(it)}" }).joinToString(" · ")
+                val meta =
+                    listOfNotNull(
+                        item.subtitle,
+                        item.episodes?.let { pluralStringResource(R.plurals.screens_profile_episodes, it, it) },
+                        item.rating?.let { "★ ${Format.rating(it)}" },
+                    ).joinToString(" · ")
                 if (meta.isNotEmpty()) Text(meta, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                 item.overview?.let {
                     Text(it, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant, maxLines = 2, overflow = TextOverflow.Ellipsis)

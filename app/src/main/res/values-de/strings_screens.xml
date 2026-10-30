@@ -26,6 +26,7 @@
     <string name="screens_calendar_mine_hint">Kommende Folgen und Veröffentlichungen von Titeln aus deinen Listen erscheinen hier.</string>
     <string name="screens_calendar_release">Start</string>
     <string name="screens_profile_title">Profil</string>
+    <string name="screens_profile_unnamed">SIMKL-Nutzer</string>
     <string name="screens_profile_sync_now">Jetzt synchronisieren</string>
     <string name="screens_profile_last_synced">Zuletzt synchronisiert: %1$s</string>
     <string name="screens_profile_never_synced">Noch nie synchronisiert</string>

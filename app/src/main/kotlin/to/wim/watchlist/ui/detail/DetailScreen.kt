@@ -143,6 +143,8 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.repeatOnLifecycle
 import to.wim.watchlist.data.model.Credits
+import to.wim.watchlist.data.model.CreditsSource
+import to.wim.watchlist.data.userMessage
 import to.wim.watchlist.data.model.Episode
 import to.wim.watchlist.data.model.EpisodeRef
 import to.wim.watchlist.data.model.Images
@@ -204,7 +206,7 @@ fun DetailScreen(
         } catch (e: CancellationException) {
             throw e
         } catch (e: Exception) {
-            error = e.message ?: resources.getString(R.string.detail_load_failed_fallback)
+            error = e.userMessage(resources)
         }
     }
     // Cast and crew from TMDB, only with the user's own token. A failure leaves them out until the
@@ -239,7 +241,7 @@ fun DetailScreen(
             } catch (e: CancellationException) {
                 throw e
             } catch (e: Exception) {
-                snackbar.showSnackbar(e.message?.let { resources.getString(R.string.detail_failure_reason, failure, it) } ?: failure)
+                snackbar.showSnackbar(resources.getString(R.string.detail_failure_reason, failure, e.userMessage(resources)))
             }
         }
     }
@@ -420,7 +422,8 @@ fun DetailScreen(
                         }
                     }
                 }
-                item(key = "links") { Links(route.type, ids) }
+                // TMDB and Trakt file an anime movie under movies; SIMKL files it under anime.
+                item(key = "links") { Links(route.type, ids, movie = details?.let { CreditsSource.of(it)?.movie } ?: (route.type == MediaType.Movie)) }
             }
         }
     }
@@ -890,7 +893,7 @@ private fun RatingTile(
             Text(rating.source, style = MaterialTheme.typography.labelMedium)
             rating.votes?.let {
                 Text(
-                    stringResource(R.string.detail_votes, compact(it)),
+                    stringResource(R.string.detail_votes, compact(it.toLong())),
                     style = MaterialTheme.typography.labelSmall,
                     color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.75f),
                 )
@@ -909,16 +912,12 @@ private fun FactRow(fact: Fact) {
     }
 }
 
-private fun money(value: Long): String =
-    when {
-        value >= 1_000_000_000 -> "$%.2fB".format(value / 1_000_000_000.0)
-        value >= 1_000_000 -> "$%.1fM".format(value / 1_000_000.0)
-        else -> "$%,d".format(value)
-    }
+/** Budgets and box office are in US dollars; the amount is shortened the way the user's language does ("$1.2B", "$1,2 mld."). */
+private fun money(value: Long): String = "$" + compact(value)
 
-/** Locale-aware short vote count ("12K", "12 k", "1,2 Mio."). */
-private fun compact(votes: Int): String =
-    CompactDecimalFormat.getInstance(Locale.getDefault(), CompactDecimalFormat.CompactStyle.SHORT).format(votes.toLong())
+/** Locale-aware short number ("12K", "12 k", "1,2 Mio."). */
+private fun compact(value: Long): String =
+    CompactDecimalFormat.getInstance(Locale.getDefault(), CompactDecimalFormat.CompactStyle.SHORT).format(value)
 
 @Composable
 private fun Trailers(d: MediaDetails) {
@@ -1136,17 +1135,19 @@ private fun EpisodesBlock(
 private fun Links(
     type: MediaType,
     ids: MediaIds,
+    /** True when TMDB and Trakt know the title as a movie (movies and anime movies). */
+    movie: Boolean,
 ) {
     val context = LocalContext.current
     val links =
         listOfNotNull(
             "SIMKL" to webUrl(type, ids.simkl, ids.slug),
             ids.imdb?.let { "IMDb" to "https://www.imdb.com/title/$it" },
-            ids.tmdb?.let { "TMDB" to "https://www.themoviedb.org/${if (type == MediaType.Movie) "movie" else "tv"}/$it" },
+            ids.tmdb?.let { "TMDB" to "https://www.themoviedb.org/${if (movie) "movie" else "tv"}/$it" },
             ids.mal?.let { "MyAnimeList" to "https://myanimelist.net/anime/$it" },
             ids.anilist?.let { "AniList" to "https://anilist.co/anime/$it" },
             ids.kitsu?.let { "Kitsu" to "https://kitsu.app/anime/$it" },
-            ids.trakt?.let { "Trakt" to "https://trakt.tv/${if (type == MediaType.Movie) "movies" else "shows"}/$it" },
+            ids.trakt?.let { "Trakt" to "https://trakt.tv/${if (movie) "movies" else "shows"}/$it" },
         )
     Column {
         SectionHeader(stringResource(R.string.detail_links), modifier = Modifier.padding(horizontal = 8.dp))
