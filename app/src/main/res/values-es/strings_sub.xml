@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- The subscription screen and the Subscription row in Settings. -->
+    <string name="sub_title_trial">Empieza tu prueba gratuita</string>
+    <string name="sub_title">Suscríbete para seguir usando Watchlist</string>
+    <string name="sub_feature_up_next">A continuación, tus listas y valoraciones, sincronizadas con SIMKL</string>
+    <string name="sub_feature_calendar">El calendario, Descubrir, y el reparto y equipo</string>
+    <string name="sub_feature_notifications">Avisos de nuevos episodios y estrenos de películas</string>
+    <string name="sub_price">%1$s al año</string>
+    <string name="sub_start_trial">Empezar prueba gratuita</string>
+    <string name="sub_subscribe">Suscribirse</string>
+    <string name="sub_terms_trial">Google Play te cobra cuando termina la prueba gratuita, salvo que canceles antes. La suscripción se renueva cada año hasta que la canceles en Google Play › Suscripciones.</string>
+    <string name="sub_terms">La suscripción se renueva cada año hasta que la canceles en Google Play › Suscripciones.</string>
+    <string name="sub_failed">La compra no se completó. Inténtalo de nuevo o revisa tu método de pago en Google Play.</string>
+    <string name="sub_pending">Tu compra espera a que Google Play confirme el pago. Watchlist se abrirá en cuanto lo haga.</string>
+    <string name="sub_unavailable">Google Play no está disponible, así que no se puede comprobar la suscripción. Asegúrate de que Google Play está instalado y de que has iniciado sesión, y vuelve a comprobarlo.</string>
+    <string name="sub_not_loaded">No se pudo cargar la suscripción desde Google Play. Comprueba tu conexión e inténtalo de nuevo.</string>
+    <string name="sub_check_again">Volver a comprobar</string>
+    <string name="sub_manage">Gestionar suscripción</string>
+    <string name="sub_settings_section">Suscripción</string>
+    <string name="sub_settings_summary">Cámbiala o cancélala en Google Play</string>
+    <plurals name="sub_price_trial">
+        <item quantity="one">%1$d día gratis, después %2$s al año</item>
+        <item quantity="many">%1$d días gratis, después %2$s al año</item>
+        <item quantity="other">%1$d días gratis, después %2$s al año</item>
+    </plurals>
+</resources>

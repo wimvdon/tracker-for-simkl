@@ -1,7 +1,6 @@
 package to.wim.watchlist.ui.login
 
 import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -12,7 +11,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawingPadding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.Login
@@ -20,7 +18,6 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -32,8 +29,6 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalResources
 import androidx.compose.ui.res.stringResource
@@ -45,6 +40,7 @@ import to.wim.watchlist.data.api.Pkce
 import to.wim.watchlist.data.api.SignIn
 import to.wim.watchlist.data.userMessage
 import to.wim.watchlist.work.NewEpisodesWorker
+import to.wim.watchlist.ui.components.AppIcon
 import to.wim.watchlist.ui.components.openUrl
 import to.wim.watchlist.ui.components.rememberApp
 import kotlinx.coroutines.CancellationException
@@ -170,13 +166,3 @@ fun LoginScreen() {
     }
 }
 
-/**
- * The app's own icon, as the launcher shows it: the gradient TV with the checkmark on its white
- * background (the adaptive icon's foreground layer; its safe zone leaves the margin).
- */
-@Composable
-private fun AppIcon(modifier: Modifier = Modifier) {
-    Surface(modifier, shape = RoundedCornerShape(28.dp), color = Color.White, shadowElevation = 4.dp) {
-        Image(painterResource(R.drawable.ic_launcher_foreground), contentDescription = null, modifier = Modifier.fillMaxSize())
-    }
-}

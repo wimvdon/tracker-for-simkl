@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- The subscription screen and the Subscription row in Settings. -->
+    <string name="sub_title_trial">Start your free trial</string>
+    <string name="sub_title">Subscribe to keep using Watchlist</string>
+    <string name="sub_feature_up_next">Up next, your lists and ratings, synced with SIMKL</string>
+    <string name="sub_feature_calendar">The calendar, Discover, and cast and crew</string>
+    <string name="sub_feature_notifications">Notifications for new episodes and movie releases</string>
+    <string name="sub_price">%1$s per year</string>
+    <string name="sub_start_trial">Start free trial</string>
+    <string name="sub_subscribe">Subscribe</string>
+    <string name="sub_terms_trial">Google Play charges you when the free trial ends, unless you cancel before then. The subscription renews every year until you cancel it in Google Play › Subscriptions.</string>
+    <string name="sub_terms">The subscription renews every year until you cancel it in Google Play › Subscriptions.</string>
+    <string name="sub_failed">The purchase didn\'t go through. Try again, or check your payment method in Google Play.</string>
+    <string name="sub_pending">Your purchase is waiting for Google Play to confirm the payment. Watchlist opens as soon as it does.</string>
+    <string name="sub_unavailable">Google Play isn\'t available, so the subscription can\'t be checked. Make sure Google Play is installed and you\'re signed in to it, then check again.</string>
+    <string name="sub_not_loaded">The subscription couldn\'t be loaded from Google Play. Check your connection and try again.</string>
+    <string name="sub_check_again">Check again</string>
+    <string name="sub_manage">Manage subscription</string>
+    <string name="sub_settings_section">Subscription</string>
+    <string name="sub_settings_summary">Change or cancel it in Google Play</string>
+    <plurals name="sub_price_trial">
+        <item quantity="one">%1$d day free, then %2$s per year</item>
+        <item quantity="other">%1$d days free, then %2$s per year</item>
+    </plurals>
+</resources>

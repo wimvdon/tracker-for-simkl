@@ -29,6 +29,7 @@ import coil3.toBitmap
 import to.wim.watchlist.R
 import to.wim.watchlist.WatchlistApp
 import to.wim.watchlist.data.api.Parsers
+import to.wim.watchlist.data.model.Access
 import to.wim.watchlist.data.model.CalendarEntry
 import to.wim.watchlist.data.model.Images
 import to.wim.watchlist.data.model.MediaType
@@ -55,6 +56,8 @@ class NewEpisodesWorker(
         val app = applicationContext as WatchlistApp
         val settings = app.settings.current()
         if (settings.accessToken == null || !settings.notifications) return Result.success()
+        // No notifications without the subscription (or its free trial).
+        if (app.subscription.currentAccess() != Access.Allowed) return Result.success()
         app.library.load()
         val library = app.library.state.value.items
         // No library copy yet (never synced): nothing to compare with, and nothing to mark as seen.

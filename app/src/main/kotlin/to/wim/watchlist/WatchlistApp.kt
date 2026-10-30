@@ -14,6 +14,7 @@ import to.wim.watchlist.data.CatalogRepository
 import to.wim.watchlist.data.EpisodeStore
 import to.wim.watchlist.data.LibraryRepository
 import to.wim.watchlist.data.SettingsStore
+import to.wim.watchlist.data.SubscriptionRepository
 import to.wim.watchlist.data.api.SimklApi
 import to.wim.watchlist.data.api.TmdbApi
 import to.wim.watchlist.work.NewEpisodesWorker
@@ -47,6 +48,7 @@ class WatchlistApp :
     val account by lazy { AccountRepository(this, api) }
     val library by lazy { LibraryRepository(this, api, settings, episodes, scope) { account.settingsChanged() } }
     val tmdb by lazy { TmdbApi(http) }
+    val subscription by lazy { SubscriptionRepository(this, settings, scope, BuildConfig.REQUIRE_SUBSCRIPTION) }
     val catalog by lazy { CatalogRepository(api, tmdb, episodes) }
 
     /** "Not now" on the TMDB token card: hidden until the app restarts. */

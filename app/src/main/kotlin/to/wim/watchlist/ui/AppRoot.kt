@@ -4,6 +4,7 @@ import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
@@ -14,6 +15,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.saveable.rememberSaveableStateHolder
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.dp
@@ -21,6 +23,8 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.repeatOnLifecycle
 import to.wim.watchlist.data.AppSettings
+import to.wim.watchlist.data.model.Access
+import to.wim.watchlist.ui.subscription.SubscriptionScreen
 import to.wim.watchlist.ui.components.rememberApp
 import to.wim.watchlist.ui.detail.DetailScreen
 import to.wim.watchlist.ui.person.PersonScreen
@@ -48,9 +52,29 @@ fun AppRoot(
             if (current.accessToken == null) {
                 LoginScreen()
             } else {
-                LoggedIn(current, requested, onRequestHandled)
+                Subscribed { LoggedIn(current, requested, onRequestHandled) }
             }
         }
+    }
+}
+
+/**
+ * The app itself only with an active subscription (or its free trial); otherwise the subscription
+ * screen. Google Play is asked again each time the app comes to the foreground, so a purchase,
+ * renewal or cancellation elsewhere shows without a restart.
+ */
+@Composable
+private fun Subscribed(content: @Composable () -> Unit) {
+    val app = rememberApp()
+    val lifecycle = LocalLifecycleOwner.current.lifecycle
+    LaunchedEffect(lifecycle) {
+        lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) { app.subscription.refresh() }
+    }
+    val state by app.subscription.state.collectAsState()
+    when (state.access) {
+        Access.Allowed -> content()
+        Access.Locked -> SubscriptionScreen()
+        Access.Checking -> Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) { CircularProgressIndicator() }
     }
 }
 

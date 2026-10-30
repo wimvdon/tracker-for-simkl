@@ -104,8 +104,12 @@ android {
             // "Watchlist Dev" (src/debug/res). Both apps receive watchlist://oauth,
             // so Android asks which one finishes a sign-in. See docs/decisions.md.
             applicationIdSuffix = ".debug"
+            // A debug build can't buy from Google Play (its ID isn't the Play app's), so it is never locked.
+            buildConfigField("boolean", "REQUIRE_SUBSCRIPTION", "false")
         }
         release {
+            // Without an active subscription (or its free trial) the app shows the subscription screen.
+            buildConfigField("boolean", "REQUIRE_SUBSCRIPTION", "true")
             isMinifyEnabled = true
             isShrinkResources = true
             proguardFiles(
@@ -161,6 +165,7 @@ dependencies {
     implementation(libs.androidx.lifecycle.runtime.compose)
     implementation(libs.androidx.datastore.preferences)
     implementation(libs.androidx.work.runtime)
+    implementation(libs.play.billing)
 
     implementation(platform(libs.androidx.compose.bom))
     implementation(libs.androidx.compose.ui)
