@@ -9,6 +9,7 @@ layout that fastlane `supply` and the Play upload GitHub Action read, so they ca
 automatically later without moving files. Fastlane itself is not added; for now the texts are
 copied into the Play Console by hand ([publishing.md](publishing.md)). Rejected: keeping the
 texts only in the Play Console (no history, and not reviewed with the app's own wording).
+
 ## 2026-10-30: "Continue from the latest episode" on by default
 
 Most people who skip an episode or a season don't want the show stuck on it in Up next, so the
