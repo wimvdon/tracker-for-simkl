@@ -21,4 +21,4 @@ Keine Werbung, keine Analyse, kein Tracking. Du meldest dich auf simkl.com an, d
 PREIS
 Teste alles 14 Tage kostenlos. Danach kostet Watchlist 3,99 € pro Jahr (Google Play zeigt den Preis in deiner Währung). Du kannst jederzeit in Google Play kündigen.
 
-Du brauchst ein kostenloses SIMKL-Konto (simkl.com). Watchlist ist eine inoffizielle App und weder mit Simkl verbunden noch von Simkl unterstützt. Dieses Produkt verwendet die TMDB-API, ist aber nicht von TMDB unterstützt oder zertifiziert.
+Du brauchst ein kostenloses SIMKL-Konto (simkl.com). Watchlist ist eine inoffizielle App und weder mit Simkl verbunden noch von Simkl unterstützt. Diese Anwendung verwendet TMDB und die TMDB-APIs, ist aber nicht von TMDB unterstützt, zertifiziert oder anderweitig genehmigt.

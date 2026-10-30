@@ -83,7 +83,7 @@
     <string name="screens_tmdb_remove">Supprimer</string>
     <string name="screens_tmdb_rejected">TMDB n\'a pas accepté ce jeton. Vérifiez que vous l\'avez copié en entier.</string>
     <string name="screens_tmdb_unreachable">Impossible de joindre TMDB. Vérifiez votre connexion et réessayez.</string>
-    <string name="screens_tmdb_notice">Ce produit utilise l\'API TMDB mais n\'est ni approuvé ni certifié par TMDB.</string>
+    <string name="screens_tmdb_notice">Cette application utilise TMDB et les API TMDB, mais n\'est ni approuvée, ni certifiée, ni autrement validée par TMDB.</string>
     <string name="screens_tmdb_logo">TMDB</string>
     <string name="screens_settings_tmdb_key_old">La clé enregistrée est l\'API Key de TMDB, qui ne fonctionne plus ici. Remplacez-la par l\'API Read Access Token.</string>
     <string name="screens_tmdb_api_key">C\'est la courte API Key de TMDB. Collez plutôt le long API Read Access Token de la même page.</string>
