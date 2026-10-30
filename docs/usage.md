@@ -12,7 +12,7 @@ Nobody needs a SIMKL developer account. If the browser shows the app chooser (wh
 
 **Sign out:** Profile (top bar) › **Sign out**. This deletes the token and the cached library from the phone.
 
-**Coming from Tracker for Simkl (1.8.0 or older):** the app is now called Watchlist and is a separate app for Android, so the old one doesn't update to it. Install Watchlist, sign in (your lists are on SIMKL, so everything comes back), set your settings again, then uninstall Tracker for Simkl. While both are installed, Android asks which app should finish a sign-in: pick **Watchlist**.
+**Coming from version 1.8.0 or older (the app's previous name):** Watchlist is a separate app for Android, so the old one doesn't update to it. Install Watchlist, sign in (your lists are on SIMKL, so everything comes back), set your settings again, then uninstall the old app. The old app can no longer sign in to SIMKL.
 
 ## Navigation
 

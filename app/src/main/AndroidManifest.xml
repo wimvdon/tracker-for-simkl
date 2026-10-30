@@ -16,7 +16,7 @@
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher"
         android:supportsRtl="true"
-        android:theme="@style/Theme.Tracker"
+        android:theme="@style/Theme.Watchlist"
         tools:targetApi="37">
 
         <activity
@@ -54,7 +54,7 @@
                 <category android:name="android.intent.category.BROWSABLE" />
                 <data
                     android:host="oauth"
-                    android:scheme="trackerforsimkl" />
+                    android:scheme="watchlist" />
             </intent-filter>
         </activity>
 

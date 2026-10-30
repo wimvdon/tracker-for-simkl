@@ -8,7 +8,7 @@ plugins {
 
 // ---------------------------------------------------------------------------
 // App identity: the ONE place to change the package / application ID. It changed once, from
-// io.github.impca201.trackerforsimkl, before the Google Play launch (docs/decisions.md). It must
+// the old io.github ID, before the Google Play launch (docs/decisions.md). It must
 // never change again (phones and Google Play would treat it as a different app).
 // ---------------------------------------------------------------------------
 val appId = "to.wim.watchlist"
@@ -101,7 +101,7 @@ android {
     buildTypes {
         debug {
             // Lets a pull request's debug APK be installed next to the released app, as
-            // "Watchlist Dev" (src/debug/res). Both apps receive trackerforsimkl://oauth,
+            // "Watchlist Dev" (src/debug/res). Both apps receive watchlist://oauth,
             // so Android asks which one finishes a sign-in. See docs/decisions.md.
             applicationIdSuffix = ".debug"
         }

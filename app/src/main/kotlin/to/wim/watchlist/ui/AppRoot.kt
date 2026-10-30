@@ -32,7 +32,7 @@ import to.wim.watchlist.ui.profile.RatedGridScreen
 import to.wim.watchlist.ui.profile.RatingsScreen
 import to.wim.watchlist.ui.settings.SettingsScreen
 import to.wim.watchlist.ui.theme.Motion
-import to.wim.watchlist.ui.theme.TrackerTheme
+import to.wim.watchlist.ui.theme.WatchlistTheme
 
 @Composable
 fun AppRoot(
@@ -43,7 +43,7 @@ fun AppRoot(
     val settings by app.settings.settings.collectAsState(initial = null)
     val current = settings ?: return Box(Modifier.fillMaxSize()) // DataStore loads in a few ms.
 
-    TrackerTheme(mode = current.theme, dynamicColor = current.dynamicColor) {
+    WatchlistTheme(mode = current.theme, dynamicColor = current.dynamicColor) {
         Surface(Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background) {
             if (current.accessToken == null) {
                 LoginScreen()

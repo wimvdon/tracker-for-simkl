@@ -39,7 +39,7 @@ time.
 - Commit the SIMKL client ID. It comes from `-PsimklClientId` (CI: the `SIMKL_CLIENT_ID` variable).
 - Change the `applicationId` (`appId` in `app/build.gradle.kts`) or the signing setup. The app is
   released: phones would refuse to update it.
-- Change the sign-in redirect `trackerforsimkl://oauth`: it is registered with SIMKL.
+- Change the sign-in redirect `watchlist://oauth`: it is registered with SIMKL.
 
 ## Never commit
 Secrets, keystores (`*.jks`, `*.keystore`), `keystore.properties`, passwords or API keys.

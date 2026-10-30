@@ -4,18 +4,20 @@ Newest first. Add an entry for every notable choice: what was decided, why, and 
 
 ## 2026-10-30: Renamed to Watchlist, application ID `to.wim.watchlist`
 
-Before the Google Play launch the app is renamed from "Tracker for Simkl" to **Watchlist** (store
-listing: "Watchlist for Simkl") and moves from `io.github.impca201.trackerforsimkl` to the owner's
-own domain, `wim.to`: application ID and Kotlin package `to.wim.watchlist`. A Play package name can
+Before the Google Play launch the app gets its final name, **Watchlist** (store listing:
+"Watchlist for Simkl"), and moves from its old `io.github` application ID to the owner's own domain, `wim.to`: application ID and Kotlin package `to.wim.watchlist`. A Play package name can
 never change once published, so this is the last moment to pick one under a domain the owner
 controls. The `Application` class is now `WatchlistApp` and APKs are named `watchlist-<version>.apk`.
 
 Trade-off: Android treats the new ID as a different app. Copies installed from GitHub Releases
 (1.8.0 and older) don't update to it; they keep working, and users install Watchlist next to them,
-sign in again (backed-up settings don't carry over) and uninstall the old app. Unchanged on
-purpose: the sign-in redirect `trackerforsimkl://oauth` (registered with SIMKL), the
-`app-name`/User-Agent `tracker-for-simkl` that SIMKL's API team knows the app by, the GitHub
-repository name and the signing key.
+sign in again (backed-up settings don't carry over) and uninstall the old app. The signing key
+is unchanged. Every trace of the old name is gone, including the `app-name` and User-Agent sent to
+SIMKL (now `watchlist`), the theme names and the GitHub repository (now `wimvdon/watchlist`).
+
+The same day the owner changed the redirect URI registered with SIMKL to `watchlist://oauth`, so
+the app now uses that scheme. With the old URI no longer registered, version 1.8.0
+and older can no longer finish a new sign-in (a signed-in copy keeps working).
 
 ## 2026-10-26: Fewer SIMKL calls, as SIMKL's API team asked
 
@@ -202,11 +204,11 @@ The owner chose to publish through GitHub Releases again, as before the Google P
 
 ## 2026-10-14: Shared design rules have their master copy in the template
 
-`DESIGN.md` was kept identical in the three sibling apps by hand, with no single place to start a change, and the copies had drifted (Snoozer was missing the Loading section; the Tracker for Simkl icon row was out of date in two apps). The android-app template (`wimvdon/android-app`) now holds the master copy; each app keeps a full copy so Claude sessions can read the rules without opening another repository, and only its "This app" section is its own. Rejected: keeping the file only in the template (sessions in an app would have to fetch it every time) and a shared library for the design kit (a new dependency and more setup than three small apps need). The design kit files (`ui/theme/`) stay in the apps.
+`DESIGN.md` was kept identical in the three sibling apps by hand, with no single place to start a change, and the copies had drifted (Snoozer was missing the Loading section; this app's icon row was out of date in two apps). The android-app template (`wimvdon/android-app`) now holds the master copy; each app keeps a full copy so Claude sessions can read the rules without opening another repository, and only its "This app" section is its own. Rejected: keeping the file only in the template (sessions in an app would have to fetch it every time) and a shared library for the design kit (a new dependency and more setup than three small apps need). The design kit files (`ui/theme/`) stay in the apps.
 
 ## 2026-10-14: Launcher icon shows a checkmark instead of a play button
 
-The icon's TV stand (a short bar under the screen) did not read as a stand, and a play button says "video player" more than "tracker". The screen is now a little taller, has no stand, and carries a white checkmark ("watched"). Gradient, white background and the one-shape, one-detail rule from `DESIGN.md` are unchanged. The notification icon (previously a stock Material TV) is now the themed layer scaled to 24dp, so it matches. Rejected: keeping the play button with a small checkmark badge (too small at launcher sizes), stacked screens and a progress bar (busier).
+The icon's TV stand (a short bar under the screen) did not read as a stand, and a play button says "video player" more than "watch list". The screen is now a little taller, has no stand, and carries a white checkmark ("watched"). Gradient, white background and the one-shape, one-detail rule from `DESIGN.md` are unchanged. The notification icon (previously a stock Material TV) is now the themed layer scaled to 24dp, so it matches. Rejected: keeping the play button with a small checkmark badge (too small at launcher sizes), stacked screens and a progress bar (busier).
 
 ## 2026-10-14: Publish through Google Play instead of GitHub Releases
 
@@ -228,7 +230,7 @@ The app now follows the rules, layout and workflows of the private `wimvdon/andr
 - **`CLAUDE.md`**, a plain-language pull request template and weekly **Dependabot** updates for Gradle and GitHub Actions.
 - **CI** now also runs **lint** (errors fail the build, no baseline) and the release-script tests, cancels outdated runs and uploads `watchlist-<version>-debug.apk` unzipped. The existing launch test and R8 keep check stay. Enabling lint surfaced 18 errors, all fixed in code: string lookups in Compose now use `LocalResources` instead of `LocalContext` (configuration-aware), and the detail screen's error state uses the scaffold padding.
 - **Release workflow** from the template: version maths in `scripts/release_version.py` (unit tested), the signing key checked before the build, tests and lint before the signed build, the R8 mapping file attached, published with `gh release create` instead of a third-party action. The secret names without `ANDROID_` keep working.
-- **Debug builds use `applicationIdSuffix = ".debug"` and the name "Tracker for Simkl Dev"**, so a pull request's APK installs next to the released app. Trade-off: both apps register `trackerforsimkl://oauth` and the simkl.com links, so Android asks which app opens them. Rejected: a separate debug redirect scheme, because the SIMKL API app only accepts its registered redirect URI.
+- **Debug builds use `applicationIdSuffix = ".debug"` and the name "Watchlist Dev"**, so a pull request's APK installs next to the released app. Trade-off: both apps register the sign-in redirect and the simkl.com links, so Android asks which app opens them. Rejected: a separate debug redirect scheme, because the SIMKL API app only accepts its registered redirect URI.
 - **Sources moved from `src/*/java/` to `src/*/kotlin/`**, the template's layout.
 - **Kept on purpose, unlike the template:** `minSdk` 26 (Android 8.0) instead of 31, because the app is released and raising it would stop updates for users on older phones; six languages; the ktlint settings in `.editorconfig`.
 

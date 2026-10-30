@@ -10,8 +10,8 @@ Base URL `https://api.simkl.com`, implemented in `data/api/SimklApi.kt`. Every r
 |---|---|---|
 | Header | `simkl-api-key` | The app's client ID (`BuildConfig.SIMKL_CLIENT_ID`) |
 | Header | `Authorization` | `Bearer <access token>` once signed in |
-| Header | `User-Agent` | `tracker-for-simkl/<version>` |
-| Query | `client_id`, `app-name`, `app-version` | Client ID, `tracker-for-simkl`, version name |
+| Header | `User-Agent` | `watchlist/<version>` |
+| Query | `client_id`, `app-name`, `app-version` | Client ID, `watchlist`, version name |
 
 Files on `data.simkl.in` get no extra query parameters, as SIMKL asks.
 
@@ -65,7 +65,7 @@ OAuth 2.0 authorization code with PKCE (AUTH V2): no client secret. The access t
 
 Base URL `https://api.themoviedb.org/3`, implemented in `data/api/TmdbApi.kt`, mapped in `data/api/TmdbParsers.kt`. Only used when the user entered their own token in *Settings › Cast and crew*; the app ships no TMDB key. Read only, and only while a details, person or search screen is open (never in the background).
 
-Every request sends the user's "API Read Access Token" as `Authorization: Bearer <token>` and `User-Agent: tracker-for-simkl/<version>`. TMDB's shorter v3 "API Key" is not accepted (the dialog says to paste the token instead; a key saved by 1.6.0 is ignored and Settings asks to replace it). The language is the phone's language and country only (`nl-NL`), without Android's locale extensions.
+Every request sends the user's "API Read Access Token" as `Authorization: Bearer <token>` and `User-Agent: watchlist/<version>`. TMDB's shorter v3 "API Key" is not accepted (the dialog says to paste the token instead; a key saved by 1.6.0 is ignored and Settings asks to replace it). The language is the phone's language and country only (`nl-NL`), without Android's locale extensions.
 
 | Method | Path | Used for |
 |---|---|---|
@@ -84,7 +84,7 @@ TMDB's terms require the notice "This product uses the TMDB API but is not endor
 
 | Entry point | Handled by | Effect |
 |---|---|---|
-| `trackerforsimkl://oauth?code=…&state=…` | `auth/AuthRedirectActivity` | Finishes sign-in (state must match the one the app started). |
+| `watchlist://oauth?code=…&state=…` | `auth/AuthRedirectActivity` | Finishes sign-in (state must match the one the app started). |
 | `https://simkl.com/tv/…`, `/anime/…`, `/movies/…` | `ui/MainActivity` | Opens the title in the app (when the user picks this app for the link). |
 | Launcher | `ui/MainActivity` | Opens the app, or the sign-in screen when signed out. |
 | New-episode or movie release notification | `ui/MainActivity` (extras) | Opens that show's or movie's details. |

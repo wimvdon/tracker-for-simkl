@@ -33,4 +33,4 @@ Only when you turn on notifications for new episodes and releases: about every 4
 
 If this changes, this file will be updated **before** the change is released.
 
-Questions: open an issue at https://github.com/wimvdon/tracker-for-simkl/issues.
+Questions: open an issue at https://github.com/wimvdon/watchlist/issues.

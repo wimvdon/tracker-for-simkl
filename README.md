@@ -27,13 +27,13 @@ Source available for reference; all rights reserved. See [LICENSE](LICENSE).
 
 ## Quick start
 
-Install the latest `watchlist-x.y.z.apk` from [Releases](https://github.com/wimvdon/tracker-for-simkl/releases), open it and tap **Sign in with SIMKL**.
+Install the latest `watchlist-x.y.z.apk` from [Releases](https://github.com/wimvdon/watchlist/releases), open it and tap **Sign in with SIMKL**.
 
 To build and install a debug build from source on a connected phone:
 
 ```bash
-git clone https://github.com/wimvdon/tracker-for-simkl.git
-cd tracker-for-simkl
+git clone https://github.com/wimvdon/watchlist.git
+cd watchlist
 ./gradlew installDebug -PsimklClientId=<your SIMKL client ID>
 ```
 
@@ -65,7 +65,7 @@ A single-activity Compose app. `WatchlistApp` owns one OkHttp client, the `Simkl
 ## Project structure
 
 ```
-tracker-for-simkl/
+watchlist/
 ├── .github/            CI and release workflows, PR template, Dependabot
 ├── CLAUDE.md           Rules for Claude Code sessions
 ├── scripts/            Release helpers (versioning, keystore secret) with tests

@@ -73,7 +73,7 @@ private val DarkColors =
     )
 
 @Composable
-fun TrackerTheme(
+fun WatchlistTheme(
     mode: ThemeMode = ThemeMode.System,
     dynamicColor: Boolean = false,
     content: @Composable () -> Unit,
