@@ -69,7 +69,7 @@
     <string name="screens_login_denied">Se canceló el inicio de sesión en SIMKL (%1$s).</string>
     <string name="screens_login_redirect_invalid">Ese enlace de inicio de sesión no coincide con el que inició la app. Toca de nuevo Iniciar sesión con SIMKL.</string>
     <string name="screens_login_failed">Error al iniciar sesión: %1$s</string>
-    <string name="screens_login_note">Inicias sesión en simkl.com; esta app nunca ve tu contraseña. Tracker for Simkl no está afiliado a Simkl.</string>
+    <string name="screens_login_note">Inicias sesión en simkl.com; esta app nunca ve tu contraseña. Watchlist no está afiliado a Simkl.</string>
     <string name="screens_settings_tmdb">Reparto y equipo</string>
     <string name="screens_settings_tmdb_key">Read Access Token de TMDB</string>
     <string name="screens_settings_tmdb_key_on">Añadido. Las fichas muestran el reparto y el equipo, y puedes buscar personas.</string>
@@ -88,10 +88,10 @@
     <string name="screens_tmdb_not_token">Esto no es un API Read Access Token: es el código largo que empieza por eyJ.</string>
     <string name="screens_settings_credits">Fuentes</string>
     <string name="screens_credit_simkl_title">SIMKL</string>
-    <string name="screens_credit_simkl_text">Tus listas, valoraciones e historial, y todos los títulos, vienen de SIMKL. Tracker for Simkl es una app no oficial, sin relación con SIMKL.</string>
+    <string name="screens_credit_simkl_text">Tus listas, valoraciones e historial, y todos los títulos, vienen de SIMKL. Watchlist es una app no oficial, sin relación con SIMKL.</string>
     <string name="screens_credit_tmdb_title">TMDB</string>
     <string name="screens_credit_tmdb_text">El reparto, el equipo y las personas vienen de TMDB, con tu propio token.</string>
-    <string name="screens_settings_version">Tracker for Simkl %1$s</string>
+    <string name="screens_settings_version">Watchlist %1$s</string>
     <string name="screens_simkl_logo">SIMKL</string>
     <string name="screens_search_people">Personas</string>
     <string name="screens_settings_notifications_section">Avisos</string>

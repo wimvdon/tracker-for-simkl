@@ -89,4 +89,4 @@ TMDB's terms require the notice "This product uses the TMDB API but is not endor
 | Launcher | `ui/MainActivity` | Opens the app, or the sign-in screen when signed out. |
 | New-episode or movie release notification | `ui/MainActivity` (extras) | Opens that show's or movie's details. |
 
-The debug build (`io.github.impca201.trackerforsimkl.debug`) registers the same links; Android asks which app should open them.
+The debug build (`to.wim.watchlist.debug`) registers the same links; Android asks which app should open them.

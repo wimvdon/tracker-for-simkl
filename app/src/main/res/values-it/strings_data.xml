@@ -2,7 +2,7 @@
 <resources>
     <string name="data_error_login_expired">Il tuo accesso a SIMKL è scaduto. Esci e accedi di nuovo.</string>
     <string name="data_notif_new_episode">Nuovo episodio disponibile</string>
-    <string name="data_crash_title">Tracker for Simkl si è chiuso in modo anomalo l’ultima volta</string>
+    <string name="data_crash_title">Watchlist si è chiuso in modo anomalo l’ultima volta</string>
     <string name="data_crash_copy">Copia il report dell’arresto anomalo</string>
     <string name="data_crash_continue">Continua</string>
     <string name="data_notif_episode_aired">%1$s è uscito</string>

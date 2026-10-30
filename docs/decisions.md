@@ -2,6 +2,21 @@
 
 Newest first. Add an entry for every notable choice: what was decided, why, and what was rejected.
 
+## 2026-10-30: Renamed to Watchlist, application ID `to.wim.watchlist`
+
+Before the Google Play launch the app is renamed from "Tracker for Simkl" to **Watchlist** (store
+listing: "Watchlist for Simkl") and moves from `io.github.impca201.trackerforsimkl` to the owner's
+own domain, `wim.to`: application ID and Kotlin package `to.wim.watchlist`. A Play package name can
+never change once published, so this is the last moment to pick one under a domain the owner
+controls. The `Application` class is now `WatchlistApp` and APKs are named `watchlist-<version>.apk`.
+
+Trade-off: Android treats the new ID as a different app. Copies installed from GitHub Releases
+(1.8.0 and older) don't update to it; they keep working, and users install Watchlist next to them,
+sign in again (backed-up settings don't carry over) and uninstall the old app. Unchanged on
+purpose: the sign-in redirect `trackerforsimkl://oauth` (registered with SIMKL), the
+`app-name`/User-Agent `tracker-for-simkl` that SIMKL's API team knows the app by, the GitHub
+repository name and the signing key.
+
 ## 2026-10-26: Fewer SIMKL calls, as SIMKL's API team asked
 
 SIMKL reviewed the app's traffic: every launch downloaded the community ratings for the whole
@@ -211,7 +226,7 @@ The repository becomes public so GitHub Actions minutes are free, but the code i
 The app now follows the rules, layout and workflows of the private `wimvdon/android-app` template, like its sibling apps Snoozer and Time Tracker for Notion.
 
 - **`CLAUDE.md`**, a plain-language pull request template and weekly **Dependabot** updates for Gradle and GitHub Actions.
-- **CI** now also runs **lint** (errors fail the build, no baseline) and the release-script tests, cancels outdated runs and uploads `tracker-for-simkl-<version>-debug.apk` unzipped. The existing launch test and R8 keep check stay. Enabling lint surfaced 18 errors, all fixed in code: string lookups in Compose now use `LocalResources` instead of `LocalContext` (configuration-aware), and the detail screen's error state uses the scaffold padding.
+- **CI** now also runs **lint** (errors fail the build, no baseline) and the release-script tests, cancels outdated runs and uploads `watchlist-<version>-debug.apk` unzipped. The existing launch test and R8 keep check stay. Enabling lint surfaced 18 errors, all fixed in code: string lookups in Compose now use `LocalResources` instead of `LocalContext` (configuration-aware), and the detail screen's error state uses the scaffold padding.
 - **Release workflow** from the template: version maths in `scripts/release_version.py` (unit tested), the signing key checked before the build, tests and lint before the signed build, the R8 mapping file attached, published with `gh release create` instead of a third-party action. The secret names without `ANDROID_` keep working.
 - **Debug builds use `applicationIdSuffix = ".debug"` and the name "Tracker for Simkl Dev"**, so a pull request's APK installs next to the released app. Trade-off: both apps register `trackerforsimkl://oauth` and the simkl.com links, so Android asks which app opens them. Rejected: a separate debug redirect scheme, because the SIMKL API app only accepts its registered redirect URI.
 - **Sources moved from `src/*/java/` to `src/*/kotlin/`**, the template's layout.
@@ -255,7 +270,7 @@ Crashes are written to a local file and shown once on the next start with a Copy
 
 ## No ViewModels, DI framework or navigation library
 
-The object graph is five lazily created objects in `TrackerApp`; the navigation is a stack of five route types. Repositories already hold the long-lived state, so ViewModels would only forward it. Revisit if screens get complex enough to need per-screen state holders.
+The object graph is five lazily created objects in `WatchlistApp`; the navigation is a stack of five route types. Repositories already hold the long-lived state, so ViewModels would only forward it. Revisit if screens get complex enough to need per-screen state holders.
 
 ## Robolectric launch test
 

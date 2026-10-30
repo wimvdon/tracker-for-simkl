@@ -265,7 +265,7 @@ jobs:
   #   permissions:
   #     contents: read
   #   env:
-  #     PACKAGE_NAME: io.github.impca201.trackerforsimkl
+  #     PACKAGE_NAME: to.wim.watchlist
   #   steps:
   #     - uses: actions/checkout@v7
   #       with:

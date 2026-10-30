@@ -68,7 +68,7 @@
     <string name="screens_login_denied">Het inloggen is op SIMKL geannuleerd (%1$s).</string>
     <string name="screens_login_redirect_invalid">Die inloglink hoort niet bij de inlogpoging van deze app. Tik opnieuw op Inloggen met SIMKL.</string>
     <string name="screens_login_failed">Inloggen mislukt: %1$s</string>
-    <string name="screens_login_note">Je logt in op simkl.com; deze app ziet je wachtwoord nooit. Tracker for Simkl is niet verbonden aan Simkl.</string>
+    <string name="screens_login_note">Je logt in op simkl.com; deze app ziet je wachtwoord nooit. Watchlist is niet verbonden aan Simkl.</string>
     <string name="screens_settings_tmdb">Cast en crew</string>
     <string name="screens_settings_tmdb_key">TMDB Read Access Token</string>
     <string name="screens_settings_tmdb_key_on">Toegevoegd. Detailpagina’s tonen cast en crew, en je kunt personen opzoeken.</string>
@@ -87,10 +87,10 @@
     <string name="screens_tmdb_not_token">Dit is geen API Read Access Token. Dat is de lange code die met eyJ begint.</string>
     <string name="screens_settings_credits">Bronnen</string>
     <string name="screens_credit_simkl_title">SIMKL</string>
-    <string name="screens_credit_simkl_text">Je lijsten, beoordelingen en geschiedenis, en alle titels, komen van SIMKL. Tracker for Simkl is een onofficiële app, niet verbonden aan SIMKL.</string>
+    <string name="screens_credit_simkl_text">Je lijsten, beoordelingen en geschiedenis, en alle titels, komen van SIMKL. Watchlist is een onofficiële app, niet verbonden aan SIMKL.</string>
     <string name="screens_credit_tmdb_title">TMDB</string>
     <string name="screens_credit_tmdb_text">Cast, crew en personen komen van TMDB, met je eigen token.</string>
-    <string name="screens_settings_version">Tracker for Simkl %1$s</string>
+    <string name="screens_settings_version">Watchlist %1$s</string>
     <string name="screens_simkl_logo">SIMKL</string>
     <string name="screens_search_people">Personen</string>
     <string name="screens_settings_notifications_section">Meldingen</string>

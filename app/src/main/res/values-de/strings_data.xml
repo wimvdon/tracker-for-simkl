@@ -2,7 +2,7 @@
 <resources>
     <string name="data_error_login_expired">Deine SIMKL-Anmeldung ist abgelaufen. Melde dich ab und erneut an.</string>
     <string name="data_notif_new_episode">Neue Folge verfügbar</string>
-    <string name="data_crash_title">Tracker for Simkl ist beim letzten Mal abgestürzt</string>
+    <string name="data_crash_title">Watchlist ist beim letzten Mal abgestürzt</string>
     <string name="data_crash_copy">Absturzbericht kopieren</string>
     <string name="data_crash_continue">Weiter</string>
     <string name="data_notif_episode_aired">%1$s ist erschienen</string>

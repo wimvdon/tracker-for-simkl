@@ -8,7 +8,7 @@
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
 
     <application
-        android:name=".TrackerApp"
+        android:name=".WatchlistApp"
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
         android:fullBackupContent="@xml/backup_rules"
@@ -58,7 +58,7 @@
             </intent-filter>
         </activity>
 
-        <!-- WorkManager is initialised on demand (TrackerApp is a Configuration.Provider). -->
+        <!-- WorkManager is initialised on demand (WatchlistApp is a Configuration.Provider). -->
         <provider
             android:name="androidx.startup.InitializationProvider"
             android:authorities="${applicationId}.androidx-startup"

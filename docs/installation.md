@@ -61,7 +61,7 @@ python3 -m unittest discover -s scripts/tests
 
 ## Testing a pull request
 
-Open the pull request › **Checks** › **CI** › **Artifacts** and install `tracker-for-simkl-<version>-debug.apk`. Debug builds have the application ID `io.github.impca201.trackerforsimkl.debug` and the name **Tracker for Simkl Dev**, so they install next to the released app with their own sign-in and data. When signing in, Android may ask which app should open the SIMKL redirect: pick **Tracker for Simkl Dev**.
+Open the pull request › **Checks** › **CI** › **Artifacts** and install `watchlist-<version>-debug.apk`. Debug builds have the application ID `to.wim.watchlist.debug` and the name **Watchlist Dev**, so they install next to the released app with their own sign-in and data. When signing in, Android may ask which app should open the SIMKL redirect: pick **Watchlist Dev**.
 
 ## Release builds
 
@@ -81,4 +81,4 @@ The secret names without `ANDROID_` also work, as earlier releases used them. Th
 
 **Actions › Release › Run workflow** on `main`, choose `patch`, `minor` or `major` (or `none` to only build an APK artifact). Pushing a tag such as `v1.2.3` also releases. The versionCode is `major × 10000 + minor × 100 + patch`.
 
-It refuses to publish when not on `main`, when the tag or release exists, when the version is not higher than the last release, or when nothing changed. Each release has `tracker-for-simkl-<version>.apk` and `tracker-for-simkl-<version>-mapping.txt`.
+It refuses to publish when not on `main`, when the tag or release exists, when the version is not higher than the last release, or when nothing changed. Each release has `watchlist-<version>.apk` and `watchlist-<version>-mapping.txt`.
