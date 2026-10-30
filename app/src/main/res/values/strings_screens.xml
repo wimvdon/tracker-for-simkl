@@ -81,7 +81,7 @@
     <string name="screens_tmdb_remove">Remove</string>
     <string name="screens_tmdb_rejected">TMDB didn\'t accept this token. Check that you copied all of it.</string>
     <string name="screens_tmdb_unreachable">Couldn\'t reach TMDB. Check your connection and try again.</string>
-    <string name="screens_tmdb_notice">This product uses the TMDB API but is not endorsed or certified by TMDB.</string>
+    <string name="screens_tmdb_notice">This application uses TMDB and the TMDB APIs but is not endorsed, certified, or otherwise approved by TMDB.</string>
     <string name="screens_tmdb_logo">TMDB</string>
     <string name="screens_settings_tmdb_key_old">The saved key is TMDB\'s API Key, which no longer works here. Replace it with the API Read Access Token.</string>
     <string name="screens_tmdb_api_key">This is TMDB\'s short API Key. Paste the long API Read Access Token from the same page instead.</string>

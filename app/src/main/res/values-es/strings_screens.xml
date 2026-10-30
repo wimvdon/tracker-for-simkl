@@ -83,7 +83,7 @@
     <string name="screens_tmdb_remove">Quitar</string>
     <string name="screens_tmdb_rejected">TMDB no ha aceptado este token. Comprueba que lo has copiado entero.</string>
     <string name="screens_tmdb_unreachable">No se pudo conectar con TMDB. Comprueba tu conexión e inténtalo de nuevo.</string>
-    <string name="screens_tmdb_notice">Este producto usa la API de TMDB, pero TMDB no lo respalda ni lo certifica.</string>
+    <string name="screens_tmdb_notice">Esta aplicación usa TMDB y las API de TMDB, pero TMDB no la respalda, certifica ni aprueba de ninguna otra forma.</string>
     <string name="screens_tmdb_logo">TMDB</string>
     <string name="screens_settings_tmdb_key_old">La clave guardada es la API Key de TMDB, que ya no funciona aquí. Sustitúyela por el API Read Access Token.</string>
     <string name="screens_tmdb_api_key">Esta es la API Key corta de TMDB. Pega en su lugar el largo API Read Access Token de la misma página.</string>

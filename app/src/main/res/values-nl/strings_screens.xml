@@ -81,7 +81,7 @@
     <string name="screens_tmdb_remove">Verwijderen</string>
     <string name="screens_tmdb_rejected">TMDB accepteert dit token niet. Controleer of je het helemaal hebt gekopieerd.</string>
     <string name="screens_tmdb_unreachable">TMDB is niet bereikbaar. Controleer je verbinding en probeer het opnieuw.</string>
-    <string name="screens_tmdb_notice">Dit product gebruikt de TMDB API, maar wordt niet door TMDB onderschreven of gecertificeerd.</string>
+    <string name="screens_tmdb_notice">Deze applicatie gebruikt TMDB en de TMDB API\'s, maar is niet onderschreven, gecertificeerd of op een andere manier goedgekeurd door TMDB.</string>
     <string name="screens_tmdb_logo">TMDB</string>
     <string name="screens_settings_tmdb_key_old">De opgeslagen sleutel is de API Key van TMDB, die hier niet meer werkt. Vervang hem door het API Read Access Token.</string>
     <string name="screens_tmdb_api_key">Dit is de korte API Key van TMDB. Plak in plaats daarvan het lange API Read Access Token van dezelfde pagina.</string>

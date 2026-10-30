@@ -10,10 +10,13 @@ copy them into the Play Console as they are.
 - **SIMKL:** the API is free for commercial apps that make less than $150 a month. Above that
   you need a commercial licence from SIMKL (ask on their Discord). See
   [SIMKL's API rules](https://api.simkl.org/api-rules), section 5.
-- **TMDB:** TMDB's API is free for non-commercial use only; commercial use needs a licence
-  ([TMDB FAQ](https://developer.themoviedb.org/docs/faq)). Each user enters their own token, but
-  the app itself is sold, so ask TMDB (the address is on that page) before launching the paid
-  version.
+- **TMDB:** a paid app that integrates TMDB is commercial use, whoever's key it uses
+  ([API Terms of Use](https://www.themoviedb.org/api-terms-of-use), section 2: "Charging users
+  a fee for Your Application … that includes some form of integration with … TMDB"). It needs a
+  written agreement: e-mail **sales@themoviedb.org** and say which country you're in
+  ([TMDB FAQ](https://developer.themoviedb.org/docs/faq),
+  [API for business](https://www.themoviedb.org/api-for-business)). Without one, take the cast
+  and crew features out of the paid version.
 - **The subscription comes with version 1.10.** The "Price" paragraph of the store texts
   describes the 14-day trial and €3.99 a year; publish it together with that version, after
   setting up the subscription (step 7).
