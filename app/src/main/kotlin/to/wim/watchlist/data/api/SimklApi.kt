@@ -496,11 +496,11 @@ class SimklApi(
     companion object {
         const val BASE = "https://api.simkl.com"
         private const val DATA_HOST = "data.simkl.in"
-        const val APP_NAME = "tracker-for-simkl"
+        const val APP_NAME = "watchlist"
         const val AUTHORIZE_URL = "https://simkl.com/oauth2/authorize"
 
         /** Registered as the redirect URI of the app's SIMKL API app; AuthRedirectActivity receives it. */
-        const val REDIRECT_URI = "trackerforsimkl://oauth"
+        const val REDIRECT_URI = "watchlist://oauth"
         private const val SCOPE = "media:read media:write"
     }
 }

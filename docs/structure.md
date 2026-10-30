@@ -1,7 +1,7 @@
 # Project structure
 
 ```
-tracker-for-simkl/
+watchlist/
 ├── .editorconfig                     Editor/ktlint rules (4 spaces, 140 columns, ktlint_official)
 ├── .gitattributes                    LF everywhere; *.bat → CRLF; keystores/images binary
 ├── .github/
@@ -36,7 +36,7 @@ tracker-for-simkl/
         │   ├── kotlin/to/wim/watchlist/
         │   │   ├── WatchlistApp.kt            Application: object graph, image loader, WorkManager config
         │   │   ├── CrashReporter.kt           Local crash report shown on next start
-        │   │   ├── auth/AuthRedirectActivity.kt   Receives trackerforsimkl://oauth
+        │   │   ├── auth/AuthRedirectActivity.kt   Receives watchlist://oauth
         │   │   ├── data/
         │   │   │   ├── LibraryRepository.kt   Library state, sync, cache files, changes
         │   │   │   ├── CatalogRepository.kt   Details, search, Discover; AccountRepository (profile kept on the device, stats)

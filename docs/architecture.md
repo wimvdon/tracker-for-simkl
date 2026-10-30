@@ -17,7 +17,7 @@ Watchlist is a single-module, single-activity Android app. Compose renders state
    ├─ CatalogRepository   details, episodes, search, Discover sections, random title
    └─ AccountRepository   profile and statistics
  NewEpisodesWorker (WorkManager, optional) ── reads calendar files + cached library
- AuthRedirectActivity ── receives trackerforsimkl://oauth and hands the URI to the login screen
+ AuthRedirectActivity ── receives watchlist://oauth and hands the URI to the login screen
 ```
 
 ## Components

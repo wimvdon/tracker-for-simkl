@@ -1,6 +1,6 @@
 # Installation
 
-For developers who build the app. To just install it, download the APK from [Releases](https://github.com/wimvdon/tracker-for-simkl/releases).
+For developers who build the app. To just install it, download the APK from [Releases](https://github.com/wimvdon/watchlist/releases).
 
 ## Prerequisites
 
@@ -9,7 +9,7 @@ For developers who build the app. To just install it, download the APK from [Rel
 | JDK | 17 or newer | CI uses Temurin 21. Android Studio's bundled JBR works. |
 | Android SDK | Platform 37 | `compileSdk` and `targetSdk` are 37. |
 | Device or emulator | Android 8.0+ (API 26) | Per-app language setting needs Android 13+. |
-| SIMKL client ID | AUTH V2 app | From [simkl.com/settings/developer](https://simkl.com/settings/developer), redirect URI `trackerforsimkl://oauth`. Without it the app starts but cannot sign in. |
+| SIMKL client ID | AUTH V2 app | From [simkl.com/settings/developer](https://simkl.com/settings/developer), redirect URI `watchlist://oauth`. Without it the app starts but cannot sign in. |
 | Git | any | Debug builds are versioned with `git describe`. |
 
 Gradle is downloaded by the wrapper. There is no database or server to set up.
@@ -17,8 +17,8 @@ Gradle is downloaded by the wrapper. There is no database or server to set up.
 ## 1. Clone the repo
 
 ```bash
-git clone https://github.com/wimvdon/tracker-for-simkl.git
-cd tracker-for-simkl
+git clone https://github.com/wimvdon/watchlist.git
+cd watchlist
 ```
 
 ## 2. Point Gradle at the SDK

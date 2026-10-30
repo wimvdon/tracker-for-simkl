@@ -7,7 +7,7 @@ import to.wim.watchlist.WatchlistApp
 import to.wim.watchlist.ui.MainActivity
 
 /**
- * Receives simkl.com's sign-in redirect (trackerforsimkl://oauth?code=…&state=…), hands it to the
+ * Receives simkl.com's sign-in redirect (watchlist://oauth?code=…&state=…), hands it to the
  * login screen and brings the app back to the front. Has no UI of its own.
  */
 class AuthRedirectActivity : Activity() {
