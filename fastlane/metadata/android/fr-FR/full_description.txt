@@ -1,0 +1,24 @@
+Watchlist met vos listes SIMKL sur votre téléphone et vous montre quoi regarder ensuite.
+
+Ouvrez l'application : À suivre affiche chaque série dont un épisode est disponible maintenant. Touchez la coche une fois l'épisode vu et le suivant prend sa place. Vous avez sauté un épisode ? À suivre reprend après le dernier que vous avez vu.
+
+CE QUE VOUS OBTENEZ
+• Vos listes SIMKL classées pour les séries, les anime et les films : À suivre, À voir, Vu, En pause et Abandonné.
+• Marquez des épisodes ou des saisons entières comme vus, notez les titres de 1 à 10 et faites un check-in sur ce que vous regardez en ce moment.
+• Un calendrier des prochains épisodes et des sorties de films de vos listes.
+• Une notification quand un nouvel épisode d'une série que vous suivez est sorti, ou quand un film de votre liste À voir sort. Chaque type a son propre canal : vous choisissez ce qui fait du bruit.
+• Découvrir : Tendances sur Simkl aujourd'hui, cette semaine et ce mois-ci, diffusé aujourd'hui, nouvelles premières et le meilleur de l'année. Ou touchez le dé pour une surprise.
+• Des fiches détaillées avec les notes de SIMKL, IMDb et d'autres, les bandes-annonces, tous les épisodes par saison et des liens vers IMDb, TMDB, MyAnimeList et plus encore.
+• La distribution et l'équipe, avec des pages pour les acteurs et les réalisateurs, si vous ajoutez votre propre jeton TMDB gratuit (facultatif).
+• La recherche dans tout le catalogue SIMKL.
+• S'ouvre instantanément et fonctionne hors ligne grâce à la copie de votre bibliothèque sur votre téléphone. La synchronisation se fait à l'ouverture ou quand vous tirez vers le bas.
+• Un design Material 3 avec un thème sombre et, à partir d'Android 12, les couleurs de votre fond d'écran.
+• En français, anglais, néerlandais, allemand, espagnol et italien.
+
+CONFIDENTIALITÉ
+Pas de publicité, pas d'analyse, pas de suivi. Vous vous connectez sur simkl.com : l'application ne voit jamais votre mot de passe. Vos listes restent sur SIMKL ; l'application en garde une copie sur votre téléphone pour s'ouvrir vite. Politique de confidentialité : https://github.com/wimvdon/watchlist/blob/main/PRIVACY.md
+
+PRIX
+Essayez tout gratuitement pendant 14 jours. Ensuite, Watchlist coûte 3,99 € par an (Google Play affiche le prix dans votre devise). Vous pouvez résilier à tout moment dans Google Play.
+
+Un compte SIMKL gratuit est nécessaire (simkl.com). Watchlist est une application non officielle, sans lien avec Simkl et non approuvée par Simkl. Ce produit utilise l'API TMDB mais n'est ni approuvé ni certifié par TMDB.

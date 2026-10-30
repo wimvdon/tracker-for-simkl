@@ -1,0 +1,24 @@
+Watchlist puts your SIMKL lists on your phone and shows what to watch next.
+
+Open the app and Up next lists every show with an episode you can watch now. Tap the checkmark when you've seen it and the next episode moves up. Skipped an episode? Up next carries on after the last one you watched.
+
+WHAT YOU GET
+• Your SIMKL lists as shelves for TV shows, anime and movies: Up next, Plan to watch, Watched, On hold and Dropped.
+• Mark episodes or whole seasons watched, rate titles from 1 to 10 and check in to what you're watching right now.
+• A calendar of upcoming episodes and movie releases from your lists.
+• A notification when a new episode of a show you watch is out, or when a movie on your Plan to watch list is released. Each type has its own channel, so you decide what makes a sound.
+• Discover: Trending on Simkl today, this week and this month, airing today, new premieres and the best of the year. Or tap the dice for a surprise.
+• Details pages with ratings from SIMKL, IMDb and others, trailers, every episode by season and links to IMDb, TMDB, MyAnimeList and more.
+• Cast and crew, with pages for actors and directors, when you add your own free TMDB token (optional).
+• Search the whole SIMKL catalogue.
+• Opens instantly and works offline from the copy of your library on your phone. It syncs when you open the app or pull down to refresh.
+• Material 3 design with a dark theme and, on Android 12 and later, colours from your wallpaper.
+• In English, Dutch, French, German, Spanish and Italian.
+
+PRIVACY
+No ads, no analytics, no tracking. You sign in on simkl.com, so the app never sees your password. Your lists stay on SIMKL; the app keeps a copy on your phone so it opens fast. Privacy policy: https://github.com/wimvdon/watchlist/blob/main/PRIVACY.md
+
+PRICE
+Try everything free for 14 days. After that, Watchlist costs €3.99 a year (Google Play shows the price in your currency). You can cancel any time in Google Play.
+
+You need a free SIMKL account (simkl.com). Watchlist is an unofficial app and is not affiliated with or endorsed by Simkl. This product uses the TMDB API but is not endorsed or certified by TMDB.

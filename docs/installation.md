@@ -79,6 +79,8 @@ The secret names without `ANDROID_` also work, as earlier releases used them. Th
 
 ## Making a release
 
+To publish on Google Play, see [publishing.md](publishing.md).
+
 **Actions › Release › Run workflow** on `main`, choose `patch`, `minor` or `major` (or `none` to only build an APK artifact). Pushing a tag such as `v1.2.3` also releases. The versionCode is `major × 10000 + minor × 100 + patch`.
 
 It refuses to publish when not on `main`, when the tag or release exists, when the version is not higher than the last release, or when nothing changed. Each release has `watchlist-<version>.apk` (to install directly), `watchlist-<version>.aab` (to upload to Google Play; signed with the same key) and `watchlist-<version>-mapping.txt`.
