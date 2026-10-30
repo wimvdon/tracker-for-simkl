@@ -26,6 +26,7 @@
     <string name="screens_calendar_mine_hint">Komende afleveringen en releases van titels uit je lijsten verschijnen hier.</string>
     <string name="screens_calendar_release">Release</string>
     <string name="screens_profile_title">Profiel</string>
+    <string name="screens_profile_unnamed">SIMKL-gebruiker</string>
     <string name="screens_profile_sync_now">Nu synchroniseren</string>
     <string name="screens_profile_last_synced">Laatst gesynchroniseerd: %1$s</string>
     <string name="screens_profile_never_synced">Nog nooit gesynchroniseerd</string>

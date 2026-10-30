@@ -1,8 +1,6 @@
 package to.wim.watchlist.data
 
 import android.content.Context
-import to.wim.watchlist.R
-import to.wim.watchlist.data.api.ApiException
 import to.wim.watchlist.data.api.Parsers
 import to.wim.watchlist.data.api.SimklApi
 import to.wim.watchlist.data.model.AiringState
@@ -221,10 +219,8 @@ class LibraryRepository(
                 // Cancelled (signed out): not an error to show.
                 _state.update { it.copy(syncing = false) }
                 throw e
-            } catch (e: ApiException) {
-                if (e.unauthorized) appContext.getString(R.string.data_error_login_expired) else e.message
             } catch (e: Exception) {
-                e.message ?: e.javaClass.simpleName
+                e.userMessage(appContext.resources)
             }
         _state.update { it.copy(syncing = false, error = error) }
         if (error == null) {

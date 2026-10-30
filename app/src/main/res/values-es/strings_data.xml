@@ -1,6 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="data_error_login_expired">Tu sesión de SIMKL ha caducado. Cierra sesión y vuelve a iniciarla.</string>
+    <string name="data_error_offline">Sin conexión. Comprueba tu internet e inténtalo de nuevo.</string>
+    <string name="data_error_not_found">No se encontró. Puede que se haya eliminado.</string>
+    <string name="data_error_busy">Demasiadas solicitudes ahora mismo. Inténtalo de nuevo en un momento.</string>
+    <string name="data_error_server">El servidor no responde (HTTP %1$d). Inténtalo más tarde.</string>
+    <string name="data_error_http">El servidor devolvió un error (HTTP %1$d).</string>
+    <string name="data_error_unexpected">Algo salió mal.</string>
+    <string name="data_error_unexpected_detail">Algo salió mal (%1$s).</string>
     <string name="data_notif_new_episode">Nuevo episodio disponible</string>
     <string name="data_crash_title">Watchlist se cerró inesperadamente la última vez</string>
     <string name="data_crash_copy">Copiar informe de error</string>
@@ -8,6 +15,7 @@
     <string name="data_notif_episode_aired">%1$s ya está disponible</string>
     <plurals name="data_notif_episodes_aired">
         <item quantity="one">%1$d episodio nuevo, hasta %2$s</item>
+        <item quantity="many">%1$d episodios nuevos, hasta %2$s</item>
         <item quantity="other">%1$d episodios nuevos, hasta %2$s</item>
     </plurals>
     <string name="data_notif_channel_tv">Nuevos episodios de series</string>

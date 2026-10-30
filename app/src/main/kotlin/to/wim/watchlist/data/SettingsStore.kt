@@ -203,10 +203,13 @@ class SettingsStore(
 
     suspend fun token(): String? = current().accessToken
 
-    /** AUTH V2 refresh token and access-token expiry (epoch ms); null for AUTH V1 tokens, which never expire. */
-    suspend fun refreshToken(): String? = context.dataStore.data.first()[Keys.refreshToken]
+    /** The device file as it is now; an unreadable file counts as empty, like in [settings]. */
+    private suspend fun device(): Preferences = context.dataStore.data.ignoringReadErrors().first()
 
-    suspend fun tokenExpiresAt(): Long? = context.dataStore.data.first()[Keys.tokenExpiresAt]
+    /** AUTH V2 refresh token and access-token expiry (epoch ms); null for AUTH V1 tokens, which never expire. */
+    suspend fun refreshToken(): String? = device()[Keys.refreshToken]
+
+    suspend fun tokenExpiresAt(): Long? = device()[Keys.tokenExpiresAt]
 
     suspend fun setTokens(
         accessToken: String,
@@ -231,7 +234,7 @@ class SettingsStore(
     }
 
     suspend fun pendingAuth(): Pair<String, String>? {
-        val prefs = context.dataStore.data.first()
+        val prefs = device()
         return (prefs[Keys.authState] ?: return null) to (prefs[Keys.authVerifier] ?: return null)
     }
 
@@ -276,12 +279,12 @@ class SettingsStore(
     /** A key like a password: in the device file, never backed up. Null removes it. */
     suspend fun setTmdbKey(value: String?) = context.dataStore.edit { if (value == null) it -= Keys.tmdbKey else it[Keys.tmdbKey] = value }
 
-    suspend fun notifiedEpisodes(): Set<String> = context.dataStore.data.first()[Keys.notified].orEmpty()
+    suspend fun notifiedEpisodes(): Set<String> = device()[Keys.notified].orEmpty()
 
     suspend fun setNotifiedEpisodes(value: Set<String>) = context.dataStore.edit { it[Keys.notified] = value }
 
     /** Upcoming episodes of watched shows, see `NewEpisodes`. */
-    suspend fun rememberedEpisodes(): Set<String> = context.dataStore.data.first()[Keys.remembered].orEmpty()
+    suspend fun rememberedEpisodes(): Set<String> = device()[Keys.remembered].orEmpty()
 
     suspend fun setRememberedEpisodes(value: Set<String>) = context.dataStore.edit { it[Keys.remembered] = value }
 

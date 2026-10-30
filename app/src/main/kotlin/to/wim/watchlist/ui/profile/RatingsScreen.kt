@@ -78,7 +78,7 @@ fun RatingsScreen(types: List<MediaType>) {
                 rows.forEach { (type, items) ->
                     item(key = type.name) {
                         Column {
-                            SectionHeader(type.label(), items.size, Modifier.padding(horizontal = 8.dp)) { navigator.push(Route.RatedGrid(type)) }
+                            SectionHeader(type.label(), Modifier.padding(horizontal = 8.dp), items.size) { navigator.push(Route.RatedGrid(type)) }
                             LazyRow(contentPadding = PaddingValues(horizontal = 12.dp), horizontalArrangement = Arrangement.spacedBy(4.dp)) {
                                 items(items, key = { it.key }) { item ->
                                     RatedTile(item, Modifier.width(120.dp)) {

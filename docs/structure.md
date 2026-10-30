@@ -42,6 +42,7 @@ watchlist/
         │   │   │   ├── CatalogRepository.kt   Details, search, Discover; AccountRepository (profile kept on the device, stats)
         │   │   │   ├── EpisodeStore.kt        Episode lists kept on the device
         │   │   │   ├── Files.kt               Atomic file writes
+        │   │   │   ├── ErrorMessages.kt       A failed request worded in the user's language (from model/Errors.kt)
         │   │   │   ├── SettingsStore.kt       DataStore: tokens, settings, notified and remembered episodes (two files)
         │   │   │   ├── api/
         │   │   │   │   ├── SimklApi.kt        HTTP client for api.simkl.com and data.simkl.in
@@ -54,6 +55,7 @@ watchlist/
         │   │   │       ├── Models.kt          Items, details, episodes, images (wsrv.nl URLs)
         │   │   │       ├── Credits.kt         Cast, crew, people and their credits (TMDB)
         │   │   │       ├── Shelves.kt         Shelves, episode order, continue-from-latest
+        │   │   │       ├── Errors.kt          What went wrong with a request (offline, signed out, busy, …)
         │   │   │       └── NewEpisodes.kt     Which aired episodes a notification announces
         │   │   ├── work/NewEpisodesWorker.kt  Periodic new-episode notifications
         │   │   └── ui/
@@ -73,6 +75,7 @@ watchlist/
         │       └── xml/                        Backup rules: only the settings file
         └── test/kotlin/to/wim/watchlist/
             ├── data/ParsersTest.kt   Parsers, shelves, continue-from-latest
+            ├── data/ErrorsTest.kt    Failed requests told apart by what the user can do
             └── ui/LaunchTest.kt      Starts MainActivity under Robolectric
 ```
 

@@ -80,5 +80,8 @@ class WatchlistApp :
         account.clear()
         episodes.clear()
         NewEpisodesWorker.cancel(this)
+        // Which episodes were announced belongs to the account that signed out.
+        settings.setNotifiedEpisodes(emptySet())
+        settings.setRememberedEpisodes(emptySet())
     }
 }

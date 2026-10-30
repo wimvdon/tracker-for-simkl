@@ -39,6 +39,8 @@ import androidx.compose.ui.unit.dp
 import to.wim.watchlist.R
 import to.wim.watchlist.data.api.Pkce
 import to.wim.watchlist.data.api.SignIn
+import to.wim.watchlist.data.userMessage
+import to.wim.watchlist.work.NewEpisodesWorker
 import to.wim.watchlist.ui.components.openUrl
 import to.wim.watchlist.ui.components.rememberApp
 import kotlinx.coroutines.CancellationException
@@ -81,10 +83,14 @@ fun LoginScreen() {
                         } catch (e: CancellationException) {
                             throw e
                         } catch (e: Exception) {
-                            SignIn.Failed(e.message.orEmpty())
+                            SignIn.Failed(e.userMessage(resources))
                         }
                     when (result) {
-                        is SignIn.Approved -> app.settings.setTokens(result.accessToken, result.refreshToken, result.expiresAt)
+                        is SignIn.Approved -> {
+                            app.settings.setTokens(result.accessToken, result.refreshToken, result.expiresAt)
+                            // Signing out cancelled the scheduled check; with notifications still on, start it again.
+                            runCatching { NewEpisodesWorker.restore(context) }
+                        }
                         is SignIn.Failed -> error = resources.getString(R.string.screens_login_failed, result.message)
                     }
                     busy = false
@@ -124,7 +130,7 @@ fun LoginScreen() {
                     } catch (e: CancellationException) {
                         throw e
                     } catch (e: Exception) {
-                        error = resources.getString(R.string.screens_login_failed, e.message.orEmpty())
+                        error = resources.getString(R.string.screens_login_failed, e.userMessage(resources))
                     }
                 }
             },

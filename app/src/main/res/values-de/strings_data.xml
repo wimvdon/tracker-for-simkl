@@ -1,6 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="data_error_login_expired">Deine SIMKL-Anmeldung ist abgelaufen. Melde dich ab und erneut an.</string>
+    <string name="data_error_offline">Keine Verbindung. Prüfe dein Internet und versuche es erneut.</string>
+    <string name="data_error_not_found">Nicht gefunden. Möglicherweise wurde es entfernt.</string>
+    <string name="data_error_busy">Gerade zu viele Anfragen. Versuche es gleich noch einmal.</string>
+    <string name="data_error_server">Der Server antwortet nicht (HTTP %1$d). Versuche es später erneut.</string>
+    <string name="data_error_http">Der Server hat einen Fehler gemeldet (HTTP %1$d).</string>
+    <string name="data_error_unexpected">Etwas ist schiefgelaufen.</string>
+    <string name="data_error_unexpected_detail">Etwas ist schiefgelaufen (%1$s).</string>
     <string name="data_notif_new_episode">Neue Folge verfügbar</string>
     <string name="data_crash_title">Watchlist ist beim letzten Mal abgestürzt</string>
     <string name="data_crash_copy">Absturzbericht kopieren</string>

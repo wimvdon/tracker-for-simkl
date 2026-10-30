@@ -1,6 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="data_error_login_expired">Votre session SIMKL a expiré. Déconnectez-vous puis reconnectez-vous.</string>
+    <string name="data_error_offline">Pas de connexion. Vérifiez votre accès à Internet et réessayez.</string>
+    <string name="data_error_not_found">Introuvable. Il a peut-être été supprimé.</string>
+    <string name="data_error_busy">Trop de requêtes en ce moment. Réessayez dans un instant.</string>
+    <string name="data_error_server">Le serveur ne répond pas (HTTP %1$d). Réessayez plus tard.</string>
+    <string name="data_error_http">Le serveur a renvoyé une erreur (HTTP %1$d).</string>
+    <string name="data_error_unexpected">Une erreur s\'est produite.</string>
+    <string name="data_error_unexpected_detail">Une erreur s\'est produite (%1$s).</string>
     <string name="data_notif_new_episode">Nouvel épisode disponible</string>
     <string name="data_crash_title">Watchlist a planté la dernière fois</string>
     <string name="data_crash_copy">Copier le rapport de plantage</string>

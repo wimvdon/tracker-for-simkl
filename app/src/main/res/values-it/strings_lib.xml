@@ -66,26 +66,32 @@
     <string name="lib_mark_episode_watched">Segna %1$s come visto</string>
     <plurals name="lib_relative_in_days">
         <item quantity="one">tra %d giorno</item>
+        <item quantity="many">tra %d giorni</item>
         <item quantity="other">tra %d giorni</item>
     </plurals>
     <plurals name="lib_ago_hours">
         <item quantity="one">%d ora fa</item>
+        <item quantity="many">%d ore fa</item>
         <item quantity="other">%d ore fa</item>
     </plurals>
     <plurals name="lib_ago_days">
         <item quantity="one">%d giorno fa</item>
+        <item quantity="many">%d giorni fa</item>
         <item quantity="other">%d giorni fa</item>
     </plurals>
     <plurals name="lib_ago_months">
         <item quantity="one">%d mese fa</item>
+        <item quantity="many">%d mesi fa</item>
         <item quantity="other">%d mesi fa</item>
     </plurals>
     <plurals name="lib_ago_years">
         <item quantity="one">%d anno fa</item>
+        <item quantity="many">%d anni fa</item>
         <item quantity="other">%d anni fa</item>
     </plurals>
     <plurals name="lib_episodes_left">
         <item quantity="one">manca %d episodio</item>
+        <item quantity="many">mancano %d episodi</item>
         <item quantity="other">mancano %d episodi</item>
     </plurals>
 </resources>

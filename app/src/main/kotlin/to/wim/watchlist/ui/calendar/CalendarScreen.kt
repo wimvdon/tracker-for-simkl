@@ -151,7 +151,7 @@ fun CalendarScreen(types: List<MediaType>) {
                         modifier = Modifier.fillMaxSize().readableWidth(),
                     ) {
                         shownDays.forEach { (day, entries) ->
-                            item(key = "d-$day") { SectionHeader(Format.day(day), entries.size, Modifier.animateItem()) }
+                            item(key = "d-$day") { SectionHeader(Format.day(day), Modifier.animateItem(), entries.size) }
                             items(entries, key = { "${it.type}:${it.simklId}:${it.episode?.label}:${it.date}" }) { entry ->
                                 CalendarRow(entry, Modifier.animateItem()) {
                                     navigator.openDetail(entry.type, entry.simklId, entry.title, entry.poster)

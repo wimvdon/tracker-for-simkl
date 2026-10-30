@@ -144,6 +144,35 @@ class ParsersTest {
     }
 
     @Test
+    fun summaryKeepsTheEpisodeCountAsANumber() {
+        // The screen words the count in the user's language, so it is not English text in the subtitle.
+        val s =
+            Parsers.summaries(
+                Json.parseToJsonElement("""[{"title":"X","year":2001,"network":"HBO","total_episodes":12,"ids":{"simkl":7}}]"""),
+                MediaType.Tv,
+            ).single()
+        assertEquals(12, s.episodes)
+        assertEquals("2001 · HBO", s.subtitle)
+        assertNull(Parsers.summaries(Json.parseToJsonElement("""[{"title":"Y","total_episodes":0,"ids":{"simkl":8}}]"""), MediaType.Tv).single().episodes)
+    }
+
+    @Test
+    fun overviewsLoseTagsAndEntities() {
+        assertEquals("Tom & Jerry \"go\" 'home' now…\nNext line", Parsers.plainText("<p>Tom &amp; Jerry &quot;go&quot; &#39;home&#39; now&hellip;</p><br/>Next <b>line</b>"))
+        assertEquals("A & B", Parsers.plainText("A &#x26; B"))
+        // Unknown entities and plain ampersands stay as they are; empty text is null.
+        assertEquals("R&D &foo; x", Parsers.plainText("R&D &foo; x"))
+        assertNull(Parsers.plainText("<br>  "))
+    }
+
+    @Test
+    fun profileWithoutANameIsEmptyNotEnglish() {
+        val user = Parsers.user(Json.parseToJsonElement("""{"user":{"avatar":"a"},"account":{"id":42,"type":"free"}}"""))
+        assertEquals(42L, user?.id)
+        assertEquals("", user?.name)
+    }
+
+    @Test
     fun episodeRefs() {
         assertEquals(EpisodeRef(1, 5), EpisodeRef.parse("S01E05"))
         assertEquals(EpisodeRef(null, 12), EpisodeRef.parse("E12"))

@@ -300,7 +300,10 @@ data class MediaSummary(
     val year: Int? = null,
     val poster: String? = null,
     val rating: Double? = null,
+    /** Year, anime type and network, as far as known. */
     val subtitle: String? = null,
+    /** Episode count of a show, when SIMKL gives one. */
+    val episodes: Int? = null,
     val overview: String? = null,
 )
 

@@ -184,9 +184,26 @@ object Parsers {
         return obj?.long("id") ?: obj?.long("simkl_id") ?: obj?.obj("ids")?.long("simkl")
     }
 
-    /** SIMKL overviews may contain HTML line breaks. */
-    private fun plainText(value: String?): String? =
-        value?.replace(Regex("<br\\s*/?>", RegexOption.IGNORE_CASE), "\n")?.replace(Regex("<[^>]+>"), "")?.trim()?.ifEmpty { null }
+    private val entityPattern = Regex("&(#[0-9]+|#[xX][0-9a-fA-F]+|[a-zA-Z]+);")
+    private val namedEntities =
+        mapOf("amp" to "&", "lt" to "<", "gt" to ">", "quot" to "\"", "apos" to "'", "nbsp" to " ", "ndash" to "–", "mdash" to "—", "hellip" to "…")
+
+    /** SIMKL overviews may contain HTML line breaks, tags and entities ("Tom &amp;amp; Jerry"). */
+    fun plainText(value: String?): String? {
+        val text =
+            value
+                ?.replace(Regex("<br\\s*/?>", RegexOption.IGNORE_CASE), "\n")
+                ?.replace(Regex("<[^>]+>"), "")
+                ?: return null
+        return entityPattern.replace(text) { m ->
+            val e = m.groupValues[1]
+            when {
+                e.startsWith("#x") || e.startsWith("#X") -> e.drop(2).toIntOrNull(16)?.let { String(Character.toChars(it)) } ?: m.value
+                e.startsWith("#") -> e.drop(1).toIntOrNull()?.let { String(Character.toChars(it)) } ?: m.value
+                else -> namedEntities[e] ?: m.value
+            }
+        }.trim().ifEmpty { null }
+    }
 
     // ---- Catalogue ----------------------------------------------------------------------------
 
@@ -199,12 +216,12 @@ object Parsers {
         val rating =
             obj.obj("ratings")?.let { r -> r.obj("simkl")?.double("rating") ?: r.obj("imdb")?.double("rating") }
                 ?: obj.double("rating")
+        // The episode count is a number, not text: the screen words it in the user's language.
         val subtitle =
             listOfNotNull(
                 yearOf(obj)?.toString(),
                 obj.str("anime_type")?.uppercase(),
                 obj.str("network"),
-                obj.int("total_episodes")?.takeIf { it > 0 }?.let { "$it eps" },
             ).joinToString(" · ").ifEmpty { null }
         return MediaSummary(
             type = type,
@@ -214,6 +231,7 @@ object Parsers {
             poster = obj.str("poster") ?: obj.str("img"),
             rating = rating,
             subtitle = subtitle,
+            episodes = obj.int("total_episodes")?.takeIf { it > 0 },
             overview = plainText(obj.str("overview")),
         )
     }
@@ -340,7 +358,8 @@ object Parsers {
         val account = obj.obj("account")
         return UserProfile(
             id = account?.long("id") ?: user.long("id") ?: return null,
-            name = user.str("name") ?: "SIMKL user",
+            // Empty when SIMKL gives none; the profile screen shows its own wording for that.
+            name = user.str("name").orEmpty(),
             avatar = user.str("avatar"),
             joinedAt = user.str("joined_at"),
             location = user.str("loc") ?: user.str("location"),

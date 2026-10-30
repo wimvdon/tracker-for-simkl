@@ -60,6 +60,7 @@ import to.wim.watchlist.data.model.MediaType
 import to.wim.watchlist.data.model.Playback
 import to.wim.watchlist.data.model.Shelf
 import to.wim.watchlist.data.model.Shelves
+import to.wim.watchlist.data.userMessage
 import to.wim.watchlist.ui.LocalNavigator
 import to.wim.watchlist.ui.components.ConfirmWatchedDialog
 import to.wim.watchlist.ui.theme.EmptyState
@@ -241,7 +242,7 @@ private fun UpNextList(
             } catch (e: CancellationException) {
                 throw e
             } catch (e: Exception) {
-                onError(resources.getString(R.string.lib_mark_failed, label, e.message.orEmpty()))
+                onError(resources.getString(R.string.lib_mark_failed, label, e.userMessage(resources)))
             }
             busy = busy - item.key
         }

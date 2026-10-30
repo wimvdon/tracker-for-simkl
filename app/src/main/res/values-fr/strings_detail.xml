@@ -2,7 +2,6 @@
 <resources>
     <string name="detail_back">Retour</string>
     <string name="detail_share">Partager</string>
-    <string name="detail_load_failed_fallback">Impossible de charger les détails</string>
     <string name="detail_load_failed_title">Impossible de charger ce titre</string>
     <string name="detail_try_again">Réessayer</string>
     <string name="detail_failure_reason">%1$s : %2$s</string>
@@ -44,7 +43,6 @@
     <string name="detail_rating_8">Très bon</string>
     <string name="detail_rating_9">Excellent</string>
     <string name="detail_rating_10">Chef-d\'œuvre</string>
-    <string name="detail_rank">Rang n° %1$d</string>
     <string name="detail_fact_status">Statut</string>
     <string name="detail_fact_airs">Diffusion</string>
     <string name="detail_status_airing">En cours</string>

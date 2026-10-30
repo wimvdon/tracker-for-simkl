@@ -230,7 +230,13 @@ private fun ProfileHeader(profile: UserProfile?) {
             }
         }
         Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
-            Text(profile?.name ?: "…", style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.Bold)
+            val name =
+                when {
+                    profile == null -> "…"
+                    profile.name.isBlank() -> stringResource(R.string.screens_profile_unnamed)
+                    else -> profile.name
+                }
+            Text(name, style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.Bold)
             val meta =
                 listOfNotNull(
                     profile?.accountType?.replaceFirstChar { it.uppercase() },
