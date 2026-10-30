@@ -69,7 +69,7 @@ Secrets, keystores (`*.jks`, `*.keystore`), `keystore.properties`, passwords or 
   Look and feel: `DESIGN.md` (shared with the sibling apps, see below).
 - `DESIGN.md`: only its "This app" section belongs to this repository. The other sections are
   copied from the master copy in the android-app template (`wimvdon/android-app`): change a
-  shared rule there first, then copy it unchanged to every app (Tracker for Simkl, Time Tracker
+  shared rule there first, then copy it unchanged to every app (Watchlist, Time Tracker
   for Notion, Snoozer, RSS Reader, Noter for Notion).
 
 ## Releasing (only when the owner asks)
