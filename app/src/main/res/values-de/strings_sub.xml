@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- The subscription screen and the Subscription row in Settings. -->
+    <string name="sub_title_trial">Starte deinen kostenlosen Test</string>
+    <string name="sub_title">Abonniere Watchlist, um es weiter zu nutzen</string>
+    <string name="sub_feature_up_next">Als Nächstes, deine Listen und Bewertungen, mit SIMKL synchronisiert</string>
+    <string name="sub_feature_calendar">Der Kalender, Entdecken sowie Besetzung und Team</string>
+    <string name="sub_feature_notifications">Benachrichtigungen für neue Folgen und Filmstarts</string>
+    <string name="sub_price">%1$s pro Jahr</string>
+    <string name="sub_start_trial">Kostenlos testen</string>
+    <string name="sub_subscribe">Abonnieren</string>
+    <string name="sub_terms_trial">Google Play belastet dich, wenn der kostenlose Test endet, es sei denn, du kündigst vorher. Das Abo verlängert sich jedes Jahr, bis du es in Google Play › Abos kündigst.</string>
+    <string name="sub_terms">Das Abo verlängert sich jedes Jahr, bis du es in Google Play › Abos kündigst.</string>
+    <string name="sub_failed">Der Kauf hat nicht geklappt. Versuche es erneut oder prüfe deine Zahlungsmethode in Google Play.</string>
+    <string name="sub_pending">Dein Kauf wartet darauf, dass Google Play die Zahlung bestätigt. Watchlist öffnet sich, sobald das passiert ist.</string>
+    <string name="sub_unavailable">Google Play ist nicht verfügbar, daher kann das Abo nicht geprüft werden. Stelle sicher, dass Google Play installiert ist und du angemeldet bist, und prüfe erneut.</string>
+    <string name="sub_not_loaded">Das Abo konnte nicht aus Google Play geladen werden. Prüfe deine Verbindung und versuche es erneut.</string>
+    <string name="sub_check_again">Erneut prüfen</string>
+    <string name="sub_manage">Abo verwalten</string>
+    <string name="sub_settings_section">Abo</string>
+    <string name="sub_settings_summary">In Google Play ändern oder kündigen</string>
+    <plurals name="sub_price_trial">
+        <item quantity="one">%1$d Tag kostenlos, danach %2$s pro Jahr</item>
+        <item quantity="other">%1$d Tage kostenlos, danach %2$s pro Jahr</item>
+    </plurals>
+</resources>

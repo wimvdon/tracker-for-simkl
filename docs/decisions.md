@@ -2,6 +2,18 @@
 
 Newest first. Add an entry for every notable choice: what was decided, why, and what was rejected.
 
+## 2026-10-30: A yearly subscription through Google Play Billing
+
+The owner asked for a 14-day free trial and then €3.99 a year, with the app fully locked
+without a subscription. Added the Google Play Billing Library (`com.android.billingclient:billing`,
+asked for and approved). The trial is a Google Play offer on the yearly plan, so Google Play
+decides who still gets it (one per Google account) and charges when it ends; the app keeps no
+trial clock of its own, which a reinstall could reset. The app asks Google Play at every start and
+return to the foreground and stores the last answer on the device (not backed up), so a
+subscriber can use it offline for 7 days. Debug builds are never locked (they can't buy from
+Play). Rejected: a paid app (no trial possible) and a trial counted by the app (resettable, and
+it would need its own server to be fair).
+
 ## 2026-10-30: Store texts in fastlane's folder layout
 
 The Google Play texts for all six languages live in `fastlane/metadata/android/<locale>/`, the

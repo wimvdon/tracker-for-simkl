@@ -43,6 +43,7 @@ watchlist/
         │   │   │   ├── CatalogRepository.kt   Details, search, Discover; AccountRepository (profile kept on the device, stats)
         │   │   │   ├── EpisodeStore.kt        Episode lists kept on the device
         │   │   │   ├── Files.kt               Atomic file writes
+        │   │   │   ├── SubscriptionRepository.kt   Google Play Billing: purchases, offers, acknowledging
         │   │   │   ├── ErrorMessages.kt       A failed request worded in the user's language (from model/Errors.kt)
         │   │   │   ├── SettingsStore.kt       DataStore: tokens, settings, notified and remembered episodes (two files)
         │   │   │   ├── api/
@@ -58,6 +59,7 @@ watchlist/
         │   │   │       ├── Shelves.kt         Shelves, episode order, continue-from-latest
         │   │   │       ├── Errors.kt          What went wrong with a request (offline, signed out, busy, …)
         │   │   │       ├── TmdbBanner.kt      When the details page offers to add a TMDB token
+        │   │   │       ├── Subscription.kt    When the app opens or shows the subscription screen; which offer to show
         │   │   │       └── NewEpisodes.kt     Which aired episodes a notification announces
         │   │   ├── work/NewEpisodesWorker.kt  Periodic new-episode notifications
         │   │   └── ui/

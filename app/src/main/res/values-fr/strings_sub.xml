@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- The subscription screen and the Subscription row in Settings. -->
+    <string name="sub_title_trial">Commencez votre essai gratuit</string>
+    <string name="sub_title">Abonnez-vous pour continuer à utiliser Watchlist</string>
+    <string name="sub_feature_up_next">À suivre, vos listes et vos notes, synchronisés avec SIMKL</string>
+    <string name="sub_feature_calendar">Le calendrier, Découvrir, la distribution et l\'équipe</string>
+    <string name="sub_feature_notifications">Des notifications pour les nouveaux épisodes et les sorties de films</string>
+    <string name="sub_price">%1$s par an</string>
+    <string name="sub_start_trial">Commencer l\'essai gratuit</string>
+    <string name="sub_subscribe">S\'abonner</string>
+    <string name="sub_terms_trial">Google Play vous facture à la fin de l\'essai gratuit, sauf si vous résiliez avant. L\'abonnement se renouvelle chaque année jusqu\'à ce que vous le résiliiez dans Google Play › Abonnements.</string>
+    <string name="sub_terms">L\'abonnement se renouvelle chaque année jusqu\'à ce que vous le résiliiez dans Google Play › Abonnements.</string>
+    <string name="sub_failed">L\'achat n\'a pas abouti. Réessayez ou vérifiez votre moyen de paiement dans Google Play.</string>
+    <string name="sub_pending">Votre achat attend que Google Play confirme le paiement. Watchlist s\'ouvre dès que c\'est fait.</string>
+    <string name="sub_unavailable">Google Play n\'est pas disponible : l\'abonnement ne peut pas être vérifié. Vérifiez que Google Play est installé et que vous y êtes connecté, puis réessayez.</string>
+    <string name="sub_not_loaded">L\'abonnement n\'a pas pu être chargé depuis Google Play. Vérifiez votre connexion et réessayez.</string>
+    <string name="sub_check_again">Vérifier à nouveau</string>
+    <string name="sub_manage">Gérer l\'abonnement</string>
+    <string name="sub_settings_section">Abonnement</string>
+    <string name="sub_settings_summary">Le modifier ou le résilier dans Google Play</string>
+    <plurals name="sub_price_trial">
+        <item quantity="one">%1$d jour gratuit, puis %2$s par an</item>
+        <item quantity="many">%1$d jours gratuits, puis %2$s par an</item>
+        <item quantity="other">%1$d jours gratuits, puis %2$s par an</item>
+    </plurals>
+</resources>

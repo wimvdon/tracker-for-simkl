@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- The subscription screen and the Subscription row in Settings. -->
+    <string name="sub_title_trial">Start je gratis proefperiode</string>
+    <string name="sub_title">Neem een abonnement om Watchlist te blijven gebruiken</string>
+    <string name="sub_feature_up_next">Volgende, je lijsten en scores, gesynchroniseerd met SIMKL</string>
+    <string name="sub_feature_calendar">De kalender, Ontdekken, en cast en crew</string>
+    <string name="sub_feature_notifications">Meldingen voor nieuwe afleveringen en films</string>
+    <string name="sub_price">%1$s per jaar</string>
+    <string name="sub_start_trial">Gratis proefperiode starten</string>
+    <string name="sub_subscribe">Abonneren</string>
+    <string name="sub_terms_trial">Google Play rekent het bedrag aan als de gratis proefperiode afloopt, tenzij je vóór dan opzegt. Het abonnement verlengt elk jaar tot je het opzegt in Google Play › Abonnementen.</string>
+    <string name="sub_terms">Het abonnement verlengt elk jaar tot je het opzegt in Google Play › Abonnementen.</string>
+    <string name="sub_failed">De aankoop is niet gelukt. Probeer het opnieuw of controleer je betaalmethode in Google Play.</string>
+    <string name="sub_pending">Je aankoop wacht tot Google Play de betaling bevestigt. Watchlist opent zodra dat gebeurd is.</string>
+    <string name="sub_unavailable">Google Play is niet beschikbaar, dus het abonnement kan niet gecontroleerd worden. Zorg dat Google Play geïnstalleerd is en dat je erin aangemeld bent, en controleer opnieuw.</string>
+    <string name="sub_not_loaded">Het abonnement kon niet geladen worden uit Google Play. Controleer je verbinding en probeer het opnieuw.</string>
+    <string name="sub_check_again">Opnieuw controleren</string>
+    <string name="sub_manage">Abonnement beheren</string>
+    <string name="sub_settings_section">Abonnement</string>
+    <string name="sub_settings_summary">Wijzigen of opzeggen in Google Play</string>
+    <plurals name="sub_price_trial">
+        <item quantity="one">%1$d dag gratis, daarna %2$s per jaar</item>
+        <item quantity="other">%1$d dagen gratis, daarna %2$s per jaar</item>
+    </plurals>
+</resources>

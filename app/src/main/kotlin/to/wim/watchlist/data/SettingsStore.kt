@@ -12,6 +12,7 @@ import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.core.stringSetPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
 import to.wim.watchlist.data.model.MediaType
+import to.wim.watchlist.data.model.StoredAccess
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.combine
@@ -171,6 +172,8 @@ class SettingsStore(
         val authVerifier = stringPreferencesKey("auth_verifier")
         val tmdbKey = stringPreferencesKey("tmdb_key")
         val tmdbBannerHidden = booleanPreferencesKey("tmdb_banner_hidden")
+        val subscriptionActive = booleanPreferencesKey("subscription_active")
+        val subscriptionCheckedAt = longPreferencesKey("subscription_checked_at")
     }
 
     val settings: Flow<AppSettings> =
@@ -288,6 +291,19 @@ class SettingsStore(
     suspend fun setTmdbKey(value: String?) = context.dataStore.edit { if (value == null) it -= Keys.tmdbKey else it[Keys.tmdbKey] = value }
 
     suspend fun setTmdbBannerHidden(value: Boolean) = context.backedUpStore.edit { it[Keys.tmdbBannerHidden] = value }
+
+    /** Google Play's last answer about the subscription; stays on this phone, never backed up. */
+    suspend fun storedAccess(): StoredAccess? {
+        val prefs = device()
+        val active = prefs[Keys.subscriptionActive] ?: return null
+        return StoredAccess(active, prefs[Keys.subscriptionCheckedAt] ?: 0L)
+    }
+
+    suspend fun setStoredAccess(value: StoredAccess) =
+        context.dataStore.edit {
+            it[Keys.subscriptionActive] = value.active
+            it[Keys.subscriptionCheckedAt] = value.checkedAt
+        }
 
     suspend fun notifiedEpisodes(): Set<String> = device()[Keys.notified].orEmpty()
 

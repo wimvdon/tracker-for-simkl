@@ -48,6 +48,7 @@ import to.wim.watchlist.BuildConfig
 import to.wim.watchlist.R
 import to.wim.watchlist.data.AppSettings
 import to.wim.watchlist.data.NavConfig
+import to.wim.watchlist.data.SubscriptionRepository
 import to.wim.watchlist.data.ThemeMode
 import to.wim.watchlist.data.model.MediaType
 import to.wim.watchlist.data.toggled
@@ -280,6 +281,19 @@ fun SettingsScreen(settings: AppSettings) {
                     text = stringResource(R.string.screens_credit_tmdb_text) + "\n" + stringResource(R.string.screens_tmdb_notice),
                     onClick = { context.openUrl("https://www.themoviedb.org/") },
                 )
+            }
+        }
+
+        if (BuildConfig.REQUIRE_SUBSCRIPTION) {
+            item(key = "subscription") {
+                SettingsSection(title = stringResource(R.string.sub_settings_section)) {
+                    SettingItem(
+                        title = stringResource(R.string.sub_manage),
+                        summary = stringResource(R.string.sub_settings_summary),
+                        onClick = { context.openUrl(SubscriptionRepository.manageUrl(context.packageName)) },
+                        trailing = { Icon(Icons.AutoMirrored.Rounded.OpenInNew, null) },
+                    )
+                }
             }
         }
 

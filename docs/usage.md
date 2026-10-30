@@ -14,6 +14,14 @@ Nobody needs a SIMKL developer account. If the browser shows the app chooser (wh
 
 **Coming from version 1.8.0 or older (the app's previous name):** Watchlist is a separate app for Android, so the old one doesn't update to it. Install Watchlist, sign in (your lists are on SIMKL, so everything comes back), set your settings again, then uninstall the old app. The old app can no longer sign in to SIMKL.
 
+## Subscription
+
+After signing in, Watchlist needs a subscription, sold through Google Play: **Start free trial** gives 14 days free, then €3.99 a year (Google Play shows the price in your currency). Google Play charges you when the trial ends unless you cancel before then; someone who already had the trial sees **Subscribe** instead. Without an active subscription the app only shows this screen.
+
+- **Check again**: asks Google Play again, for example after subscribing on another phone with the same Google account.
+- **Manage subscription** (also in *Settings › Subscription*): Google Play's page to change or cancel it.
+- Offline, the app keeps opening for up to 7 days after Google Play last confirmed the subscription.
+
 ## Navigation
 
 - The **navigation bar** at the bottom holds the destinations: **TV Shows**, **Movies**, **Anime**, **Discover** and **Calendar**. Change their order (drag a row by its handle) and turn them on or off in *Settings › Bottom bar*.
@@ -103,4 +111,5 @@ TV shows, anime and movies each have their own Android notification channel, so 
 | "Sign-in failed: …" right after approving | Start the sign-in again from the app (an old browser tab can't finish a new sign-in). |
 | "This build has no SIMKL client ID" | The APK was built without `-PsimklClientId`. Install a release APK. |
 | A crash report on start | The app crashed last time. Tap **Copy crash report**, paste it in a GitHub issue, then tap **Continue**. |
+| "Google Play isn't available" on the subscription screen | Google Play must be installed and signed in. Watchlist installed from GitHub instead of Google Play can't check the subscription: install it from Google Play. |
 | No notifications | Check *Settings › Notifications*: the switch should be on and the type should say *On*; tap a type that says *Off* to turn it on in Android's settings. They only cover shows you're watching, as of the last sync. Some phones stop background work for apps that are "optimized" or closed from the recent apps list: open the app once (that restarts the checks) and set its battery use to *Unrestricted* in Android's settings. |
