@@ -14,9 +14,9 @@ copy them into the Play Console as they are.
   ([TMDB FAQ](https://developer.themoviedb.org/docs/faq)). Each user enters their own token, but
   the app itself is sold, so ask TMDB (the address is on that page) before launching the paid
   version.
-- **The subscription isn't in the app yet.** The "Price" paragraph of the store texts describes
-  the planned 14-day trial and €3.99 a year. Leave it out of the listing until a version with
-  Google Play Billing is in production.
+- **The subscription comes with version 1.10.** The "Price" paragraph of the store texts
+  describes the 14-day trial and €3.99 a year; publish it together with that version, after
+  setting up the subscription (step 7).
 
 ## 1. Developer account
 
@@ -100,7 +100,7 @@ to Play and keep GitHub Releases for testing.
    to install and open the app.
 4. After 14 days: **Dashboard › Apply for production** and answer the questions about the test.
 
-## 7. Subscription (once Play Billing is in the app)
+## 7. Subscription
 
 **Monetize with Play › Products › Subscriptions › Create subscription**:
 
@@ -113,8 +113,14 @@ to Play and keep GitHub Releases for testing.
 4. **Monetization setup › License testing**: add your own Google account, so test purchases
    cost nothing.
 
-The products can only be activated after a version that uses Google Play Billing has been
-uploaded to a test track.
+The IDs have to match the app: the app asks Google Play for product `watchlist_yearly` and
+offers whichever offer Google Play returns for that user (the free-trial offer if they never had
+it, else the plain yearly plan). The products can only be activated after a version that uses
+Google Play Billing has been uploaded to a test track.
+
+To test: install the app from the internal test track (not a debug build or a GitHub APK: those
+can't buy from Google Play), signed in with a license-test account. Test purchases renew fast
+(a year lasts 30 minutes, a 14-day trial a few minutes) and cost nothing.
 
 ## 8. Production release
 

@@ -26,10 +26,15 @@ Only your settings (theme, bottom bar, content types, library options and whethe
 
 Only when you turn on notifications for new episodes and releases: about every 4 hours, with a network connection, the app downloads SIMKL's public calendar files (episodes, and movie releases when movies are on) and compares them with your library as last synced. For each new episode or movie it announces, it downloads that title's poster (and a show's backdrop) picture (through wsrv.nl, as everywhere in the app) to show in the notification. It does not call SIMKL's API or TMDB in the background.
 
+## Subscription
+
+The subscription is sold by Google Play under [Google's terms and privacy policy](https://policies.google.com/privacy). The app never sees your payment details. It asks Google Play whether your subscription is active and keeps that answer, with the time it was checked, on your phone (not backed up), so it opens when you're offline.
+
 ## Permissions
 
 - **Internet** and **network state**: to talk to SIMKL (and TMDB, if you added a token).
 - **Notifications** (Android 13+, optional): for notifications about new episodes and movie releases.
+- **Google Play billing**: to sell the subscription through Google Play and check whether it is active.
 
 If this changes, this file will be updated **before** the change is released.
 
