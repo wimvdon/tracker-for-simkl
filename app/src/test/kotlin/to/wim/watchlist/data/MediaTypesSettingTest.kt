@@ -15,6 +15,12 @@ class MediaTypesSettingTest {
     }
 
     @Test
+    fun continueFromTheLatestEpisodeIsOnByDefault() {
+        // Also what a stored settings file without the key reads as (SettingsStore uses this default).
+        assertEquals(true, AppSettings().continueFromLatest)
+    }
+
+    @Test
     fun libraryTabsOfTypesTurnedOffAreLeftOut() {
         val settings = AppSettings(types = setOf(MediaType.Movie))
         assertEquals(listOf(NavTab.Movies, NavTab.Discover, NavTab.Calendar), settings.tabs)

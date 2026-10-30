@@ -122,8 +122,11 @@ data class AppSettings(
     val nav: NavConfig = NavConfig(NavTab.defaultOrder, NavTab.defaultEnabled),
     val notifications: Boolean = false,
     val hideSpecials: Boolean = true,
-    /** Up next starts after the most recently watched episode, ignoring skipped ones before it. */
-    val continueFromLatest: Boolean = false,
+    /**
+     * Up next starts after the most recently watched episode, ignoring skipped ones before it.
+     * On by default: most people who skip an episode don't want the show stuck on it.
+     */
+    val continueFromLatest: Boolean = true,
     /** Media types shown throughout the app; at least one stays on. */
     val types: Set<MediaType> = MediaType.entries.toSet(),
     /** The user's own TMDB key, for cast and crew; null when not set. Stays on this phone. */
@@ -188,7 +191,8 @@ class SettingsStore(
                     ),
                 notifications = d[Keys.notifications] ?: false,
                 hideSpecials = p[Keys.hideSpecials] ?: true,
-                continueFromLatest = p[Keys.continueFromLatest] ?: false,
+                // Not set yet (new install, or never changed): the default above.
+                continueFromLatest = p[Keys.continueFromLatest] ?: AppSettings().continueFromLatest,
                 types =
                     p[Keys.mediaTypes]
                         ?.mapNotNull { n -> MediaType.entries.firstOrNull { it.name == n } }
