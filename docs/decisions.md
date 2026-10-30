@@ -9,6 +9,12 @@ layout that fastlane `supply` and the Play upload GitHub Action read, so they ca
 automatically later without moving files. Fastlane itself is not added; for now the texts are
 copied into the Play Console by hand ([publishing.md](publishing.md)). Rejected: keeping the
 texts only in the Play Console (no history, and not reviewed with the app's own wording).
+## 2026-10-30: "Continue from the latest episode" on by default
+
+Most people who skip an episode or a season don't want the show stuck on it in Up next, so the
+setting is now on for new installs and for everyone who never changed it (a stored "off" stays
+off). It costs a few more episode-list downloads, which the kept lists (`EpisodeStore`) and
+`SyncRules.episodesDue` already limit.
 
 ## 2026-10-30: A card offers the TMDB token on details pages
 
