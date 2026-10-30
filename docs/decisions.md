@@ -2,6 +2,16 @@
 
 Newest first. Add an entry for every notable choice: what was decided, why, and what was rejected.
 
+## 2026-10-30: A card offers the TMDB token on details pages
+
+Cast and crew need the user's own TMDB token, but the only way to find that out was Settings.
+Details pages of titles TMDB knows now show a card where the cast would be, which opens the
+token dialog. "Not now" hides it until the app restarts (kept in memory); "Don't show again" is
+stored in the backed-up settings, like the user's other choices. It is a banner, not an empty
+state, because the page works without it (DESIGN.md, "Empty and setup states"). Rejected: a card
+on the main screens (it would nag on every tab, not where a token helps) and showing it on
+titles TMDB doesn't know (a token wouldn't add anything there).
+
 ## 2026-10-30: Pre-launch audit: errors in the user's language, Play bundle, polish
 
 A read-through of the whole app before the Google Play launch (people will pay for it). Fixed in

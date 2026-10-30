@@ -88,6 +88,12 @@
     </plurals>
     <string name="detail_cast">Besetzung</string>
     <string name="detail_crew">Team</string>
+    <string name="detail_tmdb_banner_title">Besetzung und Team ansehen</string>
+    <string name="detail_tmdb_banner_text">Füge dein eigenes kostenloses TMDB-Token hinzu, um zu sehen, wer mitspielt, und Personen nachzuschlagen.</string>
+    <string name="detail_tmdb_banner_add">Token hinzufügen</string>
+    <string name="detail_tmdb_banner_not_now">Nicht jetzt</string>
+    <string name="detail_tmdb_banner_never">Nicht mehr anzeigen</string>
+    <string name="detail_tmdb_banner_hidden">Du kannst später ein Token in Einstellungen › Besetzung und Team hinzufügen.</string>
     <string name="detail_job_writer">Drehbuch</string>
     <string name="detail_job_story">Story</string>
     <string name="detail_job_novel">Buchvorlage</string>

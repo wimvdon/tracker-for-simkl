@@ -89,6 +89,12 @@
     </plurals>
     <string name="detail_cast">Cast</string>
     <string name="detail_crew">Troupe</string>
+    <string name="detail_tmdb_banner_title">Vedi cast e troupe</string>
+    <string name="detail_tmdb_banner_text">Aggiungi il tuo token TMDB gratuito per vedere chi recita e cercare persone.</string>
+    <string name="detail_tmdb_banner_add">Aggiungi token</string>
+    <string name="detail_tmdb_banner_not_now">Non ora</string>
+    <string name="detail_tmdb_banner_never">Non mostrare più</string>
+    <string name="detail_tmdb_banner_hidden">Puoi aggiungere un token più tardi in Impostazioni › Cast e troupe.</string>
     <string name="detail_job_writer">Sceneggiatura</string>
     <string name="detail_job_story">Soggetto</string>
     <string name="detail_job_novel">Libro</string>

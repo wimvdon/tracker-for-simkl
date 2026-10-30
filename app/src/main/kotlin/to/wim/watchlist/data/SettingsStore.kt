@@ -128,6 +128,8 @@ data class AppSettings(
     val types: Set<MediaType> = MediaType.entries.toSet(),
     /** The user's own TMDB key, for cast and crew; null when not set. Stays on this phone. */
     val tmdbKey: String? = null,
+    /** "Don't show again" on the card that offers a TMDB token. Backed up, like other choices. */
+    val tmdbBannerHidden: Boolean = false,
 ) {
     /** [types] in the app's usual order: TV shows, anime, movies. */
     val typeList: List<MediaType> get() = MediaType.entries.filter { it in types }
@@ -165,6 +167,7 @@ class SettingsStore(
         val authState = stringPreferencesKey("auth_state")
         val authVerifier = stringPreferencesKey("auth_verifier")
         val tmdbKey = stringPreferencesKey("tmdb_key")
+        val tmdbBannerHidden = booleanPreferencesKey("tmdb_banner_hidden")
     }
 
     val settings: Flow<AppSettings> =
@@ -193,6 +196,7 @@ class SettingsStore(
                         ?.ifEmpty { null }
                         ?: MediaType.entries.toSet(),
                 tmdbKey = d[Keys.tmdbKey],
+                tmdbBannerHidden = p[Keys.tmdbBannerHidden] ?: false,
             )
         }
 
@@ -278,6 +282,8 @@ class SettingsStore(
 
     /** A key like a password: in the device file, never backed up. Null removes it. */
     suspend fun setTmdbKey(value: String?) = context.dataStore.edit { if (value == null) it -= Keys.tmdbKey else it[Keys.tmdbKey] = value }
+
+    suspend fun setTmdbBannerHidden(value: Boolean) = context.backedUpStore.edit { it[Keys.tmdbBannerHidden] = value }
 
     suspend fun notifiedEpisodes(): Set<String> = device()[Keys.notified].orEmpty()
 

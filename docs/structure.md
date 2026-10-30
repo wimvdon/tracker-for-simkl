@@ -56,6 +56,7 @@ watchlist/
         │   │   │       ├── Credits.kt         Cast, crew, people and their credits (TMDB)
         │   │   │       ├── Shelves.kt         Shelves, episode order, continue-from-latest
         │   │   │       ├── Errors.kt          What went wrong with a request (offline, signed out, busy, …)
+        │   │   │       ├── TmdbBanner.kt      When the details page offers to add a TMDB token
         │   │   │       └── NewEpisodes.kt     Which aired episodes a notification announces
         │   │   ├── work/NewEpisodesWorker.kt  Periodic new-episode notifications
         │   │   └── ui/

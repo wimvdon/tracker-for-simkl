@@ -19,6 +19,7 @@ import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Test
+import to.wim.watchlist.data.model.TmdbBanner
 import java.time.LocalDate
 import java.util.Locale
 
@@ -75,6 +76,25 @@ class TmdbTest {
         director = null, budget = null, revenue = null, ratings = emptyList(), rank = null, trailers = emptyList(),
         recommendations = emptyList(), alternativeTitles = emptyList(),
     )
+
+    @Test
+    fun tokenBannerShowsOnlyWhereATokenWouldShowCast() {
+        val known = details(MediaType.Tv, "1396")
+        assertTrue(TmdbBanner.show(hasToken = false, details = known, hiddenForNow = false, hiddenForever = false))
+        // A token is set: cast shows instead.
+        assertFalse(TmdbBanner.show(hasToken = true, details = known, hiddenForNow = false, hiddenForever = false))
+        // TMDB doesn't know the title (many anime): a token wouldn't add anything here.
+        assertFalse(TmdbBanner.show(hasToken = false, details = details(MediaType.Anime, null), hiddenForNow = false, hiddenForever = false))
+        // Details not loaded yet: nothing to decide on.
+        assertFalse(TmdbBanner.show(hasToken = false, details = null, hiddenForNow = false, hiddenForever = false))
+    }
+
+    @Test
+    fun tokenBannerCanBeHiddenForNowOrForGood() {
+        val known = details(MediaType.Movie, "550")
+        assertFalse(TmdbBanner.show(hasToken = false, details = known, hiddenForNow = true, hiddenForever = false))
+        assertFalse(TmdbBanner.show(hasToken = false, details = known, hiddenForNow = false, hiddenForever = true))
+    }
 
     @Test
     fun movieCastKeepsBillingOrderAndSkipsEntriesWithoutId() {
