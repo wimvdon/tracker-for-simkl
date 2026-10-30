@@ -2,6 +2,7 @@
 
 ```
 watchlist/
+├── fastlane/metadata/android/<locale>/   Google Play store texts (title, short and full description)
 ├── .editorconfig                     Editor/ktlint rules (4 spaces, 140 columns, ktlint_official)
 ├── .gitattributes                    LF everywhere; *.bat → CRLF; keystores/images binary
 ├── .github/

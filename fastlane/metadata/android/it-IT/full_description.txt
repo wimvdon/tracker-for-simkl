@@ -1,0 +1,24 @@
+Watchlist porta le tue liste SIMKL sul telefono e ti mostra cosa guardare dopo.
+
+Apri l'app: in Prossimi trovi ogni serie con un episodio che puoi guardare adesso. Tocca la spunta quando l'hai visto e l'episodio successivo prende il suo posto. Hai saltato un episodio? Prossimi riparte dopo l'ultimo che hai visto.
+
+COSA TROVI
+• Le tue liste SIMKL divise per serie TV, anime e film: Prossimi, Da vedere, Visti, In pausa e Abbandonati.
+• Segna come visti episodi o stagioni intere, dai un voto da 1 a 10 e fai check-in su quello che stai guardando ora.
+• Un calendario con i prossimi episodi e le uscite dei film delle tue liste.
+• Un avviso quando esce un nuovo episodio di una serie che segui, o quando esce un film della tua lista Da vedere. Ogni tipo ha il suo canale, così scegli tu cosa fa suonare il telefono.
+• Scopri: Di tendenza su Simkl oggi, questa settimana e questo mese, in onda oggi, nuove uscite e il meglio dell'anno. Oppure tocca il dado per una sorpresa.
+• Schede con i voti di SIMKL, IMDb e altri, trailer, tutti gli episodi per stagione e link a IMDb, TMDB, MyAnimeList e altro.
+• Cast e troupe, con le pagine di attori e registi, se aggiungi il tuo token TMDB gratuito (facoltativo).
+• Ricerca in tutto il catalogo SIMKL.
+• Si apre subito e funziona offline con la copia della tua libreria sul telefono. Si sincronizza quando apri l'app o trascini verso il basso.
+• Design Material 3 con tema scuro e, da Android 12, i colori del tuo sfondo.
+• In italiano, inglese, olandese, francese, tedesco e spagnolo.
+
+PRIVACY
+Niente pubblicità, niente analisi, niente tracciamento. Accedi su simkl.com, quindi l'app non vede mai la tua password. Le tue liste restano su SIMKL; l'app ne tiene una copia sul telefono per aprirsi in fretta. Informativa sulla privacy: https://github.com/wimvdon/watchlist/blob/main/PRIVACY.md
+
+PREZZO
+Prova tutto gratis per 14 giorni. Poi Watchlist costa 3,99 € all'anno (Google Play mostra il prezzo nella tua valuta). Puoi disdire quando vuoi da Google Play.
+
+Serve un account SIMKL gratuito (simkl.com). Watchlist è un'app non ufficiale, non affiliata né approvata da Simkl. Questo prodotto usa l'API di TMDB ma non è approvato né certificato da TMDB.

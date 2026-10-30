@@ -2,6 +2,14 @@
 
 Newest first. Add an entry for every notable choice: what was decided, why, and what was rejected.
 
+## 2026-10-30: Store texts in fastlane's folder layout
+
+The Google Play texts for all six languages live in `fastlane/metadata/android/<locale>/`, the
+layout that fastlane `supply` and the Play upload GitHub Action read, so they can be uploaded
+automatically later without moving files. Fastlane itself is not added; for now the texts are
+copied into the Play Console by hand ([publishing.md](publishing.md)). Rejected: keeping the
+texts only in the Play Console (no history, and not reviewed with the app's own wording).
+
 ## 2026-10-30: A card offers the TMDB token on details pages
 
 Cast and crew need the user's own TMDB token, but the only way to find that out was Settings.

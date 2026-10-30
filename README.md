@@ -10,6 +10,7 @@
 | [📖 Usage guide](docs/usage.md) | Signing in, shelves, Discover, Calendar, settings |
 | [🔌 API](docs/api.md) | SIMKL endpoints used, sign-in flow, deep links |
 | [🧪 Testing](docs/testing.md) | How to run tests and what they cover |
+| [🛒 Publishing](docs/publishing.md) | Google Play: account, store texts, app content, subscription |
 
 ---
 

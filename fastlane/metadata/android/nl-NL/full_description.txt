@@ -1,0 +1,24 @@
+Watchlist zet je SIMKL-lijsten op je telefoon en toont wat je als volgende kunt kijken.
+
+Open de app en onder Volgende staat elke serie met een aflevering die je nu kunt kijken. Tik op het vinkje als je ze gezien hebt en de volgende aflevering schuift op. Een aflevering overgeslagen? Volgende gaat verder na de laatste die je keek.
+
+WAT JE KRIJGT
+• Je SIMKL-lijsten als planken voor series, anime en films: Volgende, Wil ik zien, Gezien, Gepauzeerd en Gestopt.
+• Duid afleveringen of hele seizoenen aan als gezien, geef titels een score van 1 tot 10 en check in bij wat je nu kijkt.
+• Een kalender met de komende afleveringen en films uit je lijsten.
+• Een melding als er een nieuwe aflevering is van een serie die je kijkt, of als een film op je lijst Wil ik zien uitkomt. Elk type heeft een eigen kanaal, dus jij kiest wat geluid maakt.
+• Ontdekken: Trending op Simkl vandaag, deze week en deze maand, vandaag op tv, nieuwe premières en het beste van het jaar. Of tik op de dobbelsteen voor een verrassing.
+• Detailpagina's met scores van SIMKL, IMDb en anderen, trailers, alle afleveringen per seizoen en links naar IMDb, TMDB, MyAnimeList en meer.
+• Cast en crew, met pagina's van acteurs en regisseurs, als je je eigen gratis TMDB-token toevoegt (optioneel).
+• Zoeken in de hele SIMKL-catalogus.
+• Opent meteen en werkt offline met de kopie van je bibliotheek op je telefoon. Synchroniseert als je de app opent of naar beneden trekt.
+• Material 3-ontwerp met een donker thema en, vanaf Android 12, de kleuren van je achtergrond.
+• In het Nederlands, Engels, Frans, Duits, Spaans en Italiaans.
+
+PRIVACY
+Geen advertenties, geen analytics, geen tracking. Je logt in op simkl.com, dus de app ziet je wachtwoord nooit. Je lijsten blijven op SIMKL; de app houdt een kopie op je telefoon zodat ze snel opent. Privacybeleid: https://github.com/wimvdon/watchlist/blob/main/PRIVACY.md
+
+PRIJS
+Probeer alles 14 dagen gratis. Daarna kost Watchlist € 3,99 per jaar (Google Play toont de prijs in je eigen munt). Opzeggen kan altijd via Google Play.
+
+Je hebt een gratis SIMKL-account nodig (simkl.com). Watchlist is een onofficiële app en is niet verbonden aan of goedgekeurd door Simkl. Dit product gebruikt de TMDB API, maar is niet goedgekeurd of gecertificeerd door TMDB.
