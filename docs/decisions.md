@@ -2,6 +2,13 @@
 
 Newest first. Add an entry for every notable choice: what was decided, why, and what was rejected.
 
+## 2026-10-30: "Continue from the latest episode" on by default
+
+Most people who skip an episode or a season don't want the show stuck on it in Up next, so the
+setting is now on for new installs and for everyone who never changed it (a stored "off" stays
+off). It costs a few more episode-list downloads, which the kept lists (`EpisodeStore`) and
+`SyncRules.episodesDue` already limit.
+
 ## 2026-10-30: A card offers the TMDB token on details pages
 
 Cast and crew need the user's own TMDB token, but the only way to find that out was Settings.

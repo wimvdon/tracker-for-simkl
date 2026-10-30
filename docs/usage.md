@@ -36,7 +36,7 @@ Shelves: **Up next** (shows with an aired, unwatched episode), **Watched** (caug
   | Watched, On hold, Dropped | Recently watched, Recently added, Title, My rating, Release date | My rating (rated by me / not rated), Status, Type (Anime) |
 
   There is no "my rating" on Up next and Want to watch: you rate what you have seen. On Movies, Want to watch sorts like the shows' (no filter button); Watched and Dropped have the same sorts as the shows' Watched tab and the my-rating filter.
-- **Continue from the latest episode** (*Settings › Library*): Up next starts after the most recently watched episode, so skipped earlier episodes or seasons don't keep a show in Up next. SIMKL's API has no "skip", so this is decided in the app.
+- **Continue from the latest episode** (*Settings › Library*, on by default): Up next starts after the most recently watched episode, so skipped earlier episodes or seasons don't keep a show in Up next. SIMKL's API has no "skip", so this is decided in the app.
 - **Hide specials** (*Settings › Library*): leaves season 0 episodes out of episode lists.
 
 ## Movies
