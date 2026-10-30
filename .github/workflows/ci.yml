@@ -64,7 +64,7 @@ jobs:
           test -n "$seeds" || { echo "::error::R8 seeds file missing"; find . -name '*seeds*' | head; exit 1; }
           echo "Seeds: $seeds"
           for entry in "androidx.work.impl.WorkDatabase_Impl: WorkDatabase_Impl()" \
-                       "io.github.impca201.trackerforsimkl.work.NewEpisodesWorker: NewEpisodesWorker(android.content.Context,androidx.work.WorkerParameters)"; do
+                       "to.wim.watchlist.work.NewEpisodesWorker: NewEpisodesWorker(android.content.Context,androidx.work.WorkerParameters)"; do
             grep -qF "$entry" "$seeds" || { echo "::error::R8 did not keep $entry"; grep -F "WorkDatabase_Impl" "$seeds" | head; exit 1; }
           done
           echo "Release build keeps the WorkManager/Room constructors."

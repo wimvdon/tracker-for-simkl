@@ -12,6 +12,8 @@ Nobody needs a SIMKL developer account. If the browser shows the app chooser (wh
 
 **Sign out:** Profile (top bar) › **Sign out**. This deletes the token and the cached library from the phone.
 
+**Coming from Tracker for Simkl (1.8.0 or older):** the app is now called Watchlist and is a separate app for Android, so the old one doesn't update to it. Install Watchlist, sign in (your lists are on SIMKL, so everything comes back), set your settings again, then uninstall Tracker for Simkl. While both are installed, Android asks which app should finish a sign-in: pick **Watchlist**.
+
 ## Navigation
 
 - The **navigation bar** at the bottom holds the destinations: **TV Shows**, **Movies**, **Anime**, **Discover** and **Calendar**. Change their order (drag a row by its handle) and turn them on or off in *Settings › Bottom bar*.
@@ -91,7 +93,7 @@ TV shows, anime and movies each have their own Android notification channel, so 
 ## Appearance and language
 
 - *Settings › Appearance*: System / Light / Dark theme and, on Android 12+, **Dynamic color** (wallpaper colours instead of the app's violet; off by default).
-- Language follows the phone, or Android 13+'s per-app setting: Settings › System › Languages › App languages › Tracker for Simkl. English, Dutch, French, German, Spanish and Italian.
+- Language follows the phone, or Android 13+'s per-app setting: Settings › System › Languages › App languages › Watchlist. English, Dutch, French, German, Spanish and Italian.
 
 ## Common problems
 

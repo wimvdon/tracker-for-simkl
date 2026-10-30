@@ -33,8 +33,8 @@ tracker-for-simkl/
     └── src/
         ├── main/
         │   ├── AndroidManifest.xml   Permissions, simkl.com links, OAuth redirect, WorkManager init
-        │   ├── kotlin/io/github/impca201/trackerforsimkl/
-        │   │   ├── TrackerApp.kt              Application: object graph, image loader, WorkManager config
+        │   ├── kotlin/to/wim/watchlist/
+        │   │   ├── WatchlistApp.kt            Application: object graph, image loader, WorkManager config
         │   │   ├── CrashReporter.kt           Local crash report shown on next start
         │   │   ├── auth/AuthRedirectActivity.kt   Receives trackerforsimkl://oauth
         │   │   ├── data/
@@ -71,7 +71,7 @@ tracker-for-simkl/
         │       ├── values/          English strings (split by area), colours, themes
         │       ├── values-{nl,fr,de,es,it}/   Translations
         │       └── xml/                        Backup rules: only the settings file
-        └── test/kotlin/io/github/impca201/trackerforsimkl/
+        └── test/kotlin/to/wim/watchlist/
             ├── data/ParsersTest.kt   Parsers, shelves, continue-from-latest
             └── ui/LaunchTest.kt      Starts MainActivity under Robolectric
 ```

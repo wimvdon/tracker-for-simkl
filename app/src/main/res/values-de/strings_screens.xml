@@ -68,7 +68,7 @@
     <string name="screens_login_denied">Die Anmeldung wurde auf SIMKL abgebrochen (%1$s).</string>
     <string name="screens_login_redirect_invalid">Dieser Anmeldelink gehört nicht zur Anmeldung dieser App. Tippe erneut auf Mit SIMKL anmelden.</string>
     <string name="screens_login_failed">Anmeldung fehlgeschlagen: %1$s</string>
-    <string name="screens_login_note">Du meldest dich auf simkl.com an; diese App sieht dein Passwort nie. Tracker for Simkl ist nicht mit Simkl verbunden.</string>
+    <string name="screens_login_note">Du meldest dich auf simkl.com an; diese App sieht dein Passwort nie. Watchlist ist nicht mit Simkl verbunden.</string>
     <string name="screens_settings_tmdb">Besetzung und Team</string>
     <string name="screens_settings_tmdb_key">TMDB Read Access Token</string>
     <string name="screens_settings_tmdb_key_on">Hinzugefügt. Detailseiten zeigen Besetzung und Team, und du kannst Personen suchen.</string>
@@ -87,10 +87,10 @@
     <string name="screens_tmdb_not_token">Das ist kein API Read Access Token. Das ist der lange Code, der mit eyJ beginnt.</string>
     <string name="screens_settings_credits">Quellen</string>
     <string name="screens_credit_simkl_title">SIMKL</string>
-    <string name="screens_credit_simkl_text">Deine Listen, Bewertungen und dein Verlauf sowie alle Titel kommen von SIMKL. Tracker for Simkl ist eine inoffizielle App ohne Verbindung zu SIMKL.</string>
+    <string name="screens_credit_simkl_text">Deine Listen, Bewertungen und dein Verlauf sowie alle Titel kommen von SIMKL. Watchlist ist eine inoffizielle App ohne Verbindung zu SIMKL.</string>
     <string name="screens_credit_tmdb_title">TMDB</string>
     <string name="screens_credit_tmdb_text">Besetzung, Team und Personen kommen von TMDB, mit deinem eigenen Token.</string>
-    <string name="screens_settings_version">Tracker for Simkl %1$s</string>
+    <string name="screens_settings_version">Watchlist %1$s</string>
     <string name="screens_simkl_logo">SIMKL</string>
     <string name="screens_search_people">Personen</string>
     <string name="screens_settings_notifications_section">Benachrichtigungen</string>

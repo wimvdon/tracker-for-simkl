@@ -2,14 +2,14 @@
 
 ## Overview
 
-Tracker for Simkl is a single-module, single-activity Android app. Compose renders state; repositories own the state, the disk cache and every SIMKL call. There is no server of its own: the app talks directly to SIMKL's API and static data files.
+Watchlist is a single-module, single-activity Android app. Compose renders state; repositories own the state, the disk cache and every SIMKL call. There is no server of its own: the app talks directly to SIMKL's API and static data files.
 
 ```
  MainActivity ─ AppRoot ─ Navigator (stack of Route)
                    │            ├─ MainScreen (bottom bar: TV Shows, Movies, Anime, Discover, Calendar)
                    │            ├─ DetailScreen, SearchScreen, ProfileScreen (› RatingsScreen › RatedGridScreen), SettingsScreen
                    ▼
- TrackerApp (Application, one instance)
+ WatchlistApp (Application, one instance)
    ├─ OkHttpClient (50 MB HTTP cache) ─── also used by Coil for images (wsrv.nl)
    ├─ SettingsStore   DataStore: tokens, sign-in state, settings, notified and remembered episodes
    ├─ SimklApi        api.simkl.com + data.simkl.in, headers, token refresh
@@ -24,7 +24,7 @@ Tracker for Simkl is a single-module, single-activity Android app. Compose rende
 
 | Component | Responsibility |
 |---|---|
-| `TrackerApp` | Creates the shared HTTP client, API client and repositories lazily; provides Coil's image loader and WorkManager's configuration; installs `CrashReporter` before library start-up providers run. |
+| `WatchlistApp` | Creates the shared HTTP client, API client and repositories lazily; provides Coil's image loader and WorkManager's configuration; installs `CrashReporter` before library start-up providers run. |
 | `SimklApi` | The only class that builds HTTP requests to SIMKL. Adds `simkl-api-key`, `client_id`, `app-name`, `app-version` and the bearer token; leaves data.simkl.in URLs untouched (SIMKL asks for no query strings there). Refreshes AUTH V2 tokens 12 hours before expiry under a mutex. |
 | `TmdbApi`, `TmdbParsers` | Read-only TMDB client with the user's own key (v3 key as `api_key`, v4 token as bearer), and the mapping of credits to `Credits` (cast in billing order, crew limited to key jobs, one entry per person). See `docs/api.md`. |
 | `Parsers` | Maps `JsonElement` responses to the app's models by hand. Pure Kotlin, unit tested against SIMKL's documented examples. |

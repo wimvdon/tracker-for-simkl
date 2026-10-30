@@ -29,7 +29,7 @@ Reports: `app/build/reports/tests/testDebugUnitTest/index.html` and `app/build/r
 | Debug and release builds (with the `SIMKL_CLIENT_ID` variable) | Compile errors, R8 shrinking problems |
 | R8 keep check | That R8 kept WorkManager's database and worker constructors (`build/outputs/r8-seeds.txt`); without them turning on notifications crashes |
 
-The debug APK (`tracker-for-simkl-<version>-debug.apk`) and the test and lint reports are attached to every run. The release workflow runs the unit tests and lint again before building a signed APK.
+The debug APK (`watchlist-<version>-debug.apk`) and the test and lint reports are attached to every run. The release workflow runs the unit tests and lint again before building a signed APK.
 
 ## What is covered
 
@@ -57,20 +57,20 @@ The debug APK (`tracker-for-simkl-<version>-debug.apk`) and the test and lint re
 
 ## Manual checks on the phone
 
-For each pull request (before or after it is merged: merging only waits for green CI), install the debug APK from the CI run ("Tracker for Simkl Dev", next to the released app) and follow the steps in the pull request. Before a release, also check:
+For each pull request (before or after it is merged: merging only waits for green CI), install the debug APK from the CI run ("Watchlist Dev", next to the released app) and follow the steps in the pull request. Before a release, also check:
 
 - [ ] Sign in, pull to refresh, mark an episode watched in Up next, rate a title.
 - [ ] Dark mode on and off: text stays readable.
-- [ ] Language: Settings › System › Languages › App languages › Tracker for Simkl › Nederlands. All text is translated.
+- [ ] Language: Settings › System › Languages › App languages › Watchlist › Nederlands. All text is translated.
 - [ ] Largest font size: nothing is cut off.
 - [ ] After a release: install the release APK over the previous one. It updates without signing out.
 
 ## Reading a crash from a release build
 
-Release builds are minified. Download `tracker-for-simkl-<version>-mapping.txt` from the matching GitHub Release and decode the trace with R8's `retrace` (Android SDK `cmdline-tools/latest/bin/retrace`):
+Release builds are minified. Download `watchlist-<version>-mapping.txt` from the matching GitHub Release and decode the trace with R8's `retrace` (Android SDK `cmdline-tools/latest/bin/retrace`):
 
 ```bash
-retrace tracker-for-simkl-<version>-mapping.txt stacktrace.txt
+retrace watchlist-<version>-mapping.txt stacktrace.txt
 ```
 
 The in-app crash report (Copy crash report) gives you the stack trace and the version.

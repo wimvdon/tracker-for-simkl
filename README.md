@@ -1,4 +1,4 @@
-# Tracker for Simkl
+# Watchlist for Simkl
 
 ## 📚 Documentation
 | | |
@@ -27,7 +27,7 @@ Source available for reference; all rights reserved. See [LICENSE](LICENSE).
 
 ## Quick start
 
-Install the latest `tracker-for-simkl-x.y.z.apk` from [Releases](https://github.com/wimvdon/tracker-for-simkl/releases), open it and tap **Sign in with SIMKL**.
+Install the latest `watchlist-x.y.z.apk` from [Releases](https://github.com/wimvdon/tracker-for-simkl/releases), open it and tap **Sign in with SIMKL**.
 
 To build and install a debug build from source on a connected phone:
 
@@ -60,7 +60,7 @@ Full steps: [docs/installation.md](docs/installation.md).
 
 ## Architecture (summary)
 
-A single-activity Compose app. `TrackerApp` owns one OkHttp client, the `SimklApi` client and three repositories. `LibraryRepository` keeps the whole library in memory as a `StateFlow`, persisted as JSON files, and syncs incrementally from `/sync/activities`; screens render that state and send changes back through it. A small stack-based `Navigator` replaces a navigation library. Details: [docs/architecture.md](docs/architecture.md).
+A single-activity Compose app. `WatchlistApp` owns one OkHttp client, the `SimklApi` client and three repositories. `LibraryRepository` keeps the whole library in memory as a `StateFlow`, persisted as JSON files, and syncs incrementally from `/sync/activities`; screens render that state and send changes back through it. A small stack-based `Navigator` replaces a navigation library. Details: [docs/architecture.md](docs/architecture.md).
 
 ## Project structure
 
@@ -69,8 +69,8 @@ tracker-for-simkl/
 ├── .github/            CI and release workflows, PR template, Dependabot
 ├── CLAUDE.md           Rules for Claude Code sessions
 ├── scripts/            Release helpers (versioning, keystore secret) with tests
-├── app/src/main/kotlin/io/github/impca201/trackerforsimkl/
-│   ├── TrackerApp.kt   Application: HTTP client, API, repositories, image loader
+├── app/src/main/kotlin/to/wim/watchlist/
+│   ├── WatchlistApp.kt Application: HTTP client, API, repositories, image loader
 │   ├── auth/           Sign-in redirect activity
 │   ├── data/           Repositories, settings, API client, parsers, models
 │   ├── work/           New-episode notification worker

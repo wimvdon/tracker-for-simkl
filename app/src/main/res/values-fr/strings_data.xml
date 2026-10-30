@@ -2,7 +2,7 @@
 <resources>
     <string name="data_error_login_expired">Votre session SIMKL a expiré. Déconnectez-vous puis reconnectez-vous.</string>
     <string name="data_notif_new_episode">Nouvel épisode disponible</string>
-    <string name="data_crash_title">Tracker for Simkl a planté la dernière fois</string>
+    <string name="data_crash_title">Watchlist a planté la dernière fois</string>
     <string name="data_crash_copy">Copier le rapport de plantage</string>
     <string name="data_crash_continue">Continuer</string>
     <string name="data_notif_episode_aired">%1$s est disponible</string>

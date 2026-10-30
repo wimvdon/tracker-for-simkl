@@ -7,10 +7,11 @@ plugins {
 }
 
 // ---------------------------------------------------------------------------
-// App identity: the ONE place to change the package / application ID. It is already
-// released, so it must never change (phones would treat it as a different app).
+// App identity: the ONE place to change the package / application ID. It changed once, from
+// io.github.impca201.trackerforsimkl, before the Google Play launch (docs/decisions.md). It must
+// never change again (phones and Google Play would treat it as a different app).
 // ---------------------------------------------------------------------------
-val appId = "io.github.impca201.trackerforsimkl"
+val appId = "to.wim.watchlist"
 
 // ---------------------------------------------------------------------------
 // Versioning
@@ -100,7 +101,7 @@ android {
     buildTypes {
         debug {
             // Lets a pull request's debug APK be installed next to the released app, as
-            // "Tracker for Simkl Dev" (src/debug/res). Both apps receive trackerforsimkl://oauth,
+            // "Watchlist Dev" (src/debug/res). Both apps receive trackerforsimkl://oauth,
             // so Android asks which one finishes a sign-in. See docs/decisions.md.
             applicationIdSuffix = ".debug"
         }

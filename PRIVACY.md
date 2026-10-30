@@ -2,7 +2,7 @@
 
 _Last updated: 2026-10-22_
 
-Tracker for Simkl is an unofficial client for [SIMKL](https://simkl.com). It has no analytics, advertising or third-party crash reporting.
+Watchlist is an unofficial client for [SIMKL](https://simkl.com). It has no analytics, advertising or third-party crash reporting.
 
 ## What the app sends, and to whom
 

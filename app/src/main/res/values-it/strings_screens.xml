@@ -69,7 +69,7 @@
     <string name="screens_login_denied">L\'accesso è stato annullato su SIMKL (%1$s).</string>
     <string name="screens_login_redirect_invalid">Questo link di accesso non corrisponde a quello avviato dall\'app. Tocca di nuovo Accedi con SIMKL.</string>
     <string name="screens_login_failed">Accesso non riuscito: %1$s</string>
-    <string name="screens_login_note">Accedi su simkl.com; questa app non vede mai la tua password. Tracker for Simkl non è affiliato a Simkl.</string>
+    <string name="screens_login_note">Accedi su simkl.com; questa app non vede mai la tua password. Watchlist non è affiliato a Simkl.</string>
     <string name="screens_settings_tmdb">Cast e troupe</string>
     <string name="screens_settings_tmdb_key">Read Access Token di TMDB</string>
     <string name="screens_settings_tmdb_key_on">Aggiunto. Le schede mostrano cast e troupe, e puoi cercare persone.</string>
@@ -88,10 +88,10 @@
     <string name="screens_tmdb_not_token">Questo non è un API Read Access Token: è il codice lungo che inizia con eyJ.</string>
     <string name="screens_settings_credits">Fonti</string>
     <string name="screens_credit_simkl_title">SIMKL</string>
-    <string name="screens_credit_simkl_text">Le tue liste, i voti e la cronologia, e tutti i titoli, vengono da SIMKL. Tracker for Simkl è un\'app non ufficiale, non affiliata a SIMKL.</string>
+    <string name="screens_credit_simkl_text">Le tue liste, i voti e la cronologia, e tutti i titoli, vengono da SIMKL. Watchlist è un\'app non ufficiale, non affiliata a SIMKL.</string>
     <string name="screens_credit_tmdb_title">TMDB</string>
     <string name="screens_credit_tmdb_text">Cast, troupe e persone vengono da TMDB, con il tuo token.</string>
-    <string name="screens_settings_version">Tracker for Simkl %1$s</string>
+    <string name="screens_settings_version">Watchlist %1$s</string>
     <string name="screens_simkl_logo">SIMKL</string>
     <string name="screens_search_people">Persone</string>
     <string name="screens_settings_notifications_section">Notifiche</string>

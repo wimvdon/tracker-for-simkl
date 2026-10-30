@@ -1,6 +1,6 @@
 # Rules for Claude Code sessions in this repository
 
-Tracker for Simkl, an Android app built from the same rules as the
+Watchlist (store listing: "Watchlist for Simkl"), an Android app built from the same rules as the
 `android-app` template (a private repository). The owner is **not a developer
 and does not review code**. CI, tests, lint and these rules are the safety net. Follow them every
 time.
@@ -20,7 +20,7 @@ time.
    what changed and why, in words a non-developer understands, and **exactly what to tap on the
    phone to test it** (step by step, with what they should see). The owner tests by installing
    the debug APK from the pull request's CI run (Checks → CI → Artifacts). It installs as a
-   separate app, "Tracker for Simkl Dev" (`io.github.impca201.trackerforsimkl.debug`), next to the
+   separate app, "Watchlist Dev" (`to.wim.watchlist.debug`), next to the
    released one.
 4. **Testing on the phone does not block merging.** The owner doesn't review code, so green CI is
    what a pull request needs to be merged. The owner tries the change afterwards with the test steps

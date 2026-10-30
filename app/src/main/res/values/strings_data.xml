@@ -2,7 +2,7 @@
 <resources>
     <string name="data_error_login_expired">Your SIMKL sign-in expired. Sign out and sign in again.</string>
     <string name="data_notif_new_episode">New episode available</string>
-    <string name="data_crash_title">Tracker for Simkl crashed last time</string>
+    <string name="data_crash_title">Watchlist crashed last time</string>
     <string name="data_crash_copy">Copy crash report</string>
     <string name="data_crash_continue">Continue</string>
     <string name="data_notif_episode_aired">%1$s is out</string>
