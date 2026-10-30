@@ -230,3 +230,5 @@ app apart from their package (and `R` import) lines. Copy a change to the other 
   (hidden when only one is turned on), in the order set in Settings › Bottom bar (drag handles).
 - Ratings, rank and genres on a detail page are rows in the info box, not chips: they can't be
   tapped. Links to other sites are assist chips.
+- The sign-in screen shows the app icon itself (its foreground on a white rounded square, as
+  the launcher shows it), not a generic Material icon.
