@@ -88,6 +88,12 @@
     </plurals>
     <string name="detail_cast">Cast</string>
     <string name="detail_crew">Crew</string>
+    <string name="detail_tmdb_banner_title">Bekijk cast en crew</string>
+    <string name="detail_tmdb_banner_text">Voeg je eigen gratis TMDB-token toe om te zien wie hierin speelt en mensen op te zoeken.</string>
+    <string name="detail_tmdb_banner_add">Token toevoegen</string>
+    <string name="detail_tmdb_banner_not_now">Niet nu</string>
+    <string name="detail_tmdb_banner_never">Niet meer tonen</string>
+    <string name="detail_tmdb_banner_hidden">Je kunt later een token toevoegen in Instellingen › Cast en crew.</string>
     <string name="detail_job_writer">Scenario</string>
     <string name="detail_job_story">Verhaal</string>
     <string name="detail_job_novel">Boek</string>

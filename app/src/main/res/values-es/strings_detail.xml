@@ -89,6 +89,12 @@
     </plurals>
     <string name="detail_cast">Reparto</string>
     <string name="detail_crew">Equipo</string>
+    <string name="detail_tmdb_banner_title">Ver reparto y equipo</string>
+    <string name="detail_tmdb_banner_text">Añade tu propio token gratuito de TMDB para ver quién actúa y buscar personas.</string>
+    <string name="detail_tmdb_banner_add">Añadir token</string>
+    <string name="detail_tmdb_banner_not_now">Ahora no</string>
+    <string name="detail_tmdb_banner_never">No volver a mostrar</string>
+    <string name="detail_tmdb_banner_hidden">Puedes añadir un token más tarde en Ajustes › Reparto y equipo.</string>
     <string name="detail_job_writer">Guion</string>
     <string name="detail_job_story">Historia</string>
     <string name="detail_job_novel">Libro</string>

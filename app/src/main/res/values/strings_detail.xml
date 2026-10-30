@@ -88,6 +88,12 @@
     </plurals>
     <string name="detail_cast">Cast</string>
     <string name="detail_crew">Crew</string>
+    <string name="detail_tmdb_banner_title">See cast and crew</string>
+    <string name="detail_tmdb_banner_text">Add your own free TMDB token to see who plays in this and look up people.</string>
+    <string name="detail_tmdb_banner_add">Add token</string>
+    <string name="detail_tmdb_banner_not_now">Not now</string>
+    <string name="detail_tmdb_banner_never">Don\'t show again</string>
+    <string name="detail_tmdb_banner_hidden">You can add a token later in Settings › Cast and crew.</string>
     <string name="detail_job_writer">Writer</string>
     <string name="detail_job_story">Story</string>
     <string name="detail_job_novel">Book</string>

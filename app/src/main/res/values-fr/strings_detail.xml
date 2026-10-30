@@ -89,6 +89,12 @@
     </plurals>
     <string name="detail_cast">Distribution</string>
     <string name="detail_crew">Équipe</string>
+    <string name="detail_tmdb_banner_title">Voir la distribution et l\'équipe</string>
+    <string name="detail_tmdb_banner_text">Ajoutez votre propre jeton TMDB gratuit pour voir qui joue dedans et rechercher des personnes.</string>
+    <string name="detail_tmdb_banner_add">Ajouter un jeton</string>
+    <string name="detail_tmdb_banner_not_now">Pas maintenant</string>
+    <string name="detail_tmdb_banner_never">Ne plus afficher</string>
+    <string name="detail_tmdb_banner_hidden">Vous pourrez ajouter un jeton plus tard dans Paramètres › Distribution et équipe.</string>
     <string name="detail_job_writer">Scénario</string>
     <string name="detail_job_story">Histoire</string>
     <string name="detail_job_novel">Livre</string>

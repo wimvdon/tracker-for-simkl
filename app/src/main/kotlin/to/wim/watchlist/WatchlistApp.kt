@@ -49,6 +49,9 @@ class WatchlistApp :
     val tmdb by lazy { TmdbApi(http) }
     val catalog by lazy { CatalogRepository(api, tmdb, episodes) }
 
+    /** "Not now" on the TMDB token card: hidden until the app restarts. */
+    val tmdbBannerHiddenForNow = MutableStateFlow(false)
+
     /** The latest sign-in redirect from simkl.com, until the login screen has handled it. */
     val authRedirect = MutableStateFlow<Uri?>(null)
 

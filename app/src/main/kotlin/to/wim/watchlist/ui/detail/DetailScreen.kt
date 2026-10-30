@@ -144,6 +144,8 @@ import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.repeatOnLifecycle
 import to.wim.watchlist.data.model.Credits
 import to.wim.watchlist.data.model.CreditsSource
+import to.wim.watchlist.data.model.TmdbBanner
+import to.wim.watchlist.ui.settings.TmdbKeyDialog
 import to.wim.watchlist.data.userMessage
 import to.wim.watchlist.data.model.Episode
 import to.wim.watchlist.data.model.EpisodeRef
@@ -255,6 +257,10 @@ fun DetailScreen(
             onDismiss = { confirmPlayback = null },
         )
     }
+
+    val bannerHiddenForNow by app.tmdbBannerHiddenForNow.collectAsState()
+    var addingToken by rememberSaveable { mutableStateOf(false) }
+    if (addingToken) TmdbKeyDialog(current = settings.tmdbKey, onDismiss = { addingToken = false })
 
     val listState = rememberLazyListState()
     val scrolled by remember { derivedStateOf { listState.firstVisibleItemIndex > 0 } }
@@ -382,6 +388,22 @@ fun DetailScreen(
                     credits?.let { c ->
                         if (c.cast.isNotEmpty()) item(key = "cast") { Box(Modifier.animateItem()) { CastRow(c.cast) } }
                         if (c.crew.isNotEmpty()) item(key = "crew") { Box(Modifier.animateItem()) { CrewRow(c.crew) } }
+                    }
+                    // Where cast and crew would be: offers to add a TMDB token.
+                    if (TmdbBanner.show(tmdbKey != null, d, bannerHiddenForNow, settings.tmdbBannerHidden)) {
+                        item(key = "tmdb-banner") {
+                            TmdbTokenBanner(
+                                onAdd = { addingToken = true },
+                                onNotNow = { app.tmdbBannerHiddenForNow.value = true },
+                                onNever = {
+                                    scope.launch {
+                                        app.settings.setTmdbBannerHidden(true)
+                                        snackbar.showSnackbar(resources.getString(R.string.detail_tmdb_banner_hidden))
+                                    }
+                                },
+                                modifier = Modifier.animateItem(),
+                            )
+                        }
                     }
                 }
                 val shownEpisodes = if (settings.hideSpecials) episodes.filterNot { it.special } else episodes
